@@ -47,13 +47,19 @@ public sealed class SimWorld
     /// <summary>Queues a command for the next step. <c>Seq</c> is assigned by the host and must increase.</summary>
     public void Enqueue(in CommandEnvelope command)
     {
-        if (_pending.Count > 0 && command.Seq <= _pending[^1].Seq)
+        if (command.Seq <= LastCommandSeq)
         {
-            throw new InvalidOperationException("Command Seq must increase monotonically.");
+            throw new InvalidOperationException($"Command Seq must increase monotonically ({command.Seq} after {LastCommandSeq}).");
         }
 
+        LastCommandSeq = command.Seq;
         _pending.Add(command);
     }
+
+    /// <summary>Highest command <c>Seq</c> ever enqueued; hosts continue numbering from here.</summary>
+    public long LastCommandSeq { get; private set; }
+
+    internal void RestoreLastCommandSeq(long seq) => LastCommandSeq = seq;
 
     /// <summary>Last issued event <c>Seq</c>; persisted so numbering continues across save/load.</summary>
     public long EventSeq => _eventSeq;

@@ -31,6 +31,15 @@ public sealed class RunSettings : CommandSettings
     [Description("Output root (default sim_runs/).")]
     public string Out { get; init; } = "sim_runs";
 
+    [CommandOption("--realtime")]
+    [Description("Run on the real-time SimRunner (10 steps/s at 1×) instead of max speed, and report the step rate.")]
+    public bool Realtime { get; init; }
+
+    [CommandOption("--seconds <N>")]
+    [Description("With --realtime: how many real seconds to run.")]
+    [DefaultValue(60)]
+    public int Seconds { get; init; } = 60;
+
     [CommandOption("--verify-determinism")]
     [Description("Run again (in-process, and with 1 thread if --threads > 1) and require identical hashes.")]
     public bool VerifyDeterminism { get; init; }
@@ -50,6 +59,7 @@ public sealed class RunCommand : Command<RunSettings>
 
         var scenario = ScenarioDef.Load(settings.Scenario);
         scenario = scenario with { Days = settings.Days ?? scenario.Days, Seed = settings.Seed ?? scenario.Seed };
+        if (settings.Realtime) { return RunRealtime(scenario, compiled.Database!, settings); }
         var runId = $"{scenario.Id.Replace("scenario.", "", StringComparison.Ordinal)}-s{scenario.Seed}-{DateTime.UtcNow:yyyyMMdd-HHmmss}";
         var dir = Path.Combine(settings.Out, runId);
         Directory.CreateDirectory(dir);
@@ -91,6 +101,30 @@ public sealed class RunCommand : Command<RunSettings>
         Console.WriteLine($"run: {scenario.Id} seed {scenario.Seed}, {scenario.Days} days, {result.Steps:N0} steps in {result.WallSeconds:F2} s; final hash {result.FinalHash:x16}");
         Console.WriteLine($"run: wrote {dir}/metrics_daily.csv, run.json, inputs.fslog");
         return verified == false ? 2 : 0;
+    }
+
+    private static int RunRealtime(ScenarioDef scenario, FeudalSim.Sim.Content.ContentDatabase content, RunSettings settings)
+    {
+        using var jobs = new JobRunner(settings.Threads);
+        var world = scenario.CreateWorld(content, jobs);
+        using var runner = new SimRunner(world);
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        var lastReport = 0L;
+        while (sw.Elapsed.TotalSeconds < settings.Seconds)
+        {
+            Thread.Sleep(1_000);
+            var steps = runner.StepsExecuted;
+            if (sw.Elapsed.TotalSeconds >= lastReport + 10)
+            {
+                lastReport = (long)sw.Elapsed.TotalSeconds;
+                Console.WriteLine($"realtime: t={sw.Elapsed.TotalSeconds:F0}s steps={steps}");
+            }
+        }
+
+        var rate = runner.StepsExecuted / sw.Elapsed.TotalSeconds;
+        var ok = Math.Abs(rate - 10.0) <= 0.2;
+        Console.WriteLine($"realtime: {runner.StepsExecuted} steps in {sw.Elapsed.TotalSeconds:F1} s = {rate:F2} steps/s (target 10.0 ± 0.2) → {(ok ? "OK" : "OUT OF RANGE")}; dilation events {runner.TimeDilationEvents}");
+        return ok ? 0 : 3;
     }
 
     private static void WriteCsv(string path, IReadOnlyList<DayMetrics> days)

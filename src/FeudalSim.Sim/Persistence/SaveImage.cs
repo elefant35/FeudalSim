@@ -20,6 +20,7 @@ public sealed class SaveHeader
     [Key(7)] public ulong StateHash { get; set; }
     [Key(8)] public long EventSeq { get; set; }
     [Key(9)] public ulong ContentHash { get; set; }
+    [Key(10)] public long LastCommandSeq { get; set; }
 }
 
 /// <summary>One blittable column: <c>RowCount × ElementSize</c> little-endian bytes.</summary>

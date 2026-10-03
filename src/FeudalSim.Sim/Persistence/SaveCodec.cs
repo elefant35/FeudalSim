@@ -53,6 +53,7 @@ public static class SaveCodec
                 StateHash = StateHasher.Hash(world),
                 EventSeq = world.EventSeq,
                 ContentHash = world.Content.Hash,
+                LastCommandSeq = world.LastCommandSeq,
             },
             IdCounters = counters,
             Tables = [people],
@@ -69,6 +70,7 @@ public static class SaveCodec
         var world = new SimWorld(h.WorldSeed, h.GameMs, h.DayLengthMinutes);
         world.Clock.Restore(h.Step, h.GameMs, h.DayLengthMinutes);
         world.RestoreEventSeq(h.EventSeq);
+        world.RestoreLastCommandSeq(h.LastCommandSeq);
         for (var k = 0; k < image.IdCounters.Length; k++) { world.Ids.Restore((EntityKind)k, image.IdCounters[k]); }
 
         var notes = new List<string>();
