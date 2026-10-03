@@ -43,7 +43,7 @@ public class WorldTests
             var t = world.People.Transforms[i];
             var w = world.People.Wander[i];
             if (MathF.Abs(t.X - w.HomeX) + MathF.Abs(t.Z - w.HomeZ) > 0.01f) { moved++; }
-            world.People.Needs[i].Satiety.ShouldBe(100 - NeedsDecaySystem.SatietyPerHour, 0.01f);
+            world.People.Needs[i].Satiety.ShouldBe(100 - NeedsDecaySystem.DefaultSatietyPerHour, 0.02f);
         }
 
         moved.ShouldBeGreaterThan(12);

@@ -11,6 +11,7 @@ public static class Program
         app.Configure(config =>
         {
             config.SetApplicationName("feudalsim");
+            config.AddCommand<RunCommand>("run").WithDescription("Run a scenario headless at max speed and write metrics.");
             config.AddBranch("content", content =>
             {
                 content.SetDescription("Validate and compile game content (YAML).");

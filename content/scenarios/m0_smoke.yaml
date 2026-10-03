@@ -1,0 +1,7 @@
+# M0 smoke scenario (20 §20 step 8): 24 settlers from Landfall, 3 game days, toy systems only.
+id: scenario.m0_smoke
+seed: 42
+start: Y0 Spring 1 05:30
+days: 3
+settlers: 24
+day_length_minutes: 30

@@ -52,6 +52,7 @@ public static class SaveCodec
                 DayLengthMinutes = world.Clock.DayLengthMinutes,
                 StateHash = StateHasher.Hash(world),
                 EventSeq = world.EventSeq,
+                ContentHash = world.Content.Hash,
             },
             IdCounters = counters,
             Tables = [people],

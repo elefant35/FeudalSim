@@ -29,6 +29,9 @@ public sealed class SimWorld
     public EntityIdAllocator Ids { get; } = new();
     public PersonTable People { get; } = new();
 
+    /// <summary>Compiled content (definitions and tuning). Its hash is recorded in saves and run outputs.</summary>
+    public Content.ContentDatabase Content { get; set; } = FeudalSim.Sim.Content.ContentDatabase.Empty;
+
     /// <summary>Scheduler for parallel phases; Hosting swaps in a threaded one. Must not change results.</summary>
     public IJobScheduler Jobs { get; set; } = SerialJobScheduler.Instance;
 
