@@ -58,8 +58,8 @@ Source of truth for the steps: [20 §20](../tech/20-architecture.md#20-m0-founda
 | M0-11 | Godot project boots `SimHost` with a debug overlay | [!] | Needs Godot (Blockers) |
 | M0-12 | Test terrain spike (Terrain3D vs ArrayMesh) — feeds spike S4 | [!] | Needs Godot (Blockers) |
 | M0-13 | Sim-driven capsule NPC with LOD0 ↔ LOD1 hysteresis; replay of a client session headless | [!] | Needs Godot (Blockers) |
-| M0-14 | CI: `ci.yml` (ubuntu + macOS) and `godot.yml` | [ ] | |
-| M0-15 | ADRs 0005–0010 written (data layout, time model, embodiment, saves, terrain, .NET version); `CLAUDE.md` commands filled in | [ ] | |
+| M0-14 | CI: `ci.yml` (ubuntu + macOS) and `godot.yml` | [~] | `ci.yml` **green on main** (run 37162967313 @ eb61a11): ubuntu + macOS build (warnings as errors), tests, content validate, schemas fresh, smoke run 1 vs 4 threads. Injected unused variable → CS0219 fails the build. **`godot.yml` blocked on Godot** |
+| M0-15 | ADRs 0005–0010 written (data layout, time model, embodiment, saves, terrain, .NET version); `CLAUDE.md` commands filled in | [~] | ADRs 0005–0008 and 0010 Accepted with M0 evidence; **0009 (terrain) Proposed, pending the M0-12 spike** (needs Godot). `CLAUDE.md` Commands filled in. Remaining: terrain spike results into ADR-0009 and 20 v0.2 |
 
 ### Art & audio pipeline (32 §16)
 

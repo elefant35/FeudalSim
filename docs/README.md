@@ -76,7 +76,13 @@ whichever design or technical documents cover the system you're working on.
 | [0002](adr/0002-headless-deterministic-sim-core.md) | A headless, deterministic simulation core |
 | [0003](adr/0003-language-decides-systems-resolve.md) | Language decides, systems resolve: the LLM boundary |
 | [0004](adr/0004-single-player-scope.md) | Single-player only for v1 |
-| [template](adr/0000-template.md) | Copy this for new ADRs. [20-architecture](tech/20-architecture.md) proposes ADR-0005…0010 for M0. |
+| [0005](adr/0005-custom-domain-tables.md) | Custom id-ordered domain tables, not an ECS library |
+| [0006](adr/0006-time-model.md) | Time model: 100 ms step, two clocks, eleven day lengths |
+| [0007](adr/0007-embodiment-boundary.md) | The embodiment boundary: the sim owns intent, Godot moves LOD0 bodies |
+| [0008](adr/0008-save-format.md) | Saves: column-tolerant MessagePack + LZ4 snapshots with an input log |
+| [0009](adr/0009-terrain.md) | Terrain3D with a chunked-mesh fallback (proposed; pending spike) |
+| [0010](adr/0010-dotnet-version.md) | .NET: net8.0 now, .NET 10 SDK next, net10 runtime when Godot allows |
+| [template](adr/0000-template.md) | Copy this for new ADRs. |
 
 ## Vision traceability
 

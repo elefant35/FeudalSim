@@ -56,4 +56,20 @@ in `docs/` is the basis for all development.
 
 ## Commands
 
-To be filled in at M0 (build, test, headless sim run, content validation, launching the Godot client).
+Run from the repo root. SDK pinned by `global.json` (8.0.401; see ADR-0010 before upgrading packages —
+analyzers that need Roslyn > 4.11 break this SDK).
+
+```bash
+dotnet build                                   # 0 warnings required (TreatWarningsAsErrors)
+dotnet test                                    # all suites; Integration includes determinism + replay
+dotnet run --project src/FeudalSim.Headless -- content validate          # YAML → schema → compile
+dotnet run --project src/FeudalSim.Headless -- content schemas [--check] # regenerate / verify JSON Schemas
+dotnet run --project src/FeudalSim.Headless -- run --scenario content/scenarios/m0_smoke.yaml --verify-determinism [--threads 4]
+dotnet run --project src/FeudalSim.Headless -- run --realtime --seconds 60   # SimRunner at 10 steps/s
+dotnet run --project src/FeudalSim.Headless -- ai ping                   # one chat completion (key from .env, never printed)
+dotnet run --project src/FeudalSim.Headless -- ai decide                 # one fast-decider question (option probabilities)
+dotnet run --project tests/FeudalSim.Benchmarks -c Release -- --filter '*'
+```
+
+Headless runs write `sim_runs/<id>/` (gitignored). CI (`.github/workflows/ci.yml`) runs build, tests,
+content checks and the smoke run with `LLM_MODE=template`. Godot commands are added at M0-11.
