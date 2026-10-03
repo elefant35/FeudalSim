@@ -1,0 +1,59 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: build & test (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      DOTNET_NOLOGO: "1"
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+      LLM_MODE: template          # CI never calls a model: the policy decides, templates speak
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore FeudalSim.sln
+
+      - name: Build (warnings are errors)
+        run: dotnet build FeudalSim.sln --no-restore -c Release
+
+      - name: Test
+        run: dotnet test FeudalSim.sln --no-build -c Release --logger "trx;LogFileName=results.trx"
+
+      - name: Content — validate
+        run: dotnet run --project src/FeudalSim.Headless --no-build -c Release -- content validate
+
+      - name: Content — schemas are fresh
+        run: dotnet run --project src/FeudalSim.Headless --no-build -c Release -- content schemas --check
+
+      - name: Headless smoke run (determinism, 1 vs 4 threads)
+        run: dotnet run --project src/FeudalSim.Headless --no-build -c Release -- run --scenario content/scenarios/m0_smoke.yaml --threads 4 --verify-determinism
+
+      - name: Upload test results and smoke run
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-${{ matrix.os }}
+          path: |
+            tests/**/TestResults/*.trx
+            sim_runs/
+          if-no-files-found: ignore
