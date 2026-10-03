@@ -1,0 +1,133 @@
+using System.Reflection;
+using System.Runtime.InteropServices;
+using FeudalSim.Hosting;
+using FeudalSim.Sim;
+using FeudalSim.Sim.Commands;
+using FeudalSim.Sim.Persistence;
+using FeudalSim.Sim.Systems;
+using FeudalSim.Sim.World;
+
+namespace FeudalSim.Integration.Tests;
+
+/// <summary>M0-06 (20 §20 step 6): persistence v0.</summary>
+public sealed class PersistenceTests : IDisposable
+{
+    private readonly string _dir = Path.Combine(Path.GetTempPath(), "feudalsim-tests", Guid.NewGuid().ToString("N"));
+
+    private static SimWorld Configure(SimWorld world) => world.AddSystem(new WanderSystem()).AddSystem(new NeedsDecaySystem());
+
+    private static SimWorld NewCamp(ulong seed)
+    {
+        var world = Configure(new SimWorld(seed));
+        for (var i = 0; i < 24; i++)
+        {
+            world.Enqueue(new CommandEnvelope(i + 1, 0, CommandSource.Scenario, new SpawnPerson($"Settler {i + 1}", i % 6 * 4f, i / 6 * -4f)));
+        }
+
+        return world;
+    }
+
+    private static void Run(SimWorld world, int steps)
+    {
+        for (var i = 0; i < steps; i++) { world.Step(); }
+    }
+
+    [Fact]
+    public void Save_and_load_mid_run_matches_a_straight_run()
+    {
+        var straight = NewCamp(42);
+        Run(straight, 10_000);
+
+        var first = NewCamp(42);
+        Run(first, 5_000);
+        var path = Path.Combine(_dir, "slots", "quick", "snapshot.fsnap");
+        SaveFiles.WriteSnapshotAtomic(path, SaveCodec.Capture(first));
+        File.Exists(path + ".tmp").ShouldBeFalse();
+
+        var image = SaveFiles.ReadSnapshot(path);
+        image.Header.StateHash.ShouldBe(StateHasher.Hash(first));
+        var resumed = Configure(SaveCodec.Restore(image, out var warnings));
+        warnings.ShouldBeEmpty();
+        StateHasher.Hash(resumed).ShouldBe(StateHasher.Hash(first));
+        Run(resumed, 5_000);
+
+        StateHasher.Hash(resumed).ShouldBe(StateHasher.Hash(straight));
+        resumed.EventSeq.ShouldBe(straight.EventSeq);
+    }
+
+    [Fact]
+    public void A_missing_column_falls_back_to_its_default()
+    {
+        var world = NewCamp(42);
+        Run(world, 2_000);
+        var image = SaveCodec.Capture(world);
+        var people = image.Tables.Single(t => t.Table == SaveCodec.PeopleTable);
+        people.Columns.RemoveAll(c => c.Name == "needs");
+        people.Columns.Add(new ColumnBlock { Name = "from_the_future", LayoutVersion = 1, ElementSize = 4, Data = new byte[people.RowCount * 4] });
+
+        var restored = SaveCodec.Restore(image, out var warnings);
+
+        restored.People.Count.ShouldBe(24);
+        restored.People.Needs.ToArray().ShouldAllBe(n => n.Satiety == 100 && n.Hydration == 100);
+        restored.People.Transforms.ToArray().ShouldBe(world.People.Transforms.ToArray());
+        warnings.ShouldContain(w => w.Contains("Missing column people.needs"));
+        warnings.ShouldContain(w => w.Contains("Dropped unknown column people.from_the_future"));
+    }
+
+    [Fact]
+    public void A_torn_log_tail_is_recovered()
+    {
+        var path = Path.Combine(_dir, "inputs.fslog");
+        using (var log = InputLogFile.OpenOrCreate(path))
+        {
+            for (var i = 1; i <= 10; i++) { log.Append(new CommandEnvelope(i, i, CommandSource.Dev, new SetDayLength(30))); }
+        }
+
+        var intact = new FileInfo(path).Length;
+        using (var f = new FileStream(path, FileMode.Open)) { f.SetLength(intact - 3); }   // crash mid-record
+
+        using (var reopened = InputLogFile.OpenOrCreate(path))
+        {
+            reopened.Existing.Count.ShouldBe(9);
+            reopened.TruncatedBytes.ShouldBeGreaterThan(0);
+            reopened.Append(new CommandEnvelope(10, 10, CommandSource.Dev, new SpawnPerson("Late", 1, 2)));
+        }
+
+        var all = InputLogFile.ReadAll(path);
+        all.Count.ShouldBe(10);
+        all[^1].Payload.ShouldBe(new SpawnPerson("Late", 1, 2));
+    }
+
+    [Fact]
+    public void Persisted_struct_layouts_match_their_layout_versions()
+    {
+        // If this fails, a persisted struct changed: bump its LayoutVersion in SaveCodec.PeopleColumns
+        // (and register a column migration once saves must stay compatible, 20 §9.5), then update here.
+        var expected = new Dictionary<string, (int Version, string Fingerprint)>
+        {
+            ["core"] = (1, "BirthGameMinute:Int64@0|Sex:Byte@8|LifeStage:Byte@9|Flags:UInt32@12"),
+            ["transform"] = (1, "X:Single@0|Y:Single@4|Z:Single@8|Yaw:Single@12"),
+            ["needs"] = (1, "Satiety:Single@0|Hydration:Single@4|Energy:Single@8|Warmth:Single@12|Social:Single@16|Comfort:Single@20|Safety:Single@24|Purpose:Single@28|Status:Single@32"),
+            ["lod"] = (1, "Tier:LodTier@0|LastUpdateGameMs:Int64@8"),
+            ["wander"] = (1, "HomeX:Single@0|HomeZ:Single@4|TargetX:Single@8|TargetZ:Single@12|PauseUntilStep:Int64@16|HasTarget:Boolean@24"),
+        };
+        var types = new Dictionary<string, Type>
+        {
+            ["core"] = typeof(PersonCore), ["transform"] = typeof(Transform), ["needs"] = typeof(Needs),
+            ["lod"] = typeof(LodState), ["wander"] = typeof(WanderState),
+        };
+
+        foreach (var (name, type) in types)
+        {
+            var spec = SaveCodec.PeopleColumns.Single(c => c.Name == name);
+            var fingerprint = string.Join("|", type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .Select(f => $"{f.Name}:{f.FieldType.Name}@{Marshal.OffsetOf(type, f.Name)}"));
+            (spec.LayoutVersion, fingerprint).ShouldBe(expected[name], $"column '{name}'");
+        }
+    }
+
+    public void Dispose()
+    {
+        if (Directory.Exists(_dir)) { Directory.Delete(_dir, recursive: true); }
+    }
+}

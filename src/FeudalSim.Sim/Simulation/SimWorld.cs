@@ -52,6 +52,11 @@ public sealed class SimWorld
         _pending.Add(command);
     }
 
+    /// <summary>Last issued event <c>Seq</c>; persisted so numbering continues across save/load.</summary>
+    public long EventSeq => _eventSeq;
+
+    internal void RestoreEventSeq(long seq) => _eventSeq = seq;
+
     public void Emit(Salience salience, EntityId primary, DomainEvent payload)
         => _events.Add(new EventEnvelope(++_eventSeq, Clock.Step, Clock.GameMinute, salience, primary, payload));
 

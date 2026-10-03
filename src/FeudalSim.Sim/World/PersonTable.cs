@@ -46,6 +46,23 @@ public sealed class PersonTable
         return i;
     }
 
+    /// <summary>Replaces all rows with the given ids and names (load path); other columns are then filled by the caller.</summary>
+    internal void ResetRows(EntityId[] ids, string[] names)
+    {
+        if (ids.Length != names.Length) { throw new ArgumentException("ids and names differ in length."); }
+        for (var i = 1; i < ids.Length; i++)
+        {
+            if (ids[i].CompareTo(ids[i - 1]) <= 0) { throw new InvalidDataException("Saved ids are not in ascending order."); }
+        }
+
+        Count = 0;
+        EnsureCapacity(ids.Length);
+        Array.Clear(_core); Array.Clear(_transform); Array.Clear(_needs); Array.Clear(_lod); Array.Clear(_wander);
+        ids.CopyTo(_ids, 0);
+        names.CopyTo(_names, 0);
+        Count = ids.Length;
+    }
+
     /// <summary>Row index of an id, or −1. Binary search over the id-ordered column.</summary>
     public int IndexOf(EntityId id) => Math.Max(-1, Array.BinarySearch(_ids, 0, Count, id));
 

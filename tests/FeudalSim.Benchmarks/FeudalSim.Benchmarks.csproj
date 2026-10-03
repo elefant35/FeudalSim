@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <Optimize>true</Optimize>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FeudalSim.Hosting\FeudalSim.Hosting.csproj" />
+    <PackageReference Include="BenchmarkDotNet" />
+    <PackageReference Include="MemoryPack" />
+  </ItemGroup>
+</Project>
