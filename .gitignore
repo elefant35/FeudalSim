@@ -1,0 +1,59 @@
+# ---- OS / editor junk ----
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vs/
+*.user
+*.suo
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+
+# ---- Secrets (OpenRouter / TypeSafe keys live here; never commit) ----
+.env
+.env.*
+!.env.example
+secrets/
+*.pem
+*.key
+
+# ---- Godot 4 ----
+.godot/
+.import/
+export/
+export_presets.cfg
+*.translation
+# Note: in Godot 4, *.import files next to assets SHOULD be committed.
+mono_crash.*.json
+
+# ---- .NET / C# ----
+bin/
+obj/
+*.nupkg
+TestResults/
+*.trx
+coverage*/
+.dotnet/
+artifacts/
+
+# ---- Game runtime output ----
+saves/
+logs/
+*.log
+crash_dumps/
+sim_runs/
+llm_transcripts/
+
+# ---- Local LLM model weights (download separately; far too large for git) ----
+models/
+*.gguf
+*.safetensors
+*.onnx
+*.bin
+
+# ---- Builds ----
+build/
+dist/
