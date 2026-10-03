@@ -1,0 +1,20 @@
+T:System.Random;Use FeudalSim.Sim.Core.SimRandom (keyed, deterministic)
+P:System.DateTime.Now;Wall-clock time is non-deterministic; use SimClock
+P:System.DateTime.UtcNow;Wall-clock time is non-deterministic; use SimClock
+P:System.DateTime.Today;Wall-clock time is non-deterministic; use SimClock
+P:System.DateTimeOffset.Now;Wall-clock time is non-deterministic; use SimClock
+P:System.DateTimeOffset.UtcNow;Wall-clock time is non-deterministic; use SimClock
+M:System.Guid.NewGuid;Non-deterministic; derive ids from the EntityId allocator
+M:System.String.GetHashCode;Randomized per process; use StableHash (XxHash)
+T:System.HashCode;Randomized per process; use StableHash (XxHash)
+P:System.Environment.TickCount;Wall-clock time is non-deterministic
+P:System.Environment.TickCount64;Wall-clock time is non-deterministic
+T:System.Diagnostics.Stopwatch;Timing belongs in Hosting, not the Sim
+T:System.Threading.Tasks.Parallel;Use the Hosting JobRunner with fixed chunks
+M:System.Threading.Tasks.Task.Run(System.Action);Use the Hosting JobRunner
+M:System.Threading.Tasks.Task.Run``1(System.Func{``0});Use the Hosting JobRunner
+T:System.Threading.Thread;Threading belongs in Hosting, not the Sim
+T:System.IO.File;No IO in the Sim; Hosting writes saves and logs
+T:System.IO.Directory;No IO in the Sim; Hosting writes saves and logs
+T:System.IO.FileStream;No IO in the Sim; Hosting writes saves and logs
+T:System.Console;No console output from the Sim; emit events or log via ILogger

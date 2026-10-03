@@ -1,0 +1,24 @@
+<Project>
+  <!-- Central package versions (20-architecture §4.4). Versions checked on NuGet 2026-10-03. -->
+  <ItemGroup>
+    <!-- Sim (nothing else without an ADR) -->
+    <PackageVersion Include="MessagePack" Version="3.1.11" />
+    <PackageVersion Include="System.IO.Hashing" Version="10.0.12" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.12" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4" /> <!-- 4.x/5.x need Roslyn 4.12+; SDK 8.0.401 ships 4.11 -->
+    <!-- Content -->
+    <PackageVersion Include="YamlDotNet" Version="18.1.0" />
+    <PackageVersion Include="JsonSchema.Net" Version="9.4.0" />
+    <PackageVersion Include="JsonSchema.Net.Generation" Version="7.0.1" /> <!-- 7.1+ ships an analyzer needing Roslyn 5.x -->
+    <!-- Hosting / CLI -->
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.12" />
+    <PackageVersion Include="Spectre.Console.Cli" Version="0.57.2" />
+    <!-- Tests -->
+    <PackageVersion Include="xunit.v3" Version="4.0.1" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
+    <PackageVersion Include="Shouldly" Version="4.3.0" />
+    <PackageVersion Include="CsCheck" Version="4.9.1" />
+    <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
+  </ItemGroup>
+</Project>

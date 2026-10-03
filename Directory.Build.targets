@@ -1,0 +1,12 @@
+<Project>
+  <!--
+    SDK 8.0.401 ships Roslyn 4.11. Some transitive packages bring analyzers built for newer
+    compilers; they add nothing we need, so they are removed here instead of failing the build.
+    Revisit when moving to the .NET 10 SDK (ADR-0010).
+  -->
+  <Target Name="RemoveIncompatibleTransitiveAnalyzers" BeforeTargets="CoreCompile">
+    <ItemGroup>
+      <Analyzer Remove="@(Analyzer)" Condition="'%(Filename)' == 'Humanizer.Analyzers'" />
+    </ItemGroup>
+  </Target>
+</Project>
