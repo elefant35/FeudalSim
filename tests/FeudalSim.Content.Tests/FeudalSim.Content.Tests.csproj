@@ -15,6 +15,9 @@
     <ProjectReference Include="..\..\src\FeudalSim.Hosting\FeudalSim.Hosting.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="fixtures\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
     <Using Include="Xunit" />
     <Using Include="Shouldly" />
   </ItemGroup>

@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../../../../../content/schemas/item.schema.json
+# Deliberately broken fixture for ContentPipelineTests.
+- { id: item.good_rope, name: Rope, category: raw, tier: t0, trade_unit: coil, mass_kg: 2, base_value_f: 3 }
+- id: item.bad_value
+  name: Bad value
+  category: raw
+  tier: t0
+  trade_unit: each
+  mass_kg: 1
+  base_value_f: lots
+- id: skill.wrong_folder
+  name: Wrong folder
+  category: raw
+  tier: t0
+  trade_unit: each
+  mass_kg: 1
+  base_value_f: 1

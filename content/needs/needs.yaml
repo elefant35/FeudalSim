@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=../schemas/need.schema.json
+# Canonical needs (canon §10.5). Physical decay per game hour by activity: docs/design/11-survival.md §2.1.
+- id: need.satiety
+  name: Satiety
+  kind: physical
+  decay_per_hour: { sleep: 3.0, rest: 3.5, light: 4.0, moderate: 4.8, heavy: 6.5 }
+- id: need.hydration
+  name: Hydration
+  kind: physical
+  decay_per_hour: { sleep: 2.0, rest: 3.0, light: 3.5, moderate: 4.5, heavy: 6.5 }
+- id: need.energy
+  name: Energy
+  kind: physical
+  decay_per_hour: { sleep: 0.0, rest: 3.0, light: 3.5, moderate: 4.2, heavy: 5.5 }
+  description: "Recovered by sleep (11 §3.2); the sleep rate here is the waking decay while asleep (none)."
+- id: need.warmth
+  name: Warmth
+  kind: physical
+  decay_per_hour: { sleep: 0.0, rest: 0.0, light: 0.0, moderate: 0.0, heavy: 0.0 }
+  description: "Driven by exposure, clothing, shelter and fire (11 §9), not by activity."
+- { id: need.social,  name: Social,  kind: psychological, description: "Dynamics owned by 21-npc-ai §5.2." }
+- { id: need.comfort, name: Comfort, kind: psychological, description: "Dynamics owned by 21-npc-ai §5.2." }
+- { id: need.safety,  name: Safety,  kind: psychological, description: "Dynamics owned by 21-npc-ai §5.2." }
+- { id: need.purpose, name: Purpose, kind: psychological, description: "Dynamics owned by 21-npc-ai §5.2 (children have Play instead)." }
+- { id: need.status,  name: Status,  kind: psychological, description: "Dynamics owned by 21-npc-ai §5.2." }

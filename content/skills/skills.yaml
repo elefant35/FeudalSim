@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../schemas/skill.schema.json
+# The 28 canonical skills (canon §10.2). Rules per skill: docs/design/12-skills-and-professions.md §4.
+# Land
+- { id: skill.farming,       name: Farming,       domain: land,         description: "Tilling, sowing, tending and harvesting fields." }
+- { id: skill.husbandry,     name: Husbandry,     domain: land,         description: "Herding, feeding, breeding, milking and shearing animals." }
+- { id: skill.foraging,      name: Foraging,      domain: land,         description: "Finding and identifying wild plants, herbs, fungi and berries." }
+- { id: skill.hunting,       name: Hunting,       domain: land,         description: "Tracking, stalking, trapping, the kill and field dressing." }
+- { id: skill.fishing,       name: Fishing,       domain: land,         description: "Lines, nets and weirs." }
+- { id: skill.woodcutting,   name: Woodcutting,   domain: land,         description: "Felling, limbing, splitting and charcoal burning." }
+- { id: skill.mining,        name: Mining,        domain: land,         description: "Prospecting, quarrying and ore extraction." }
+# Craft
+- { id: skill.carpentry,     name: Carpentry,     domain: craft,        description: "Joinery, framing, furniture and millwrighting." }
+- { id: skill.masonry,       name: Masonry,       domain: craft,        description: "Knapping, dressing stone and laying walls." }
+- { id: skill.metallurgy,    name: Metallurgy,    domain: craft,        description: "Smelting, alloying and the bloomery." }
+- { id: skill.smithing,      name: Smithing,      domain: craft,        description: "Forging, welding and heat-treating tools, weapons and armor." }
+- { id: skill.bowyery,       name: Bowyery,       domain: craft,        description: "Bows, arrows and crossbows." }
+- { id: skill.leatherworking, name: Leatherworking, domain: craft,      description: "Tanning and leather goods." }
+- { id: skill.textiles,      name: Textiles,      domain: craft,        description: "Spinning, weaving, dyeing, sewing, cordage and baskets." }
+- { id: skill.pottery,       name: Pottery,       domain: craft,        description: "Clay, the wheel, kilns, bricks and tiles." }
+- { id: skill.cooking,       name: Cooking,       domain: craft,        description: "Meals, baking, butchery, preserving and dairy." }
+- { id: skill.brewing,       name: Brewing,       domain: craft,        description: "Ale, mead and fermentation." }
+- { id: skill.healing,       name: Healing,       domain: craft,        description: "Diagnosis, wound care, remedies and surgery." }
+# Social
+- { id: skill.persuasion,    name: Persuasion,    domain: social,       description: "Arguing, convincing and calming people." }
+- { id: skill.commerce,      name: Commerce,      domain: social,       description: "Appraisal, haggling and bookkeeping." }
+- { id: skill.leadership,    name: Leadership,    domain: social,       description: "Organizing labor, command and holding court." }
+- { id: skill.stewardship,   name: Stewardship,   domain: social,       description: "Managing estates, stores, taxes and logistics." }
+- { id: skill.letters,       name: Letters,       domain: social,       description: "Reading, writing, records, law and teaching." }
+# Martial & Body
+- { id: skill.melee,         name: Melee,         domain: martial_body, description: "Fighting at close quarters, armed or not." }
+- { id: skill.archery,       name: Archery,       domain: martial_body, description: "Bows and crossbows." }
+- { id: skill.athletics,     name: Athletics,     domain: martial_body, description: "Stamina, carrying, running, swimming and climbing." }
+- { id: skill.stealth,       name: Stealth,       domain: martial_body, description: "Sneaking, hiding, lockpicking and pickpocketing." }
+- { id: skill.tactics,       name: Tactics,       domain: martial_body, description: "Formations, ambush and battle command." }

@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=../schemas/item.schema.json
+# Base values in farthings from docs/design/15-economy-and-trade.md §3. Iron tools on the first ship
+# are salvage (canon §5.3) and cannot be made until T3. Durability values are placeholders until 13's
+# tool-wear tuning (M2).
+- { id: item.flint_knife, name: Flint knife,          category: tool, tier: t0, trade_unit: each, mass_kg: 0.15, base_value_f: 2,  durability: 60 }
+- { id: item.stone_axe,   name: Stone axe (hafted),   category: tool, tier: t0, trade_unit: each, mass_kg: 1.2,  base_value_f: 6,  durability: 120 }
+- { id: item.iron_knife,  name: Iron knife,           category: tool, tier: t3, trade_unit: each, mass_kg: 0.25, base_value_f: 14, durability: 300 }
+- { id: item.iron_axe,    name: Iron axe,             category: tool, tier: t3, trade_unit: each, mass_kg: 1.6,  base_value_f: 56, durability: 400, aliases: [item.axe_iron] }

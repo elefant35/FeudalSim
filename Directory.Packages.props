@@ -9,7 +9,6 @@
     <!-- Content -->
     <PackageVersion Include="YamlDotNet" Version="18.1.0" />
     <PackageVersion Include="JsonSchema.Net" Version="9.4.0" />
-    <PackageVersion Include="JsonSchema.Net.Generation" Version="7.0.1" /> <!-- 7.1+ ships an analyzer needing Roslyn 5.x -->
     <!-- Hosting / CLI -->
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.12" />
     <PackageVersion Include="Spectre.Console.Cli" Version="0.57.2" />

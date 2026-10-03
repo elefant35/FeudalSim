@@ -1,0 +1,117 @@
+using FeudalSim.Sim.Content;
+
+namespace FeudalSim.Content.Tests;
+
+/// <summary>M0-07 (20 §20 step 7): content v0.</summary>
+public class ContentPipelineTests
+{
+    internal static string RepoRoot()
+    {
+        for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "FeudalSim.sln"))) { return dir.FullName; }
+        }
+
+        throw new DirectoryNotFoundException("Repo root not found.");
+    }
+
+    private static string ContentRoot => Path.Combine(RepoRoot(), "content");
+
+    [Fact]
+    public void Repository_content_compiles_cleanly()
+    {
+        var result = ContentCompiler.Compile(ContentRoot);
+        result.Errors.ShouldBeEmpty(string.Join("\n", result.Errors));
+        result.Database.ShouldNotBeNull();
+        result.Database!.Items.Count.ShouldBeGreaterThanOrEqualTo(10);
+    }
+
+    [Fact]
+    public void Skill_ids_equal_canon_10_2_exactly()
+    {
+        var db = ContentCompiler.Compile(ContentRoot).Database!;
+        db.Skills.Select(s => s.Id).OrderBy(x => x, StringComparer.Ordinal)
+            .ShouldBe(CanonLists.SkillIds.OrderBy(x => x, StringComparer.Ordinal));
+        db.Skills.Count.ShouldBe(28);
+        db.Needs.Select(n => n.Id).OrderBy(x => x, StringComparer.Ordinal)
+            .ShouldBe(CanonLists.NeedIds.OrderBy(x => x, StringComparer.Ordinal));
+    }
+
+    [Fact]
+    public void Handles_follow_ordinal_id_order()
+    {
+        var db = ContentCompiler.Compile(ContentRoot).Database!;
+        db.Items.Select(i => i.Id).ShouldBe(db.Items.Select(i => i.Id).OrderBy(x => x, StringComparer.Ordinal));
+    }
+
+    [Fact]
+    public void A_broken_fixture_fails_with_file_and_line()
+    {
+        var root = Path.Combine(AppContext.BaseDirectory, "fixtures", "broken");
+        var result = ContentCompiler.Compile(root);
+
+        result.Ok.ShouldBeFalse();
+        var text = string.Join("\n", result.Errors);
+        // Schema error on base_value_f: "lots", line 10 of the fixture.
+        result.Errors.ShouldContain(e => e.File == "items/bad.yaml" && e.Line == 10 && e.Message.Contains("/1/base_value_f"), text);
+    }
+
+    [Fact]
+    public void Id_prefix_must_match_the_folder_kind()
+    {
+        var root = CopyContent();
+        File.AppendAllText(Path.Combine(root, "items", "tools.yaml"),
+            "- { id: skill.misplaced, name: Misplaced, category: tool, tier: t0, trade_unit: each, mass_kg: 1, base_value_f: 1 }\n");
+        var result = ContentCompiler.Compile(root);
+        // The schema's id pattern (^item\.…) rejects it first; the compiler's prefix check is the backstop.
+        result.Errors.ShouldContain(e => e.File == "items/tools.yaml" && e.Message.Contains("/4/id") && e.Message.Contains("pattern"),
+            string.Join("\n", result.Errors));
+    }
+
+    [Fact]
+    public void Duplicate_ids_are_reported_with_both_locations()
+    {
+        var root = CopyContent();
+        File.AppendAllText(Path.Combine(root, "items", "raw.yaml"),
+            "- { id: item.iron_axe, name: Copy, category: tool, tier: t3, trade_unit: each, mass_kg: 1, base_value_f: 1 }\n");
+        var result = ContentCompiler.Compile(root);
+        result.Errors.ShouldContain(e => e.Message.Contains("Duplicate id 'item.iron_axe'"));
+    }
+
+    [Fact]
+    public void Content_hash_is_stable_and_changes_with_content()
+    {
+        var a = ContentCompiler.Compile(ContentRoot).Database!.Hash;
+        var b = ContentCompiler.Compile(ContentRoot).Database!.Hash;
+        a.ShouldBe(b);
+
+        var root = CopyContent();
+        var food = Path.Combine(root, "items", "food.yaml");
+        File.WriteAllText(food, File.ReadAllText(food).Replace("base_value_f: 3 }", "base_value_f: 4 }", StringComparison.Ordinal));
+        ContentCompiler.Compile(root).Database!.Hash.ShouldNotBe(a);
+    }
+
+    [Fact]
+    public void Committed_schemas_are_fresh()
+    {
+        foreach (var (_, kind, type) in SchemaGenerator.Kinds)
+        {
+            var path = Path.Combine(ContentRoot, "schemas", $"{kind}.schema.json");
+            File.Exists(path).ShouldBeTrue($"{path} is missing; run `feudalsim content schemas`.");
+            File.ReadAllText(path).ShouldBe(SchemaGenerator.Generate(kind, type), $"{kind}.schema.json is stale; run `feudalsim content schemas`.");
+        }
+    }
+
+    private static string CopyContent()
+    {
+        var dest = Path.Combine(Path.GetTempPath(), "feudalsim-content-tests", Guid.NewGuid().ToString("N"));
+        foreach (var file in Directory.GetFiles(ContentRoot, "*", SearchOption.AllDirectories))
+        {
+            var target = Path.Combine(dest, Path.GetRelativePath(ContentRoot, file));
+            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+            File.Copy(file, target);
+        }
+
+        return dest;
+    }
+}
