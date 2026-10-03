@@ -944,10 +944,10 @@ public enum CapabilityStatus { KnownOf, Attempted, Established, Sustained, Lapse
 
 1. **Piece-by-piece building** for the player's own homestead (Valheim-style) as a later mode? It
    breaks NPC parity, so v1 says no.
-2. **Draft animals:** canon lists goats and chickens on the first ship. When do oxen and horses
+2. **[Resolved — canon v0.2: no native livestock; oxen, sheep, pigs and 2–8 horses arrive only by ship or with other expeditions (canon §5.1)]** **Draft animals:** canon lists goats and chickens on the first ship. When do oxen and horses
    arrive (resupply ships? trade?) — [10](10-world-and-setting.md) / [15](15-economy-and-trade.md).
    Ploughing capabilities depend on it.
-3. **Bog iron** in Wetlands as a low-grade iron path for lowland settlements — does
+3. **[Resolved — canon v0.2: 10 places 2–5 poor bog-iron deposits near the lowlands]** **Bog iron** in Wetlands as a low-grade iron path for lowland settlements — does
    [10](10-world-and-setting.md) place it?
 4. **Building damage in combat:** shared HP model with [18](18-conflict-and-warfare.md), or does
    siege damage simply reduce Condition?
@@ -958,6 +958,8 @@ public enum CapabilityStatus { KnownOf, Attempted, Established, Sustained, Lapse
 7. Can a player-lord draw planned streets freely, or only choose from generated layouts?
 
 ## Proposed canon additions
+
+> **Status (canon v0.2):** accepted items have been folded into [01-canon](../01-canon.md) (see its change log). Items not reflected there remain proposals for the owner to decide.
 
 1. **Construction labor calibration:** on-site labor-hours as in §3 (hut 24 h, cottage 80 h,
    longhouse 180 h, hall 600 h, keep 6,000 h, stone wall 300 h per 10 m, castle ≈ 18,000 h);

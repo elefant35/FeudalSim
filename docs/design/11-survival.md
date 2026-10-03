@@ -1405,6 +1405,8 @@ No model decides an infection, a death, a ration or a diagnosis.
 
 ## Proposed canon additions
 
+> **Status (canon v0.2):** accepted items have been folded into [01-canon](../01-canon.md) (see its change log). Items not reflected there remain proposals for the owner to decide.
+
 1. **Food unit:** 1 Sat = 25 kcal; **1 ration = 100 Sat** (one adult moderate day ≈ 1 kg bread);
    **annual need ≈ 3,040 Sat per person**. Item values are realistic. **Per-area and per-year yields
    must be calibrated to this anchor**, targeting 0.3–0.5 ha arable per person in Era 2–3.

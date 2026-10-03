@@ -467,6 +467,11 @@ Generosity reputation in gossip.
 
 ### 5.5 Susceptibility (the hard-coded willingness to be swayed)
 
+*§5.5–5.6 are the **trade specialization** of the generic bounded-influence formula in
+[22 §6.3](../tech/22-llm-integration.md#63-bounded-influence-canon-13). They keep its invariants (canon
+§13.1): words and skill weighted equally, susceptibility in [0.05, 1.0], the 15% clamp, a
+per-negotiation total, and fatigue on repetition.*
+
 The vision's key phrase: *"their willingness to be swayed should be something more hard coded."*
 Susceptibility `S_n ∈ [0.05, 1.0]` is computed from sim state alone:
 
@@ -1251,18 +1256,20 @@ Run in CI nightly ([20](../tech/20-architecture.md)): **50 seeds × 20 game-year
 
 ## Open questions
 
-1. **Silver on Farstrand?** ([10](10-world-and-setting.md)) Determines silver pennies vs. copper coinage
+1. **[Resolved — canon v0.2: exactly one galena deposit with 20–180 kg of recoverable silver (canon §5.1)]** **Silver on Farstrand?** ([10](10-world-and-setting.md)) Determines silver pennies vs. copper coinage
    plus re-struck homeland silver.
 2. Should base values be re-derived per era (e.g. iron cheaper in Era 4), or stay fixed per content
    version as proposed?
 3. Is an integer quality score Q 0–100 with 50 = common acceptable to [13](13-crafting-and-minigames.md)?
-4. Are cattle, sheep and horses absent until ships bring them? (Affects ox/plow economics.)
+4. **[Resolved — canon v0.2: yes — ship-borne only]** Are cattle, sheep and horses absent until ships bring them? (Affects ox/plow economics.)
 5. Should large losses to the player's shop/treasury during an Interlude be an optional interrupt?
 6. Price display format ("1s 2d 1f" vs. total farthings) — [19](19-player-experience.md).
 7. Commendation into serfdom for debt: default on in Era 3, or opt-in setting?
 8. Property rights of women and minors under a "historical customs" setting (see 17).
 
 ## Proposed canon additions
+
+> **Status (canon v0.2):** accepted items have been folded into [01-canon](../01-canon.md) (see its change log). Items not reflected there remain proposals for the owner to decide.
 
 1. **Labor-rate ladder** (f per work-hour): Novice 1.0 · Apprentice 1.25 · Journeyman 1.5 · Expert 2.0 ·
    Master 3.0; **work-day = 8 work-hours** (so unskilled = 1f/hour = 8f/day).

@@ -1315,6 +1315,8 @@ public struct AttributeBlock { public Float6 Potential, Training, InjuryMod, Tem
 
 ## Proposed canon additions
 
+> **Status (canon v0.2):** accepted items have been folded into [01-canon](../01-canon.md) (see its change log). Items not reflected there remain proposals for the owner to decide.
+
 1. **XP curve:** `XPreq(L) = 11 × 1.055^L`, `XPcum(L) = 200 × (1.055^L − 1)` (≈ 42,100 to 100);
    **10 XP per nominal labor-hour** at matched difficulty; difficulty factor `clamp(1 + Δ/30, 0.05, 1.6)`.
 2. **Resolution function:** `R = E − D + Logistic(0, 8)`, ε clamped ±31; success at R ≥ −10 (78 %

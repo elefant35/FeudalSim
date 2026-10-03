@@ -1292,7 +1292,7 @@ All tests run in the headless sim (no client) with fixed seeds ([20-architecture
 
 ## Open questions
 
-1. **Mounted combat & horses.** Horses are absent from canon wildlife and the ship's salvage. Should resupply ships bring them (cavalry, couched lances), or is v1 infantry-only? This doc assumes infantry-only.
+1. **[Resolved — canon v0.2: horses arrive by ship (2–8 before the Silence); riding exists; no mounted combat in v1]** **Mounted combat & horses.** Horses are absent from canon wildlife and the ship's salvage. Should resupply ships bring them (cavalry, couched lances), or is v1 infantry-only? This doc assumes infantry-only.
 2. **Directional melee** as a post-launch option for duels only?
 3. **Levy sex defaults** per culture: confirm the `levy_sex_rule` values with the owner. They are content-sensitive.
 4. **Battle clock 12:1:** good enough, or should needs drain pause entirely in battle mode?
@@ -1302,6 +1302,8 @@ All tests run in the headless sim (no client) with fixed seeds ([20-architecture
 8. Should **assassination and poison** be a full system, or stay a rare NPC goal?
 
 ## Proposed canon additions
+
+> **Status (canon v0.2):** accepted items have been folded into [01-canon](../01-canon.md) (see its change log). Items not reflected there remain proposals for the owner to decide.
 
 1. **LOD0-B (Battle) tier:** ≤ 150 combatants (stretch 300); full LOD0 fidelity for the 48 nearest the player; others at a 5 Hz decision / 2 Hz exchange model with identical damage math.
 2. **Battle clock:** the world clock runs at **12:1** while battle mode is active.

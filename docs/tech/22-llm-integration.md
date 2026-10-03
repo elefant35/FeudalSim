@@ -573,6 +573,14 @@ court verdicts and crime judgments **0** (language cannot move a verdict); taxes
 `Δ` is applied by the owner function in its own units (fraction of reservation price, additive
 probability, etc.) — the owner document defines the base value, the DRE defines only `Δ`.
 
+**Domain specializations.** An owning document may specialize how `L` and `s` are computed, as long
+as the canon invariants hold (canon §13.1): words and skill weigh equally, `s ∈ [0.05, 1.0]`, the
+domain's `C_sys` clamp, a per-negotiation total, and fatigue on repetition. **Trade is the main
+specialization:** [15 §5.5–5.6](../design/15-economy-and-trade.md#55-susceptibility-the-hard-coded-willingness-to-be-swayed)
+checks each argument against ground truth (a false claim backfires), blends Persuasion with Commerce
+for the skill term, and uses a Commerce-gap term in susceptibility. For trade, the DRE calls 15's
+function instead of the generic formula above.
+
 *Example:* a master persuader (Persuasion 90 → L_skill 0.83) with an excellent argument
 (L_words 0.9) to a warm, friendly listener (s = 0.8): `Δ = 0.15 × 0.8 × 0.865 = 0.104` → +10.4% on
 acceptance. A novice (Persuasion 10 → −0.5) with the same words: `L = 0.2` → +2.4%. A brilliant
@@ -1533,6 +1541,8 @@ If criteria 1, 4 or 8 fail, M1 iterates before M2 starts; if 2 fails, the archit
     upside only).
 
 ## Proposed canon additions
+
+> **Status (canon v0.2):** accepted items have been folded into [01-canon](../01-canon.md) (see its change log). Items not reflected there remain proposals for the owner to decide.
 
 1. **DRE as a sim system** and the language event types: `PlayerUtteranceClassified`,
    `DialogueTurnResolved`, `DialogueLineRendered`, `RenderCompleted`; the sim never awaits a model.

@@ -13,13 +13,15 @@ in `docs/` is the basis for all development.
 
 ## Non-negotiable rules
 
-- **Sim core purity:** `src/FeudalSim.Sim` must never reference Godot or any LLM provider. AI is
-  reached through interfaces; the client talks to the sim only through commands and events.
+- **Sim core purity:** `src/FeudalSim.Sim` must never reference Godot, any LLM provider, or any IO,
+  network or YAML library. AI is reached through interfaces; the client talks to the sim only through
+  commands and events. The sim never waits on a model.
 - **Hard systems, soft voice (ADR-0003):** LLM/Jev output is never an outcome. It is a bounded,
   clamped input to hard-coded rules, or text that voices an already-decided outcome. Player text is
   untrusted data. Every LLM touchpoint needs a non-LLM fallback (template mode must stay playable).
-- **Determinism (ADR-0002):** all randomness via seeded per-system RNG streams; no `DateTime.Now`,
+- **Determinism (ADR-0002):** all randomness via seeded, keyed RNG streams; no `DateTime.Now`,
   `Random.Shared`, or unordered iteration in sim logic; LLM/Jev responses are recorded as inputs.
+  Scope: bit-identical on the same build + OS + CPU architecture.
 - **Parity:** player and NPCs use the same rules (skills, needs, laws, quality formulas).
 - **Content is data:** items, recipes, skills, traits, crops, buildings live in `/content` YAML with
   schema validation, not hard-coded in C#.

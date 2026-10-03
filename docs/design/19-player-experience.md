@@ -903,10 +903,12 @@ The player is always LOD0. NPCs at LOD1+ can't be talked to directly. Approachin
 3. **Voice:** TTS for NPC speech (a local TTS model) or text-only for v1?
 4. **Foreign-born player** (Osmeri or Brannoch émigré aboard the *Wending Star*): worth the manifest complexity?
 5. **Serf start:** should a player be able to *start* unfree in later-era scenarios, or is serfdom only reachable in play?
-6. **Spend-cap default** ($10/month) needs cost data from 22's budgets.
+6. **[Resolved — canon v0.2: $10/month plus $1/session, with 22's ladder]** **Spend-cap default** ($10/month) needs cost data from 22's budgets.
 7. **Multiple saves in Lineage mode:** allow manual saves at all, or autosave-only?
 
 ## Proposed canon additions
+
+> **Status (canon v0.2):** accepted items have been folded into [01-canon](../01-canon.md) (see its change log). Items not reflected there remain proposals for the owner to decide.
 
 1. **Backgrounds (10):** the canonical eight plus **acolyte** and **joiner's apprentice**; +75 skill points each; at most one salvaged iron item per kit.
 2. **Attribute point-buy:** all 5, 6 points to distribute, range 3–8; the background adds +1 to one attribute.

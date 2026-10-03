@@ -1463,6 +1463,8 @@ No model touches generation geometry, populations, deposits or schedules.
 
 ## Proposed canon additions
 
+> **Status (canon v0.2):** accepted items have been folded into [01-canon](../01-canon.md) (see its change log). Items not reflected there remain proposals for the owner to decide.
+
 1. **Time-scale policy** (§1.2): clock-scale processes run 1:1; calendar-scale processes are divided by
    K = 365/32 ≈ 11.4, with a 1-game-day floor for anything a person must respond to; real years map
    to game years. This is consistent with canon pregnancy (24 days).

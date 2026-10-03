@@ -1677,18 +1677,18 @@ Runs in CI on the pure-C# core ([20](../tech/20-architecture.md)):
 
 ## Open questions
 
-1. **Food need per day** — §10.1 assumes ~0.45 kg grain-equivalent per adult per game day; 11 owns
+1. **[Resolved — canon v0.2: food unit is 1 ration = 100 Satiety ≈ 1 kg bread; the 0.45 kg grain-equivalent figure stands as the grain share of the diet; validate κ in M3 headless runs]** **Food need per day** — §10.1 assumes ~0.45 kg grain-equivalent per adult per game day; 11 owns
    the number. If it changes, retune `κ` (not the ratios).
-2. **Seed grain on the Wending Star** — canon says "seed grain"; 150–250 kg (≈4–6 ha of sowing) is
+2. **[Resolved — canon v0.2: 60 kg of seed grain (≈ 1.3 ha of sowing at κ = 4). The first harvest is seed-limited by design; foraging, hunting, fishing and the Y1 resupply ship carry the colony. Validate survival targets in M3]** **Seed grain on the Wending Star** — canon says "seed grain"; 150–250 kg (≈4–6 ha of sowing) is
    assumed. 11 owns the Landfall manifest.
-3. **Dogs** — not in the salvage list or wildlife set; herding and predation defense assume they may
+3. **[Resolved — canon v0.2: ship's cats and dogs arrive with the settlers and on resupply ships (canon §5.1)]** **Dogs** — not in the salvage list or wildlife set; herding and predation defense assume they may
    exist. Canon decision needed.
-4. **18's grade names** (Poor/Common/Good/Fine/Masterwork) differ from §5.1; proposed remap via
+4. **[Resolved — canon v0.2: 18 now uses this doc's six grades and harvest window]** **18's grade names** (Poor/Common/Good/Fine/Masterwork) differ from §5.1; proposed remap via
    `StatMult(Q)`. 18 also assumed a harvest window of Autumn 3–6; this doc defines Summer 5 –
    Autumn 4 (`d` 13–20).
 5. **Arrow quality → dispersion** (`σ × (1.3 − 0.006·Q)`) and a material "cast" factor on bow
    velocity are proposals for 18.
-6. **Know-how mapping mismatch inside 12:** `dairying` requires Husbandry while 12's skill table
+6. **[Resolved — canon v0.2: 12 updated: dairying gated by Cooking 15; butchery is carcass breakdown, field dressing is Hunting]** **Know-how mapping mismatch inside 12:** `dairying` requires Husbandry while 12's skill table
    lists cheese under Cooking; `butchery` (Cooking) covers field dressing while Hunting governs it.
    This doc uses the skill tables and treats know-how prerequisites as gates. 12 to confirm.
 7. **Salt production and boats** — salt boiling is designed here as Cooking (`salt_curing`); boats
@@ -1697,11 +1697,13 @@ Runs in CI on the pure-C# core ([20](../tech/20-architecture.md)):
    assumed here must be confirmed by 10.
 9. **Night work and light** — should fine crafts at night require a lamp item (consumable) or only
    apply 12's light modifier?
-10. **RNG plumbing with 12** — 13 requires `Resolve()` to accept a per-process RNG fork (or a seed
+10. **[Resolved — canon v0.2: 12 §6.1 now takes a caller-supplied RNG stream, per-process for crafts]** **RNG plumbing with 12** — 13 requires `Resolve()` to accept a per-process RNG fork (or a seed
    in `CheckRequest`) so batch/NPC/auto outcomes are reproducible after reload regardless of draw
    order elsewhere; 12 §6.1 currently reads a shared `rng.skills` stream. 12 to confirm.
 
 ## Proposed canon additions
+
+> **Status (canon v0.2):** accepted items have been folded into [01-canon](../01-canon.md) (see its change log). Items not reflected there remain proposals for the owner to decide.
 
 1. **Quality grades:** integer `Q` 0–100 (50 = common, as 15 proposes) with grades **Crude 0–19 ·
    Poor 20–39 · Common 40–59 · Fine 60–74 · Superior 75–89 · Masterwork 90–100**; **Ruined** is an

@@ -1581,6 +1581,8 @@ and LOD2/LOD3 above.
 
 ## Proposed canon additions
 
+> **Status (canon v0.2):** accepted items have been folded into [01-canon](../01-canon.md) (see its change log). Items not reflected there remain proposals for the owner to decide.
+
 1. **Trait catalog of 45 traits** (§4.3), including all 16 canon examples, with incompatibility pairs;
    2–4 per person (35/45/20%); traits revealed at ages 6 and 14; heritability via ×3 inheritance
    multiplier; facet heritability h = 0.45.

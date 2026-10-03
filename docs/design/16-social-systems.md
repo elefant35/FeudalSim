@@ -1478,6 +1478,8 @@ Scenario tests: *the insult* (§9.3 reproduces), *the theft* (§10.3 reproduces)
 
 ## Proposed canon additions
 
+> **Status (canon v0.2):** accepted items have been folded into [01-canon](../01-canon.md) (see its change log). Items not reflected there remain proposals for the owner to decide.
+
 1. **Attraction hard gate:** exists only between two Adults (16+) who are orientation-compatible;
    person model gains an **orientation** (attraction profile) field. No culture/config/LLM override.
 2. **Belief thresholds:** forget < 0.1, hold ≥ 0.5, act ≥ 0.6, certain ≥ 0.85.

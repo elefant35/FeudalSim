@@ -28,7 +28,8 @@ All game rules live in a **pure C# (.NET 8) simulation library** that:
 3. accepts **commands** (player input, client physical results, AI responses) and emits **events**;
 4. draws all randomness from **seeded per-system RNG streams**;
 5. records **LLM / Jev outputs as inputs** in the event log so a save + log replays identically
-   on the same machine (cross-platform bit-exactness is not required);
+   on the same build + OS + CPU architecture (saves are portable across platforms; replays and
+   golden tests are per platform — cross-platform bit-exactness is not required);
 6. can run **headless** via a CLI runner that simulates years from a seed and emits metrics.
 
 ## Consequences

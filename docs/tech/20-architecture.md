@@ -1667,7 +1667,7 @@ tests are green in CI.
    transcendentals early?
 7. **History log access:** what query patterns and indexes do Chronicles and dialogue fact
    retrieval need from the history log ([22](22-llm-integration.md))?
-8. **.NET 10 migration timing:** depends on Godot's supported TFMs.
+8. **[Resolved — canon v0.2: net8.0 for M0, then .NET 10 LTS as soon as the pinned Godot supports it; still needs the ADR]** **.NET 10 migration timing:** depends on Godot's supported TFMs.
 9. **Serialization:** MessagePack or MemoryPack? Decide with the M0 benchmark.
 10. **Loading an older slot** forks the history log. Is keeping two branches enough, and what does
     the player see?
@@ -1678,6 +1678,8 @@ tests are green in CI.
 ---
 
 ## Proposed canon additions
+
+> **Status (canon v0.2):** accepted items have been folded into [01-canon](../01-canon.md) (see its change log). Items not reflected there remain proposals for the owner to decide.
 
 Not applied. For the canon owner to accept or reject; each architectural one comes with a new ADR.
 

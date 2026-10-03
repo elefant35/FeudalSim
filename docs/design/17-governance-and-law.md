@@ -1277,6 +1277,8 @@ mocked-Jev mode.
 
 ## Proposed canon additions
 
+> **Status (canon v0.2):** accepted items have been folded into [01-canon](../01-canon.md) (see its change log). Items not reflected there remain proposals for the owner to decide.
+
 1. **Governance forms** (ids): Co-op, Household Council, Headman, Chieftain, Charter-lordship, Feudal
    lordship, Kingship; variants Elders' Synod (Ashen), Merchant Council (Osmeri), Outlaw Band.
 2. **Legitimacy** = five sources — **Tradition/Charter, Competence, Popularity, Force, Faith** — each

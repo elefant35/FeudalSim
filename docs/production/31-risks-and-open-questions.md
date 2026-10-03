@@ -38,6 +38,77 @@ Likelihood (L) and Impact (I) on a 1–5 scale. **Score = L × I.** Review at ev
 
 ---
 
-## 2. Consolidated open questions
+## 2. Decisions needed from the owner
 
-*To be consolidated from every document's "Open questions" section during the consistency pass.*
+These are the questions whose answers most change what gets built. Each has a **recommended
+default**, which the plan already assumes. Confirm or override; record the answer in the owning doc
+(and in canon if it's cross-cutting).
+
+### 2.1 Foundational (confirm before M0)
+
+| # | Question | Recommended default (assumed by the plan) | Where |
+|---|----------|-------------------------------------------|-------|
+| D1 | **Engine** | Godot 4 .NET (C#) client + pure C# sim core. Unity is the fallback; the engine-agnostic sim keeps a port possible. | [ADR-0001](../adr/0001-engine-godot-dotnet.md) |
+| D2 | **Perspective & art** | 3D third-person, stylized low-poly | [01 §4](../01-canon.md#4-core-product--technology-decisions), [02 §9](../02-game-overview.md#9-art-direction) |
+| D3 | **Single-player only** | Yes for v1 | [ADR-0004](../adr/0004-single-player-scope.md) |
+| D4 | **Time scale** | 30-min days, 8-day seasons, 32-day years, Interludes for generational time | [01 §6](../01-canon.md#6-time-canon) |
+| D5 | **Where rival societies come from** | Several expeditions + resupply ships until "the Silence" + schisms/exodus + outlaw camps | [01 §5.4](../01-canon.md#54-how-multiple-societies-come-to-exist-so-war-is-possible) |
+| D6 | **Player mortality** | Players age and die; default **Lineage** (continue as heir); Forgiving and Ironman modes | [01 §12](../01-canon.md#12-the-player) |
+| D7 | **.NET version** | `net8.0` for M0 (support ends 2026-11-10), then .NET 10 LTS as soon as Godot supports it | [20](../tech/20-architecture.md) |
+
+### 2.2 Product & business
+
+| # | Question | Recommended default | Where |
+|---|----------|---------------------|-----------|
+| D8 | **Who pays for cloud LLM inference in Early Access?** Bring-your-own OpenRouter key, a developer-run relay with quotas, or local-only? | Ship with **bring-your-own key + local + template mode**; evaluate a relay after EA telemetry | [22 Q1](../tech/22-llm-integration.md#open-questions) |
+| D9 | **Working title** | Decide by M8 | [02 Q1](../02-game-overview.md#14-open-questions) |
+| D10 | **Team & demo** | Budget part-time art from M2; consider a public "first winter" demo after M3 | [30 §10](30-roadmap.md#10-open-questions) |
+| D11 | **Localization** | English only in v1; per-language catalogs/classifiers later | [22 Q5](../tech/22-llm-integration.md#open-questions) |
+| D12 | **Voice** | Text-only v1; local TTS for barks is a post-v1 stretch | [19 Q3](../design/19-player-experience.md#open-questions), [22 Q6](../tech/22-llm-integration.md#open-questions) |
+
+### 2.3 Content & tone
+
+| # | Question | Recommended default | Where |
+|---|----------|---------------------|-------|
+| D13 | **Folklore / superstition layer** (beliefs only, never supernatural truth) | Yes, belief-only, from M5. It's cheap given the belief model. | [02 Q2](../02-game-overview.md#14-open-questions), [10 Q2](../design/10-world-and-setting.md#open-questions), [16 Q2](../design/16-social-systems.md#open-questions) |
+| D14 | **Ancient ruins** | No; the only ruins are failed colonies | [10 Q1](../design/10-world-and-setting.md#open-questions), [14 Q6](../design/14-technology-and-buildings.md#open-questions) |
+| D15 | **Customs for sex in succession, office and levies** | World setting: **Egalitarian (default)** / Historical | [17](../design/17-governance-and-law.md#open-questions), [18 Q3](../design/18-conflict-and-warfare.md#open-questions) |
+| D16 | **Same-sex unions** | All cultures recognize them; heirs via adoption | [16 Q1](../design/16-social-systems.md#open-questions) |
+| D17 | **Grim Justice** (maiming) and execution depiction | Maiming off by default; executions shown discreetly; content settings control gore | [17](../design/17-governance-and-law.md#open-questions), [18 Q6](../design/18-conflict-and-warfare.md#open-questions) |
+| D18 | **Desperate acts in famine** (cannibalism) | Excluded from v1; appears only as rumor | [11 Q4](../design/11-survival.md#open-questions) |
+| D19 | **Naval raids** | Out of v1 | [18 Q5](../design/18-conflict-and-warfare.md#open-questions) |
+
+### 2.4 Systems
+
+| # | Question | Recommended default | Where |
+|---|----------|---------------------|-------|
+| D20 | **Day-length normalization** — at a 60-min day, people walk twice as far per game hour | Normalize LOD1–3 travel and productivity to game time; LOD0 bodies (and the player) move physically | [10 Q4](../design/10-world-and-setting.md#open-questions), [12 Q7](../design/12-skills-and-professions.md#open-questions), [20 Q1](../tech/20-architecture.md#open-questions) |
+| D21 | **Showing numbers** | Skills: tier + bar (exact values from Journeyman). Opinions: never numeric; demeanor cues only. Traits: "impressions" that can be wrong. Needs: coarse bars + diegetic cues | [02 Q4](../02-game-overview.md#14-open-questions), [12 Q5](../design/12-skills-and-professions.md#open-questions), [16 Q3](../design/16-social-systems.md#open-questions), [21 Q3](../tech/21-npc-ai.md#open-questions), [11 Q1](../design/11-survival.md#open-questions) |
+| D22 | **Piece-by-piece building** for the player's homestead | No in v1 (it breaks parity); whole-blueprint placement with modules | [14 Q1](../design/14-technology-and-buildings.md#open-questions) |
+| D23 | **Homeland intervention before the Silence** (a governor deposing a non-Charter ruler) | Only the Crown reeve (dues enforcement) in v1 | [17 Q1](../design/17-governance-and-law.md#open-questions), [10](../design/10-world-and-setting.md#open-questions) |
+| D24 | **Combat step rate** — is 10 Hz enough for melee? | Keep 10 Hz; revisit after the M2 combat playtest | [20 Q2](../tech/20-architecture.md#open-questions) |
+| D25 | **Cross-platform replay** | Not required; saves are portable, replays per platform | [20 Q6](../tech/20-architecture.md#open-questions), [21 Q2](../tech/21-npc-ai.md#open-questions) |
+| D26 | **Modding** | Data packs after M8 | [20 Q12](../tech/20-architecture.md#open-questions) |
+
+## 3. Per-document open questions
+
+Each document's "Open questions" section is the full list. Items already settled by canon v0.2 are
+marked **[Resolved — canon v0.2]** in place.
+
+| Document | Open questions |
+|----------|----------------|
+| [02 Game overview](../02-game-overview.md#14-open-questions) | 5 |
+| [10 World & setting](../design/10-world-and-setting.md#open-questions) | 7 |
+| [11 Survival](../design/11-survival.md#open-questions) | 6 |
+| [12 Skills & professions](../design/12-skills-and-professions.md#open-questions) | 7 |
+| [13 Crafting & minigames](../design/13-crafting-and-minigames.md#open-questions) | 10 (5 resolved) |
+| [14 Technology & buildings](../design/14-technology-and-buildings.md#open-questions) | 7 (2 resolved) |
+| [15 Economy & trade](../design/15-economy-and-trade.md#open-questions) | 8 (2 resolved) |
+| [16 Social systems](../design/16-social-systems.md#open-questions) | 10 |
+| [17 Governance & law](../design/17-governance-and-law.md#open-questions) | 7 |
+| [18 Conflict & warfare](../design/18-conflict-and-warfare.md#open-questions) | 8 (1 resolved) |
+| [19 Player experience](../design/19-player-experience.md#open-questions) | 7 (1 resolved) |
+| [20 Architecture](../tech/20-architecture.md#open-questions) | 12 (2 resolved) |
+| [21 NPC AI](../tech/21-npc-ai.md#open-questions) | 7 (1 resolved) |
+| [22 LLM integration](../tech/22-llm-integration.md#open-questions) | 10 (1 resolved) |
+| [30 Roadmap](30-roadmap.md#10-open-questions) | 3 |
