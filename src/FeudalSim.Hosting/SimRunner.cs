@@ -18,6 +18,7 @@ public sealed class SimRunner : IDisposable
 
     private readonly SimWorld _world;
     private readonly InputLogFile? _log;
+    private readonly FeudalSim.AI.AiGateway? _gateway;
     private readonly ConcurrentQueue<(CommandSource Source, StateCommand Command)> _inbox = new();
     private readonly ConcurrentQueue<Action<SimWorld>> _control = new();
     private readonly AutoResetEvent _wake = new(false);
@@ -29,11 +30,13 @@ public sealed class SimRunner : IDisposable
     private long _steps;
     private long _dilationEvents;
 
-    public SimRunner(SimWorld world, InputLogFile? log = null, RunMode mode = RunMode.Running)
+    public SimRunner(SimWorld world, InputLogFile? log = null, RunMode mode = RunMode.Running, FeudalSim.AI.AiGateway? gateway = null)
     {
         _world = world;
         _log = log;
         _mode = mode;
+        _gateway = gateway;
+        if (gateway is not null) { gateway.Completed += r => Submit(CommandSource.Ai, r); }
         _seq = world.LastCommandSeq;   // continue the world's command numbering
         Snapshots = new TripleBuffer<RenderSnapshot>(() => new RenderSnapshot());
         _thread = new Thread(Loop) { IsBackground = true, Name = "sim" };
@@ -137,6 +140,7 @@ public sealed class SimRunner : IDisposable
         var output = _world.Step();
         foreach (var c in output.AppliedCommands) { _log?.Append(c); }
         foreach (var e in output.Events) { Events.Push(e); }
+        foreach (var r in output.AiRequests) { _gateway?.Submit(r); }
         Snapshots.Back.CopyFrom(_world);
         Snapshots.Publish();
         Interlocked.Increment(ref _steps);

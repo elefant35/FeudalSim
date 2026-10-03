@@ -54,7 +54,7 @@ Source of truth for the steps: [20 §20](../tech/20-architecture.md#20-m0-founda
 | M0-07 | Content v0 (YAML → schema → compiled DB; the 28 canonical skills) | [x] | `feudalsim content validate` → "OK — 5 files, 28 skills, 9 needs, 14 items; hash ea0b142a35c1cf2e". Broken fixture → `items/bad.yaml:10:17: /1/base_value_f: Value is "string" but should be "integer"`. `content schemas --check` → up to date. 8 content tests (canon skill/need lists, handle order, prefix, duplicates, hash stability, schema freshness). Replaced JsonSchema.Net.Generation with a small deterministic generator (removed the Humanizer-analyzer workaround) |
 | M0-08 | Headless CLI v0 (`run` a scenario, CSV metrics, `--verify-determinism`) | [x] | `dotnet run --project src/FeudalSim.Headless -- run --scenario content/scenarios/m0_smoke.yaml --verify-determinism` → exit 0; "determinism: rerun c2c49b7f89566174, 1-thread c2c49b7f89566174 → IDENTICAL"; 54,000 steps in 0.15 s (~350k steps/s); writes `sim_runs/<id>/metrics_daily.csv`, `run.json` (final + content hash), `inputs.fslog`. NeedsDecay now reads rates from content |
 | M0-09 | Hosting (sim thread, time scale, pause, snapshots, dev commands) | [x] | `feudalsim run --realtime --seconds 60` → "604 steps in 60.4 s = 10.00 steps/s (target 10.0 ± 0.2) → OK; dilation events 0". Tests: triple buffer 200k writes under contention → 0 torn, 0 backwards; pause/step/resume via dev commands; 9 dev commands (pause, resume, step, timescale, daylength, spawn, hash, time, stats); snapshots + event ring reach presentation. Fixed: runner command Seq now continues from the world's (persisted) last Seq |
-| M0-10 | AI gateway v0: chat ping via OpenRouter (`OPENROUTER_KEY`), **fast-decider ping** (normalized option probabilities), template fallback, recording | [ ] | |
+| M0-10 | AI gateway v0: chat ping via OpenRouter (`OPENROUTER_KEY`), **fast-decider ping** (normalized option probabilities), template fallback, recording | [x] | `feudalsim ai ping` → "key: set · qwen/qwen3-14b via openrouter · reply: Good morning, traveler—welcome to our humble village… · 9578 ms · 56/27 tokens · $0.000013". `feudalsim ai decide` → qwen/qwen3.5-9b: A 0.001 · **B 0.834** · C 0.164 · D 0.001, sum 1.00, 655 ms, $0.000013. Tests: key never printed (scan) but used; no key → template/heuristic; no logprobs → `decider: unavailable`; 3 s fake provider vs 10-step deadline → fallback at step 12, late result rejected, headless replay reproduces identical events + hash. **Found:** OpenRouter `reasoning.enabled=false` is ignored by DeepInfra for qwen3-14b (empty replies) → gateway appends Qwen's `/no_think` |
 | M0-11 | Godot project boots `SimHost` with a debug overlay | [!] | Needs Godot (Blockers) |
 | M0-12 | Test terrain spike (Terrain3D vs ArrayMesh) — feeds spike S4 | [!] | Needs Godot (Blockers) |
 | M0-13 | Sim-driven capsule NPC with LOD0 ↔ LOD1 hysteresis; replay of a client session headless | [!] | Needs Godot (Blockers) |
@@ -114,6 +114,9 @@ Items found while working that belong to a later milestone or need triage.
 |------|------|---------------------|--------|
 | 2026-10-03 | Fine-tune Laya as the local fast decider from recorded decisions | M7 (data from M1) | canon §4.1 |
 | 2026-10-03 | Apply for TypeSafe Jev API access for the S3 bake-off | M1 | 31 D28 |
+| 2026-10-03 | Dialogue latency varied 3.9–9.6 s for qwen/qwen3-14b on OpenRouter (provider routing); S2 must pin fast providers or pick another model | M1 (S2) | M0-10 |
+| 2026-10-03 | Persist pending AI requests and the AI request counter in saves | M1 | M0-10 |
+| 2026-10-03 | Full 20 §9.4 snapshot layout (header + TOC + per-chunk hashes) | M3 | M0-06 |
 
 ---
 

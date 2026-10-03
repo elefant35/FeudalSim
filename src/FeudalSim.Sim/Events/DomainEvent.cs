@@ -10,6 +10,7 @@ public enum Salience : byte { Trace, Minor, Notable, Major, Historic }
 [Union(1, typeof(DayLengthChanged))]
 [Union(2, typeof(PersonSpawned))]
 [Union(3, typeof(DayStarted))]
+[Union(4, typeof(AiResultApplied))]
 public abstract record DomainEvent;
 
 [MessagePackObject]
@@ -24,6 +25,14 @@ public sealed record PersonSpawned([property: Key(0)] EntityId Person, [property
 /// <summary>Emitted when the game clock crosses midnight. <c>DayIndex</c> counts days since Y0 Spring 1.</summary>
 [MessagePackObject]
 public sealed record DayStarted([property: Key(0)] long DayIndex) : DomainEvent;
+
+/// <summary>An AI request was resolved — by the model's result, or by the sim's fallback at its deadline.</summary>
+[MessagePackObject]
+public sealed record AiResultApplied(
+    [property: Key(0)] long RequestId,
+    [property: Key(1)] bool UsedFallback,
+    [property: Key(2)] string Text,
+    [property: Key(3)] string ProviderTag) : DomainEvent;
 
 [MessagePackObject]
 public readonly record struct EventEnvelope(

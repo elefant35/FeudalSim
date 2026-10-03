@@ -1,3 +1,4 @@
+using FeudalSim.Sim.Ai;
 using FeudalSim.Sim.Commands;
 using FeudalSim.Sim.Core;
 using FeudalSim.Sim.Events;
@@ -16,6 +17,9 @@ public sealed class SimWorld
     private readonly List<ISimSystem> _systems = [];
     private readonly List<CommandEnvelope> _pending = [];
     private readonly List<EventEnvelope> _events = [];
+    private readonly List<AiRequest> _aiOutbox = [];
+    private readonly SortedDictionary<long, AiRequest> _aiPending = [];   // sorted: deterministic deadline sweep
+    private long _aiRequestSeq;
     private long _eventSeq;
 
     public SimWorld(ulong worldSeed, long startGameMs = 0, int dayLengthMinutes = SimClock.DefaultDayLengthMinutes)
@@ -81,8 +85,9 @@ public sealed class SimWorld
             Emit(Salience.Minor, EntityId.None, new DayStarted(newDay));
         }
 
-        // Phase 1 — Commands, in Seq order.
+        // Phase 1 — Commands, in Seq order, then the AI deadline sweep.
         var applied = ApplyCommands(ctx);
+        SweepAiDeadlines(ctx.Step);
 
         // Phases 2–5 — systems.
         foreach (var phase in (ReadOnlySpan<SimPhase>)[SimPhase.Sense, SimPhase.Decide, SimPhase.Resolve, SimPhase.World])
@@ -96,8 +101,10 @@ public sealed class SimWorld
         // Phase 7 — Post.
         var events = _events.ToArray();
         _events.Clear();
+        var outbox = _aiOutbox.ToArray();
+        _aiOutbox.Clear();
         var hash = HashEveryNSteps > 0 && Clock.Step % HashEveryNSteps == 0 ? StateHasher.Hash(this) : 0UL;
-        return new StepOutput { Step = Clock.Step, GameMs = Clock.GameMs, AppliedCommands = applied, Events = events, StateHash = hash };
+        return new StepOutput { Step = Clock.Step, GameMs = Clock.GameMs, AppliedCommands = applied, Events = events, AiRequests = outbox, StateHash = hash };
     }
 
     private CommandEnvelope[] ApplyCommands(in StepContext ctx)
@@ -137,9 +144,53 @@ public sealed class SimWorld
                 Emit(Salience.Minor, id, new PersonSpawned(id, c.Name));
                 break;
 
+            case AiResultCommand c:
+                if (!_aiPending.TryGetValue(c.RequestId, out var pending))
+                {
+                    Reject(command, $"Late or unknown AI result {c.RequestId}.");
+                    break;
+                }
+
+                _aiPending.Remove(c.RequestId);
+                var ok = c.Outcome == AiOutcome.Ok && !string.IsNullOrWhiteSpace(c.Text);
+                Emit(Salience.Trace, pending.Speaker, new AiResultApplied(c.RequestId, !ok, ok ? c.Text : pending.FallbackText, ok ? c.ProviderTag : "fallback"));
+                break;
+
             default:
                 Reject(command, $"Unknown command {command.Payload?.GetType().Name ?? "null"}.");
                 break;
+        }
+    }
+
+    /// <summary>
+    /// Asks the AI gateway for something. The sim never waits: if no valid result is applied by
+    /// <c>now + deadlineSteps</c>, the fallback text is used and a later result is rejected (20 §11).
+    /// </summary>
+    public long RequestAi(AiTaskKind kind, AiPriority priority, int deadlineSteps, EntityId speaker, EntityId listener, string context, string fallbackText)
+    {
+        var request = new AiRequest(++_aiRequestSeq, kind, priority, Clock.Step, Clock.Step + deadlineSteps, speaker, listener, context, fallbackText);
+        _aiPending.Add(request.RequestId, request);
+        _aiOutbox.Add(request);
+        return request.RequestId;
+    }
+
+    public int PendingAiRequests => _aiPending.Count;
+
+    private void SweepAiDeadlines(long step)
+    {
+        if (_aiPending.Count == 0) { return; }
+        List<long>? expired = null;
+        foreach (var (id, request) in _aiPending)
+        {
+            if (request.DeadlineStep <= step) { (expired ??= []).Add(id); }
+        }
+
+        if (expired is null) { return; }
+        foreach (var id in expired)
+        {
+            var request = _aiPending[id];
+            _aiPending.Remove(id);
+            Emit(Salience.Trace, request.Speaker, new AiResultApplied(id, true, request.FallbackText, "fallback:deadline"));
         }
     }
 

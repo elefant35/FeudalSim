@@ -11,6 +11,9 @@ public sealed class StepOutput
     public IReadOnlyList<CommandEnvelope> AppliedCommands { get; init; } = [];
     public IReadOnlyList<EventEnvelope> Events { get; init; } = [];
 
+    /// <summary>New AI requests for the gateway (outbox).</summary>
+    public IReadOnlyList<Ai.AiRequest> AiRequests { get; init; } = [];
+
     /// <summary>State hash after this step, when hashing was requested (20 §8.7); otherwise 0.</summary>
     public ulong StateHash { get; init; }
 }
