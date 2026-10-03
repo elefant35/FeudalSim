@@ -46,8 +46,8 @@ Source of truth for the steps: [20 §20](../tech/20-architecture.md#20-m0-founda
 | ID | Item | Status | Evidence |
 |----|------|--------|----------|
 | M0-01 | Prerequisites: pinned Godot 4.x .NET, .NET SDK check, `gh` (optional), remote set | [!] | .NET SDK 8.0.401 ✓; remote set ✓; Git LFS ✓; **Godot 4.7.2 .NET not installed** (see Blockers); `gh` optional, not installed |
-| M0-02 | Scaffolding: `global.json`, `Directory.Build.props`, `Directory.Packages.props`, `.editorconfig`, `BannedSymbols.txt`, `FeudalSim.sln` | [ ] | |
-| M0-03 | Projects + architecture test (Sim references no engine/IO/network/YAML) | [ ] | |
+| M0-02 | Scaffolding: `global.json`, `Directory.Build.props`, `Directory.Packages.props`, `.editorconfig`, `BannedSymbols.txt`, `FeudalSim.sln` | [x] | `dotnet build` → 0 warnings, 0 errors. SDK 8.0.401 (Roslyn 4.11) forced pins: BannedApiAnalyzers 3.3.4, JsonSchema.Net.Generation 7.0.1, and removal of the transitive Humanizer analyzer (`Directory.Build.targets`) — input for ADR-0010 |
+| M0-03 | Projects + architecture test (Sim references no engine/IO/network/YAML) | [x] | 5 src + 4 test projects; `dotnet test` → 5/5 pass (xunit.v3 4.0.1). Injected `HttpClient` in Sim → architecture test fails; injected `System.Random` → build error RS0030; both reverted |
 | M0-04 | Sim kernel: ids, `SimClock`, calendar, `SimRandom`, phase pipeline, `People` table, commands/events, two toy systems | [ ] | |
 | M0-05 | Determinism harness (`StateHasher`, fixed-chunk job runner) | [ ] | |
 | M0-06 | Persistence v0 (snapshot + input log, save/load equivalence) | [ ] | |

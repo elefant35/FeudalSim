@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Composes Sim + Content + AI: runner, job runner, snapshots, save/log IO (20 §2). -->
+  <ItemGroup>
+    <ProjectReference Include="..\FeudalSim.Sim\FeudalSim.Sim.csproj" />
+    <ProjectReference Include="..\FeudalSim.Content\FeudalSim.Content.csproj" />
+    <ProjectReference Include="..\FeudalSim.AI\FeudalSim.AI.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- AI gateway: LLM and fast-decider providers, recording, secrets (20 §11, 22). -->
+  <ItemGroup>
+    <ProjectReference Include="..\FeudalSim.Sim\FeudalSim.Sim.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="FeudalSim.AI.Tests" />
+  </ItemGroup>
+</Project>

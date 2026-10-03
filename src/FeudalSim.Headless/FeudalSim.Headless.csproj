@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The `feudalsim` CLI (20 §13). -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>feudalsim</AssemblyName>
+    <RootNamespace>FeudalSim.Headless</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FeudalSim.Hosting\FeudalSim.Hosting.csproj" />
+    <PackageReference Include="Spectre.Console.Cli" />
+  </ItemGroup>
+</Project>

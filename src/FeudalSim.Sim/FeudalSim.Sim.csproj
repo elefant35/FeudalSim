@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The simulation core. MUST NOT reference Godot, IO, network, YAML or FeudalSim.AI (20 §4.3). -->
+  <PropertyGroup>
+    <RootNamespace>FeudalSim.Sim</RootNamespace>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="MessagePack" />
+    <PackageReference Include="System.IO.Hashing" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="..\..\BannedSymbols.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="FeudalSim.Sim.Tests" />
+    <InternalsVisibleTo Include="FeudalSim.Integration.Tests" />
+  </ItemGroup>
+</Project>
