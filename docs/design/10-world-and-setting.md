@@ -1,6 +1,6 @@
 # 10 — World & Setting
 
-> **Status:** Draft v0.1 · **Owner doc for:** world generation, biomes, resources, climate/weather/seasons, flora & fauna (ecology), points of interest, exploration & place-naming, travel, lore, expeditions' arrival logic, resupply ships & the Silence, the ship's manifest · **Depends on:** [01-canon](../01-canon.md), [11-survival](11-survival.md), [12-skills-and-professions](12-skills-and-professions.md), [13-crafting-and-minigames](13-crafting-and-minigames.md), [14-technology-and-buildings](14-technology-and-buildings.md), [15-economy-and-trade](15-economy-and-trade.md), [16-social-systems](16-social-systems.md), [17-governance-and-law](17-governance-and-law.md), [18-conflict-and-warfare](18-conflict-and-warfare.md), [19-player-experience](19-player-experience.md), [20-architecture](../tech/20-architecture.md), [21-npc-ai](../tech/21-npc-ai.md), [22-llm-integration](../tech/22-llm-integration.md)
+> **Status:** Draft v0.1 · revised for canon v0.3 (decision points) · **Owner doc for:** world generation, biomes, resources, climate/weather/seasons, flora & fauna (ecology), points of interest, exploration & place-naming, travel, lore, expeditions' arrival logic, resupply ships & the Silence, the ship's manifest · **Depends on:** [01-canon](../01-canon.md), [11-survival](11-survival.md), [12-skills-and-professions](12-skills-and-professions.md), [13-crafting-and-minigames](13-crafting-and-minigames.md), [14-technology-and-buildings](14-technology-and-buildings.md), [15-economy-and-trade](15-economy-and-trade.md), [16-social-systems](16-social-systems.md), [17-governance-and-law](17-governance-and-law.md), [18-conflict-and-warfare](18-conflict-and-warfare.md), [19-player-experience](19-player-experience.md), [20-architecture](../tech/20-architecture.md), [21-npc-ai](../tech/21-npc-ai.md), [22-llm-integration](../tech/22-llm-integration.md)
 
 Farstrand has to be big enough to explore for days, uneven enough to fight over, and legible
 enough that an NPC can say "the tin is up past Redwater Ford" and mean a real place. This document
@@ -1349,20 +1349,24 @@ for the same seed (§20).
 
 ## 17. LLM / Jev touchpoints
 
-All of these follow canon §13: the sim supplies facts, models supply words or classifications, and
-every touchpoint has a template fallback.
+All of these follow canon §13 ("language decides, systems resolve"): the sim supplies facts, models
+supply words and classifications, and where a character makes a choice it picks from a menu this doc
+or [16](16-social-systems.md) builds, which the sim then carries out. Every touchpoint has a template
+or policy fallback.
 
 | Touchpoint | Trigger | Sim supplies | Model output | Bound / validation | Fallback |
 |------------|---------|-------------|--------------|--------------------|----------|
 | Place-name proposals | Discovery or salient event (§11) | Feature type, events, people, culture style | 3 candidate names | Sim validates (length, charset, filter, uniqueness); adoption is purely counter-based | Culture grammar |
-| Player-proposed name check | Player names a place | Player text (**untrusted**) | Jev `noul`: "in-setting, inoffensive?" | p ≥ 0.6 accepts; also filter lists | Filter lists only |
+| Player-proposed name check | Player names a place | Player text (**untrusted**) | Fast decider yes/no: "in-setting, inoffensive?" | p ≥ 0.6 accepts; also filter lists | Filter lists only |
 | Manifest backstories | World creation | Structured ties, motives, incidents | 2–4 sentences per person | Must mention only supplied facts; checked by entity match | Templates per incident |
 | Homeland letters & news | Ship arrival | News-arc stage, the recipient's kin and facts | Letter prose | No new facts beyond the arc and supplied kin events | Templates |
 | Forecast and weather barks | Conversation | Forecast belief, observed weather | A line of speech | Voices the belief, never the truth | Templates |
 | Scout reports | A scout returns | Discovered features and beliefs | Spoken report | Only the transferred beliefs | Templates |
+| **Asking the way, or for what someone knows** (ore, a ford, game, a guide) | Player asks in conversation | The NPC's place beliefs and the decision menu (next columns) | The NPC's **choice** (LLM, in the reply) and its line | Menu: `tell_all` · `tell_some` (the single most salient feature) · `withhold` · `sell_for` (a price from [15](15-economy-and-trade.md)) · `guide` (a day's guiding at 15's wage; eligible if free that day). `p_i` from [16](16-social-systems.md)'s disclosure rules (Trust, Opinion, how valuable or secret the knowledge is). Stakes low; medium for an undisclosed deposit. Executed by the belief transfer in §10 (*Telling*); payment and the guiding job by 15 and [21](../tech/21-npc-ai.md) | Policy samples `p_i` |
 | Chronicle (world events) | Season and Interlude end | `DepositExhausted`, `GameScarce`, arrivals, the Silence | Prose | Facts from the log | Templates |
 
-No model touches generation geometry, populations, deposits or schedules.
+No model touches generation geometry, populations, deposits or schedules, and no model decides what a
+place *is*: a character may choose whether to share what they believe, never what is true.
 
 ---
 
@@ -1398,7 +1402,7 @@ No model touches generation geometry, populations, deposits or schedules.
 | Wolf attrition spirals (wolves eat all the livestock) | Depredation probability is capped; guard multipliers; wolf hunts are a cheap communal job |
 | Player savescums the seed for a better landing | Allowed. The manifest and weather change with the seed, so there is no "best seed" |
 | Player camps on the reef to hoard the wreck | The wreck is time-limited; tides and surge are dangerous; other settlers salvage in parallel |
-| Exploiting naming (offensive names) | Filter + Jev check; names spread only if others use them |
+| Exploiting naming (offensive names) | Filter + fast-decider check; names spread only if others use them |
 | Fords and tides trap NPCs constantly | NPCs check tide and stage beliefs; a stuck NPC waits (Comfort cost) instead of attempting a crossing above 0.9 m |
 | Wildfire wipes out the settlement | Off by default until M5. Only in Dry years, only Pine and Moor, and capped area |
 | Day-length setting changes economic output | Accepted per [20](../tech/20-architecture.md); balance tests run at 30 min (Open questions) |
@@ -1503,3 +1507,6 @@ No model touches generation geometry, populations, deposits or schedules.
 14. **Conflict noted:** [15](15-economy-and-trade.md) §10.2's salvage quantities (seed grain 60 kg,
     4 goats, 4 knives) are adopted by [11](11-survival.md). Canon §5.3 should list them so 11, 15
     and 19 stay in sync.
+15. **Place-knowledge disclosure DP** (canon v0.3): asking someone what they know of a place opens a
+    decision point `tell_all · tell_some · withhold · sell_for · guide` (§17); the choice is the
+    character's, the transferred beliefs are exactly the ones they hold.

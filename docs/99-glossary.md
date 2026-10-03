@@ -1,6 +1,6 @@
 # 99 — Glossary
 
-> **Status:** Draft v0.2 · **Owner doc for:** terminology · **Depends on:** all docs
+> **Status:** Draft v0.3 · **Owner doc for:** terminology · **Depends on:** all docs
 
 Short definitions of terms used across the plan. The **owning document** (in brackets) holds the
 full definition; when this glossary and an owning doc disagree, the owning doc wins.
@@ -19,6 +19,9 @@ full definition; when this glossary and an owning doc disagree, the owning doc w
 - **Battle mode / LOD0-B** — The dedicated simulation tier for battles: up to 150 combatants (stretch
   300). The 48 nearest the player get full LOD0 fidelity; the rest use sim-side kinematics with the
   same damage math. The world clock runs on focus time while it's active. [18, 20]
+- **Base propensity (`p_i`)** — The probability the deterministic policy would choose a given
+  menu option, computed from personality, needs, emotions, relationship, beliefs and the speaker's
+  skill. Guards use it; LLMs see it only as qualitative "inclinations". [01 §13, 21]
 - **Belief** — A claim a person holds with a confidence (0–1) and a source chain; may be false.
   Thresholds: forget < 0.1, hold ≥ 0.5, act ≥ 0.6, certain ≥ 0.85. [16]
 - **Bench camera** — The close-up camera used for crafting minigames. [01 §4, 19]
@@ -54,10 +57,18 @@ full definition; when this glossary and an owning doc disagree, the owning doc w
 
 - **Day-of-year (`d`)** — 1…32, where Spring 1 = 1. Used by calendar formulas (daylight, crop
   windows). [01 §6, 10, 13]
+- **Decider** — Whatever picks an option at a decision point: the **LLM** (inside its reply), the
+  **fast decider**, or the deterministic **policy**. [01 §13]
+- **Decision-first output** — The LLM emits its chosen option in the first tokens, which are
+  validated before any speech is shown; the speech is conditioned on the choice. [01 §13.5, 22]
+- **Decision point (DP)** — A moment when a character must choose in a language-driven situation.
+  The owning system builds a **menu**, a decider picks, guards check, and the owning system executes
+  and resolves the choice. "Language decides, systems resolve." [01 §13]
 - **Demeanor cues** — Visible signs of an NPC's attitude (posture, expression, wording) shown instead
   of hidden numbers. [19]
-- **Dialogue Rules Engine (DRE)** — The sim system that turns classified player language plus hard
-  state into outcomes *before* any reply text is generated. [22]
+- **Dialogue Rules Engine (DRE)** — The sim system that opens decision points, builds their menus
+  through the owning systems, guards the chosen option, and dispatches its execution. It never
+  waits on a model. [22]
 - **Drama setting (K_irr)** — The master irrationality knob (0–2, default 1.0) scaling every
   irrationality mechanism. [21]
 - **EcoCell** — A 512 m grid cell used for ecology (fauna populations, forest stands, fish stocks). [10]
@@ -73,6 +84,9 @@ full definition; when this glossary and an owning doc disagree, the owning doc w
   Chronicles and tools). [20]
 - **Exodus** — A faction leaving to found a splinter settlement once grievance, cohesion and
   leadership thresholds are met (minimum 6 adults and 16 ration-days of food each). [01 §5.4, 17]
+- **Fast decider** — A sub-second model that classifies player language and picks among fixed
+  options, returning probabilities. Now a small OpenRouter model read through log-probabilities;
+  later Jev or a fine-tuned local Laya. [01 §4.1]
 - **Farthing (f)** — The internal unit of value. 4f = 1 penny (d); 12d = 1 shilling (s); 20s = 1
   crown. One unskilled labor-day ≈ 8f. [01 §11, 15]
 - **Focus time** — The world clock runs at 12:1 (¼ of normal) while a conversation, court session or
@@ -89,14 +103,17 @@ full definition; when this glossary and an owning doc disagree, the owning doc w
 
 ## J–P
 
-- **Jev** — TypeSafe AI's "System One" decision model. It returns calibrated probabilities over fixed
-  options and never generates text. Used only to classify; never decides outcomes or produces
-  numbers. [01 §4.1, 22]
+- **Jev** — TypeSafe AI's "System One" decision model: calibrated probabilities over fixed options,
+  no text generation. One possible fast-decider provider, pending direct API access (OpenRouter lists
+  only the *Jev Router*, which routes to other models). Never produces numbers. [01 §4.1, 22]
 - **Kin-group** — A first-class grouping (family name, house or clan) used by succession and feuds. [16]
 - **Keepers** — The working name for Ember Faith clergy. [16]
 - **Know-how** — A discrete technique held by individuals ("Bloomery smelting", "Quench hardening");
   spreads by teaching, apprenticeship and manuals; lost if every holder dies untaught. [01 §10.3, 12]
 - **Landfall** — Era 0 and the opening scenario: the *Wending Star*'s landing on `Y0 Spring 1`. [01, 11]
+- **Laya** — An open-source (Apache-2.0) Jev-style decision model from Convai Innovations
+  (ModernBERT-based, 322–421M parameters) that runs locally and serves the same API shape as Jev. The
+  candidate local fast decider once fine-tuned on our data. [01 §4.1, 22]
 - **Leads** — The sim's opportunity surface for the player: vacancies, unmet demand, unclaimed land,
   learned through rumor, sight, reading or being asked. Logged in the journal. [19]
 - **Legitimacy** — A ruler's standing, built from five sources: Tradition/Charter, Competence,
@@ -106,8 +123,13 @@ full definition; when this glossary and an owning doc disagree, the owning doc w
   (hourly), Statistical (daily; Interludes and far settlements). [01 §8.2, 21]
 - **Manifest (ship's manifest)** — The generated roster of the first 24 settlers, with professions,
   families, pre-existing relationships, debts, grudges and secrets. [10]
+- **Long-shot budget** — At most 2 player-favoring choices per NPC–player pair per game day for
+  options with base propensity < 0.20; closes "rephrase until yes". [01 §13.1]
 - **Masterwork attempt** — A deliberate attempt at Q ≥ 90. It raises difficulty; without one, quality
   caps at 89. [13]
+- **Menu (option menu)** — The options a decision point offers, each with fixed parameters
+  (prices, amounts, targets), eligibility, base propensity and stakes. Its width is the hard-coded
+  willingness to be swayed: `Margin = C_sys · s · (0.5 + 0.5·K_skill)`. [01 §13]
 - **Monetization index (μ)** — The 16-day average share of a settlement's trade settled in coin. [15]
 - **Mood** — A −100…+100 composite of needs and emotions. Bands: Elated, Content, Neutral, Low,
   Breaking. [01 §10.5, 21]
@@ -121,6 +143,9 @@ full definition; when this glossary and an owning doc disagree, the owning doc w
 - **Performance score (PS)** — The 0–100 result of a `Resolve()` check (`50 + 1.25R`), mapped to
   quality or yield by the owning system. [12, 13]
 - **Persona card** — The compact, sim-derived description of an NPC that goes into every prompt. [22]
+- **Policy** — The deterministic decider: seeded sampling from base propensities. It decides
+  everything off-screen, in Interludes and headless runs, in template mode, and whenever a model
+  times out or a guard rejects its choice. [01 §13, 21]
 - **Priority classes P0–P4** — Tiers of NPC action selection, from survival emergencies (P0) to idle
   (P4). [21]
 - **Process** — A multi-stage piece of work (tanning, seasoning, firing, fermenting) that can span
@@ -143,8 +168,9 @@ full definition; when this glossary and an owning doc disagree, the owning doc w
   [12]
 - **Resupply ship** — An immigrant and trade ship arriving at Summer 1 (+0–3 days) in Years 1…N,
   until the Silence. [01 §5.4, 10, 15]
-- **Risk tiers (A/B)** — Tier A dialogue streams with rule checks only; Tier B (high-stakes) is held,
-  verified by Jev, regenerated once, then falls back to a template. [22]
+- **Risk tiers (A/B)** — Tier A (low/medium stakes) streams once the decision header passes its
+  guards; Tier B (high/critical) holds the line until the speech is verified consistent with the
+  decision, regenerates once, then falls back to a template. [01 §13.5, 22]
 - **Rumor** — A belief in transit between people; spreads, distorts and decays by hard-coded rules. [16]
 - **Rust** — A temporary penalty on unused skills (after 16 idle days, up to 15% of the level), cleared
   by practice. Skill levels themselves never fall. [12]
@@ -158,10 +184,10 @@ full definition; when this glossary and an owning doc disagree, the owning doc w
 - **Status band** — Ordinal social standing 0–4 (Unfree/landless, Commoner, Master/merchant,
   Notable, Ruler), defined in every era. [17]
 - **Susceptibility (s)** — A listener's hard-coded openness to persuasion (0.05–1.0), from
-  personality, relationship and state. Scales how far words can move an outcome. [22]
+  personality, relationship and state. Sets how wide their decision menus reach. [01 §13.4, 22]
 - **Task board** — The Era-0 communal job list that settlers take work from. [21, 12]
-- **Template mode** — Play with no LLM: template/grammar dialogue and heuristic classification. The
-  game must stay completable in it. [01 §13, 22]
+- **Template mode** — Play with no LLM: template/grammar dialogue, heuristic classification, and the
+  policy making every decision. The game must stay completable in it. [01 §13, 22]
 - **Tech tier (T0–T4)** — Salvage & Stone · Clay & Copper · Bronze · Iron · Steel. [01 §9, 14]
 - **Wending Star** — The player's expedition ship *(working name)*. [01 §5.3]
 - **Wergild** — A blood-money table in farthings by status, also used for ransom. [18]

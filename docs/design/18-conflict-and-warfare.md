@@ -1,6 +1,6 @@
 # 18 — Conflict & Warfare
 
-> **Status:** Draft v0.1 · **Owner doc for:** personal combat, fights & duels, feuds, raids, war causes, muster/conscription, battles, sieges, war's effects · **Depends on:** [01-canon](../01-canon.md), [11-survival](11-survival.md) (injuries, disease, rations), [12-skills-and-professions](12-skills-and-professions.md), [13-crafting-and-minigames](13-crafting-and-minigames.md) (weapon/armor quality, hunting), [14-technology-and-buildings](14-technology-and-buildings.md) (fortifications), [15-economy-and-trade](15-economy-and-trade.md), [16-social-systems](16-social-systems.md), [17-governance-and-law](17-governance-and-law.md), [21-npc-ai](../tech/21-npc-ai.md), [22-llm-integration](../tech/22-llm-integration.md), [20-architecture](../tech/20-architecture.md)
+> **Status:** Draft v0.1 — revised for canon v0.3 (decision points) · **Owner doc for:** personal combat, fights & duels, feuds, raids, war causes, muster/conscription, battles, sieges, war's effects · **Depends on:** [01-canon](../01-canon.md), [11-survival](11-survival.md) (injuries, disease, rations), [12-skills-and-professions](12-skills-and-professions.md), [13-crafting-and-minigames](13-crafting-and-minigames.md) (weapon/armor quality, hunting), [14-technology-and-buildings](14-technology-and-buildings.md) (fortifications), [15-economy-and-trade](15-economy-and-trade.md), [16-social-systems](16-social-systems.md), [17-governance-and-law](17-governance-and-law.md), [21-npc-ai](../tech/21-npc-ai.md), [22-llm-integration](../tech/22-llm-integration.md), [20-architecture](../tech/20-architecture.md)
 
 The vision asks for two things that pull in opposite directions: violence that is **personal** ("if they insult a person, they should be prepared for a fight") and war that is **societal** ("leaders will need to get people from their real societies to fight on their behalf which would affect the economies of those societies"). This document builds one continuous system from the tavern scuffle to the siege. Every rung uses the same combat math, the same people, and the same consequences.
 
@@ -37,11 +37,11 @@ The vision asks for two things that pull in opposite directions: violence that i
 
 | # | Principle | Consequence for design |
 |---|-----------|------------------------|
-| C1 | **Real-time is hard code.** No LLM or Jev call sits inside a combat loop. | Barks come from pre-generated pools; combat AI is a 10 Hz utility controller. |
+| C1 | **Words can start a fight; combat settles it** (canon §13). A fight starts from a conversation decision point (an NPC chooses to shove or attack, §4.1) or from someone's action. Once it starts, the combat system resolves it in real time: no LLM generation inside a combat loop. | Combat AI is a 10 Hz utility controller; mid-fight yield and mercy are fast-decider choices (≤ 500 ms) or policy (§2.10); barks come from pre-generated pools; battles have no LLM decisions at all (§10). |
 | C2 | **Parity.** Player and NPCs use the same damage, armor, stamina, morale and injury math. | NPCs do not "press parry"; they sample timing from a skill-calibrated distribution against the *same* windows the player faces (§3.2). |
 | C3 | **Every casualty has a name.** No anonymous soldiers. Every levy is a simulated person with a household. | Battle results write injuries and deaths onto real persons; grief and labor loss follow. |
 | C4 | **War is mostly logistics and grief.** Battles are rare climaxes; the cost is days of absent labor, food requisitioned, and empty chairs. | Most war gameplay is muster, camp, march, home front. A typical war has 1–3 field battles. |
-| C5 | **Escalation is gated.** Each rung of violence has a hard-coded gate and a legal/social price. | Most insults end in words; most feuds end in blood money; most tensions end in raids, not war. |
+| C5 | **Escalation is gated.** Each rung of violence has a hard-coded eligibility gate on the decision menu and a legal/social price. | Most insults end in words; most feuds end in blood money; most tensions end in raids, not war. |
 | C6 | **Readable over realistic.** Non-directional, timing-based melee; stylized low-poly animation budget; 150 combatants. | See the §2.1 rationale. |
 
 ### 1.1 The escalation ladder
@@ -49,13 +49,13 @@ The vision asks for two things that pull in opposite directions: violence that i
 | Rung | Typical lethality | Decided by | Legal default ([17](17-governance-and-law.md) may override) | First milestone |
 |------|------------------|-----------|-----------------------------|-----------------|
 | 0 Insult / slight | none | [16](16-social-systems.md) applies opinion and emotion | none | M1 |
-| 1 Retort / threat | none | §4.1 confrontation function | none | M1 (verbal), M2 (physical) |
-| 2 Brawl (fists) | ~1% | §4.1 | Affray: minor fine | M2 |
-| 3 Armed fight | 15–30% | §4.1 (requires lethal intent) | Assault / wounding / manslaughter | M2 |
-| 4 Formal duel | 5–40% by terms | §4.3 challenge + acceptance | Lawful if sanctioned | M4 |
-| 5 Feud | sporadic killings | §5 feud engine | Lord may arbitrate | M4 |
-| 6 Raid | 0–10% of participants | §6 raid utility | Crime, or an act of hostility between polities | M5 |
-| 7 War | 5–25% of combatants per battle | §7 war utility | Lawful between polities | M6 |
+| 1 Retort / threat | none | §4.1 confrontation DP (LLM in reply when the player is party; else fast decider or policy) | none | M1 (verbal), M2 (physical) |
+| 2 Brawl (fists) | ~1% | §4.1 DP starts it; combat (§2–4.2) resolves it | Affray: minor fine | M2 |
+| 3 Armed fight | 15–30% | §4.1 DP (critical: requires lethal intent and deterministic `p_i ≥ 0.25`); combat resolves it | Assault / wounding / manslaughter | M2 |
+| 4 Formal duel | 5–40% by terms | §4.3 challenge DP (accept / demand terms / refuse); combat resolves it | Lawful if sanctioned | M4 |
+| 5 Feud | sporadic killings | §5 feud engine (policy) | Lord may arbitrate | M4 |
+| 6 Raid | 0–10% of participants | §6 raid utility (policy) | Crime, or an act of hostility between polities | M5 |
+| 7 War | 5–25% of combatants per battle | §7 war utility: policy, or the leader's DP at a war council the player attends | Lawful between polities | M6 |
 | 8 Siege / conquest | high, plus starvation | §11 | — | M6 (basic), M7 (engines) |
 
 ---
@@ -250,16 +250,28 @@ These are the **default thresholds this doc assumes** (11 may override them; the
 
 ### 2.10 Surrender, mercy, executions
 
-**Yielding.** Any combatant can yield: weapon dropped, kneeling. NPCs yield by the morale rule in §3.3. The victor then chooses:
+**Yielding.** Any combatant can yield: weapon dropped, kneeling. The player yields with Y (§2.2). For an NPC, yielding is the **yield DP** `dp.combat_yield`, opened when its combat morale (§3.3) first drops below Waver (20), or when an opponent demands surrender (quick intent "Yield!"):
 
-| Victor's choice | Effect |
-|-----------------|--------|
-| **Spare** | Fight ends. Yielder gets Shame +30 and Fear of the victor +20. Witnesses: victor Courage +2, Peaceableness +3 |
-| **Bind / capture** | Takes 4 s with rope or cord. Captive follows. In war they become ransomable (§12.5) |
-| **Strip** (take weapon and purse) | In civil fights this is robbery ([17](17-governance-and-law.md)) |
-| **Kill the yielded** | Murder in civil law, even after a lawful fight. In war it is not a crime by default, but witnesses with Honor ≥ 50 apply Opinion −25 and the community applies Courage −10 and Peaceableness −15. Among Brannoch kin it opens a feud automatically (§5) |
+| Option | Effect | Eligibility | `p_i` (`lg(x) = 1/(1 + e^(−x))`) |
+|--------|--------|-------------|------------------------------------|
+| `fight_on` | Stays in the Combat Controller (§3.1) | always | the remainder |
+| `yield` | Drops weapon, kneels; the victor's mercy DP follows | always | `lg((15 − M)/3)` × 1.5 if cornered; +0.2 if surrender was demanded by a visibly stronger opponent |
+| `flee` | Flee state (§3.1) | an escape route exists | `lg((10 − M)/3)` |
 
-NPC victor policy (hard-coded): `pKill = clamp(0.02 + 0.6·hatred + 0.2·[Vengeful] + 0.15·[Hot-tempered, Anger > 70] − 0.3·(Warmth/100) − 0.2·(Honor/100), 0, 0.95)`, where `hatred = max(0, −Opinion)/100`. In war, add +0.15 if a friend or kin of the victor died in this battle.
+`yield` and `flee` together are capped at 0.95. Stakes: medium. Re-opened when morale drops a further 10 points.
+
+The victor then chooses. The player chooses with the deliberate E-hold (§2.2). An NPC victor's choice is the **mercy DP** `dp.mercy`:
+
+| Victor's choice | Effect | `p_i` |
+|-----------------|--------|-------|
+| **Spare** (`spare`) | Fight ends. Yielder gets Shame +30 and Fear of the victor +20. Witnesses: victor Courage +2, Peaceableness +3 | share of `1 − pKill` by weight `0.5 + 0.3·Warmth/100` |
+| **Bind / capture** (`bind`) | Takes 4 s with rope or cord. Captive follows. In war they become ransomable (§12.5). Eligible only with rope or cord to hand | weight `0.6·(1 + [war] + [ransom value ≥ 48f] + [arrest by an officer])` |
+| **Strip** (`strip`: take weapon and purse) | In civil fights this is robbery ([17](17-governance-and-law.md)) | weight `0.1 + 0.3·[Greedy]` |
+| **Kill the yielded** (`kill`) | Murder in civil law, even after a lawful fight. In war it is not a crime by default, but witnesses with Honor ≥ 50 apply Opinion −25 and the community applies Courage −10 and Peaceableness −15. Among Brannoch kin it opens a feud automatically (§5) | `pKill` — **critical** (lethal violence) |
+
+`pKill = clamp(0.02 + 0.6·hatred + 0.2·[Vengeful] + 0.15·[Hot-tempered, Anger > 70] − 0.3·(Warmth/100) − 0.2·(Honor/100), 0, 0.95)`, where `hatred = max(0, −Opinion)/100`. In war, add +0.15 if a friend or kin of the victor died in this battle. Because `kill` is critical, it is on the menu only when this deterministic `pKill ≥ 0.25` (canon §13.1); no plea and no decider can make it more likely than that.
+
+**Who decides yield and mercy.** Never an LLM, and never generated speech: the yielder's plea and the victor's words are barks from the pools (§13). The **fast decider** (canon §4.1) decides when the player is a party (the opponent, the yielder, or the one demanding surrender), outside battle mode, and only if it answers within the **0.5 s** combat deadline. It reads a structured state summary plus the player's quick intent (beg, offer ransom, name a protector), never free text. Otherwise — NPC↔NPC fights, LOD1+, every fight in battle mode (§10), or a missed deadline — the **policy** samples `p_i`. A player's ransom offer adds no number of its own: it raises the `bind` weight by +1, and the ransom amount is fixed by §12.5.
 
 **Executions.** [17](17-governance-and-law.md) decides sentences. This doc provides the **execution interaction**: a non-combat sequence (hanging, beheading) carried out by whoever holds the office. If the player holds it, they must perform it or delegate it, and that choice is public. Witnesses get emotions from the condemned's relationships (Grief for kin, Fear for those with guilty memories, Joy for those with hatred ≥ 60). The content setting "executions: fade to black" exists ([19](19-player-experience.md)).
 
@@ -274,7 +286,7 @@ When an NPC enters combat, a **Combat Controller** takes over from the needs-dri
 ```mermaid
 stateDiagram-v2
     [*] --> Assess
-    Assess --> Engage: intent ∈ {Kill, Subdue, Defend, Protect}
+    Assess --> Engage: intent ∈ {Kill, Wound, Subdue, Defend, Protect}
     Assess --> Flee: morale < 10 or (no weapon and outmatched)
     Engage --> Pressure: in range, own stamina > 40%
     Engage --> Guard: stamina < 40% or target attacking
@@ -296,6 +308,7 @@ stateDiagram-v2
 | Intent | Set when | Weapon behavior |
 |--------|----------|-----------------|
 | Subdue | brawl, arrest, sparring, Opinion of the target > −40 | Fists or club; stops at a downed or yielded target |
+| Wound | armed fight without lethal intent (16 rung 6), duels to first blood (§4.3) | Weapons drawn; stops at a downed or yielded target; never finishes (`pKill` = 0) |
 | Kill | war, feud killing, ambush, Opinion ≤ −60 with lethal escalation (§4.1), predator defense | Finishes a downed target with probability `pKill` (§2.10) |
 | Defend | attacked without wishing to fight | Guard-heavy; flees when possible |
 | Protect(X) | kin, friend (Opinion ≥ 50), lord, or charge X is attacked | Moves to intercept, targets X's attacker |
@@ -340,7 +353,7 @@ M(t) = M0 + Σ situational terms, clamped 0..100, recomputed at 2 Hz
 | Opponent visibly stronger (perceived power ratio > 1.5) | −10 |
 | Opponent fled, yielded or fell | +10 |
 
-Thresholds: **Waver < 20**, **Flee < 10** with an escape route, **Yield < 15** when cornered. Animals use the same function with species seeds (§3.6).
+Thresholds: **Waver < 20**, **Flee < 10** with an escape route, **Yield < 15** when cornered. For people, Flee and Yield are the centers of the yield DP's propensities (§2.10), opened at Waver; animals use the thresholds directly, with species seeds (§3.6).
 
 ### 3.4 Target selection & spacing
 
@@ -382,39 +395,38 @@ Shouting, clattering and torches all go through the same morale function. A grou
 
 ### 4.1 The confrontation function (insult → fight hand-off)
 
-Ownership split, per [canon §13](../01-canon.md#13-the-llm-boundary-hard-systems-soft-voice):
+Ownership split, per [canon §13](../01-canon.md#13-the-llm-boundary-language-decides-systems-resolve) (v0.3: language decides, systems resolve):
 
-1. **[16-social-systems](16-social-systems.md)** receives the classified dialogue act. Jev classifies tone and insult severity, and that input is treated as **untrusted**. 16 applies Opinion and emotion changes, then emits `ProvocationEvent{target, provoker, severity, anger, witnesses}`.
-2. **18 (this doc)** runs the hard-coded **confrontation function** and chooses the response rung. The LLM only voices that rung.
+1. **[16-social-systems](16-social-systems.md)** receives the classified dialogue act. The fast decider (canon §4.1) classifies tone and insult severity, and that input is treated as **untrusted**. 16 applies the act's deterministic Opinion and emotion changes, then emits `ProvocationEvent{target, provoker, severity, anger, witnesses}`.
+2. **The target's response is a decision point** (canon §13.1). Its menu is the escalation ladder ([16 §9](16-social-systems.md)). 16 computes the base propensities `p_i` over all response rungs from its escalation pressure `E` (16 §9.2). This document supplies the fight-starting options (`shove`, `challenge`, `attack_brawl`, `attack_armed`, `attack_to_kill`) with their fixed parameters, extra eligibility gates and combat intents (table below).
+3. **Decider.** If the provoker is the player in conversation, the LLM chooses decision-first in the target's reply. A shouted insult outside a conversation is a fast-decider choice. NPC↔NPC quarrels, overheard or not, are decided by the policy; the LLM only renders them.
+4. **Guard.** The DRE checks the menu, eligibility, floors and the long-shot budget. `attack_armed` is **critical** (lethal violence): it also needs a deterministic `p_i ≥ 0.25`, computed without the player's words.
+5. **Execution.** Verbal options go back to 16 (Opinion, emotions, rung state). Fight-starting options start a fight in the **combat system** (§2–3, §4.2) with the option's fixed intent, or open the duel challenge (§4.3). From the first blow, combat is real time and hard-coded; nothing more is decided by an LLM until the fight ends.
 
-```
-E = 0.50·Anger
-  + 0.25·(Volatility − 50)
-  + 0.15·(Honor − 50)
-  + 4·min(W, 5)·cultureHonor          // W = witnesses whose opinion the target values (Opinion ≥ 20 or higher status)
-  − 0.20·max(0, Opinion_of_provoker)
-  − 0.40·Fear_of_provoker
-  + 15·intoxication                   // 0..1 from 11
-  + 10·clamp(perceivedPowerRatio − 1, −1, 1)
-  + traitTerms                        // Hot-tempered +15, Brave +5, Coward −20, Vengeful +5 if prior grievance
-  + placeTerm                         // tavern +5, shrine/court −25, own home +5
-  − 10·[watchman or lord within 20 m]
-  + N(0, 8)                           // irrationality (canon tenet 3)
-```
+**Escalation pressure and the response menu are owned by [16 §9.2 and §9.6](16-social-systems.md#92-escalation-pressure)**
+(one formula, `E`, with rung thresholds, caps and noise; the canonical worked example is Hobb the
+smith in [16 §9.3](16-social-systems.md#93-worked-example--insulting-hobb-the-smith-in-the-alehouse)).
+This document owns what happens when a chosen rung reaches the body: the fight-starting options'
+fixed parameters, extra eligibility gates, and the combat intent they start.
 
-`cultureHonor`: Brannoch 1.3, Varrow 1.0, Ashen Reform 0.7, Osmeri 0.6.
+| 16 rung | Menu option(s) | Fixed parameters (this doc) | Extra eligibility (this doc) | Stakes | Combat start |
+|---------|----------------|-----------------------------|------------------------------|--------|--------------|
+| 3 Threat | `threaten`, `challenge` | challenge: proposed duel terms (§4.3) | `challenge`: Honor ≥ 60 and dueling customary (§4.3) | medium / high | None (verbal), or a duel per §4.3 |
+| 4 Shove | `shove` | stagger 0.5 s, no damage | — | high | None unless answered; a shove back or a further insult starts a brawl |
+| 5 Brawl | `attack_brawl` | intent **Subdue**, fists (§4.2) | — | high | Fistfight (§4.2) |
+| 6 Armed fight | `attack_armed` | intent **Wound**, weapon at hand | weapon at hand (16's rung-6 gates apply) | **critical** | Armed fight that stops at a downed or yielded target |
+| 7 Lethal intent | `attack_to_kill` | intent **Kill** (§3.1), weapon at hand | lethal intent: `Opinion ≤ −60`, an active feud or grievance, or 16's rung-7 gates | **critical** | Fight to the death; `pKill` applies (§2.10) |
 
-| E | Response (rung) | What the player experiences |
-|---|-----------------|----------------------------|
-| < 20 | Ignore or mutter | NPC turns away; Opinion is still changed by 16 |
-| 20–39 | Verbal retort | LLM-voiced retort; conversation continues coldly |
-| 40–54 | **Demand apology** | NPC squares up. The player's **next utterance** is the window. If 16 classifies an apology, Anger −(15..40) by sincerity and E is recomputed. Silence or walking away counts as refusal (+10 E) |
-| 55–69 | Shove / threat | Physical shove (stagger, no damage), or a formal **challenge** if Honor ≥ 60 and dueling is customary (§4.3). A brawl starts if the player shoves back or insults again |
-| 70–84 | **Brawl** | Fists (§4.2) |
-| ≥ 85 | Armed attack | **Only if lethal intent holds**: `Opinion ≤ −60` or an active feud or grievance, and a weapon is at hand. Otherwise it degrades to a brawl |
+Critical options also need a deterministic `p_i ≥ 0.25` computed without the player's words (canon
+§13.1). An ineligible option's mass moves down the ladder, as 16 specifies.
 
-**Worked example.** In the tavern the player calls Bram a coward in front of three friends. Bram is Hot-tempered, Volatility 70, Honor 60, Opinion of the player −10, Fear 10, intoxication 0.5, perceived power ratio 1.1. Jev rates the insult *severe*, so 16 sets Anger 65. Then:
-`E = 32.5 + 5 + 1.5 + 4·3·1.0 − 0 − 4 + 7.5 + 1 + 15 + 5 = 75.5` (+ noise). **Brawl.** If the player had apologized at E 40–54 they would have avoided it. Bram's Opinion and the rumor still remain.
+**Worked example.** In [16 §9.3](16-social-systems.md#93-worked-example--insulting-hobb-the-smith-in-the-alehouse)
+the player insults Hobb twice in the alehouse; his response DP reaches `attack_brawl` 0.87 and the
+LLM in his reply picks it. 16 emits `ConfrontationEscalated{Rung 5, Subdue}`; this document's combat
+system starts a Subdue fistfight (§4.2) and resolves it in real time — damage, stamina, knockouts and
+yields are all hard-coded. Had Hobb's hammer been to hand with the player his Enemy, rung 6 would be
+open and an LLM pick of `attack_armed` would pass only because the hard-coded temper already made it
+likely (≥ 0.25).
 
 The player is never forced to fight back. Fleeing, yielding or calling the watch are all valid. Each has reputation consequences (Courage −3 for fleeing an affront with witnesses, only in honor cultures).
 
@@ -422,7 +434,10 @@ The player is never forced to fight back. Fleeing, yielding or calling the watch
 
 **Brawl rules.** Fists deal small Health damage and large **Stun** damage. Stun is a 0–100 pool that regenerates 5/s after 2 s without being hit. **Stun 0 → knockdown** for 3–6 s. A second knockdown in the same brawl → **knockout** for 20–40 s (10% concussion chance → 11). A brawl ends on: yield, knockout, separation by bystanders (two interveners holding a fighter for 3 s), a watchman's order (`Obey` utility from 21, high), or **a weapon being drawn**. Drawing a weapon instantly re-classifies the incident as armed (§4.5) for all witnesses.
 
-**Bystanders** within 20 m each pick a reaction at 1 Hz:
+**Bystanders.** While a quarrel is still verbal, a bystander who notices it gets one fast-decider DP
+(`step_in` · `call_others` · `ignore`; canon §13.1), whose menu and propensities belong to 16's
+de-escalation rules ([16 §9.4](16-social-systems.md)). Once blows land, the fight is real time:
+bystanders within 20 m each pick a reaction at 1 Hz with these hard-coded utilities (no decider):
 
 | Reaction | Utility (abridged) |
 |----------|--------------------|
@@ -438,15 +453,24 @@ Each witness gets an episodic memory (16), so rumors carry the *witness's* versi
 
 ### 4.3 Formal duels
 
-A **challenge** is a structured act. The NPC's confrontation function chooses it (§4.1), or the player uses the *Challenge* quick intent ([19](19-player-experience.md)). Text the classifier reads as a challenge is confirmed through the intent-echo UI before it counts.
+A **challenge** is a structured act with proposed terms. An NPC issues one by choosing `challenge` in the confrontation DP (§4.1); the player uses the *Challenge* quick intent ([19](19-player-experience.md)). Text the classifier reads as a challenge is confirmed through the intent-echo UI before it counts.
 
-| Term set by the challenged party | Ends on | Lethality |
+| Terms (the challenged party has the final say) | Ends on | Lethality |
 |-----------------------------------|---------|-----------|
 | First blood | First injury ≥ Minor | ~1% |
 | Yield | Yield or downing | ~5% |
 | To the death | Death (only if [17](17-governance-and-law.md) permits death duels) | ~40% |
 
-**Acceptance (NPC challenged):** `pAccept = clamp(0.3 + 0.006·Honor + 0.004·Volatility + 0.2·[Brave] − 0.4·[Coward] + 0.15·cultureHonor·[witnesses] − 0.3·[perceived power ratio < 0.7], 0.02, 0.98)`.
+**The challenge DP** `dp.duel_challenge` (NPC challenged). The LLM decides in the reply when the player issues the challenge in conversation; otherwise the policy decides. If the player is the one challenged, it is the player's choice.
+
+| Option | Fixed parameters | Eligibility | `p_i` | Stakes |
+|--------|------------------|-------------|-------|--------|
+| `accept` | the proposed terms, place and time | always | `pAccept·(1 − dShare)` | high; **critical** if the terms are to the death |
+| `demand_terms(t)` | `t` = the next less lethal terms, or a named champion (the best eligible kin or retainer), or both | a less lethal term exists, or a champion is allowed (below) | `pAccept·dShare`, `dShare = 0.25 + 0.25·[perceived power ratio < 1] + 0.2·[proposed to the death]` | high |
+| `refuse` | refusal costs (below) | always | `1 − pAccept` | medium |
+
+`pAccept = clamp(0.3 + 0.006·Honor + 0.004·Volatility + 0.2·[Brave] − 0.4·[Coward] + 0.15·cultureHonor·[witnesses] − 0.3·[perceived power ratio < 0.7], 0.02, 0.98)`. After `demand_terms`, an NPC challenger answers with its own DP (`accept_terms` · `withdraw`, `p(accept_terms) = pAccept` computed for the challenger). Re-issuing a refused challenge to the same person multiplies `pAccept` by `0.5^(n−1)` and raises Anger (canon §13.4). Once a duel is agreed, this document runs it in the combat system; the seconds' and yield rules below are hard-coded.
+
 **Refusal costs:** Courage −10 × cultureHonor (with witnesses), Shame +20. The challenger gains nothing for a refused challenge against a much weaker person (Peaceableness −5 instead).
 **Champions** are allowed if the challenged party is an Elder, a Youth, injured (Severe+), or of higher status (a lord may name a champion). A champion's loss counts as the principal's.
 **Seconds** (one per side) may stop the fight at Waver. NPC seconds call it when their principal's Health < 30 and the terms are "yield".
@@ -527,7 +551,7 @@ stateDiagram-v2
 
 | Route | Mechanism |
 |-------|-----------|
-| **Blood money (wergild)** | One house offers coin, goods or land. The receiving head accepts if `offer ≥ demand·(1 − 0.15·persuasionSignal·susceptibility)` with `demand = Σ wergild(act)·(Grievance/60)`. The persuasion signal is clamped to ±15% per canon |
+| **Blood money (wergild)** | One house offers coin, goods or land. `demand = Σ wergild(act)·(Grievance/60)`. The receiving head's answer is a DP (LLM in reply when the player negotiates in person; policy otherwise) using 15's haggling menu ([15 §5](15-economy-and-trade.md)): `accept` · `counter(k)` (the engine's concession steps) · `refuse` (+10 Grievance, §5.1). `accept` is eligible iff `offer ≥ demand·(1 − M)`, with menu width `M = 0.15·s·(0.5 + 0.5·K_skill)` (canon §13.4; `K_skill` = the payer's Persuasion). `p(accept) = lg((offer/demand − 1)/0.1)` (logistic, as in §2.10). Transfers ≥ 960f are critical (deterministic `p_i ≥ 0.25`). 15 moves the goods and coin; acceptance moves the feud to Truce |
 | Lord's arbitration | 17's court imposes a settlement. Refusal = defying the lord (Lawfulness −20, possible outlawry) |
 | Marriage alliance | Both heads consent (16 marriage logic); Grievance −50 each side |
 | Duel | Heads agree to settle by a duel (§4.3); the loser's side drops Grievance to 20 |
@@ -556,7 +580,7 @@ Outlaw camps come from canon channel 4 ([§5.4](../01-canon.md#54-how-multiple-s
 
 | Activity | Trigger (per day, LOD2) | Mechanics |
 |----------|------------------------|-----------|
-| Highway robbery | Camp food < 3 days, or greed (Greedy leader) | Ambush on a path: Stealth vs Perception detection (§6.3). Demand-and-release by default; fight if refused |
+| Highway robbery | Camp food < 3 days, or greed (Greedy leader) | Ambush on a path: Stealth vs Perception detection (§6.3). Demand-and-release by default; fight if refused. If the player is the robber, the victim's answer is a DP (`hand_over` · `bargain(step)` · `refuse` · `flee`; LLM in reply, `p_i` from Fear of the robbers, Brave/Coward and the wealth at stake); a robbed player chooses freely. `refuse` starts a fight resolved by §2–3 |
 | Livestock theft | Night, flock > 5 head, watch weak | Raid resolution (§6.2) at size 2–5 |
 | Extortion | Camp ≥ 8 members; target hamlet < 40 people | "Tribute" demand, LLM-voiced. Refusal → burn raid within 1–2 seasons |
 | Recruitment | Hungry, banished or deserter NPCs within 2 km | Join chance `0.05·(desperation)·(1 − Lawfulness value/100)` per encounter |
@@ -636,23 +660,49 @@ U   = max_k(s_k) + 0.35·(Σ s_k − max_k(s_k)) − R + N(0, 6)      // noise: 
 p_declare (per season-start check) = 1 / (1 + exp(−(U − θ_war)/τ)),   θ_war = 80, τ = 10
 ```
 
+Unattended (no war council the player attends), the season-start check **is the policy**: it samples
+`declare`, `raid` and the alternatives with the propensities of the leader's war-decision menu (§7.3,
+step 5). At a war council the player attends, the same propensities feed that leader's DP.
+
 **Worked example: a war over dislike.** Lord Corwin of Ravensford (Ambitious, Hot-tempered, Warmth 35) and Chieftain Mór of Dunlach insulted each other at a midsummer feast, and Corwin's Opinion of Mór is now −80.
 - Enmity: 80 × 0.8 × 1.4 = **89.6**; Ambition: 50 × 0.7 × 1.5 = 52.5; Need (tin): 20 × 1.0 = 20; Opportunity: 40 × 0.6 = 24.
 - U_raw = 89.6 + 0.35·(52.5 + 20 + 24) = 89.6 + 33.8 = 123.4.
 - R = trade dependence 20·0.3 (6) + B is 1.2× stronger, so A/B = 0.83 and the power term is 50·0.17 (8.5) + council opposition 40·0.3 (12) = 26.5.
 - U = 96.9 → `p = 1/(1+e^{−1.69}) ≈ 0.84` this season.
+- If the player sits on Corwin's council, his final choice is a DP (§7.3): `declare` 0.84 (critical; the words-free propensity clears 0.25), `raid` 0.14, and `delay`, `negotiate` and `back_down` together 0.015 — each under the high-stakes floor, so off the menu. Talking Corwin himself out of war is hopeless this season; the player's real lever is the councillors, whose stances feed `R`.
 
 A calm pair (max pressure 30, others 20, R 20) gives U ≈ 17 → p ≈ 0.2%. **Sanctioned raids** use the same U with `θ_raid = 55`. Typically, rising tension shows up as raids for a season or two before war.
 
 ### 7.3 The war council
 
-Before declaring war (or when war is declared on them), a ruler with a council ([17](17-governance-and-law.md)) convenes it. The convening is a court event the player attends if they are a member.
+Before declaring war (or when war is declared on them), a ruler with a council ([17](17-governance-and-law.md)) convenes it. The convening is a court event the player attends if they are a member. At a council the player attends, each councillor's stance and the leader's final choice are **decision points** decided by the LLM in that speaker's output (canon §13.2). An unattended council is decided entirely by the policy, with no speech text.
 
-1. Each councillor computes their **own stance** with the same pressure model, from their own values and interests (a councillor with fields near the border weights Need and Revenge; a merchant weights trade dependence). `stance ∈ [−100, +100]`.
-2. The LLM voices each councillor's speech **from the top two pressures behind their stance** (structured: `{speaker, stance, reasons:[Need: tin, Restraint: harvest]}`).
-3. The player may speak. Jev classifies the speech for `{addresses: pressure ids, persuasiveness: score 1–5, tone}` (untrusted input). Each listener's stance moves by `Δ = clamp(susceptibility × persuasionSignal, −15%, +15%)` of its current magnitude, and only along pressures the speech actually addressed and the listener weights.
-4. **Council opposition** `= share of councillors with stance < −20, weighted by power`. It feeds `R` (§7.2) and the muster turnout (§8.4).
-5. The ruler decides by the hard utility. If the **player is the ruler**, they decide. The UI shows the projected turnout, food days, and the council split as *the player's character perceives it* ([19](19-player-experience.md)).
+1. **Base stance.** Each councillor computes their own `stance⁰ ∈ [−100, +100]` with the same pressure model, from their own values and interests (a councillor with fields near the border weights Need and Revenge; a merchant weights trade dependence).
+2. **Stance DP** `dp.war_council_stance`, chosen decision-first in the councillor's speech. The LLM voices the speech **from the top two pressures behind the chosen stance** (structured: `{speaker, stance, reasons:[Need: tin, Restraint: harvest]}`). Opening speeches may be generated while the council assembles; a councillor who answers the player decides again in that reply.
+
+   | Option | Stance band | Fixed parameters | Stance value (for steps 4–5) |
+   |--------|-------------|------------------|------------------------------|
+   | `urge_war` | ≥ +40 | the war goal this councillor prefers (§7.4) | +60 |
+   | `support_with_conditions(c)` | +15…+40 | `c` from a fixed list: after the harvest · raid first · only with an ally · a smaller war goal | +30; `c` is attached to the leader's `declare` option |
+   | `counsel_delay` | −15…+15 | — | 0 |
+   | `counsel_negotiate` | −40…−15 | send an envoy demanding the war goal (17 §17) | −30 |
+   | `oppose` | ≤ −40 | — | −60 |
+
+   **Eligibility = the menu width:** the bands that meet `[stance⁰ − 100·M_i − 6, stance⁰ + 100·M_i + 6]`, where `M_i = 0.15·s_i·(0.5 + 0.5·K_skill)` (canon §13.4; `K_skill` = the speaker's `0.6·Persuasion + 0.4·Leadership`, as 17 §6.3) and 6 is the irrationality σ of §7.2. **`p_i`** = the mass of `N(stance⁰ + k·100·M_i, 6)` in each eligible band, where `k` is the policy's discrete step from `L = 0.5·L_words + 0.5·L_skill`. The guard uses the words-free step. Stakes: high.
+3. **The player may speak** (once per council). The fast decider classifies the speech for `{addresses: pressure ids, persuasiveness: score 1–5, tone}` (untrusted input). The classification feeds only the policy's words signal, `L_words = (persuasiveness − 3)/2 × match`, where `match` is the share of the listener's weighted pressures that the speech addressed. The menu width comes from susceptibility and skill, never from the text.
+4. **Council opposition** `= power-weighted share of councillors whose final stance value is < −20` (`counsel_negotiate`, `oppose`). It feeds `R` (§7.2) and the muster turnout (§8.4).
+5. **The leader's final choice** `dp.war_decision`:
+
+   | Option | Fixed parameters | Eligibility | `p_i` (at the noiseless `U` of §7.2) | Stakes | Executed by |
+   |--------|------------------|-------------|--------------------------------------|--------|-------------|
+   | `declare(goal)` | a §7.4 war goal whose typical causes include the dominant pressure; accepted conditions `c` | 17 §17.5 consent rules met (e.g. great-council consent for offensive war) | `p_d = 1/(1 + e^(−(U − θ_war)/τ))` | **critical** | §7.4 (War record, goal, interrupts) |
+   | `raid` | a sanctioned raid (§6.2) | Tension or Hostility | `p_r = max(0, 1/(1 + e^(−(U − θ_raid)/τ)) − p_d)` | high | §6.2 |
+   | `delay` | re-check at the next trigger or season start | always | `0.40·rest` | high | — |
+   | `negotiate` | an envoy carrying the war goal as a demand | not already at war with B | `0.35·rest` | high | 17 §17 |
+   | `back_down` | drop it this season; Enmity and Honor pressures carry over | always | `0.25·rest` | high | — |
+
+   `rest = 1 − p_d − p_r`. Stubborn halves `back_down`; Warmth ≥ 60 multiplies `negotiate` by 1.5; a Winter next season multiplies `delay` by 1.5; then renormalize. The leader is a listener too: the player's words can move `U` within `±100·M_leader`, exactly as for councillors, but the critical check on `declare` uses the words-free `p_d`. If the **player is the ruler**, the choice is the player's own (a declaration is an order given with authority: intent echo, always confirmed). The UI shows the projected turnout, food days, and the council split as *the player's character perceives it* ([19](19-player-experience.md)).
+6. **Unattended** (an NPC ruler with the player absent): the policy samples the same `p_i` at the season-start check (§7.2). No LLM is involved.
 
 ### 7.4 Declaration, war goals, war score, exhaustion
 
@@ -692,7 +742,7 @@ A declaration is an event carrying a structured **war goal**. The LLM writes the
 
 At **X ≥ 70**, the ruler's peace utility dominates (they seek terms). At **X ≥ 90**, revolt and desertion modifiers kick in (17 unrest; Campaign Morale −15).
 
-**Peace.** Diplomacy and treaty content belong to [17](17-governance-and-law.md). This doc supplies the war-side acceptance input: a side accepts a demand with cost `c` if `c ≤ |WS| + 0.5·(X_self − X_other) + 10 + traitTerm` (Stubborn −15, Honor ≥ 70 −10, Coward +10). The defender always accepts white peace when `X ≥ 70` and the attacker offers it.
+**Peace.** Diplomacy and treaty content belong to [17](17-governance-and-law.md). This doc supplies the war-side acceptance input: a side accepts a demand with cost `c` if `c ≤ |WS| + 0.5·(X_self − X_other) + 10 + traitTerm` (Stubborn −15, Honor ≥ 70 −10, Coward +10). The defender always accepts white peace when `X ≥ 70` and the attacker offers it. As a decision point (a peace parley the player attends uses 17's envoy DP, [17 §17.6](17-governance-and-law.md)), this rule becomes the acceptance propensity `p(accept) = 1/(1 + e^(−(|WS| + 0.5·(X_self − X_other) + 10 + traitTerm − c)/5))`; the white-peace rule stays a hard eligibility (the defender's only option). Unattended, the policy samples the same propensity.
 
 ---
 
@@ -724,18 +774,20 @@ on MusterOrder(polity, targetCount, assembleDay, expectedSeasons, warGoal):
       exempt     = members on the law's exemption list (clergy, smith-masters, miller, healer if sole)
       called(h)  = top-q non-exempt members from the ranked list
   for each called person c:
-      choose Response(c) ∈ {Report, PayCommutation, SendSubstitute, PetitionExemption, Hide, Flee}
+      Response(c) = muster DP ∈ {report, pay_commutation, send_substitute, petition_exemption, hide, flee}
 ```
 
-**Response utility (NPC; the player chooses freely):**
+**The muster DP** `dp.muster_response`. A called NPC's response is a decision point. When the player is talking with them about it (as the reeve or sergeant delivering the summons, a lord, a friend or kin), the LLM chooses in the reply; otherwise the **policy** decides. The player's own response is the player's choice (§8.3). `p_i = softmax(u_i/10)` over eligible options, from these utility drivers:
 
-| Response | Utility drivers | Requires |
-|----------|-----------------|----------|
-| Report | `0.4·Loyalty + 0.3·Honor + 0.2·Opinion(lord) + 0.3·warPopularity + 20·[Brave]` | — |
-| Pay **commutation** (levy buy-out) | `Wealth value + 0.4·econCriticality` | Free status; commutation = **48f per seasonal service** (2× wages for 3 days of mustered service, per §9 typical campaign) — law-tunable. Not to be confused with a knight's **scutage** (240f/yr per knight's fee, [17](17-governance-and-law.md) §9.1) |
-| Send a **substitute** | similar | A hired person; market wage ≈ 12f/day for war service (1.5× anchor) plus risk premium |
-| Petition exemption | `Persuasion` + relationship with the lord | Court petition ([17](17-governance-and-law.md)) |
-| Hide / flee | `0.5·Fear(war) + 0.4·Family − 0.4·Fear(lord) − 0.3·Loyalty + 30·[Coward]` | — |
+| Response (option id) | Utility drivers `u_i` | Fixed parameters / eligibility | Stakes | Executed by |
+|----------|-----------------|----------|--------|-------------|
+| Report (`report`) | `0.4·Loyalty + 0.3·Honor + 0.2·Opinion(lord) + 0.3·warPopularity + 20·[Brave]` | — | low | this doc: joins a squad (§8.5) |
+| Pay **commutation** (`pay_commutation`, levy buy-out) | `Wealth value + 0.4·econCriticality` | Free status and coin ≥ commutation; commutation = **48f per seasonal service** (2× wages for 3 days of mustered service, per §9 typical campaign) — law-tunable. Not to be confused with a knight's **scutage** (240f/yr per knight's fee, [17](17-governance-and-law.md) §9.1) | medium | 15 moves the coin to the treasury |
+| Send a **substitute** (`send_substitute`) | similar | A willing hired person named by the sim; market wage ≈ 12f/day for war service (1.5× anchor) plus risk premium | medium | 15 (wage); this doc (muster list) |
+| Petition exemption (`petition_exemption`) | `Persuasion` + relationship with the lord | a court day before `assembleDay`; opens a petition ([17 §13](17-governance-and-law.md)) | medium | 17 court |
+| Hide (`hide`) / flee (`flee`) | `0.5·Fear(war) + 0.4·Family − 0.4·Fear(lord) − 0.3·Loyalty + 30·[Coward]` (flee: −10 unless kin or a refuge lies outside the polity) | — | high (a crime, §8.2 penalties) | this doc + 17 (search, crime) |
+
+**Menu width.** An option is on the menu only if `u_i ≥ u_max − 20 − 100·M_i`, with `M_i = 0.15·s_i·(0.5 + 0.5·Persuasion_speaker/100)` (canon §13.4; `M_i` = 0 when no one is talking with them). Words can bring a nearly-chosen response within reach, never one far outside the person's character. Talking never adds utility directly, and options under the canon floors drop off.
 
 **Volunteers** (eligible, not called): `pVolunteer = 0.05 + 0.15·[Brave] + 0.15·[Ambitious] + 0.1·(Status/100) + 0.15·[landless] + 0.2·[war goal is Revenge and kin was killed by the enemy] + 0.1·(warPopularity/100)`.
 
@@ -743,7 +795,7 @@ on MusterOrder(polity, targetCount, assembleDay, expectedSeasons, warGoal):
 
 ### 8.3 The player being conscripted
 
-The summons arrives as a **messenger NPC** and an **Interlude interrupt** ("a summons only the player can answer"; [canon §6.1](../01-canon.md#61-interludes-time-skips)). Assembly is on `assembleDay` (usually 1–2 days later). The player has the same options as an NPC:
+The summons arrives as a **messenger NPC** and an **Interlude interrupt** ("a summons only the player can answer"; [canon §6.1](../01-canon.md#61-interludes-time-skips)). Assembly is on `assembleDay` (usually 1–2 days later). The player has the same options as an NPC, and choosing among them is the player's own decision (no DP; a hide, flight or open refusal is a consequential act shown as an intent echo):
 
 | Choice | Immediate | Later |
 |--------|-----------|-------|
@@ -832,7 +884,7 @@ stateDiagram-v2
 | Muster | 5–10 min | to assembly | Equipment check, talk to squad mates, a lord's speech |
 | March | (1–3 game h) 1–4 min at 48:1, or skip | yes; halts on ambush or scout report | Walk with your squad; officers choose the route |
 | **Camp (night)** | 5–20 min or sleep | yes | **Campfire conversations** (§13). Dice, songs, rumors, letters home; officers run councils |
-| Council | 5–10 min | no (if member) | Argue the plan (Jev-scored, bounded) |
+| Council | 5–10 min | no (if member) | Argue the plan; councillors answer with stance DPs (§7.3) |
 | Battle | 8–25 min real | no (if present) | §10 |
 | Aftermath | 5–15 min | partly | Triage, loot, burial, captives |
 
@@ -892,6 +944,7 @@ Canon caps LOD0 at 48 embodied NPCs. A battle targets **150 combatants (stretch 
 | Rendering | Full animation within 60 m of the camera; reduced-bone animation and impostors beyond (shared budget ≤ 200 visible characters, [canon §8.2](../01-canon.md#82-simulation-levels-of-detail-canonical-tiers)) |
 | World clock | **12:1** while battle mode is active (1 real minute = 12 game minutes), so a 10-minute battle takes 2 game hours. The rest of the world keeps simulating at its LOD |
 | Bounds | Battlefield ≈ 500 × 500 m of the real terrain; leaving the bounds = leaving the battle (flight or desertion, §10.4) |
+| Decisions | **No LLM decisions in battle.** Orders, formations, morale, rout and rally are hard-coded (§10.2–10.3); every yield and mercy choice is the policy (§2.10); barks come from pools (§13). Language reaches a battle only through the pre-battle rallying speech (§13.2), which is classified, not decided |
 
 ### 10.2 Squads, formations & orders
 
@@ -1012,7 +1065,7 @@ Sieges arrive in **M6 (basic: palisades, ladders, rams, fire, starvation)** and 
 pSurrender = σ((10·daysStarving + 100·casualtyShare − 15·[Stubborn ruler] − 30·[relief expected] − 20)/10)
 ```
 
-Besiegers also eat, sicken and miss the harvest at home. **Winter breaks sieges**: besieger CM −15 and exposure. The interesting choice is *whose stores and patience run out first*. A siege of 6–16 days nearly always spans a season boundary. The surrender terms (17) decide the fate of the town (§12.6).
+Besiegers also eat, sicken and miss the harvest at home. **Winter breaks sieges**: besieger CM −15 and exposure. The interesting choice is *whose stores and patience run out first*. A siege of 6–16 days nearly always spans a season boundary. The surrender terms (17) decide the fate of the town (§12.6). If the player parleys with the besieged (an attended negotiation), the defender's answer is a DP — `surrender_on_terms` · `counter(t)` (one sim-listed term swap) · `refuse` — with `p(surrender_on_terms) = pSurrender`, decided by the LLM in the defender's reply; otherwise the daily check above is the policy. Surrendering a settlement is high stakes; terms that hand over a ruler or ≥ 960f are critical.
 
 ---
 
@@ -1083,7 +1136,7 @@ War deaths re-form households (16): headship passes on, orphans go to kin, a shr
 
 Loot comes from real inventories: battlefield kit, enemy stores, livestock. Default division is **thirds**: one third to the lord, one third to the captains and sergeants, one third to the soldiers. Law can change this. Unfair division gives CM −10 and Opinion −10 toward the lord.
 
-**Ransom**: default `1.0 × wergild` (§5.3), negotiated LLM-voiced over hard values using the [15](15-economy-and-trade.md) haggling model. Unransomed captives work under guard and are exchanged at peace. **No slavery** (see [Proposed canon additions](#proposed-canon-additions)).
+**Ransom**: default `1.0 × wergild` (§5.3), negotiated over hard values using the [15](15-economy-and-trade.md) haggling model. When the player negotiates in person, the other side's answer is that model's DP (accept at the menu price · counter at step k · refuse; LLM in reply); otherwise the policy decides. Ransoms ≥ 960f are critical, and 15 moves the coin. Unransomed captives work under guard and are exchanged at peace. **No slavery** (see [Proposed canon additions](#proposed-canon-additions)).
 
 ### 12.6 Occupation & conquered populations
 
@@ -1099,32 +1152,61 @@ Victory: +5 to +15 ruler legitimacy. Defeat: −10 to −20. A war that most sub
 
 ### 13.1 Table
 
+"Fast decider" is the canon §4.1 role (an OpenRouter small model now; Jev or Laya later), reached through `IDecider`. Every character choice below is a decision point (§13.3); the LLM decides only when it is already voicing a character for the player.
+
 | Touchpoint | Facts given (from sim) | Output | When / latency | Fallback |
 |------------|------------------------|--------|----------------|----------|
-| Retorts, threats, challenges (§4.1) | Rung chosen, speaker traits, insult summary | 1–2 lines | Dialogue latency (22) | Template per rung × culture |
-| War council speeches (§7.3) | Speaker stance + top-2 pressures | 60–120 words each | Pre-generated while the council assembles | Template from pressure ids |
-| Player's council argument | Player text (**untrusted**) | Jev: `addresses` (choice over pressure ids), persuasiveness (score 1–5), tone | ≤ 0.5 s | Persuasion skill only |
+| Confrontation response (§4.1): retorts, threats, shoves, challenges | The DP menu (option ids, fixed parameters, `p_i`), speaker traits, insult summary | Decision-first choice, then 1–2 lines | Dialogue latency (22); 4 s DP deadline → policy | Policy + template per option × culture |
+| Duel challenge answer (§4.3) | Challenge terms, DP menu | Choice + 1–2 lines | Dialogue latency | Policy + template |
+| War council speeches (§7.3) | Speaker's DP menu, `stance⁰`, top-2 pressures | Decision-first stance, then 60–120 words each | Opening speeches pre-generated while the council assembles; replies to the player at dialogue latency | Policy + template from pressure ids |
+| Leader's war decision (§7.3) | `U`, the war-decision menu, councillors' final stances | Decision-first choice, then a closing speech | Dialogue latency | Policy + template |
+| Player's council argument | Player text (**untrusted**) | Fast decider: `addresses` (choice over pressure ids), persuasiveness (score 1–5), tone → the policy's `L_words` only | ≤ 0.5 s | Persuasion skill only (`L_words` = 0) |
+| Muster response (§8.2) | The conscript's DP menu and utilities | Choice + reply | Dialogue latency | Policy + template |
+| Yield and mercy (§2.10) | Structured state + the player's quick intent (no free text) | Fast decider: one label among fixed options; **no text generated** | ≤ 0.5 s, else policy | Policy |
 | Declaration of war, peace treaty text | War goal, causes, rulers | Proclamation | Off the critical path | Template |
-| **Rallying speech** (§13.2) | Player text or NPC leader's stance | Jev classification; LLM voices NPC speeches | Before battle, not during | Leadership-only bonus |
+| **Rallying speech** (§13.2) | Player text or NPC leader's stance | Fast-decider classification (not a decision); LLM voices NPC speeches | Before battle, not during | Leadership-only bonus |
 | **Battlefield barks** | Situation keys | Lines from **pre-generated pools** (`{culture × personality bucket × situation}`, ≈ 40 situations), generated during camp nights and Interludes, never live in combat | 0 ms (pool) | Shipped template pools |
-| Campfire conversations | Normal dialogue context + campaign facts (dead friends, rations, home) | Free dialogue ([22](../tech/22-llm-integration.md)) | Normal | Templates |
+| Campfire conversations | Normal dialogue context + campaign facts (dead friends, rations, home) | Free dialogue ([22](../tech/22-llm-integration.md)); any choices in it are the owning systems' DPs | Normal | Templates |
 | Letters home | Soldier's memories (structured) + recipient | 80–150 words; a sim object carrying claims | Generated at camp, delivered 1–2 days later | Template letter |
 | Post-battle / war Chronicle | Battle event log (named deaths, Valor events, outcome) | Prose; facts come only from the log | After battle | Templated list |
-| Ransom and peace haggling | Hard values (15/17) | Dialogue | Normal | Templates |
+| Wergild, ransom, peace and siege parleys (§5.3, §12.5, §7.4, §11) | Hard values (15/17), the DP menu | Decision-first choice + dialogue | Normal | Policy + templates |
 
 ### 13.2 Rallying speech (bounded)
 
 One speech per leader per battle, given during Deployment. The player types it or picks a template (quick intents, [19](19-player-experience.md)).
 
+A rallying speech is **not a decision point**: no character chooses anything, and battle morale is hard-coded (§10.1). The speech's words only set how much of a canon menu width (§13.4) is granted, by the policy rule:
+
 ```
-base     = 0.08·Leadership                        // 0..8
-jev      = Jev score(persuasiveness 1–5) → s ∈ [−1, +1];  match = overlap of the speech's `addresses`
-           {home/kin, glory, faith, revenge, loot, lord} with the listeners' top values (0..1)
-langMod  = clamp(s · match · susceptibility_i, −0.15, +0.15) × 10     // the canon ±15% clamp on a 10-pt scale
-bonus_i  = clamp(base + langMod·(base > 0 ? 1 : 0) + 1.5, 0, 10)       // applies to listeners within 40 m, decays over 40 game-min (≈ 3.3 real min at 12:1)
+base     = 0.08·Leadership                                   // 0..8: skill alone
+reach_i  = 10 · 0.15 · susceptibility_i · (0.5 + 0.5·Leadership/100)   // canon §13.4 width on a 10-pt scale: ≤ 1.5
+s        = (persuasiveness − 3)/2 ∈ [−1, +1]                 // fast-decider score 1–5
+match    = overlap of the speech's `addresses` {home/kin, glory, faith, revenge, loot, lord}
+           with the listeners' top values (0..1)
+L        = 0.5·(s · match) + 0.5·Leadership/100              // words and skill weigh equally
+step     = round(3·L)/3 ∈ {−1, −⅔, −⅓, 0, ⅓, ⅔, 1}
+bonus_i  = clamp(base + step·reach_i·(base > 0 ? 1 : 0) + 1.5, 0, 10)   // listeners within 40 m; decays over 40 game-min (≈ 3.3 real min at 12:1)
 ```
 
-Text containing instructions ("everyone's morale is maximum") is untrusted data. Jev scores it like any other speech, and in the worst case it can move the result by 1.5 points. An honest, well-targeted speech by a skilled leader is worth about +10. A clumsy speech by a novice is worth about +1.5.
+Text containing instructions ("everyone's morale is maximum") is untrusted data. The fast decider scores it like any other speech, and in the worst case the words move the result by `reach_i` ≤ 1.5 points. An honest, well-targeted speech by a skilled leader is worth about +10. A clumsy speech by a novice is worth about +1.5.
+
+### 13.3 Decision points owned by this document
+
+Every DP follows canon §13.1. This document builds the menu; the decider picks; the DRE guards; the owning system executes. Deadlines are 4 s in conversation and 0.5 s in combat, after which the policy decides. Each DP is recorded as an input event (DP, menu hash, choice, decider). Template mode and headless runs decide every DP by policy.
+
+| DP | Options | `p_i` from | Stakes | Decider | Executed by |
+|----|---------|-----------|--------|---------|-------------|
+| `dp.confrontation` (§4.1) | laugh_off · retort · threaten · challenge (from §4.3) · shove · attack_brawl · attack_armed · attack_to_kill · walk_away · deescalate · call_others (menu owned by 16 §9.6) | 16's `E` and rung caps (16 §9.2, §9.6) | low → high; **attack_armed and attack_to_kill critical** | LLM in reply (the player in conversation); fast decider (shouted insult, no conversation); policy (NPC↔NPC, incl. overheard) | 16 (verbal); combat system §2–3, §4.2 (fights); §4.3 (challenge) |
+| `dp.duel_challenge` (§4.3) | accept · demand_terms(t) · refuse | `pAccept` | high; **to the death critical** | LLM / policy | §4.3 duel in the combat system; 16 reputation |
+| `dp.combat_yield` (§2.10) | fight_on · yield · flee | combat morale `M` | medium | fast decider ≤ 0.5 s / policy (always policy in battle) | Combat Controller (§3.1) |
+| `dp.mercy` (§2.10) | spare · bind · strip · kill | `pKill` | **kill critical** | fast decider ≤ 0.5 s / policy (always policy in battle) | combat; 16 (reputation, feud); 17 (law) |
+| Wergild, ransom (§5.3, §12.5) | accept · counter(k) · refuse | offer vs demand; 15's engine | high; **≥ 960f critical** | LLM / policy | 15 (transfer); §5 (feud stage) |
+| `dp.war_council_stance` (§7.3) | urge_war · support_with_conditions(c) · counsel_delay · counsel_negotiate · oppose | `stance⁰` (pressure model) | high | LLM / policy | §7.2 `R`; §8.4 turnout |
+| `dp.war_decision` (§7.3) | declare(goal) · raid · delay · negotiate · back_down | `U`, `θ_war`, `θ_raid` | **declare critical**; others high | LLM / policy | §7.4; §6.2; 17 §17 |
+| `dp.muster_response` (§8.2) | report · pay_commutation · send_substitute · petition_exemption · hide · flee | `softmax(u/10)` | low → high | LLM / policy | §8; 15; 17 |
+| Robbery victim (§6.1), siege parley (§11) | hand_over · bargain · refuse · flee; surrender_on_terms · counter · refuse | Fear, wealth; `pSurrender` | high; critical as noted | LLM / policy | combat; 15; 17 |
+
+Battles (§10) open no DPs beyond the policy-decided yield and mercy above.
 
 ---
 
@@ -1184,11 +1266,11 @@ All randomness comes from the per-system streams `rng.combat`, `rng.battle`, `rn
 | System | LOD0 | LOD1 | LOD2 | LOD3 / Interlude |
 |--------|------|------|------|------------------|
 | Personal fight | Real-time (§2–3) | Exchange model at 2 Hz | One resolution roll: winner by power ratio and morale; injuries sampled | Violence incidents rolled from rates (Volatility × crowding × grievances) |
-| Brawl and confrontation | Full | Confrontation function → outcome at 1 Hz | Rolled | Rolled |
+| Brawl and confrontation | Full: confrontation DP (LLM with the player in conversation, else fast decider or policy), then real-time combat | Confrontation DP by policy → outcome at 1 Hz | Rolled (policy) | Rolled (policy) |
 | Feud acts | Embodied ambush if near the player | Task-level | Daily act rolls from stage weights | Seasonal act rolls |
 | Raid | Embodied (if within 400 m) | Task-level | §6.3 detection + auto-resolve | Rolled per season per hostile pair |
 | Battle | **LOD0-B** | — | Auto-resolve §10.6 | Auto-resolve |
-| War decision | Season-start check | same | same | same (interrupt if it affects the player) |
+| War decision | Season-start check (policy); the leader's DP by LLM at a war council the player attends | policy | policy | policy (interrupt if it affects the player) |
 
 **Interlude interrupts emitted** (mapped to [canon §6.1](../01-canon.md#61-interludes-time-skips)): war declared affecting the player's polity · muster summons naming the player · hostile force within 1 km of the player's settlement · a raid on the player's settlement · a challenge or accusation of violence against the player · death of household members in battle.
 
@@ -1203,12 +1285,12 @@ All randomness comes from the per-system streams `rng.combat`, `rng.battle`, `rn
 | [12](12-skills-and-professions.md) | XP rules for Melee, Archery, Athletics, Stealth, Tactics, Leadership; the watch job | XP events (hits landed, parries, battles, drill days) |
 | [13](13-crafting-and-minigames.md) | Quality grades; durability; harvest window | Quality multipliers |
 | [14](14-technology-and-buildings.md) | Fortification buildings and HP hooks | Siege damage |
-| [15](15-economy-and-trade.md) | Job vacancies → production; prices; haggling model; stores | Labor-absence ledger; loot and ransom transfers; requisitions |
-| [16](16-social-systems.md) | `ProvocationEvent`; insult classification; grief, memory, rumor; witnesses; family graph | Violence events; war deaths; Valor memories |
-| [17](17-governance-and-law.md) | Polities, diplomatic states, councils, obligations, levy laws, sentences, trial eligibility, treaties, legitimacy, succession | Violence classification; war score and exhaustion; trial results; muster responses |
-| [19](19-player-experience.md) | Order wheel, tactical map, muster screen, speech input, content toggles | Mechanics and data for those UIs |
+| [15](15-economy-and-trade.md) | Job vacancies → production; prices; haggling model and its DP menu (accept · counter at step k · refuse) for wergild and ransom; stores | Labor-absence ledger; loot and ransom transfers; requisitions; commutation and substitute payments |
+| [16](16-social-systems.md) | `ProvocationEvent`; insult classification; the escalation-ladder menu and pre-fight bystander DPs (16 §9); grief, memory, rumor; witnesses; family graph Fight-starting options with fixed parameters, gates and combat intents (§4.1; propensities come from 16's `E`); violence events; war deaths; Valor memories |
+| [17](17-governance-and-law.md) | Polities, diplomatic states, councils, obligations, levy laws, sentences, trial eligibility, treaties and the envoy DP (17 §17.6), war-declaration consent rules, legitimacy, succession | Violence classification; war score and exhaustion; peace-acceptance propensity (§7.4); trial results; muster responses; the execution interaction |
+| [19](19-player-experience.md) | Order wheel, tactical map, muster screen, speech input, quick intents (Challenge, Yield!, beg, offer ransom), intent echo, content toggles | Mechanics and data for those UIs |
 | [21](../tech/21-npc-ai.md) | Trait list, utility AI hand-off, goals (`AvengeKin`, defense), war-haunted condition | Combat Controller |
-| [22](../tech/22-llm-integration.md) | Pipeline, bark-pool generation, Jev wrappers, budgets | Touchpoint specs (§13) |
+| [22](../tech/22-llm-integration.md) | DRE (menus, guards, deadlines, DP recording), decision-first prompting, `IDecider` fast-decider providers and the ≤ 0.5 s combat path, bark-pool generation, budgets | DP menus and propensity functions (§13.3); touchpoint specs (§13.1) |
 
 ---
 
@@ -1216,12 +1298,12 @@ All randomness comes from the per-system streams `rng.combat`, `rng.battle`, `rn
 
 | Milestone | Delivers |
 |-----------|----------|
-| **M1** | Confrontation function (verbal rungs only); `ProvocationEvent` plumbing |
-| **M2** | Personal combat core: T0 weapons, sling and bow, stamina, block/parry/dodge, downed state; NPC Combat Controller; wolves, boar, bear; **brawling and physical rungs of insult → fight**; yield and mercy |
+| **M1** | Confrontation DP (verbal rungs only) with LLM-vs-policy calibration; `ProvocationEvent` plumbing |
+| **M2** | Personal combat core: T0 weapons, sling and bow, stamina, block/parry/dodge, downed state; NPC Combat Controller; wolves, boar, bear; **brawling and physical rungs of insult → fight** (fight-starting DP options, critical gate on `attack_armed`); yield and mercy DPs (policy; fast-decider path behind a latency check) |
 | **M3** | Armor (hide, padded), shields, watch and alarm, basic bystander AI, sparring |
-| **M4** | Legal classification of violence; duels; **feuds and wergild**; outlaw camps; T1–T2 weapons |
-| **M5** | Trial by combat; levies, muster and response options; militia and hue and cry; raids between settlements; T3 weapons and mail; rank ladder; knighthood gate |
-| **M6** | War pressures and council; declarations; war score and exhaustion; campaigns; **LOD0-B battle mode**; auto-resolve calibrated; morale scales; war effects; basic sieges (palisade, ladders, rams, fire, starvation); T4 weapons, crossbows, coat-of-plates |
+| **M4** | Legal classification of violence; duels and the challenge DP; **feuds and wergild** (wergild DP); outlaw camps; T1–T2 weapons |
+| **M5** | Trial by combat; levies, muster and the muster-response DP; militia and hue and cry; raids between settlements; T3 weapons and mail; rank ladder; knighthood gate |
+| **M6** | War pressures and the war council (stance and war-decision DPs); declarations; war score and exhaustion; campaigns; **LOD0-B battle mode**; auto-resolve calibrated; morale scales; war effects; basic sieges (palisade, ladders, rams, fire, starvation); T4 weapons, crossbows, coat-of-plates |
 | **M7** | Stone walls, trebuchets, mining; tactical slow-mo and pause; controller support; battle performance toward 300 |
 | **M8** | Bark-pool breadth, balance passes, content completeness |
 
@@ -1237,6 +1319,10 @@ All randomness comes from the per-system streams `rng.combat`, `rng.battle`, `rn
 | Parry window base / per-skill | 0.12 s / 0.0012 | 0.08–0.2 | Skill ceiling |
 | NPC reaction base | 0.40 s | 0.3–0.6 | NPC difficulty (parity-sensitive) |
 | Confrontation thresholds | 20/40/55/70/85 | ±15 | Fight frequency |
+| Confrontation propensity spread (σ of `E`) | 8 | 4–12 | How often NPCs answer above or below their rung |
+| War-decision split of the non-war mass (delay / negotiate / back down) | 0.40 / 0.35 / 0.25 | — | How wars are averted |
+| Muster softmax temperature | 10 | 5–20 | Spread of conscript responses |
+| Yield / mercy deadline (fast decider) | 0.5 s | canon | Fast-decider vs policy share in combat |
 | `cultureHonor` | 0.6–1.3 | — | Duels and feuds per culture |
 | Feud decay per season | 10% (Brannoch 5%) | 2–25% | Feud length |
 | `θ_war / θ_raid / τ` | 80 / 55 / 10 | — | War frequency |
@@ -1256,7 +1342,7 @@ All randomness comes from the per-system streams `rng.combat`, `rng.battle`, `rn
 
 | Exploit | Mitigation |
 |---------|------------|
-| Insult an enemy until they swing, then kill them "in self-defense" | Provocation flag downgrades self-defense (§4.5); witnesses remember the insult; Peaceableness −. |
+| Insult an enemy until they swing, then kill them "in self-defense" | Provocation flag downgrades self-defense (§4.5); witnesses remember the insult; Peaceableness −. The NPC's `attack_armed` stays critical and gated on lethal intent, so words alone can't make them draw steel. |
 | Kiting melee NPCs with a bow | NPCs use cover, zig-zag (aim error rises with target speed), close distance or retreat; ammunition is a real item. |
 | Parry spam | Early or failed parry → late block (0.35 s). |
 | Sparring for unlimited Melee XP | Sparring XP ×0.5, and after 3 spars per day ×0.1 (12 owns XP; this doc sets the factor). |
@@ -1264,7 +1350,8 @@ All randomness comes from the per-system streams `rng.combat`, `rng.battle`, `rn
 | Lone assassination of an enemy ruler to end a war | Allowed. It is murder (dishonor, Courage/Honor witnesses), triggers Revenge pressure, and opens a feud with the ruler's kin. Succession (17) may produce a more hostile heir. |
 | Ordering suicidal charges as sergeant to farm Valor | Valor needs witnessed success. Casualties → survivors' Opinion −10 and CM −; refusals of orders at Opinion < −30. |
 | Commutation then volunteering as a mercenary elsewhere | Allowed. Paid service for the enemy is treason (17) if detected. |
-| Prompt injection in speeches or council arguments | Jev input is untrusted; clamps (§13.2); classification limited to fixed option lists. |
+| Prompt injection in speeches or council arguments | Fast-decider input is untrusted; classification is limited to fixed option lists; deciders pick only menu options; words widen menus only by the canon width (≤ 1.5 morale points for a rallying speech, §13.2); `attack_armed`, `kill`, death duels and `declare` need a words-free deterministic `p_i ≥ 0.25`; an injection probability ≥ 0.3 sends that turn's DPs to the policy. |
+| Re-challenging or re-asking until an NPC says yes | Repetition multiplies acceptance by `0.5^(n−1)` and raises Anger; the long-shot budget allows ≤ 2 player-favoring choices with `p_i` < 0.20 per NPC–player pair per game day (canon §13.1). |
 | Save-scumming a duel | Ironman mode; Lineage autosaves on challenge acceptance ([19](19-player-experience.md)). |
 | Hoarding captives for ransom profit | Captives eat rations; kin feud pressure (+10 Grievance per season held). |
 
@@ -1285,7 +1372,9 @@ All tests run in the headless sim (no client) with fixed seeds ([20-architecture
 | **Casualty bands** | Era 4 violent deaths ≤ 3% of adults per year on average; no polity loses > 40% of eligible adults in one war (except annihilation scenarios, flagged) |
 | **Economic coupling** | A war spanning harvest causes a measurable food-days drop (≥ 15% versus a no-war control) |
 | **Feuds** | Median feud length 4–12 seasons; ≥ 50% end by wergild or arbitration |
-| **Determinism** | Same seed and same inputs → identical BattleResult hash at LOD2 and LOD0-B (replay) |
+| **Determinism** | Same seed and same inputs (including recorded DP choices) → identical BattleResult hash at LOD2 and LOD0-B (replay) |
+| **DP parity** (canon §13.5) | On neutral golden scenarios, LLM-vs-policy choice rates differ by ≤ 10 points per option family for the confrontation, duel, muster, war-council and war-decision DPs; the refusal suite passes ≥ 95% (a Coward refuses a death duel; a ruler with `U` ≪ θ never declares; a calm NPC at `E` < 20 never brawls) |
+| **No LLM in combat** | Instrumented runs: zero LLM generation calls while any fight or battle is active; fast-decider calls only for yield/mercy DPs, each ≤ 0.5 s or replaced by the policy |
 | **Performance** | LOD0-B at 150 combatants: sim ≤ 4 ms/frame on recommended spec |
 
 ---
@@ -1300,10 +1389,14 @@ All tests run in the headless sim (no client) with fixed seeds ([20-architecture
 6. **Execution depiction:** confirm the default content setting.
 7. Should **NPC-only wars** (two AI polities fighting far from the player) ever render, for example by having the player travel to a battlefield in progress? This would need fast LOD2 → LOD0-B promotion mid-battle.
 8. Should **assassination and poison** be a full system, or stay a rare NPC goal?
+9. **Escalation pressure is defined twice:** 16 §9.2 computes `E` and rung thresholds for its ladder, and this doc's §4.1 computes another `E` with different thresholds. Canon v0.3 has 16 building the confrontation menu. Proposal: one function, owned by 16, producing the propensities over all rungs; 18 keeps only the fight-starting options' parameters and eligibility gates (lethal intent, weapon at hand, dueling custom).
+10. **Fast decider in combat:** cloud latency for the 0.5 s yield/mercy deadline is unmeasured. Until a local decider (Laya via ONNX, canon §4.1) is in place, most yield and mercy DPs will fall to the policy. Is that acceptable for M2, or should yield/mercy stay policy-only until a local decider ships?
+11. Should a downed player be able to **type** a plea (≤ 280 characters) for the mercy DP, or only use quick intents? The current answer is quick intents only: no free text mid-fight, which also keeps injection out of combat.
+12. The war-council stance menu (§7.3, `+6`) and the muster menu (§8.2, `u_max − 20`) add an irrationality margin beyond the canon width `C_sys·s·(0.5 + 0.5·K_skill)`, so policy runs keep their old spread. Accept that as a canon extension (tenet 3)?
 
 ## Proposed canon additions
 
-> **Status (canon v0.2):** accepted items have been folded into [01-canon](../01-canon.md) (see its change log). Items not reflected there remain proposals for the owner to decide.
+> **Status (canon v0.2):** accepted items have been folded into [01-canon](../01-canon.md) (see its change log). Items not reflected there remain proposals for the owner to decide. Item 14 was added for canon v0.3 (decision points).
 
 1. **LOD0-B (Battle) tier:** ≤ 150 combatants (stretch 300); full LOD0 fidelity for the 48 nearest the player; others at a 5 Hz decision / 2 Hz exchange model with identical damage math.
 2. **Battle clock:** the world clock runs at **12:1** while battle mode is active.
@@ -1318,3 +1411,4 @@ All tests run in the headless sim (no client) with fixed seeds ([20-architecture
 11. **Levy defaults:** levy rate 1 in 3 able adults; eligibility 16–54; levy commutation 48f per service (a knight's scutage stays 240f/yr per 15/17); law parameter `levy_sex_rule`.
 12. **Campaign season convention:** Summer 1–4 and Autumn 5–8 (outside the grain harvest window, Summer 5 – Autumn 4, owned by 13); Winter campaigning penalized.
 13. **Health assumption for 11:** Health 0–100 with injury severity thresholds 8/20/35/55 per hit (to be confirmed or overridden by 11).
+14. **Conflict decision points** (canon v0.3 §13.1): the confrontation menu `laugh_off · walk_away · retort · demand_apology · threaten · shove · challenge · brawl · attack_armed`; the mercy menu `spare · bind · strip · kill` (kill critical); the yield menu `fight_on · yield · flee`; the war-decision menu `declare(goal) · raid · delay · negotiate · back_down` (declare critical). In combat, only yield and mercy may use the fast decider, and they never use it in battle mode.

@@ -1,6 +1,6 @@
 # ADR-0001 — Engine: Godot 4 (.NET / C#) for presentation
 
-> **Status:** Proposed (awaiting owner confirmation) · **Date:** 2026-10-03
+> **Status:** Accepted (confirmed by owner 2026-10-03) · **Date:** 2026-10-03
 > **Related:** [ADR-0002](0002-headless-deterministic-sim-core.md), [canon §4](../01-canon.md#4-core-product--technology-decisions), [20-architecture](../tech/20-architecture.md)
 
 ## Context

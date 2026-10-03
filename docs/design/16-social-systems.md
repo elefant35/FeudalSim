@@ -1,6 +1,6 @@
 # 16 — Social Systems
 
-> **Status:** Draft v0.1 · **Owner doc for:** relationships (Opinion, Trust, Familiarity, Fear, Attraction, tags), NPC↔NPC social interactions, memory / belief / rumor propagation, reputation & Renown, provocation & escalation (up to the fight hand-off), crime detection & witnesses, households & kinship, courtship & marriage, pregnancy & upbringing, life cycle & mortality, death processing & grief, informal groups, faith, community events · **Depends on:** [01-canon](../01-canon.md), [21-npc-ai](../tech/21-npc-ai.md), [22-llm-integration](../tech/22-llm-integration.md), [17-governance-and-law](17-governance-and-law.md), [18-conflict-and-warfare](18-conflict-and-warfare.md), [15-economy-and-trade](15-economy-and-trade.md), [11-survival](11-survival.md), [12-skills-and-professions](12-skills-and-professions.md), [19-player-experience](19-player-experience.md), [20-architecture](../tech/20-architecture.md)
+> **Status:** Draft v0.1 · revised for canon v0.3 (decision points) · **Owner doc for:** relationships (Opinion, Trust, Familiarity, Fear, Attraction, tags), NPC↔NPC social interactions, memory / belief / rumor propagation, reputation & Renown, provocation & escalation (up to the fight hand-off), crime detection & witnesses, households & kinship, courtship & marriage, pregnancy & upbringing, life cycle & mortality, death processing & grief, informal groups, faith, community events · **Depends on:** [01-canon](../01-canon.md), [21-npc-ai](../tech/21-npc-ai.md), [22-llm-integration](../tech/22-llm-integration.md), [17-governance-and-law](17-governance-and-law.md), [18-conflict-and-warfare](18-conflict-and-warfare.md), [15-economy-and-trade](15-economy-and-trade.md), [11-survival](11-survival.md), [12-skills-and-professions](12-skills-and-professions.md), [19-player-experience](19-player-experience.md), [20-architecture](../tech/20-architecture.md)
 
 This document is the heart of pillars **P2 "Everyone is a person"** and **P4 "Consequences travel"**.
 It defines how people come to like, distrust, fear, love, gossip about, accuse, marry, mourn and
@@ -54,8 +54,14 @@ fight each other — the same rules for the player and for every NPC. Time refer
    their reasons, noise in temper. Not uniform randomness.
 4. **Sparse and lazy.** Nothing ticks per pair. Decaying values are stored as `(value, timestamp)` and
    evaluated in closed form on read, so LOD3 and Interludes cost O(events), not O(pairs × days).
-5. **Sim decides, LLM voices** (canon §13). Every outcome here is a hard-coded function. LLM/Jev only
-   classify player language and render exchanges the player can perceive.
+5. **Language decides, systems resolve** (canon §13). Every option, parameter and consequence here is a
+   hard-coded function. When an NPC must choose in a conversation with the player — warm to them,
+   grant a favor, accept an apology, believe a claim, answer a provocation, report a crime — this doc
+   opens a **decision point (DP)**: it builds the menu (fixed parameters, eligibility, base
+   propensities, stakes), the LLM in the NPC's reply (or the fast decider) picks, the DRE guards the
+   pick, and this doc's functions apply it. Everything else — NPC↔NPC life, Interludes, headless runs
+   — is decided by the **policy** (seeded sampling from the same propensities), and NPC↔NPC exchanges
+   the player overhears are decided by the policy and only rendered by the LLM. §18 lists every DP.
 6. **Everything is logged.** Every social event (interaction outcome, belief formed, tag change,
    marriage, death, accusation) appends to the event log ([20-architecture](../tech/20-architecture.md))
    so Chronicles and saves can reconstruct it.
@@ -65,7 +71,7 @@ fight each other — the same rules for the player and for every NPC. Time refer
 | Doc | This doc consumes | This doc provides |
 |-----|-------------------|-------------------|
 | [21-npc-ai](../tech/21-npc-ai.md) | Personality facets/values/traits, emotion engine (Anger, Fear, Grief, Joy, Shame, Jealousy dynamics), needs, utility AI, schedules | Social *triggers & magnitudes* pushed into emotions/needs; relationship queries (`Opinion`, `Trust`, …); social action candidates and their utilities' social terms; `Willingness` term |
-| [22-llm-integration](../tech/22-llm-integration.md) | Dialogue-act / tone / claim / promise classification of player text; rendering service | `SocialExchangeRender` requests; structured claim vocabulary; memory/belief context for prompts |
+| [22-llm-integration](../tech/22-llm-integration.md) | Dialogue-act / tone / claim / promise classification of player text; the deciders (LLM in the reply, fast decider) and the DRE's guards, deadline and recording; rendering service | DP menus with base propensities (§18); `SocialExchangeRender` requests; structured claim vocabulary; memory/belief context for prompts |
 | [17-governance-and-law](17-governance-and-law.md) | Law set (which acts are crimes), verdicts, succession & inheritance rules, formal factions, blood-price law | `Accusation` with evidence strength; testimony; kin-graph heir queries; group cohesion/grievance; reputation & opinion for votes/legitimacy |
 | [18-conflict-and-warfare](18-conflict-and-warfare.md) | Fight resolution, feud conduct, war events (muster, deaths, absences) | `ConfrontationEscalated`, `FeudDeclared`; morale inputs from family ties & grief |
 | [15-economy-and-trade](15-economy-and-trade.md) | Trades, prices, property & ownership records | Opinion/Trust/Honesty inputs to price willingness and credit; `fair_trade` / `cheated_me` outcomes |
@@ -183,7 +189,8 @@ public struct MemoryRecord {
 ### 3.3 RNG streams (determinism, canon §14)
 
 `social.interaction`, `social.rumor`, `social.mutation`, `social.perception`, `social.crime`,
-`social.romance`, `social.family`, `social.mortality`, `social.faith`, `social.events`. Draws are
+`social.romance`, `social.family`, `social.mortality`, `social.faith`, `social.events`, `social.dp`
+(policy draws for decision points, §18). Draws are
 keyed by `(stream, day, personId, counter)` so LOD changes do not perturb unrelated outcomes.
 
 ---
@@ -306,6 +313,8 @@ applies the modifier at the listed fraction to the victim's spouse/household/kin
 | 55 | `killed_my_kin` | Kin killed (incl. lawful execution, ×0.5) | −80 | 320 | Add (−100), floor 0.375 | "blood debt"; Vengeful floor 0.75 |
 | 56 | `defied_me` | Child/ward refused my arranged match or command | −15 | 32 | Add (−30) | |
 | 57 | `apostate` | Left my faith (Faith ≥ 60 holders) | −20 | 96 | Refresh | §14 |
+| 58 | `warmed_to_me` | Rapport DP picked `warm_to_speaker` (§4.15) | +1…+4 (Familiarity step) | 6 | Sat (+20) | counts toward the +10/day words budget |
+| 59 | `cooled_on_me` | Rapport DP picked `cool_to_speaker` (§4.15) | −1…−4 (Familiarity step) | 6 | Sat (−20) | |
 
 ### 4.6 Derived terms (no decay, recomputed)
 
@@ -383,8 +392,8 @@ Event fear (decays, half-life 8 d; Paranoid ×2, Brave ×0.5): threatened +15, s
 wounded +30, witnessed B kill +25, B drew a weapon on me +20. Derived fear (no decay): B has
 power over me (lord, judge, employer) `+0…+30 × (1 − R_Peaceableness(B)/200)`; believed violent
 (`R_full Peaceableness ≤ −40`) +10. Effects: **≥ 30** avoid being alone with B, comply bonus
-`+Fear/5 %` to B's requests (clamped, counts against the ±15 % language clamp only when language is
-involved), accusation/testimony willingness × `(1 − Fear/100)`, escalation pressure −0.4·Fear (§9);
+`+Fear/5 %` added to the base propensity of granting B's requests (§5.4; deterministic, outside the
+menu width), accusation/testimony willingness × `(1 − Fear/100)`, escalation pressure −0.4·Fear (§9);
 **≥ 70** flee when B approaches with hostile intent, refuse trade.
 
 ### 4.11 Attraction
@@ -443,23 +452,81 @@ Shipmate Familiarity 25; Trust baseline `35 + 4.5 + 10 = 49.5`.
 | 3 | Player helps her haul timber; shares food while her Satiety is 20 | `helped_my_work` +5.3 (h 6); `fed_me_hungry` +10.6 (h 32) | 26.9 |
 | 10 | Before insult (decay) | +2.4, +9.1 | **22.5** |
 | 10 | Player mocks her cooking in front of 4 people (severity 3, public) | `insulted_me` −12 × 1.5 × 0.9 (Honor) × 1.02 (Vol) = **−16.5** | **5.9** |
-| 11 | Player apologizes; P(accept) = 0.40 + 0.005·5.9 + 0.003·15 = **0.47**; accepted → remaining ×0.5 | insult −7.6 | 14.4 |
+| 11 | Player apologizes → apology DP (§4.14): p(`accept_apology`) = 0.40 + 0.005·5.9 + 0.003·15 = 0.47, plus the words term for a plainly sincere apology (L 0.3, s 0.57, Persuasion 35): 0.15·0.57·0.675·0.3 ≈ 0.02 → **0.49**; the LLM accepts → remaining ×0.5 | insult −7.6 | 14.4 |
 | 20 | Decay | | **15.6** (12.1 had he not apologized) |
 
 The player is back to "acquaintance, slightly warm"; Familiarity is 72 by day 20, so a few more good
-days make them friends. Had Mira been Vengeful, the insult's half-life would be 16 d and the apology
+days make them friends. Each of these conversations also closed with a rapport DP (§4.15); the table
+assumes `stay_neutral` every time. Had the LLM picked `warm_to_speaker` on day 11 (Familiarity ≈ 55 →
+step 3; p ≈ 0.40 after an accepted apology), day 20 would read ≈ 16.7 instead of 15.6. Had Mira been Vengeful, the insult's half-life would be 16 d and the apology
 less likely.
 
 ### 4.14 Apology, amends & reconciliation
 
 `P(accept apology) = clamp(0.40 + 0.005·Op + 0.003·(W − 50) − 0.20·Stubborn − 0.25·Vengeful
-+ 0.10·gift≥1 day's income − 0.10·(apologies to me in last 4 d) + s_sincerity, 0.05, 0.95)` where
-`s_sincerity ∈ [−0.15, +0.15]` is the bounded language signal (22; NPC apologies use Shame/100·0.15).
++ 0.10·gift≥1 day's income − 0.10·(apologies to me in last 4 d) + G·Margin, 0.05, 0.95)` where
+`G·Margin` is the words term of canon §13.4: `Margin = 0.15·s·(0.5 + 0.5·Persuasion/100)` of the
+apologizer, `s` the victim's susceptibility and `G = clamp(L, −0.5, 1)` from the classified sincerity
+(22 §6.3; NPC apologies use `L = Shame/100`).
+
+**Apology DP.** The victim's answer is a decision point — decided by the LLM in the reply when the
+player apologizes in conversation, by the policy everywhere else:
+
+| Option id | Fixed parameters | Eligible | Base propensity | Stakes |
+|-----------|------------------|----------|-----------------|--------|
+| `accept_apology` | the "Accepted" effects below | always | `P(accept apology)` | low (medium if the incident's modifier ≥ 25) |
+| `demand_amends` | names a restitution computed here: the harm's value for thefts, damage and cheating (§10.2 provenance / 15 value), otherwise one day's income of the apologizer; accepted once paid (an obligation, §4.8) | a material harm exists | `(1 − P)·0.4` | by the restitution's value (15 §5.6 bands) |
+| `refuse_apology` | the "Refused" effects below | always | the rest | low |
+
 Accepted: the incident's modifiers keep **50 %** of remaining value (**30 %** with gift; Stubborn: 75 %
 / 55 %), the holder's Anger −30, the escalation ladder resets (§9). Refused: no change, and a fourth
 apology within 4 days is read as mockery (`rude_to_me`). **Restitution** (returning goods, paying
 compensation ≥ value) adds `made_amends` and a `MadeAmends` claim that propagates (§7) and restores
 up to half the Honesty impression lost.
+
+### 4.15 Conversation rapport (decision point)
+
+Canon §13.1's "a long, friendly conversation" moment. A conversation with the player closes with one
+**rapport DP** for the NPC, bundled into its closing reply (plus one more after every 8 further player
+turns; at most 3 per conversation). If the player walks off with no closing reply to bundle it into,
+the policy decides at the deadline — the sim never waits:
+
+| Option id | Fixed parameter | Eligible | Stakes | Executed by |
+|-----------|-----------------|----------|--------|-------------|
+| `warm_to_speaker` | `warmed_to_me` (#58) at +step | while the pair's words budget for the day is not spent | low | this doc (§4.3, Saturate) |
+| `stay_neutral` | none | always | low | — |
+| `cool_to_speaker` | `cooled_on_me` (#59) at −step | always | low | this doc |
+
+`step` comes from the listener's Familiarity with the speaker: **F < 15 → 1 · 15–34 → 2 · 35–59 → 3 ·
+≥ 60 → 4**. Strangers barely move on one talk (first impressions, §8.4, cover them); people who know
+each other well move more.
+
+**Base propensities (the policy):**
+
+```
+L = 0.5·L_words + 0.5·L_skill          // the conversation's mean classified words signal and the speaker's
+                                       // Persuasion (22 §6.3); template mode: the tags of the dialogue options chosen
+z = s·L + 0.25·(Warmth − 50)/50 + 0.15·Mood/100 + 0.2·[Social need < 40] − Anger(at speaker)/100
+    − 0.15·[Paranoid] + 0.1·clamp(Opinion, −50, 50)/50          // s = susceptibility (22 §6.3); liking begets liking
+U = { warm: 2z,  neutral: 0.8,  cool: −2z − 0.5 }  →  p = softmax(U)
+```
+
+At `z` = 0 the split is warm 0.26 · neutral 0.58 · cool 0.16; at `z` = 0.5 it is 0.53 · 0.43 · 0.04;
+at `z` = 1, 0.76 · 0.23 · 0.01, so cooling on a speaker after a warm talk is below the anti-exploit
+floor and out of a model's reach. `warm_to_speaker` with `p < 0.20` is a long shot (it favors the
+player) and spends the pair's daily long-shot budget.
+
+**The words budget.** Positive Opinion that comes from *words* — `warmed_to_me` and the conversational
+acts `chatted` (#1), `joked_together` (#2), `complimented_me` (#4), `comforted_me` (#5) and
+`romantic_moment` (#20) when talk produced them — is capped at **+10 per speaker → listener pair per
+game day** (canon §13.4); the excess is discarded and `warm_to_speaker` becomes ineligible once the
+budget is spent. Deeds (gifts, help, food, a rescue) are not words and are not capped by it. Insults,
+threats and lies found out are acts that apply their own §4.5 modifiers whatever the rapport pick.
+Familiarity grows from the contact itself (§4.9), whatever the pick.
+
+**Parity.** The budget binds every pair. NPC↔NPC conversations at LOD0–2 close with the same DP,
+decided by the policy, once per pair per day with ≥ 2 successful interactions; at LOD3 the expected
+value `step·(p_warm − p_cool)` is applied instead.
 
 ---
 
@@ -515,22 +582,45 @@ for each initiation slot of person i (spread over waking hours):
   resolve(τ, i, j)  →  modifiers, F, emotions (21), claims, log event
 ```
 
+This loop **is the policy** for NPC↔NPC life (canon §13.2): who talks to whom, about what, and every
+choice inside the exchange (grant a request, accept an apology, believe a claim, answer an insult) is
+sampled from the same propensities a DP would carry, on the seeded `social.*` streams. No model
+decides an NPC↔NPC exchange — not even one the player overhears (§5.7).
+
 ### 5.4 Willingness to help (social term)
 
 `Willingness(B→A) = 0.25 + 0.006·Op + 0.003·T + 0.004·(W − 50) + 0.15·kin + 0.10·Charitable +
-0.05·reciprocity − 0.004·cost_hours·(100 − Diligence)/50 + Fear/500 + s_lang` with `s_lang ∈
-[−0.15, +0.15] × susceptibility` (canon §13). Clamped 0.02–0.98. 21 multiplies it with B's own
-schedule/utility; 15 handles paid requests. Reciprocity: +0.05 per unreturned favor A did for B
-(max +0.2) — favors are remembered.
+0.05·reciprocity − 0.004·cost_hours·(100 − Diligence)/50 + Fear/500 + G·Margin`, where `G·Margin`
+is the words term of canon §13.4: `Margin = 0.15·s·(0.5 + 0.5·Persuasion_A/100)` and `G = clamp(L,
+−0.5, 1)` from 22 §6.3 (NPC askers draw `L_words` as in 22 §6.2). Clamped 0.02–0.98. Asking again
+for the same thing multiplies it by `0.5^(n−1)` and adds Anger +3 (canon §13.4). 21 multiplies it with
+B's own schedule/utility; 15 handles paid requests. Reciprocity: +0.05 per unreturned favor A did for
+B (max +0.2) — favors are remembered.
+
+**Request DP.** When the player asks a favor in conversation, B's answer is a decision point (the LLM
+in B's reply); between NPCs the policy samples the same menu:
+
+| Option id | Fixed parameters | Eligible | Base propensity | Stakes |
+|-----------|------------------|----------|-----------------|--------|
+| `accept_request` | do the favor as asked (21 schedules it); `granted_my_request` (#7) for A | B can do it (skills, tools, schedule, law) | `p = Willingness` | by importance: imp < 1 low, 1–2 medium, > 2 high; any transfer ≥ 960f critical |
+| `accept_with_condition` | do it in return for a favor of equal hours, or for pay at 15 §9's day rate — recorded as A's obligation (§4.8) | as above, and `cost_hours ≥ 1` | `(1 − p)·0.35` | as above |
+| `defer` | promise it for B's next free schedule slot (an obligation on B, §4.8) | the favor can wait ≥ 1 day | `(1 − p)·0.15` | low |
+| `refuse_request` | `refused_my_request` (#28) for A | always | the rest (`(1 − p)·0.50` when all are eligible) | low |
+
+`accept_request` and `accept_with_condition` favor the player: picked at `p < 0.20` they spend the
+pair's long-shot budget.
 
 ### 5.5 Player interactions use the same machinery
 
 The player's free-text lines are classified by 22 into a dialogue act (chat, praise, joke, insult,
 threaten, flirt, request, promise, claim, apology, question…), tone, severity and extracted
-claims/commitments. Each maps to the same §5.2 type and the same resolution functions; language
-signals only move outcomes inside the canon clamp. A player insult *is* an `Insult` with severity
-from a Jev **score** question (1–5), clamped and ignored if confidence < 0.5 (fallback: keyword +
-tone heuristic, severity 2).
+claims/commitments. Each maps to the same §5.2 type and the same resolution functions. Where the
+NPC then has to choose, the choice is a DP whose propensities are those functions (§18 lists them);
+the LLM in the NPC's reply picks within the menu, so words change *which* option is likely, never
+the options or their numbers. A player insult *is* an `Insult` — the player's own act, shown as an
+intent echo with a 1.5 s unsay window (canon §13.5) — with severity from the fast decider's **score**
+question (1–5), clamped and ignored if confidence < 0.5 (fallback: keyword + tone heuristic,
+severity 2).
 
 ### 5.6 Frequency targets (validated in §22)
 
@@ -539,7 +629,9 @@ Per adult per day: ~10 interactions, of which chat 45 %, gossip 20 %, joke 10 %,
 
 ### 5.7 Rendering (interface to [22-llm-integration](../tech/22-llm-integration.md))
 
-The sim resolves every exchange first. Only exchanges the player **can perceive** are voiced:
+The **policy decides** every NPC↔NPC exchange first (canon §13.2) — including ones the player
+overhears, so being watched never changes outcomes. Only exchanges the player **can perceive** are
+voiced:
 
 | Condition | Rendering |
 |-----------|-----------|
@@ -706,8 +798,9 @@ P_share   = 0.25 + 0.004·(Soc_a − 50) + 0.30·Gossip_a + 0.35·J·nov     (re
 topic     = argmax Tell; shared with probability Tell/(Tell + 0.6)  // 0.6 = everything else people talk about
 ```
 
-Ties within 10 % in a **player-perceived** conversation may be broken by a Jev `choice` among the
-pre-approved candidates ("which piece of news would this person bring up?"); otherwise RNG.
+Ties within 10 % **in a conversation with the player** may be broken by the decider (the LLM in the
+NPC's reply, or the fast decider) among the pre-approved candidates ("which piece of news would this
+person bring up?"). In NPC↔NPC talk — overheard or not — the policy's RNG breaks them (canon §13.2).
 
 ### 7.5 Propagation pseudocode
 
@@ -719,7 +812,7 @@ procedure GossipExchange(a, l, now):
   k = b.claim
   if rng(social.mutation) < P_mut(a, b): k = Mutate(k, a)  // §7.6, new interned claim, DerivedFrom = b.claim
   L = l.beliefs.get_or_create(k)
-  UpdateBelief(L, teller=a, conf=b.c, hop=b.hop+1)          // §7.2
+  UpdateBelief(L, teller=a, conf=b.c, hop=b.hop+1)          // §7.2 through §7.10's DP: policy-sampled (LOD0–2), expectation (LOD3)
   a.ToldTo(b).add(l); reinforce(a.memory(b), 0.15)
   l.memories.add(Told, k, salience = 8 + 40·J)
   log(GossipEvent{a, l, k, mutated})
@@ -785,8 +878,8 @@ Same machinery; the player is a subject like any other. Three sources make the p
 - **Absurd acts.** `absurd_acts.yaml` defines norm-violation detectors with grades 1–3 (swimming in
   winter, undressing in public, climbing the shrine, sleeping in the square, talking to livestock at
   length, carrying a goat everywhere, digging holes for no purpose). The sim detects; witnesses get
-  `Absurd` claims. Player *speech* can be absurd too: a Jev score question ("how bizarre is this for a
-  medieval settler?") above 0.7 confidence → `SaidStrangeThings` (grade ≤ 2, clamped). Observer
+  `Absurd` claims. Player *speech* can be absurd too: a fast-decider score question ("how bizarre is this for
+  a medieval settler?") above 0.7 confidence → `SaidStrangeThings` (grade ≤ 2, clamped). Observer
   reaction by personality: Curiosity ≥ 60 → amused (+2 opinion); Tradition ≥ 60 → `improper` (−3);
   Pious/Paranoid → unease (Fear +5). **Eccentric** label: ≥ 3 distinct absurd claims held (c ≥ 0.5) by
   ≥ 30 % of a community → children follow you, Competence impressions −5, absurd claims become
@@ -796,6 +889,43 @@ Same machinery; the player is a subject like any other. Three sources make the p
   the community adopts an epithet from the predicate's template set ("the Thief", "Wolfbane",
   "Goat-wife", "the Mad"); the LLM may propose wording, the sim validates it against the predicate.
   Epithets are used in barks and Chronicles and fade when the claim's holders drop below 20 %.
+
+### 7.10 Being told (decision point)
+
+When someone tells a person a claim — the player in conversation, or an NPC in a gossip exchange —
+whether the listener takes it on, and what they do with it, is a decision point. With the player it
+is decided by the LLM in the listener's reply; between NPCs by the policy (canon §13.2). The claim
+itself is fixed first: 22 extracts it into the §7.3 vocabulary, the sim checks it against ground
+truth, and the §5.2 lie test runs deterministically. A **detected lie** is an act (`lied_to_me`,
+Trust l 15) and leaves only `doubt`, so no DP opens.
+
+| Option id | Fixed parameters (supporting claim; mirror for a contradicting one) | Eligible | Stakes |
+|-----------|----------------------------------------------------------------------|----------|--------|
+| `believe` | `c ← c + (1 − c)·cS` — the teller taken at their word (contradicting: `c ← c·(1 − 0.8·cS)`, first-hand beliefs still lose ≤ 0.20 to hearsay); retold at the normal §7.4 rate | always | low; medium for accusation-grade claims (`Stole`, `Assaulted`, `Killed`, `Plotting`, `SleptWith` about a named person) |
+| `doubt` | `c` unchanged; the hearing is remembered (`Told` memory), so a second source compounds; may ask "who told you?" (§7.7) | always | low |
+| `repeat` | as `believe`, and the claim turns **eager**: `nov` reset and `Tell × 2` for 2 days | the updated `c ≥ 0.5` and the claim is tellable (§7.4 discretion > 0) | as `believe` |
+| `keep_quiet` | as `believe`, but discretion 0 for this claim for 8 days (still acted on: wariness, refusals, self-involved modifiers) | the updated `c ≥ 0.5` | low |
+
+`cS` is the teller's confidence; for the player, 0.9 for a first-hand assertion and 0.7 for hearsay
+("I heard…"), from 22's extraction.
+
+**Base propensities (the policy):**
+
+```
+p_take   = clamp( cred + G·Margin, 0.05, 0.95 )      // cred = §7.2's (0.15 + 0.75·T/100)·0.9^hop·plaus·bias·speaker_factor
+                                                     // Margin = 0.15·s·(0.5 + 0.5·Persuasion/100); G from 22 §6.3 (0 for NPC tellers)
+p(doubt) = 1 − p_take
+p_take is split:  repeat     ρ = clamp(2·P_share(listener)·J_eff, 0, 0.7)
+                  keep_quiet q = clamp(0.1 + 0.3·Discreet + 0.3·[Secret] + 0.4·[negative about own kin/close friend ∧ Loyalty ≥ 60], 0, 0.7)
+                  believe      = the rest (ρ and q scaled down if they sum past 1)
+```
+
+With `G` = 0 the expected confidence is exactly §7.2's update (`c + (1 − c)·cred·cS`), so the policy
+is the old rule in expectation and LOD3 keeps the closed form; `ρ` and `q` are tuned so §7.8's
+propagation targets still hold (§22). `believe` and `repeat` favor the player (and `keep_quiet`
+when the player asked for discretion): picked at `p < 0.20` they spend the pair's long-shot budget.
+What the listener later retells still mutates only by §7.6's deterministic rules — no model ever
+alters a claim.
 
 ---
 
@@ -890,25 +1020,54 @@ Constraints: `r* ≤ current + 2` (+3 if Hot-tempered, drunk ≥ 2 or s ≥ 4); 
 hand ∧ Anger ≥ 60 ∧ (Honor ≥ 60 ∨ Vengeful ∨ Enemy tag ∨ P armed first); rung 7 needs Enemy tag,
 a `killed_my_kin` slot, or feud/war context. If `r* < current` R de-escalates (walks off, laughs it off,
 apologizes if §5.2 conditions hold). Each response is itself a provocation to the other party
-(Argument → s 2, Threat → s 3, Shove → s 5), so NPC↔NPC quarrels run the same loop.
+(Argument → s 2, Threat → s 3, Shove → s 5), so NPC↔NPC quarrels run the same loop — decided by the
+policy, which samples `r*` exactly as above. When the **player** provokes an NPC in conversation,
+`r*` is not drawn directly: its distribution becomes the propensities of the NPC's response DP
+(§9.6), and the LLM in the NPC's reply picks the response.
 
 ### 9.3 Worked example — insulting Hobb the smith in the alehouse
 
 Hobb: Vo 70, Warmth 40, Hot-tempered, Honor 65, Anger 10, one ale (drunk 1), Op toward player +5
-before the insult, 4 witnesses.
-Player calls his work shoddy (s = 3): ΔAnger = 39.6 → Anger 49.6; **E = 69.5**. Uncapped that is a
-shove, but from Calm the cap is rung 3 (Hot-tempered): Hobb squares up — "Say that again." Typical
-villager for comparison: E = 36 → argument (16 % chance of a threat).
-Player doubles down (s = 4, "and your father was a fraud"): Anger 96.7, **E = 91.7**, cap rung 5 →
-P(brawl) ≈ 96 %. The hand-off fires; 18 resolves the fistfight. Had the player apologized at rung 3
-(Hobb's Opinion now −17 after `insulted_me` −22): P(accept) = 0.40 − 0.085 − 0.03 ≈ **0.29**, or 0.39
-if the apology comes with a round of ale worth a day's income.
+before the insult, 4 witnesses (two drinking friends; the alewife Gerd — Warmth 70, Leadership 30,
+Op +35 toward Hobb; a stranger). No weapon at hand. The LLM decides for Hobb (§9.6); noise sd = 4 +
+70/10 = 11.
+
+1. **The insult.** The player calls his work shoddy (s = 3; the intent echo shows "insult" and the
+   player lets it stand): ΔAnger = 39.6 → Anger 49.6; **E = 69.5**. Uncapped that is most likely a
+   shove, but from Calm the cap is rung 3 (Hot-tempered). Hobb's DP: `threaten` 0.89, `call_others`
+   0.10 (his friends are present), `retort` 0.013, `laugh_off` and `walk_away` ≈ 0. Everything but
+   threatening and calling his mates is below the 0.02 floor; the LLM picks `threaten` — *"Say that
+   again."* A typical villager (E = 36, sd 9) would answer `retort` 0.89 (the 16 % that reaches a
+   threat collapses onto rung 2, the cap from Calm) or `laugh_off` 0.11.
+2. **A bystander.** Gerd is not in the conversation, so the fast decider answers her bystander DP:
+   `step_in` 0.18, `call_others` 0.20, `ignore` 0.62. Say it returns `ignore`.
+3. **Doubling down.** The player adds *"and your father was a fraud"* (s = 4): Anger 96.7, **E = 91.7**.
+   The cap is now rung 6, but rung 6 needs a weapon at hand, so rung 5 is the ceiling and the 63 % of
+   `E + ε` past 88 collapses onto it. Hobb's DP: `attack_brawl` 0.87, `call_others` 0.10, `shove`
+   0.03, `threaten` 0.002. `shove` is under the high-stakes floor (0.05). The LLM picks
+   `attack_brawl` → `ConfrontationEscalated{Rung 5, Subdue}`; 18 resolves the fistfight.
+4. **Had Gerd stepped in** after the threat, both parties' next `E` would drop by 10 + 30/5 = 16: Hobb's
+   second `E` = 75.7, and his DP would read `attack_brawl` 0.57, `shove` 0.26, `call_others` 0.10,
+   `threaten` 0.07 — a real chance that the fight never happens. If the LLM then held at `threaten`
+   (0.07), the pick would clear the medium-stakes floor but, being a long shot in the player's favor,
+   would use one of the two this pair has today.
+5. **Had the player apologized** at rung 3 instead (Hobb's Opinion now −17 after `insulted_me` −22),
+   Hobb's apology DP (§4.14) gives `accept_apology` 0.40 − 0.085 − 0.03 ≈ **0.29** (+≈ 0.02 for
+   plainly sincere words), or 0.39 with a round of ale worth a day's income. At 0.29 accepting is not
+   a long shot; if the LLM refuses, the quarrel goes on from rung 3.
+6. **Critical picks.** With his hammer to hand and the player his Enemy, rung 6 would be open. In a
+   quarrel where `attack_armed`'s propensity — recomputed with the act class's default severity, not
+   the model's score — came to, say, 0.12, an LLM pick of it would be refused (critical options need
+   ≥ 0.25); the policy would choose instead and the line would be regenerated. Here, at `E` = 91.7,
+   it would be ≈ 0.57 and would pass: words can start an armed fight only where the hard-coded
+   temper already makes one likely.
 
 ### 9.4 De-escalation
 
 - **Bystanders:** each witness with Op ≥ 30 to either party, an authority/kin role, or Warmth ≥ 65 (not
   Coward) intervenes with `P = 0.1 + 0.3·[authority ∨ kin] + 0.004·(W − 50)` per exchange; success
   subtracts `10 + Leadership/5` from both parties' next E. At rung ≥ 5 interventions are physical (18).
+  When the player is a party, this choice is the bystander DP of §9.6; otherwise the policy rolls it.
 - **Apology / gift** — §4.14. **Walking away** — if `E < θ_current − 10`, the exchange ends; Anger decays
   (21).
 - **Mediation** (after the fact): a third party with Op ≥ 20 to both; `P = 0.3 + Leadership/200 +
@@ -932,6 +1091,74 @@ record FightResolved(long FightId, PersonId? Winner, IReadOnlyList<PersonId> Yie
 held by K1 adults against K2 members, × kin weight. Daily, if `G ≥ 120` ∧ no blood-price settlement
 accepted (17) ∧ K1's head (or most Vengeful adult) is Vengeful or Honor ≥ 70: `P(declare) = 0.05/day` →
 `FeudDeclared(K1, K2, grievanceEvents)` to 18, which owns feud conduct (revenge, raids, settlement).
+Declaring a feud is a **critical** option (canon §13.1): it stays this daily policy roll, and because
+0.05 never reaches the 0.25 critical bar, no conversation can talk a kin-group head into one.
+
+### 9.6 The response decision point (player provocations & bystanders)
+
+*"A player can start a fight with words, but it is settled by the combat system"* (canon §13). When
+the player provokes an NPC in conversation — an insult, threat, mockery or accusation, a lowball that
+tips a trader's anger (15 §5.4), or a shove — the provocation is the player's own act (shown as an
+intent echo with a 1.5 s unsay window, canon §13.5). Its Anger and `E` are computed as in §9.2, and
+the NPC's answer is a DP decided by the LLM in its reply. A provocation outside a conversation — an
+insult shouted in passing, a shove in the street — opens the same menu with the **fast decider**
+deciding (canon §13.1's "reaction to a shouted insult").
+
+**Response menu.** `cap` = current rung + 2 (+3 if Hot-tempered, drunk ≥ 2 or s ≥ 4), as in §9.2.
+
+| Option id | Rung after | Fixed parameters | Eligible | Stakes | Executed by |
+|-----------|-----------|------------------|----------|--------|-------------|
+| `laugh_off` | 1 Slight | Anger −5; this provocation's pressure ends | current ≤ 2 ∧ s ≤ 4 | low | this doc |
+| `retort` | 2 Argument | Argue resolution (§5.2): `argued_with_me` both ways, Anger +10; counts as s 2 against the player | current ≤ 3 | low | this doc |
+| `threaten` | 3 Threat | `threatened_me` and Fear +15 on the player; counts as s 3 | 3 ≤ cap | medium | this doc |
+| `shove` | 4 Shove | `ConfrontationEscalated{Rung 4, Subdue}` | 4 ≤ cap | high | 18 (non-lethal) |
+| `attack_brawl` | 5 Brawl | `ConfrontationEscalated{Rung 5, Subdue}` | 5 ≤ cap | high | 18 |
+| `attack_armed` | 6 Armed fight | `ConfrontationEscalated{Rung 6, Wound}` | 6 ≤ cap ∧ §9.2's rung-6 gate | **critical** (lethal violence; 18 treats armed fights as lethal intent) | 18 |
+| `attack_to_kill` | 7 Lethal intent | `ConfrontationEscalated{Rung 7, Kill}` | 7 ≤ cap ∧ §9.2's rung-7 gate | **critical** | 18 |
+| `challenge` | 3 Threat | a formal duel challenge with proposed terms ([18 §4.3](18-conflict-and-warfare.md)) | 3 ≤ cap ∧ Honor ≥ 60 ∧ dueling customary (18 §4.3); takes half of `threaten`'s mass when eligible | high | 18 |
+| `walk_away` | 0 | leaves the scene; Anger decays (21) | not cornered | low | this doc, 21 |
+| `deescalate` | 0 | backs down — an apology if R holds the offense (§5.2 Apologize conditions), else "let's not do this"; Anger −15; the ladder resets | current ≥ 1, or the §5.2 Apologize conditions hold | low | this doc (§4.14) |
+| `call_others` | unchanged | calls up to 3 present allies (kin, friends with Op ≥ 40 toward R) or the nearest watchman/office-holder within 25 m; each gets a bystander DP with `called` set | someone callable within 25 m | low | this doc, then 18 §4.2 / 17 |
+
+**Base propensities (the policy)** are §9.2's own escalation probabilities:
+
+```
+π(r)  = P( θ_r ≤ E + ε < θ_{r+1} ),  ε ~ N(0, 4 + Vo/10)       // the rung §9.2 would draw
+mass above the cap, or on a gated rung (6, 7), collapses onto the highest eligible rung
+π(0) → walk_away / deescalate (deescalate's share 0.5 if the §5.2 Apologize conditions hold, else 0.2)
+π(1) → laugh_off · π(2) → retort · π(3) → threaten · π(4) → shove · π(5) → attack_brawl
+π(6) → attack_armed · π(7) → attack_to_kill
+call_others (when eligible) takes c = 0.10 + 0.30·[Coward ∨ Fear(R→P) ≥ 40] + 0.20·[P outranks R]
+  of the mass at rungs ≥ 3
+mass on an ineligible option below the current rung goes to walk_away / deescalate
+```
+
+So the policy is §9.2 exactly, and NPC↔NPC quarrels need no separate rule. The guards then apply
+(canon §13.1): `p_i ≥ 0.02` (low/medium) or `≥ 0.05` (high); the options that end at or below the current rung
+(`laugh_off`, `retort`, `walk_away`, `deescalate`, and `threaten` from rung 3) favor the player and,
+picked at `p < 0.20`, spend the pair's long-shot budget; `attack_armed` and `attack_to_kill` need `p_i ≥ 0.25`
+recomputed **without the player's text** — `E`, including its ΔAnger term, with the default severity
+of the act class the player let stand in the intent echo (rude 1 · mocking 2 · insult 3 · kin/faith/honor or accusation 4 ·
+humiliation or a blow 5) instead of the fast decider's severity score. Lines for high and critical
+picks are Tier B (held until verified). Every pick, its menu hash and its decider are recorded as
+input events.
+
+**Bystander DP.** When a quarrel involving the player reaches rung ≥ 2, each witness within 25 m
+(raised voices, canon §10.6) who is not a party gets a DP — at most 3 per exchange (highest `step_in`
+propensity first); the rest use the policy:
+
+| Option id | Fixed parameters | Eligible | Base propensity | Stakes |
+|-----------|------------------|----------|-----------------|--------|
+| `step_in` | both parties' next `E` −(10 + Leadership/5); at a shove (rung 4), pulls them apart | §9.4's conditions (Op ≥ 30 to either party, authority/kin role, or Warmth ≥ 65 and not Coward) | `0.1 + 0.3·[authority ∨ kin] + 0.004·(W − 50)` (+0.3 if `called`) | medium |
+| `call_others` | shouts for the watch or a party's kin: office-holders arrive in 20–60 game-minutes (18 §4.2); every other bystander's `step_in` +0.2 | someone callable within 25 m | `min(0.5, 0.05 + 0.15·[rung ≥ 3] + 0.15·[Coward ∨ child ∨ Fear of either party ≥ 40] + 0.10·[(Tradition + Fairness)/2 ≥ 60])` | low |
+| `ignore` | watch, or drift off | always | the rest | low |
+
+The decider is the **fast decider** (one labelled question per bystander, within the exchange's
+deadline), or the LLM if that bystander is already speaking in the player's conversation. Once a
+brawl or armed fight starts (rung ≥ 5), the fight and its onlookers belong to 18: bystanders switch to 18
+§4.2's hard-coded reactions, and in combat at most 18's ≤ 500 ms fast-decider yield/mercy choice
+remains (canon §13.2). Quarrels the player is not part of — overheard or not — are decided entirely
+by the policy, and the LLM only renders what the player can hear.
 
 ---
 
@@ -1022,7 +1249,9 @@ accusation with **ES = 1 − (1 − 0.54)(1 − 0.1) = 0.59**.
 `P_report = clamp(0.3 + 0.004·Op(w→victim) − 0.006·max(0, Op(w→actor)) + 0.003·(Fairness − 50)
 − 0.006·Fear(w→actor) + 0.3·[w is guard/official] − 0.5·[actor is w's kin/spouse] + 0.2·[victim is
 w's kin], 0, 1)`. Non-reporters still hold the belief, may gossip it, and (M5) Greedy witnesses with
-Op ≤ 10 toward the actor may attempt blackmail.
+Op ≤ 10 toward the actor may attempt blackmail. The witness's choice among report, confront,
+blackmail and silence is the §10.7 menu: sampled by the policy off-screen, and a DP decided by the LLM
+when the actor is the player and talks with the witness first.
 
 ### 10.6 Being watched ("wary around you")
 
@@ -1041,6 +1270,40 @@ Triggered for A when `R_full Honesty(B) ≤ −25` or `Lawfulness ≤ −25` (th
 
 Wariness fades with the impression (Honesty half-life 64 d ≈ two years) or faster through
 `MadeAmends`.
+
+### 10.7 Facing the witness (decision point)
+
+**Detection is never a decision.** Perception (§10.1), evidence (§10.2), suspicion and the evidence
+strength sent to 17 (§10.3) are deterministic and appear on no menu. What a witness *does* with what
+they saw is a choice. A witness who believes (c ≥ 0.6) that the player committed an act and has not
+yet acted on it decides at their next opportunity — by the policy off-screen (21 schedules the
+resulting action), or as a DP decided by the LLM in the witness's reply if the player talks with them
+first or the witness comes to confront the player.
+
+| Option id | Fixed parameters | Eligible | Base propensity | Stakes | Executed by |
+|-----------|------------------|----------|-----------------|--------|-------------|
+| `report` | tells the victim or the nearest authority: `Accusation{witness, player, claim, evidence, ES}` per §10.3 to 17 (before any law exists: a public accusation claim, J 0.8) | always | `p_r = P_report` (§10.5) | high | this doc → 17 |
+| `confront` | a private confrontation: names the act and demands restitution — the item back or its value (15 §2.4), or for violence an apology to the victim; enters §9 at s 4; if the player complies, `MadeAmends` (§4.14) and the witness keeps quiet | always | `(1 − p_r)·c_conf` | medium | this doc, 15 |
+| `blackmail` | demands `D = clamp(round(0.5 × the stolen value, or the act's expected fine — 17's band midpoint), 8f, 0.25 × the player's believed liquid wealth)` within 4 days, recorded as an obligation; payment moves through 15; unpaid → `report` | Greedy ∧ ¬Honest ∧ Op(w→player) ≤ 10; from M5 | `(1 − p_r)·0.3` | high; critical if `D ≥ 960f` | this doc, 15, 17 |
+| `stay_silent` | holds the belief as `Secret` (§7.4 discretion × 0.2) | always | the rest | medium | this doc |
+
+```
+c_conf = clamp(0.2 + 0.3·[Op(w→player) ≥ 20] + 0.2·[Honest] + 0.2·[player is w's kin/close friend]
+               − 0.004·Fear(w→player), 0, 0.8)
+words:  stay_silent += G·Margin, taken from report;  Margin = 0.15·s·(0.5 + 0.5·Persuasion/100), G from 22 §6.3
+```
+
+A plea moves the menu only by that width. **Bribes and threats are acts**: a gift applies `gave_gift`
+(raising Op, which lowers `P_report` through §10.5's terms), and a threat raises Fear (lowering it too)
+but is itself a provocation (§9) and a second act the witness now holds. `stay_silent` and `confront`
+favor the player; picked at `p < 0.20` they spend the pair's long-shot budget.
+
+*Example.* Had Old Wenna seen the ring theft of §10.3 (c 0.6; Op toward Edda 40, toward the player 10;
+Fairness 60; not Greedy) and the player called on her that evening: `P_report` = 0.3 + 0.16 − 0.06 +
+0.03 = 0.43; `c_conf` = 0.2 → `report` 0.43 · `confront` 0.11 · `stay_silent` 0.46 (`blackmail`
+ineligible). The player pleads *"Please, Wenna — I'll put it back tonight"* (L 0.4; Wenna's `s` 0.6;
+Persuasion 35 → `Margin` 0.061): `stay_silent` rises to 0.48 and `report` falls to 0.41. Whatever the
+LLM picks, the theft stays in the event log, and Edda can still find the ring.
 
 ---
 
@@ -1085,7 +1348,7 @@ stateDiagram-v2
   Married --> Widowed: spouse dies
 ```
 
-- **Flirt success** `= clamp(0.1 + 0.6·A(B→A)/100 + 0.003·Op(B→A) + 0.03·(Cha_A − 5) − 0.4·[B unavailable] + s_lang, 0.02, 0.9)`.
+- **Flirt success** `= clamp(0.1 + 0.6·A(B→A)/100 + 0.003·Op(B→A) + 0.03·(Cha_A − 5) − 0.4·[B unavailable] + G·Margin, 0.02, 0.9)`, with `G·Margin` the words term of canon §13.4 (`Margin = 0.15·s·(0.5 + 0.5·Persuasion/100)`).
 - **Courtship points (CP):** +5 per successful flirt, +8 per gift during courtship, +6 per romantic
   moment (festival dance, walk), −8 per rejection; decay 10 %/day without contact.
 - **Compatibility** `C = 50 + 25·cos(values) + 10·sameFaith − 15·rivalCreed + 10·(1 − |Δstatus bands|/2) − 10·|ΔVo|/50`.
@@ -1095,7 +1358,7 @@ stateDiagram-v2
   15·[a rival suitor scores higher]`. In high-status families (head's Status value ≥ 60) the approval
   weight rises to 0.40 and Approval < 30 is a **veto** (Varrow, Osmeri); the Brannoch clan head holds a
   veto; Ashen elders only advise. NPCs propose when their own M ≥ 60 and Family value ≥ 30.
-- **The player courts NPCs** through the same functions; dialogue moves only `s_lang` (±15 %).
+- **The player courts NPCs** through the same functions. B's answer to a flirt is a DP (`respond_warmly` +5 CP / `deflect`, no change / `rebuff`, −8 CP and `rejected_my_courtship`; base propensities: flirt success, then 0.6 / 0.4 of the rest; low stakes) and to a proposal a DP (`accept_proposal` / `ask_for_time` (decide within 4 days) / `refuse_proposal`; base: `P`, then 0.5 / 0.5 of the rest; high stakes), decided by the LLM in B's reply; words act only through `G·Margin`. The age/orientation gate (§4.11) is eligibility: where Attraction is n/a, no courtship option is ever on a menu, whatever the decider. Family approval and vetoes stay deterministic.
 - **Arranged marriages (M5):** heads with Status/Wealth ≥ 60 score matches by status gain, wealth and
   political value (17 supplies), negotiate with the other head; child's consent
   `P = 0.5 + 0.004·Op(child→match) + 0.3·Tradition/100`; refusal → `defied_me` and household tension.
@@ -1347,25 +1610,54 @@ accusation against the player. **Calibration requirement:** LOD3 rates must matc
 | CPU, LOD3 day | ≤ 50 ms social total (≈ 7,500 interactions + rumor ops) |
 | CPU, LOD1 tick (500 people) | ≤ 2 ms |
 | LLM renders | §5.7 budget only; zero LLM calls below LOD0 |
+| Decision points | LLM / fast decider only inside a conversation with the player (§18); every other DP is a policy draw at every LOD; Interludes are policy-only |
 
 ---
 
 ## 18. LLM & Jev touchpoints
 
+**Decision points owned here.** In a conversation with the player the LLM picks, decision-first in
+the NPC's reply; the fast decider picks where noted, or when the LLM is unavailable; otherwise — and
+for all NPC↔NPC life, overheard exchanges, Interludes and headless runs — the policy samples the same
+menu on the seeded `social.*` streams. Common rules: menus, parameters and propensities come from
+this doc; an ineligible option's propensity falls to the DP's residual option (the one listed as "the
+rest"), or is shared out in proportion where there is none; a DP with one eligible option is not
+opened; the DRE guards every pick (floors 0.02 / 0.05, the pair's two
+daily long shots, critical options ≥ 0.25 recomputed without the player's text); a pick that fails
+goes to the policy and the line is regenerated; the deadline is 4 s (then the policy); the DP, its menu
+hash, the pick and the decider are recorded as input events (canon §13).
+
+| DP | Options | Base propensity from | Stakes | Decider with the player |
+|----|---------|----------------------|--------|-------------------------|
+| Rapport (§4.15) | `warm_to_speaker` · `stay_neutral` · `cool_to_speaker` | softmax of the conversation's words, mood, Warmth, Opinion | low | LLM |
+| Apology (§4.14) | `accept_apology` · `demand_amends` · `refuse_apology` | `P(accept apology)` | low–medium | LLM |
+| Request (§5.4) | `accept_request` · `accept_with_condition` · `defer` · `refuse_request` | `Willingness` | low–high; transfers ≥ 960f critical | LLM |
+| Being told (§7.10) | `believe` · `doubt` · `repeat` · `keep_quiet` | §7.2 credibility; §7.4 tellability | low–medium | LLM |
+| Gossip topic tie-break (§7.4) | the tied candidate claims | Tell | low | LLM or fast decider |
+| Provocation response (§9.6) | `laugh_off` · `retort` · `threaten` · `shove` · `attack_brawl` · `attack_armed` · `attack_to_kill` · `walk_away` · `deescalate` · `call_others` | §9.2's rung distribution | low → critical (armed, lethal) | LLM (fast decider for a provocation outside a conversation) |
+| Bystander (§9.6) | `step_in` · `call_others` · `ignore` | §9.4 intervention; call formula | low–medium | fast decider (LLM if already in the conversation) |
+| Witness (§10.7) | `report` · `confront` · `blackmail` · `stay_silent` | `P_report` (§10.5) | medium–high; blackmail ≥ 960f critical | LLM |
+| Flirt, proposal (§11.3) | `respond_warmly` · `deflect` · `rebuff`; `accept_proposal` · `ask_for_time` · `refuse_proposal` | flirt success; proposal `P` | low; high | LLM |
+
+**Classification and generation.** "Fast decider" is canon §4.1's role: today a small OpenRouter model
+read through option-label log-probabilities; later Jev through TypeSafe's own API and/or a fine-tuned
+local Laya (Jev is not reachable through OpenRouter, which lists only the `typesafe/jev-router` router).
+
 | Touchpoint | Model | Output (structured) | Bound / fallback |
 |------------|-------|---------------------|------------------|
-| Player dialogue act, tone, insult severity | Jev choice/score | act, severity 1–5 | Confidence < 0.5 → heuristic; severity clamped |
+| Player dialogue act, tone, insult severity | Fast decider choice/score | act (shown as an intent echo for consequential acts), severity 1–5 | Confidence < 0.5 → heuristic; severity clamped; critical checks use the act class's default severity |
 | Claim & promise extraction from player text | LLM structured output → validated against predicate vocabulary | `Claim`, `Commitment` | Unknown entities rejected; player text untrusted |
-| Apology sincerity, flirt/persuasion quality | Jev score | `s_lang` | ±0.15 × susceptibility |
-| Absurd-speech grade | Jev score | grade ≤ 2 | Ignored below 0.7 confidence |
-| Consistency of a player's statement with what the listener knows (lie detection) | Jev noul on listener's beliefs + player line | `s_consistency` | ±0.1; heuristic: claim-vs-belief match only |
-| Gossip topic among near-ties | Jev choice over sim-approved options | index | RNG |
-| Overheard exchanges, barks, rumor wording, eulogies, tales | LLM | text only | Validator → templates |
+| Words signal for DPs (apology sincerity, request, flirt, plea, persuasion quality) | Fast decider score | `L_words` → the policy's `G` and the guards' propensities | Width is `Margin` (canon §13.4); template mode: the chosen dialogue option's tags |
+| Absurd-speech grade | Fast decider score | grade ≤ 2 | Ignored below 0.7 confidence |
+| Consistency of a player's statement with what the listener knows (lie detection) | Fast decider yes/no on listener's beliefs + player line | `s_consistency` | ±0.1 inside the deterministic §5.2 lie test; heuristic: claim-vs-belief match only |
+| Injection attempt in player text | Code heuristics + fast-decider label | flag | p ≥ 0.3 → that turn's DPs are decided by the policy (canon §13.5) |
+| Overheard exchanges, barks, rumor wording, eulogies, tales | LLM | text only — the policy already decided | Validator → templates |
 | Conversation summaries | LLM | ≤ 60 words | Structured facts only |
 | Epithet wording | LLM proposal → sim validation | string | Template list |
 | Chronicle social content | LLM from event log | prose | Template digest |
 
-Jev never counts, compares dates or computes values (canon §4.1); every threshold is in code.
+No model counts, compares dates or computes values (canon §4.1); every threshold, parameter and
+propensity is in code.
 
 ---
 
@@ -1373,7 +1665,7 @@ Jev never counts, compares dates or computes values (canon §4.1); every thresho
 
 | ID | Social scope |
 |----|-------------|
-| **M1** Talking Camp | Opinion (modifiers #1–35, #38–39, D1–D5, D9), Trust, Familiarity, Fear; tags through Enemy/Rival; interactions Chat/Gossip/Joke/Praise/Comfort/Request/Argue/Insult/Apologize/Warn; memory + compaction; claims/beliefs/rumors with mutation; reputation axes (no Lawfulness effects yet); escalation through rung 5 with **stubbed** fight hand-off; LLM rendering of overheard talk; headless scale spike (hundreds of NPCs at LOD2/3) |
+| **M1** Talking Camp | Opinion (modifiers #1–35, #38–39, D1–D5, D9), Trust, Familiarity, Fear; tags through Enemy/Rival; interactions Chat/Gossip/Joke/Praise/Comfort/Request/Argue/Insult/Apologize/Warn; memory + compaction; claims/beliefs/rumors with mutation; reputation axes (no Lawfulness effects yet); escalation through rung 5 with **stubbed** fight hand-off; LLM rendering of overheard talk; DPs for rapport (#58–59), apology, request, being told, provocation response and bystanders, with LLM-vs-policy calibration (≤ 10-point gap per option family; refusal suite ≥ 95%); headless scale spike (hundreds of NPCs at LOD2/3) |
 | **M2** Landfall | Perception & witnesses at LOD0, theft from communal stores, real fight hand-off (18), first impressions, absurd acts, wariness basics |
 | **M3** Hamlet | Hearth groups → households, courtship & Varrowan marriage, community events (Hearthday, Harvest Home, weddings), cliques & group identity, save/load of all social state |
 | **M4** Village | Full crime detection & provenance, suspicion, accusations → 17, false accusations; pregnancy, birth, upbringing, aging, mortality, death processing, grief, inheritance interface; Interlude LOD3 social; Competence; epithets; cross-settlement rumor via traders; multi-culture marriage when the second expedition exists |
@@ -1414,12 +1706,15 @@ Jev never counts, compares dates or computes values (canon §4.1); every thresho
 | Gift spam to buy love | Saturate caps; gift value relative to income; Fairness ≥ 70 holders read a 3rd gift within 8 d as bribery: the `gave_gift` slot is skipped and `rude_to_me` −2 applied instead |
 | Chat spam for Familiarity | +6/pair/day conversational cap |
 | Apology spam | −0.1 per recent apology; 4th within 4 d counts as mockery |
-| Prompt-injecting rumors ("everyone knows the lord is a thief") | Extraction to fixed predicates; player is just a source with player-trust credibility; Jev inputs flagged untrusted |
+| Prompt-injecting rumors ("everyone knows the lord is a thief") | Extraction to fixed predicates; player is just a source with player-trust credibility; the being-told DP (§7.10) can only pick `believe`/`doubt`/`repeat`/`keep_quiet`, with propensities from trust; decider inputs flagged untrusted; injection p ≥ 0.3 → policy |
 | Killing the only witness | Death creates `Missing/Dead` claims; "last seen with" evidence; the killing is itself witnessable |
 | Planting stolen goods on a rival | Allowed (parity) — planting is a detectable act; provenance records `LastLegitTransfer` |
 | Marrying for inheritance, then murder | Heir prior (+0.2 "benefits") in suspicion |
 | Crimes during LOD1/2 or Interludes | Same perception formula on expected occupancy |
-| Asking until "yes" | `refused_my_request` stacks, lowering future Willingness |
+| Asking until "yes" | `refused_my_request` stacks, lowering future Willingness; re-asking multiplies the acceptance propensity by `0.5^(n−1)` and adds Anger +3; at most 2 player-favoring long shots (`p < 0.20`) per pair per game day |
+| Sweet-talking for Opinion | The words budget: ≤ +10 language-derived Opinion per pair per day (§4.15); deeds are the only way past it |
+| Talking an NPC into lethal violence or a feud | Armed and lethal responses and feud declarations are critical: deterministic `p ≥ 0.25` computed without the player's text (§9.5–9.6) |
+| A sycophantic model that always yields | Floors and the long-shot budget; parity calibration against the policy (§22) |
 | False name in a new settlement | `P(link)` by Renown/description; exposure → `Lied` |
 | Reset grudges by sleeping/Interludes | Grave modifiers have half-lives ≥ 96 d and floors |
 
@@ -1454,7 +1749,14 @@ checks ([20-architecture](../tech/20-architecture.md)).
 
 Scenario tests: *the insult* (§9.3 reproduces), *the theft* (§10.3 reproduces), *the absurd swim*
 (camp-wide awareness ≤ 1.5 d), *the orphan* (guardian found ≤ 2 d), *Interlude parity* (LOD3 vs LOD1
-±20 %), *template mode* (all metrics within range with LLM disabled).
+±20 %), *template mode* (all metrics within range with LLM disabled), *DP replay* (recorded picks
+reproduce the run; a menu-hash mismatch fails it).
+
+**Calibration suite (M1, live models, not nightly):** on neutral golden scenarios for every §18 DP,
+the LLM's pick rates stay within 10 percentage points of the policy's per option family, and NPCs who
+should refuse (a Stubborn victim of a fresh humiliation asked to forgive, a loyal friend asked to
+betray a confidence, an Honest guard asked to ignore a theft) refuse in ≥ 95% of the refusal suite
+(canon §13.5).
 
 ---
 
@@ -1469,10 +1771,18 @@ Scenario tests: *the insult* (§9.3 reproduces), *the theft* (§10.3 reproduces)
    `Known-of` stubs without modifiers.)
 5. Polygamy/concubinage for any culture? Currently none.
 6. Should Ashen and Brannoch have priest-equivalent jobs for parity of comfort/mediation bonuses?
-7. Blackmail depth (M5): pure social leverage or an economic contract via 15?
+7. Blackmail depth (M5): pure social leverage or an economic contract via 15? (§10.7 now records the
+   demand as an obligation with payment through 15; the open part is court enforceability.)
 8. How visible should paternity doubts be (resemblance mechanic)?
 9. Does a court verdict (17) override first-hand belief, or only hearsay? (Current: hearsay only.)
 10. Do community events need a minimum population (e.g. Midsummer games ≥ 40 people)?
+11. **Rapport step direction** (§4.15): steps grow with Familiarity (1 → 4). Should strangers instead
+    swing more on one talk (and old friends less)? Playtest both.
+12. Should NPC↔NPC pairs really get rapport DPs (parity), or is the existing `chatted` stream enough —
+    i.e. is the player's rapport channel a presentational exception?
+13. How many bystander DPs per exchange can the fast decider afford in a crowded tavern (cap 3 now),
+    and should called allies always get one?
+14. Should the player be told (UI) when a pick was blocked by a guard, or should it stay invisible?
 
 ---
 
@@ -1504,3 +1814,13 @@ Scenario tests: *the insult* (§9.3 reproduces), *the theft* (§10.3 reproduces)
 15. **Epithets** as a community-assigned name element (owned here; displayed per 19).
 16. **For 10 (arrival logic):** seed the first ship with 1–3 non-orthodox settlers (an Ashen sympathizer,
     a Brannoch hired hand) so faith/homeland friction exists before the second expedition.
+17. **Rapport steps** (canon v0.3 proposal): the rapport DP's step is Familiarity-scaled — F < 15 → 1,
+    15–34 → 2, 35–59 → 3, ≥ 60 → 4 — and the +10/day words budget covers every language-derived
+    positive modifier (#1, #2, #4, #5, #20 when produced by talk, #58), for every pair (parity).
+18. **Provocation response option ids** (`laugh_off`, `retort`, `threaten`, `shove`, `attack_brawl`,
+    `attack_armed`, `attack_to_kill`, `walk_away`, `deescalate`, `call_others`) mapped one-to-one onto
+    ladder rungs; **armed fights (rung 6) count as lethal violence**, so they are critical like rung 7.
+19. **Critical checks on provocations** recompute `E` with the default severity of the act class the
+    player let stand in the intent echo, never the model's severity score.
+20. **Detection is never a decision:** perception, evidence and evidence strength stay deterministic;
+    only what a witness does about it is a DP.

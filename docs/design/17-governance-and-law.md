@@ -1,6 +1,6 @@
 # 17 — Governance & Law
 
-> **Status:** Draft v0.1 · **Owner doc for:** governance forms, leadership emergence, legitimacy, political factions, feudal obligations, laws & justice, court, succession, schism, diplomacy between polities · **Depends on:** [01-canon](../01-canon.md) (§5.3 Charter, §5.4 polity channels, §6 calendar, §7 eras, §10 person model, §13 LLM boundary), [15-economy-and-trade](15-economy-and-trade.md), [16-social-systems](16-social-systems.md), [18-conflict-and-warfare](18-conflict-and-warfare.md), [12-skills-and-professions](12-skills-and-professions.md), [14-technology-and-buildings](14-technology-and-buildings.md), [19-player-experience](19-player-experience.md), [21-npc-ai](../tech/21-npc-ai.md), [22-llm-integration](../tech/22-llm-integration.md)
+> **Status:** Draft v0.1 — revised for canon v0.3 (decision points) · **Owner doc for:** governance forms, leadership emergence, legitimacy, political factions, feudal obligations, laws & justice, court, succession, schism, diplomacy between polities · **Depends on:** [01-canon](../01-canon.md) (§5.3 Charter, §5.4 polity channels, §6 calendar, §7 eras, §10 person model, §13 LLM boundary), [15-economy-and-trade](15-economy-and-trade.md), [16-social-systems](16-social-systems.md), [18-conflict-and-warfare](18-conflict-and-warfare.md), [12-skills-and-professions](12-skills-and-professions.md), [14-technology-and-buildings](14-technology-and-buildings.md), [19-player-experience](19-player-experience.md), [21-npc-ai](../tech/21-npc-ai.md), [22-llm-integration](../tech/22-llm-integration.md)
 
 The vision: *"If the player wants to be a leader, they need to get people on board with their
 vision"*; *"if they steal they should expect … potentially authorities to find them"*; *"Lords and
@@ -47,7 +47,7 @@ deal with each other until [18](18-conflict-and-warfare.md) takes over at the de
 | G1 | **Authority is what people actually do.** A title is a claim; obedience is computed per person, per order. | A Charter heir can be ignored; a competent woodsman can be followed without any title. |
 | G2 | **Institutions, not era labels.** Forms change when institutions and events change (a hall, a court, an oath, an acclamation), canon §7. | The same settlement can be a lordship in Y4 or a council in Y12. |
 | G3 | **Same rules for the player.** The player's proposals, speeches, promises, bribes, crimes and trials run through the functions NPCs use. | The player can't "click to be king". |
-| G4 | **Words are bounded inputs.** Speeches, pleas and rulings are voiced by LLMs and classified by Jev, but outcomes are hard-coded and language moves them by at most a clamp (canon §13). | Eloquence helps; it never decides alone. |
+| G4 | **Language decides, systems resolve** (canon §13). When an NPC must choose at an attended political moment — answering the player's proposal, voting in a session the player attends, judging the player's trial, answering a petition or an envoy — this document opens a **decision point (DP)**: it builds the menu (option ids, fixed parameters, eligibility, base propensity `p_i` from the formulas below, stakes), a decider picks (the LLM in its reply; the policy everywhere else), the DRE guards, and this document (or 15/16/18) executes. | Eloquence and skill widen the menu; the character still chooses; the systems enact the result. Unattended politics is policy-only. |
 | G5 | **Disputes come from the sim.** Petitions, accusations and grievances are generated from real state (claims, debts, crimes, hunger) — never invented for flavor. | Court is a window onto the society, not a quiz. |
 
 | Concept | Owner | Interface used here |
@@ -67,6 +67,13 @@ is (succession rule)** → this document §15.
 
 **Political factions** are not in canon's ownership map; this document claims them (§5) and proposes
 that as a canon addition. Kin groups and friendships remain 16's.
+
+**Decision points owned here** — stance (§6.9), bribe and threat responses (§6.6–6.7), coup recruitment
+(§7.1), council votes (§8.3), verdicts and punishments (§12.6), witness answers and petitioner
+reactions (§13.3), envoy responses (§17.6) — are catalogued in §19. Everywhere: the player's own
+choices are the player's (UI or classified free text, with an intent echo, canon §13.5); deciders
+pick only menu options and never set a number; critical options (canon §13.1) also need a
+deterministic `p_i ≥ 0.25` computed without the player's words.
 
 ---
 
@@ -315,10 +322,16 @@ U_i(p) = 0.30 · ValueAlign_i(p)        // Σ_v importance_iv/100 · effect_pv /
        + 0.20 · Opinion_i(proposer)/100 · (0.5 + Trust_i(proposer)/200)
        + 0.10 · FactionStance_i(p)     // faction agenda position × membership
        − 0.10 · StatusQuoBias_i        // (Tradition_i/100) for change proposals
-       + Persuasion_i(p)               // bounded, §6.3
-       + Promise_i(p) + Bribe_i(p) + Intimidation_i(p)   // §6.5–6.7
-Stance:  U ≥ 0.30 Support · 0.10–0.30 Lean support · −0.10–0.10 Undecided · −0.30–−0.10 Lean oppose · ≤ −0.30 Oppose
+       + Promise_i(p) + Bribe_i(p) + Intimidation_i(p)   // acts, deterministic (§6.5–6.7)
+       ─────────────────────────────── = U⁰_i(p), the words-free support
+       + G_i(p)                        // words: the reach granted so far, |G_i| ≤ M_i (§6.3, §6.9)
+Stance bands:  U ≥ 0.30 Support · 0.10–0.30 Conditional support · −0.10–0.10 Undecided
+               · −0.30–−0.10 Oppose · ≤ −0.30 Oppose loudly
 ```
+
+`U` is the **base propensity** behind every political DP (§6.9 stance, §8.3 vote, §7.1 recruitment).
+Words enter only as `G_i`: speech and skill set the menu width `M_i` (§6.3), and a decider's choice
+of stance or vote fixes how much of it is granted (§6.9).
 
 The player's **Support panel** shows, per person, the stance *as the player believes it* (from
 conversations and rumors — beliefs owned by [16](16-social-systems.md)), plus the top reasons the NPC
@@ -328,7 +341,9 @@ reveals nothing — people tell you or they don't.
 ### 6.3 Speeches and arguments
 
 A speech (at a gathering, council, or one-to-one) is free text from the player or generated for
-NPCs. One Jev call (player text delimited as untrusted data, questions framed by the sim):
+NPCs. One fast-decider call (canon §4.1; player text delimited as untrusted data, questions framed
+by the sim) classifies it. The classification feeds the **policy** (`L_words`), promise extraction and
+proposal matching; when an LLM is answering the player, it reads the speech itself and decides (§6.9).
 
 | Q | Type | Question | Output |
 |---|------|----------|--------|
@@ -338,23 +353,29 @@ NPCs. One Jev call (player text delimited as untrusted data, questions framed by
 | S4 | noul | Does the speaker commit to a future action? | → promise extraction (§6.5) |
 | S5 | choice | Which pending proposal is this speech about? | among sim-listed proposals |
 
-Per listener `i`:
+Per listener `i` — **menu width** (canon §13.4) and the **policy's words signal**:
 
 ```
+K_sp      = (0.6·Persuasion + 0.4·Leadership)/100                 // the speaker's skill (K_skill)
+S_i       = susceptibility as in 15 §5.5, using Leadership/Persuasion gap instead of Commerce gap,
+            + 0.1·[same faction as speaker] − 0.1·[opposing faction]          // s ∈ [0.05, 1]
+M_i       = C_pol · S_i · (0.5 + 0.5·K_sp),   C_pol = 0.15            // menu width: how far words can move U
+            total over all speeches on p per listener; each further speech by the same speaker on p
+            heard by i within 8 days can add at most 0.6^n of M_i
+// Policy only (when no LLM is deciding for i):
 Appeal_i  = Σ_v p_v · importance_iv/100 · sign(effect_pv)       // appeals to values the proposal really serves
 v         = +1 if Appeal_i > 0.15;  0.5 if |Appeal_i| ≤ 0.15;  −1 if Appeal_i < −0.15
-K_sp      = (0.6·Persuasion + 0.4·Leadership)/100
-σ         = (W · v + K_sp)/2                                      // words and skill weigh equally (canon §13)
-tone mod  = arrogant −0.2 · (Status_i ≥ 60? 0 : 1); threatening → routed to intimidation; insulting → 16's insult rules
-S_i       = susceptibility as in 15 §5.5, using Leadership/Persuasion gap instead of Commerce gap,
-            + 0.1·[same faction as speaker] − 0.1·[opposing faction]
-ΔU_i      = σ · Clamp_pol · S_i · 0.6^(speeches by this speaker on p heard by i in the last 8 days)
-Clamp_pol = 0.15 (total over all speeches on p per listener)
+tone mod  = arrogant: v −0.2 unless Status_i ≥ 60; threatening → routed to intimidation (§6.7); insulting → 16's insult rules
+L_i       = 0.5 · W·v + 0.5 · K_sp                                // canon §13.4: words and skill weigh equally
+step      = round(3·L_i)/3 ∈ {−1, −⅔, −⅓, 0, ⅓, ⅔, 1}            // the discrete share of M_i granted
+G_i(p)   += step · M_i  (respecting the totals above; |G_i| ≤ M_i)
 ```
 
-Listeners not present hear a **rumor** of the speech (16) with effect ×0.3. NPC speakers use the same
-formula with `W` drawn from their Persuasion (as in 15 §5.10). **Fallback:** a speech builder of
-structured choices (pick two values to appeal to and a tone) with `W` = 0.5.
+The **guard propensity** (canon §13.1 floors, long-shot budget, critical check) is always computed
+with `L_words = 0`, i.e. `step = round(1.5·K_sp)/3` — it never sees the player's text. Listeners not
+present hear a **rumor** of the speech (16): `M_i` ×0.3. NPC speakers use the same formula with `W`
+drawn from their Persuasion (as in 15 §5.10). **Fallback:** a speech builder of structured choices
+(pick two values to appeal to and a tone) with `W` = 0.5.
 
 ### 6.4 Rallies and feasts
 
@@ -385,17 +406,41 @@ record Obligation(long Id, long DebtorId, long[] BeneficiaryIds, string Template
 
 ### 6.6 Bribery
 
-A gift `g` (f) to `i` tied to a proposal:
-`Bribe_i = min(0.4, 0.5 · g/(g + 0.1·wealth_i)) · (1 − Honor_i/100) · (1.5 if Greedy)`.
-If `i` is Honest or Honor ≥ 70, they may refuse (p = Honor/100) with Opinion −10 and a rumor
-"tried to buy me". Bribing an official or juror is a crime if the law code lists it (§11).
+A bribe is an **offer**, not a speech. The briber picks the amount `g` (f) and the proposal from a
+menu (UI, or classified free text confirmed by an intent echo, canon §13.5). The recipient answers
+with the **bribe DP** `dp.bribe_offer`:
+
+| Option | Fixed parameters | Eligibility | `p_i` (guard: words-free) | Executed by |
+|--------|------------------|-------------|---------------------------|-------------|
+| `accept` | `g`; adds `Bribe_i` to U | always | `(1 − r)·(1 − a)` | 15 moves the coin (gift ledger); this doc adds `Bribe_i` |
+| `ask_more` | `g* = g` needed for `Bribe_i ≥ 0.30 − U⁰_i`, capped at 4·g | briber can afford `g*` | `(1 − r)·a`, `a = 0.3·[Greedy] + 0.2·[g < g*]` | Re-offer at `g*` (the briber's choice) |
+| `refuse` | — | always | `r·(1 − d)` | 16: Opinion −5 |
+| `refuse_and_denounce` | — | always | `r·d`, `d = 0.3 + 0.3·[i holds office ∧ bribery is a crime here]` | 16: Opinion −10, rumor "tried to buy me"; if the law lists bribery (§11), an `Accusation` (16 §10) |
+
+```
+Bribe_i = min(0.4, 0.5 · g/(g + 0.1·wealth_i)) · (1 − Honor_i/100) · (1.5 if Greedy)
+r       = clamp(Honor_i/100 · (1.5 if Honest) · (0.5 if Greedy), 0.05, 0.95)     // refusal propensity
+```
+
+Stakes: medium; **critical if `g` ≥ 960f** (canon §13.1 transfer threshold). Repeating a refused offer
+to the same person multiplies acceptance by `0.5^(n−1)` and raises Anger (canon §13.4). Bribing an
+official or juror is a crime if the law code lists it (§11).
 
 ### 6.7 Intimidation
 
-A threat (classified by S3/Q3 or a structured *Threaten* action) adds
-`Intimidation_i = 0.4 · Fear_i(speaker)/100` **only for public stances and open votes**, costs
-Opinion −10 and adds +5 grievance to i's faction. **Secret ballots nullify intimidation** — voting
-rules matter (§8.3).
+A threat is the speaker's own act (classified by S3, shown as an intent echo, or a structured
+*Threaten* action). It always costs Opinion −10 and adds +5 grievance to i's faction (16). The
+target answers with the **threat DP** `dp.intimidation`:
+
+| Option | Effect (fixed) | Eligibility | `p_i` | Executed by |
+|--------|----------------|-------------|-------|-------------|
+| `yield` | `Intimidation_i = 0.4·Fear_i(speaker)/100` added to U **for public stances and open votes only** | always | `y = clamp(0.4·Fear/100 + 0.2·[Coward] − 0.2·[Brave] − 0.1·[faction grievance ≥ 50], 0.02, 0.9)` | this doc (U term) |
+| `defy` | none | always | `(1 − y)·(1 − e − t)` | 16 (Opinion, memory) |
+| `report` | an `Accusation` (threats) if the law lists it; tells kin and faction | the speaker is not the ruler | `(1 − y)·t`, `t = 0.2 + 0.3·Fairness_i/100` | 16 §10, §12 |
+| `retaliate` | a severity-3 provocation against the speaker | always | `(1 − y)·e`, `e` = P(rung ≥ Threat) for that provocation under 16 §9.2, capped at 0.5 | 16 §9 escalation; any fight by [18](18-conflict-and-warfare.md) |
+
+Stakes: medium (`retaliate` follows 16/18's stakes for the rung reached). **Secret ballots nullify
+`yield`** — voting rules matter (§8.3).
 
 ### 6.8 Worked example — "Divide the stores"
 
@@ -403,18 +448,58 @@ rules matter (§8.3).
 `divide_stores(rule = by household size)` and says: "We bled for these fields together. Each
 family should keep what feeds its own children, and no one man's tent should hold the winter."*
 
-Jev: S1 → Family 0.55, Fairness 0.30, Freedom 0.10; S2 → `W` 0.75; S3 → inspiring; S4 → no.
-Proposal effects: Family +, Fairness +, Freedom +, Wealth +, Tradition −. `K_sp` = 0.39.
+Fast decider: S1 → Family 0.55, Fairness 0.30, Freedom 0.10; S2 → `W` 0.75; S3 → inspiring; S4 → no.
+Proposal effects: Family +, Fairness +, Freedom +, Wealth +, Tradition −. `K_sp` = 0.39. All three
+listeners below have Appeal > 0.15 (`v` = +1). They stay silent, so the **policy** decides for them:
+`L` = 0.5·0.75 + 0.5·0.39 = 0.57 → step ⅔ (the words-free guard step is ⅓).
 
-| Listener | Values (Fam/Fair/Trad) | U before | Appeal | v | σ | S | ΔU | U after | Stance |
-|----------|------------------------|---------:|-------:|--:|--:|--:|---:|--------:|--------|
-| Mara (mother of 3) | 80/50/70 | +0.06 | 0.62 | +1 | 0.57 | 0.60 | +0.051 | +0.11 | Lean support |
-| Tobin | 40/60/30 | +0.22 | 0.47 | +1 | 0.57 | 0.45 | +0.038 | +0.26 | Lean support |
-| The Heir | 50/40/90 | −0.45 | 0.43 | +1 | 0.57 | 0.20 | +0.017 | −0.43 | Oppose |
+| Listener | Values (Fam/Fair/Trad) | U⁰ | S | Width `M` | Menu (§6.9) | Policy `p_i` (guard `p_i`) | Most likely |
+|----------|------------------------|---:|--:|----------:|-------------|----------------------------|-------------|
+| Mara (mother of 3) | 80/50/70 | +0.06 | 0.60 | 0.063 | undecided · conditional | 0.49 · 0.51 (0.65 · 0.35) | Conditional support |
+| Tobin | 40/60/30 | +0.22 | 0.45 | 0.047 | conditional · support | 0.83 · 0.17 (0.90 · 0.10) | Conditional support |
+| The Heir | 50/40/90 | −0.45 | 0.20 | 0.021 | oppose loudly | 1.0 | Oppose loudly |
 
-The speech moves the waverers a few points; it cannot turn the Heir, whose self-interest
-(losing control of the stores) dominates. The vote (§8) passes 12–6 with 2 abstentions; the Heir's
-faction grievance rises — and the next chapter begins.
+The speech can tip the waverers; it cannot turn the Heir — no step of his narrow menu reaches even
+plain opposition, because his self-interest (losing control of the stores) dominates.
+
+**The same moment in conversation.** Had the player taken Tobin aside first, the LLM would choose in
+his reply from the same menu. `support` is a long shot (guard `p_i` 0.10 < 0.20) that favors the
+player, so choosing it spends one of the pair's two long shots for the day (canon §13.1). Mara's
+`conditional_support` carries the price the sim named from her largest term (Family): the promise
+`share_stores(seed grain set aside per child before division)`. If the player confirms it (§6.5), she
+counts as support and the Obligation binds the player. The vote (§8.3) passes 12–6 with 2
+abstentions; the Heir's faction grievance rises — and the next chapter begins.
+
+### 6.9 The stance decision point
+
+Opened when an NPC must take a position on a proposal in front of the player: the player asks them
+in conversation ("Will you back me?"), they speak at a session the player attends (§8.2), or the player
+addresses them there. Silent listeners at an attended assembly, NPC↔NPC canvassing (overheard or not)
+and all unattended politics are decided by the **policy** (§6.3 step, then the §8.3 vote).
+
+| Option | Fixed parameters | Executed as (this doc) |
+|--------|------------------|------------------------|
+| `support` | step `k` | `G_i := k·M_i`; votes yes; speaks for p if asked |
+| `conditional_support` | step `k`; **named price** | If the proposer accepts the price, it becomes an Obligation (§6.5) or a payment (15) and the stance counts as `support`; otherwise the vote is left to §8.3 |
+| `undecided` | step `k` | `G_i := k·M_i`; vote left to §8.3 |
+| `oppose` | step `k` | `G_i := k·M_i`; votes no |
+| `oppose_loudly` | step `k` | Votes no; claims an opposing speaking slot (§8.2); tells 1–3 contacts against p (16 gossip) |
+
+- **Eligibility = the menu width.** An option is on the menu iff its stance band (§6.2) intersects
+  `[U⁰_i − M_i − ε, U⁰_i + M_i + ε]`, with `ε = 0.05` (the §8.3 irrationality noise). Its step `k` is
+  the smallest-magnitude value in `{0, ±⅓, ±⅔, ±1}` that puts `U⁰_i + k·M_i` in (or nearest to) its band.
+- **Named price** (computed by the sim, never by the decider): i's price list holds promise templates
+  (§6.5) on i's largest self-interest or value term, with sim-filled parameters, and the payment `g*`
+  that would close the gap to 0.30 under §6.6. The named price is the item i values most that the
+  proposer can deliver; if there is none, `conditional_support` is ineligible.
+- **Base propensity:** `p_i` = the mass of `N(U⁰_i + k_pol·M_i, 0.05)` in each eligible band,
+  renormalized, where `k_pol` is the §6.3 policy step. The guard's `p_i` uses the words-free step.
+- **Stakes:** medium; high for `make_leader`, `banish`, `exodus`, `war`/`peace`. A stance is never
+  critical; the vote on a declaration of war is (§8.3).
+- **Decider:** the LLM, decision-first in the NPC's reply; after the 4 s deadline, the policy.
+- **Commitment:** the chosen stance is remembered as a public statement (16 memory). Asking the same
+  person again for the same proposal multiplies `support` and `conditional_support` propensities by
+  `0.5^(n−1)` and raises Anger (canon §13.4).
 
 ---
 
@@ -435,7 +520,11 @@ faction grievance rises — and the next chapter begins.
 1. **Conspire.** The plotter privately proposes `seize_power` to individuals. Each recruit decides
    with `U` (§6.2) plus a risk term `−0.3·(1 − F_plotters/F_ruler)`. Each approach risks
    **betrayal**: `p = (1 − Trust_i(plotter)/100) · (0.5 + Loyalty_i/200) · [Opinion_i(ruler) > Opinion_i(plotter)]`;
-   a betrayer informs the ruler → `Accusation(treason)` with evidence 0.6.
+   a betrayer informs the ruler → `Accusation(treason)` with evidence 0.6. When the player does the
+   recruiting in conversation, the recruit's answer is a DP (LLM in reply; policy otherwise):
+   `join` · `join_for_price` (named price as §6.9) · `refuse_silently` · `inform_ruler` (the betrayal
+   above), with `p_i` from that `U` and the §6.9 menu width, and the betrayal `p` for
+   `inform_ruler`; stakes high.
 2. **Strike.** At a chosen moment, compare armed conspirators present vs. ruler's loyal armed present
    (fights resolved by [18](18-conflict-and-warfare.md) if both sides stand). Success requires
    holding the hall/keep and the ruler (or the Charter) at day's end.
@@ -467,22 +556,45 @@ changed by proposal — itself voted under the old rule.
 Agenda: proposals in order of submission (max 3 per session).
 For each proposal:
   1. Proposer speaks (player: free text or speech builder; NPC: generated).
-  2. Speakers queue: up to 2 strongest opponents and 2 supporters, ranked by |U| × (Renown + Leadership)/2;
-     the player may claim a speaking slot any time (one per proposal).
-  3. Each speech applies §6.3 to every member present (NPC speeches use skill-drawn W).
-     LLM voices NPC speeches from structured reasons: the top-3 contributing terms of the speaker's U
-     (e.g. "Self-interest: my household would lose 40 rations"; "Value: Tradition").
+  2. Speakers queue: up to 2 strongest opponents and 2 supporters, ranked by |U| × (Renown + Leadership)/2,
+     plus anyone who chose oppose_loudly (§6.9); the player may claim a speaking slot any time (one per proposal).
+  3. Each speech sets the menu width M_i (§6.3) for every member present (NPC speeches use skill-drawn W).
+     Session attended by the player: each NPC speaker's stance is a §6.9 DP, chosen by the LLM
+     decision-first in the same output that voices the speech; the speech is built from structured
+     reasons — the top-3 contributing terms of the speaker's U (e.g. "Self-interest: my household
+     would lose 40 rations"; "Value: Tradition"). Silent members: policy (§6.3 step).
+     Unattended session: no speech text is generated; every member's step and stance are policy.
   4. Amendments: any member may propose a parameter change (e.g. rate 1/12 instead of 1/10);
-     amendments are voted first.
-  5. Vote.
+     amendments are voted first. An NPC speaker's `propose_amendment(step)` is a menu option whose
+     steps are the law parameter's discrete steps (one step toward the speaker's preferred value).
+  5. Vote (§8.3).
 ```
 
 ### 8.3 How NPCs vote
 
-`vote = yes if U_i + N(0, 0.05) > 0.05; no if < −0.05; else abstain` (members compelled to vote
-choose the sign). Open votes add intimidation and visible-loyalty terms (`+0.1·FactionStance` peer
-pressure); **secret ballots** remove intimidation and peer pressure. A ruler with veto may overturn
-a vote at C −3 and P (Opinion −5 among the majority).
+Each member's vote is the **vote DP** `dp.council_vote`:
+
+| Option | Eligibility (menu width, §6.9) | `p_i` | Executed by |
+|--------|--------------------------------|-------|-------------|
+| `yes` | `U⁰_i + M_i + ε > 0.05` | `P(U_i + N(0, 0.05) > 0.05)` | this doc: tally under the `VotingRule` |
+| `no` | `U⁰_i − M_i − ε < −0.05` | `P(U_i + N(0, 0.05) < −0.05)` | tally |
+| `abstain` | the interval `[U⁰_i − M_i − ε, U⁰_i + M_i + ε]` meets `[−0.05, 0.05]`, and the member is not compelled | the remainder | tally |
+
+`U_i` includes the granted words `G_i`, and on open votes the intimidation (`yield`, §6.7) and
+visible-loyalty terms (`+0.1·FactionStance` peer pressure); **secret ballots** remove both, and
+members compelled to vote lose `abstain` (its mass goes to the sign of `U_i`). `p_i` is renormalized
+over eligible options; the guard's `p_i` uses words-free `G_i`.
+
+- **Who decides:** a member who chose a stance this session (§6.9) votes by it (`support` → yes;
+  accepted `conditional_support` → yes; `oppose`/`oppose_loudly` → no). Otherwise the policy samples
+  `p_i`. A speaking member at an attended session whose stance is still open may choose the vote
+  directly in their speech (LLM).
+- **Stakes:** low for ordinary business; high for laws, taxes, `make_leader`, `banish`, `exodus`;
+  **critical for a vote to declare war** (canon §13.1: deterministic `p_i ≥ 0.25`, words-free).
+- **Veto:** a ruler with veto may overturn a vote at C −3 and P (Opinion −5 among the majority). An
+  NPC ruler's veto at a session the player attends is a DP (`accept_result` · `veto`), high stakes,
+  `p(veto) = clamp(0.5 − 2·U_ruler(result), 0.02, 0.9) · (0.5 if L(ruler) < 40)`; LLM in the ruler's
+  closing words, policy otherwise.
 
 ---
 
@@ -732,7 +844,7 @@ B       = B · Π_exculpatory (1 − Strength_k · c_k)              // alibis, 
                + β_bribe, −0.25, +0.25)
 β_bribe = ∓ min(0.20, 0.4·g/(g + 0.05·wealth_J)) · (1 − Honor_J/100) · (0 if Honest)   // sign toward the briber
 B'      = clamp(B + β, 0, 1)
-Convict if B' ≥ standard of proof
+Verdict menu: convict eligible iff B' ≥ standard of proof; acquit iff B' < standard + 0.20 (§12.6)
 ```
 
 | Procedure | Standard of proof |
@@ -745,27 +857,76 @@ Convict if B' ≥ standard of proof
 
 ### 12.5 The defense — the player's free-text plea
 
-The accused may speak. One Jev call classifies the statement (untrusted, delimited):
+The accused may speak. The fast decider (canon §4.1) classifies the statement (untrusted, delimited):
 `choice: denial | alibi | counter_accusation | justification | confession | plea_for_mercy`, plus
-`score: coherence (5 levels)`. Then hard checks:
+`score: coherence (5 levels)`. A plea works in two separate ways.
+
+**1. Evidence — hard checks, the only way a plea reaches the verdict menu:**
 
 - **Alibi:** the sim extracts the claimed place/time via structured LLM output against a list of sim
   places and day-parts; if a witness believes the accused was there, an exculpatory evidence item
   (strength = that witness's belief) is added; if the claim is contradicted by evidence the judge has,
   `B += 0.10` and Honesty −5.
 - **Counter-accusation:** creates a new `Accusation` against the named person (with whatever evidence
-  exists), and if baseless, slander.
-- **Justification / plea for mercy:** no change to `B`; lowers the *punishment harshness* `h` (§12.6)
-  by `0.15 · σ · S_J`, with σ computed as in §6.3 (words and Persuasion weighted equally).
+  exists), and if baseless, slander. The player's accusation is shown as an intent echo first (canon §13.5).
+- **Confession:** `B` = 0.95 (§12.4); the player's confession is always confirmed.
+
+**2. Persuasion — inside the menu only.** Justification and pleas for mercy never change `B` and never
+make a verdict or punishment eligible. At a trial the player attends, the NPC judge's LLM reads the
+plea and chooses among the eligible verdicts and punishments (§12.6) — a moving plea can earn the
+lenient option, or acquittal inside the doubt band. In policy fallback, the classified plea lowers
+harshness `h` (§12.6) by `0.15 · L · S_J`, with `L = 0.5·L_words + 0.5·L_skill` (Persuasion; canon
+§13.4). The guard's `p_i` and the critical check use `plea = 0`.
+
 - **Fallback:** structured buttons (Deny · Give alibi [choose place] · Accuse another · Justify ·
   Confess · Beg mercy).
 
 ### 12.6 Punishment choice and consequences
 
-Each law lists its punishment options in order of severity (the band). The judge's harshness
-`h = clamp(0.5 + (Tradition_J − 50)/200 + 0.2·[Vengeful] − 0.2·[Charitable] + 0.1·priorConvictions
-− 0.1·(Warmth_J − 50)/50 − plea, 0, 1)` picks the option at position `h` along the band (NPC judges;
-the player chooses freely within the band). After the verdict, **every onlooker `o`**
+Each law lists its punishment options in order of severity (the band). When an NPC judges — a
+headman, lord or steward, or each member of a council or moot on their own `B'_m` — the justice
+system opens the **verdict DP** `dp.verdict`. Its menu is built **from evidence only**: no plea, speech
+or Persuasion widens it. Within it, the judge's choice is a real decision. With `s` the standard of
+proof (§12.4):
+
+| Option | Fixed parameters | Eligible iff (evidence and law only) | `p_i` |
+|--------|------------------|--------------------------------------|-------|
+| `convict(k)` | punishment option `k` of the band for this severity, with its fine, hours, days or restitution multiple | `B' ≥ s` | `p_conv · q_k` |
+| `acquit` | — | `B' < s + 0.20` (the **doubt band**) | `1 − p_conv` |
+| `defer` | back to Investigation (§12.3) | investigation time (2 game-days) remains | 0.15 |
+| `dismiss` | — | no standing, or all evidence < 0.2 | 0.9 |
+| `grant_trial_by_combat` | duel terms (§12.8) | the law allows it and a party demanded it | `Honor_J/100` |
+
+```
+p_conv = 1 if B' ≥ s + 0.20;  0 if B' < s;
+         else clamp(0.5 + 2.5·(B' − s) + 0.1·[Paranoid ∨ Vengeful] − 0.1·[Charitable], 0.05, 0.95)
+h      = clamp(0.5 + (Tradition_J − 50)/200 + 0.2·[Vengeful] − 0.2·[Charitable] + 0.1·priorConvictions
+               − 0.1·(Warmth_J − 50)/50 − plea, 0, 1)                     // harshness (plea: §12.5)
+q_k    ∝ exp(−(k − h·(n − 1))² / (2 · 0.4²))   over the band's n options, k = 0 (lenient) … n−1 (harsh)
+```
+
+The shares of `defer`, `dismiss` and `grant_trial_by_combat` are taken first and the rest is split as
+shown; `p_i` is renormalized over eligible options.
+
+- **Stakes:** `acquit`, `defer`, `dismiss`: medium; `convict(k)`: high. **Critical** (canon §13.1):
+  any `convict(k)` whose punishment is **hanging, maiming** (Grim Justice only), **banishment** or
+  **outlawry**, or a fine, forfeiture or blood-price worth ≥ 960f. A critical option needs a
+  deterministic `p_i ≥ 0.25` computed with `plea = 0`, so no plea or injected text can talk a judge
+  into a hanging the evidence and the judge's character wouldn't already make likely.
+- **Decider:** at a trial the player attends (as accused, accuser, witness or onlooker), the LLM
+  chooses decision-first in the judge's pronouncement, having heard plea and testimony; after the 4 s
+  deadline, the policy. Unattended trials and delegated court (§18): the policy, with the plea's
+  classified shift in `h`.
+- **Fines** inside an option are set by the band at the judge's words-free `h`. Pleas about the
+  amount use the canon fine width (`C_sys` = 0.05, canon §13.4): the menu also offers the same option
+  with the fine reduced by the fraction `0.05 · S_J · (0.5 + 0.5·K_skill)` of its amount, never below
+  the band's floor.
+- **The player as judge** is not gated: their ruling is their own choice (§13.3), and onlookers judge it.
+- **Execution** (this doc): the sentence is recorded and applied per §11.2 — fines through 15
+  (`I-COURT`), injuries through 11, deaths through 16, the execution interaction through 18 §2.10,
+  trial by combat through 18 §4.4.
+
+After the verdict, **every onlooker `o`**
 (attendees; others via rumor at ×0.5) judges it against their own belief of guilt `b_o` (from 16):
 
 | Verdict vs. `b_o` | Onlooker reaction |
@@ -797,8 +958,8 @@ memory and rumor spread via 16. Acquitted-but-suspected people keep the rumor.
 ### 12.8 Trial by combat (optional procedure)
 
 Enabled per law code (`proc.trial.trial_by_combat`): **default on for Brannoch, off for Varrow,
-Osmeri and Ashen**; Era 3+. Either party may demand it in serious accusations or land disputes; the judge
-grants it with p = Honor_J/100 (player judges choose). Champions are allowed (hired at 48–240f).
+Osmeri and Ashen**; Era 3+. Either party may demand it in serious accusations or land disputes; an NPC
+judge's `grant_trial_by_combat` option (§12.6) has `p_i = Honor_J/100` (player judges choose). Champions are allowed (hired at 48–240f).
 The fight is a duel owned by [18](18-conflict-and-warfare.md); the winner's side prevails.
 Faith-valuing onlookers accept the result (no fairness penalty); Fairness-valuing onlookers apply
 §12.6 with their own beliefs.
@@ -810,13 +971,19 @@ Strength 0.6; Gethin's Trust with the headman 60 → c = 0.8). The constable fin
 notched ear in the player's pen (recognition by Wynn, Strength 0.8, c = 0.75 — Wynn is no enemy).*
 
 `B` = 1 − (1 − 0.48)(1 − 0.6) = **0.79**. The player pleads: *"I found her wandering by the ford and
-penned her so the wolves wouldn't — I was bringing her back at first light."* Jev: `justification`,
-coherence 3/4. No witness supports it, none contradicts it → no change to `B`. Headman's
-`β`: Opinion of Wynn +20, of player −10 → +0.045 → `B'` = 0.84 ≥ 0.60 → **convicted** of theft
-(goat = 21f > 12f → **severity 3**). The plea shifts harshness one step down × σ·S: the headman
-(Warmth 75) has `h` = 0.45 − 0.04 (plea) = 0.41 → the band's lenient option: **restitution ×3 (63f) + 4 hours
-in the stocks** rather than flogging. Onlookers who liked the player
-(`b_o` 0.3–0.6) shrug; the rumor "they took Wynn's goat" spreads anyway.
+penned her so the wolves wouldn't — I was bringing her back at first light."* Fast decider:
+`justification`, coherence 3/4. No witness supports it, none contradicts it → no change to `B`.
+Headman's `β`: Opinion of Wynn +20, of player −10 → +0.045 → `B'` = 0.84. The goat is worth 21f > 12f →
+theft of **severity 3**, whose Era 1–2 band is {restitution ×3 + 4 hours in the stocks; restitution ×3 +
+flogging} (banishment belongs to severity 4).
+
+**The verdict menu** (evidence only): `B'` 0.84 ≥ 0.80 = `s` + 0.20, so `acquit` is off the menu and
+no plea can put it back; the constable's 2 days are spent, so `defer` is off too. The headman (Warmth
+75, Tradition 50) has words-free `h` = 0.45 → guard `p_i`: stocks 0.58 · flogging 0.42. The player is
+present, so the headman's LLM, having heard the plea, pronounces decision-first: `convict(stocks)` —
+**restitution ×3 (63f) + 4 hours in the stocks** rather than flogging. In template mode the policy
+lowers `h` by the plea (−0.04 → 0.41) and samples stocks 0.64 · flogging 0.36. Onlookers who liked the
+player (`b_o` 0.3–0.6) shrug; the rumor "they took Wynn's goat" spreads anyway.
 
 ---
 
@@ -856,20 +1023,50 @@ Every petition is backed by a sim object — never invented.
 1. **Presentation.** The petitioner (LLM-voiced from the dispute's facts and *their* beliefs) states
    the case; the opposing party responds.
 2. **Questions.** The lord may question parties and witnesses (free text or suggested questions).
-   Answers are generated from each person's **beliefs**. Whether a person **lies** is decided by the
-   sim: `p_lie = [not Honest] · clamp(0.2 + 0.6·stake − 0.4·(Lawfulness_rep + 100)/200 + 0.2·[Opinion of the
-   party helped ≥ 40], 0, 0.9)` (stake 0–1: own claim, kin, bribe), with *which* false claim chosen from
-   their belief alternatives; the LLM only voices it. The lord notices a "tell" with
-   `p = 0.2 + 0.4·Persuasion/100 + 0.2·Familiarity/100` (shown as a subtle UI cue and a line in the
-   notes).
-3. **Ruling.** The player either picks a structured option (with sliders for amounts, bounded by law
-   bands) or **pronounces in free text**. Pronouncements go to one Jev call:
-   `choice` among this petition's options, `score` harshness 1–5, `noul` "does the ruler give a
-   reason that distinguishes this case from precedent?", `noul` "does the ruler make a promise?".
-   Numbers in the text are parsed by code and clamped to the law's band. **The interpreted ruling is
-   shown for confirmation** — "Ruling: Favor Gwen; Tobin pays 24f; 4 hours in the stocks.
-   [Confirm] [Revise]" — so misclassification never executes silently.
-4. **Consequences** (§13.4), voiced reactions, and the ruling recorded as precedent.
+   Answers come from each person's **beliefs**. Each answer is the **witness DP** `dp.testimony`
+   (LLM decision-first in the answer at a session the player attends; policy otherwise):
+
+   | Option | Fixed parameters | Eligibility | `p_i` |
+   |--------|------------------|-------------|-------|
+   | `answer_truthfully` | the person's belief, hedged by confidence (22) | always | `0.8·(1 − p_lie)` |
+   | `lie(alt)` | `alt` = the belief alternative that most helps the party the person favors | not Honest; an alternative exists | `p_lie` |
+   | `evade` | — | always | `0.2·(1 − p_lie)` |
+   | `recant` | the truthful belief, plus Honesty −10 and a perjury record | lied earlier this session and the lord pressed after a tell | `0.2 + 0.3·Fear_i(lord)/100` (taken first) |
+
+   `p_lie = [not Honest] · clamp(0.2 + 0.6·stake − 0.4·(Lawfulness_rep + 100)/200 + 0.2·[Opinion of the
+   party helped ≥ 40], 0, 0.9)` (stake 0–1: own claim, kin, bribe). Stakes: high for `lie` (it can
+   convict), medium otherwise; a lie never creates evidence by itself — it adds a testimony item of
+   the witness's claimed strength, weighed by §12.4. The lord notices a "tell" after a lie with
+   `p = 0.2 + 0.4·Persuasion/100 + 0.2·Familiarity/100` (deterministic; a subtle UI cue and a line in
+   the notes).
+3. **Ruling.** When the **player is the lord**, the ruling is the player's own choice — a structured
+   option (with sliders for amounts, bounded by law bands) or a **free-text pronouncement**, which one
+   fast-decider call classifies: `choice` among this petition's options, `score` harshness 1–5, `noul`
+   "does the ruler give a reason that distinguishes this case from precedent?", `noul` "does the ruler
+   make a promise?". Numbers in the text are parsed by code and clamped to the law's band. **The
+   interpreted ruling is shown as an intent echo and always confirmed** (an order given with
+   authority, canon §13.5) — "Ruling: Favor Gwen; Tobin pays 24f; 4 hours in the stocks. [Confirm]
+   [Revise]" — so misclassification never executes silently. When an **NPC lord** rules at a session
+   the player attends, the ruling is a DP over the same structured options: crimes use the verdict DP
+   (§12.6); civil petitions give each option `p_i ∝ exp(3·V_J)`, where `V_J` is the judge's belief
+   that the option is right (claims and evidence weighed as §12.4, bias `β` included)
+   + 0.3·PrecedentAlign + 0.2·Partisan_J. Amounts come from the law band at the judge's `h`. Like
+   verdicts, these menus are evidence-only, and awards or forfeitures worth ≥ 960f are critical.
+4. **Reactions.** The losing or partly losing party answers with the **reaction DP** `dp.ruling_reaction`
+   (LLM in their reply when the player attends; policy otherwise):
+
+   | Option | Executed as | `p_i` |
+   |--------|-------------|-------|
+   | `accept` | §13.4 only | `(1 − g)·a` |
+   | `accept_grudgingly` | §13.4 + a grudge memory (16) | `g·a` |
+   | `protest` | §13.4; extra Opinion −5 of the ruler; their faction's grievance +3 | `(1 − a)·(1 − r)` (⅓ of it if `appeal` is eligible) |
+   | `appeal` | a new petition at the liege's court (§12.4 King's court) | ⅔ of the protest share; eligible only where the procedure allows appeal |
+   | `refuse_to_comply` | open refusal of an order (§4.4) → contempt (§11.1) | `(1 − a)·r` |
+
+   `a` = P(comply) (§4.4) with the ruling as the order (its cost to the party; `Align` = outcome);
+   `g = clamp(0.5 − outcome/2 + 0.2·[Vengeful], 0, 1)`; `r` = 0.5 if Volatility ≥ 65 or
+   Opinion(ruler) ≤ −40, else 0.1. Stakes: medium; `refuse_to_comply` high.
+5. **Consequences** (§13.4), voiced reactions, and the ruling recorded as precedent.
 
 ### 13.4 Consequences
 
@@ -902,12 +1099,17 @@ faction, Opinion −10) both claim a strip by the brook. Claims: Gwen — cultiv
 witnessed purchase from the previous holder (70), but the seller is dead and the only witness is
 Tobin's cousin.*
 
-The lord questions the cousin; the sim decides he lies (stake high, not Honest) and the lord's
-Persuasion 55 gives `p_tell` = 0.42 → the cue fires. The lord pronounces: *"A purchase witnessed only by
-kin is no purchase. The strip is Gwen's, but she'll pay Tobin six pence for the ditch he dug."* Jev:
-`Favor one side with compensation` 0.62 vs `Favor A` 0.35 → shown: "Favor Gwen; Gwen pays Tobin 24f (6d)" →
-confirmed. Precedent recorded: *land, purchase, kin-only witness → claim rejected*. Gwen (partial win)
-Opinion ≈ +5, Tobin (partial loss) ≈ −5; Charter-men onlookers (Loyalty-weighted partisan −1) dip; most
+The player, as lord, questions the cousin. His answer is a witness DP: not Honest, kin stake 0.8,
+Opinion of Tobin ≥ 40 → `p_lie` = 0.68, so the menu is `lie(alt: "I watched the silver change
+hands")` 0.68 · `answer_truthfully` 0.26 · `evade` 0.06. The LLM picks the lie in his reply. The lord's
+Persuasion 55 gives `p_tell` = 0.42 → the cue fires. The lord pronounces: *"A purchase witnessed only
+by kin is no purchase. The strip is Gwen's, but she'll pay Tobin six pence for the ditch he dug."*
+Fast decider: `Favor one side with compensation` 0.62 vs `Favor A` 0.35 → intent echo: "Favor Gwen;
+Gwen pays Tobin 24f (6d)" → confirmed. Precedent recorded: *land, purchase, kin-only witness → claim
+rejected*. Tobin (partial loss; `a` 0.75, `g` 0.65) answers with a reaction DP: `accept` 0.27 ·
+`accept_grudgingly` 0.50 · `protest` 0.23 (`refuse_to_comply` at 0.03 is under the high-stakes floor
+and drops off the menu). The LLM picks `accept_grudgingly` — a stiff bow and a grudge memory. Gwen
+(partial win) Opinion ≈ +5, Tobin ≈ −5; Charter-men onlookers (Loyalty-weighted partisan −1) dip; most
 Fairness-valuing onlookers who believed the cousin lied approve. Net C +0.5.
 
 ---
@@ -942,7 +1144,9 @@ The finances screen is a view onto [15](15-economy-and-trade.md)'s treasury ledg
 | **Herald / envoy** | Persuasion, Letters | Diplomacy missions (§17) | 8f/day + travel |
 
 Appointment needs the candidate's acceptance (wage ≥ reservation wage, [15](15-economy-and-trade.md)
-§9, or Status/Ambitious gain). Officials have their own loyalties: corruption chance per day
+§9, or Status/Ambitious gain). Offered in conversation, the answer is a DP (LLM in reply; policy
+otherwise): `accept` · `accept_at_wage(step k)` (wage steps within the canon §13.4 menu width) ·
+`refuse`, with `p_i` from that reservation-wage comparison; stakes medium. Officials have their own loyalties: corruption chance per day
 `0.01·[Greedy]·(1 − (Lawfulness_rep + 100)/200)·(1 − Opinion(ruler)/100)`, revealed by audits (steward)
 or rumor. Appointing a faction's leader to office is the classic co-optation move: that faction's
 grievance −20, rival factions +5.
@@ -1046,7 +1250,10 @@ ExodusViable = adults ≥ 6 ∧ food ≥ 16 ration-days/person ∧ tools for she
 
 The ruler's responses at any threshold: **concede** (adopt a demand; −30), **co-opt** (office for the
 leader; −20), **negotiate** (promise → Obligation), **repress** (arrest the leader: grievance −20 if
-`F` ≥ 60 and the leader is convicted as just, else +20), or **ignore**.
+`F` ≥ 60 and the leader is convicted as just, else +20), or **ignore**. A player ruler chooses. When
+the player delivers an ultimatum to an NPC ruler in person, the ruler's answer is a DP with these five
+options (LLM in reply; policy otherwise), `p_i` from the ruler's own support `U` (§6.2) for each
+demand and the power ratio, stakes high; unattended, the policy.
 
 ### 16.4 Exodus (canon §5.4 channel 4)
 
@@ -1086,9 +1293,10 @@ Between any two polities, **Accord** (−100…+100) is a sum of decaying modifi
 ### 17.2 Envoys
 
 Envoys are people who **travel** (time and risk are real). The player may be the envoy (as ruler,
-herald or a trusted knight). Envoy meetings are LLM-voiced; the *terms* are structured. Player free
-text is classified by Jev into one of the treaty terms the sim currently offers (choice), with a
-persuasion score (score) — numbers come from UI fields.
+herald or a trusted knight). Envoy meetings are LLM-voiced; the *terms* are structured. The player's
+proposals are the player's own choices: free text is classified by the fast decider into one of the
+treaty terms the sim currently offers (choice), numbers come from UI fields, and the offer is shown as
+an intent echo before it is made. The other side's answer is the **envoy DP** (§17.6).
 
 ### 17.3 Treaties
 
@@ -1116,13 +1324,19 @@ U_B(treaty) = 100 · Σ term value to B (f-equivalent) / B's annual income
             + Security_B(treaty)          // + if allied against a stronger third party; − if it binds B against a friend
             + Accord(A,B)/5
             + personality: Ambitious −10 for tribute/vassalage given; Paranoid −10 for alliances; Honor ≥ 70 −15 for terms requiring a breach
-            + persuasion ΔU (σ · 0.15 · S_ruler, per negotiation, as §6.3)
-accept if U_B ≥ θ   (θ = 0 for mutual treaties; +10 for tribute or vassalage paid by B)
+            = U⁰_B (words-free)
+            + G_B                         // words: reach granted, |G_B| ≤ 100·M_B (§17.6)
+θ = 0 for mutual treaties; +10 for tribute or vassalage paid by B
 ```
 
+`U_B` is the base propensity of the envoy DP (§17.6): `p(accept) = 1/(1 + e^(−(U_B − θ)/5))`.
+Unattended meetings (NPC↔NPC, or the player absent) are decided by the policy sampling that
+propensity.
+
 Quantitative terms (tribute, dowry, toll rate) are haggled with **15's alternating-offer engine**
-([15](15-economy-and-trade.md) §5.3), treating the term as the price: the same patience, firmness and
-insult rules apply between rulers (a lowball tribute demand insults).
+([15](15-economy-and-trade.md) §5.3), treating the term as the price: its concession steps become the
+`counter` options of §17.6, and the same patience, firmness and insult rules apply between rulers (a
+lowball tribute demand insults).
 
 ### 17.5 Claims and the hand-off to war
 
@@ -1149,6 +1363,33 @@ owns war causes, the declaration process, war goals and peace enforcement**. Who
 Kingship arises diplomatically when a lord holds oaths from ≥ 2 other polity rulers and a great council
 acclaims them (§3.2).
 
+### 17.6 Negotiation decision points
+
+At an envoy meeting the player attends (as envoy, ruler or herald), the NPC across the table answers
+each proposal with the **envoy DP** `dp.envoy_response`, chosen by the LLM decision-first in its reply
+(4 s deadline → policy). Unattended meetings use the policy.
+
+| Option | Fixed parameters | Eligibility | `p_i` |
+|--------|------------------|-------------|-------|
+| `accept` | the treaty as proposed | `U⁰_B + 100·M_B ≥ θ` | `p_a = 1/(1 + e^(−(U_B − θ)/5))` |
+| `counter(k)` | quantitative terms: the 15 §5.3 engine's next concession step `k` (value fixed by the engine); qualitative terms: one sim-listed swap (drop a term, add a term from B's interest list, change the duration by one step) | a step or swap remains | `(1 − p_a)·0.6` |
+| `reject` | talks continue; B may make its own proposal next round | always | `(1 − p_a)·0.3` |
+| `walk_out` | talks end; Accord −5; an insult per 15 §5.4 if the offer was a lowball | lowball, patience exhausted (15 §5.3), or `U⁰_B < θ − 25` | `(1 − p_a)·0.1·(1 + [Hot-tempered] + [lowball])` |
+
+- **Menu width:** `M_B = 0.15 · S_B · (0.5 + 0.5·K_skill)` (canon §13.4, `K_skill` = the proposing
+  envoy's Persuasion/100), applied on the 100-point scale of `U_B`, so words can make a treaty
+  acceptable that falls short of `θ` by at most 15 points (against a maximally susceptible ruler).
+  The engine's concession steps on quantitative terms already carry 15's own menu width.
+- **Propensities** are renormalized over eligible options; the guard's `p_i` uses words-free `G_B` = 0.
+- **Stakes:** trade agreement, extradition: medium; non-aggression, alliance, border or claims
+  settlement, marriage alliance, truce or peace: high; **critical** — vassalization (an oath of
+  fealty), and any tribute, dowry or other transfer worth ≥ 960f in total (deterministic `p_i ≥ 0.25`).
+- **Execution:** this document's treaty engine records the `Treaty`, its oaths and the Accord
+  modifier (§17.1); 15 posts tribute and dowry to the ledgers; 16 handles marriage; 18 handles
+  calls to arms and the war-side peace inputs (18 §7.4).
+- **Repetition:** re-proposing a rejected treaty in the same meeting multiplies `p_a` by `0.5^(n−1)`
+  (canon §13.4).
+
 ---
 
 ## 18. LOD and Interlude behavior
@@ -1157,10 +1398,10 @@ acclaims them (§3.2).
 |--------|------------------------------|------|------------------|
 | Legitimacy | recomputed daily | daily | daily (aggregates only) |
 | Orders & compliance | per person | per person, task level | aggregate compliance rate |
-| Gatherings & councils | embodied, voiced | resolved by §8.3 without speeches (NPC speeches as σ draws) | statistical vote |
-| Court | full minigame (player) / delegated | NPC judge resolves petitions by §12–13 rules | delegated; petitions requiring the player raise a **summons interrupt** |
+| Gatherings & councils | embodied, voiced; if the player attends, speakers' stances and votes are DPs (LLM), silent members policy (§8.2) | policy: §8.3 without speech text (NPC speeches as skill-drawn `W` and policy steps) | statistical vote (policy) |
+| Court | full minigame (player) / delegated; NPC judges, witnesses and parties decide by DP (LLM) when the player attends | NPC judge resolves petitions by §12–13 menus, policy | delegated (policy); petitions requiring the player raise a **summons interrupt** |
 | Factions | recomputed every 8 days | every 8 days | every 8 days |
-| Diplomacy | embodied envoys | rolled meetings | daily evaluation of pending proposals |
+| Diplomacy | embodied envoys; envoy DP by LLM when the player attends (§17.6) | rolled meetings (policy) | daily evaluation of pending proposals (policy) |
 
 During an Interlude the player's standing orders include **court delegation** (to the steward: rulings
 follow the steward's personality and the precedents), **tax policy** (keep rates), and **response to
@@ -1172,19 +1413,38 @@ player, a declared war, an exodus involving the player's household.
 
 ## 19. LLM / Jev touchpoints
 
+"Fast decider" is the canon §4.1 role (an OpenRouter small model now; Jev or Laya later), reached
+through `IDecider`.
+
+**Classification and generation** (no character decision):
+
 | Id | Touchpoint | Model | Output | Bound | Fallback |
 |----|-----------|-------|--------|-------|----------|
-| G-1 | Player speech | Jev (S1–S5, §6.3) | value appeals, `W`, tone, promise flag, proposal referenced | ±0.15 `U` per listener per proposal × `S` | speech builder (`W` = 0.5) |
-| G-2 | Free text → proposal | Jev choice among proposal templates | template + params via UI | player confirms | proposal menu |
+| G-1 | Player speech | fast decider (S1–S5, §6.3) | value appeals, `W`, tone, promise flag, proposal referenced → the policy's `L_words` | can only choose a step within the menu width `M_i` (≤ 0.15·S) | speech builder (`W` = 0.5) |
+| G-2 | Free text → proposal | fast decider, choice among proposal templates | template + params via UI | player confirms | proposal menu |
 | G-3 | Promise extraction | LLM structured output → template | Obligation (confirmed) | player confirms | promise menu |
-| G-4 | Court pronouncement | Jev (§13.3) | ruling option, harshness, distinguishing reason, promise | options are sim-generated; numbers clamped; **confirm step** | structured ruling panel |
-| G-5 | Defense plea | Jev + LLM place/time extraction | plea type, coherence; alibi claim | evidence only via witnesses' beliefs | plea buttons |
-| G-6 | Envoy talk | Jev | treaty term chosen, persuasion | ±15% on acceptance threshold × `S` | term menu |
-| G-7 | Voices: petitions, testimony (incl. sim-decided lies), debate speeches, verdicts, proclamations, envoys | LLM | wording from structured facts and reasons | no new facts; numbers slot-filled | templates |
+| G-4 | Player's court pronouncement (the player as lord) | fast decider (§13.3) | ruling option, harshness, distinguishing reason, promise — the player's own choice | options are sim-generated; numbers clamped; **intent echo + confirm** | structured ruling panel |
+| G-5 | Defense plea | fast decider + LLM place/time extraction | plea type, coherence; alibi claim | changes evidence only via witnesses' beliefs; never widens the verdict menu | plea buttons |
+| G-6 | Player's envoy proposal | fast decider | treaty term chosen | terms from the sim's list; numbers from UI; intent echo | term menu |
+| G-7 | Voices: petitions, testimony, debate speeches, verdicts, proclamations, envoys | LLM | wording from structured facts, reasons and the **chosen option** | no new facts; numbers slot-filled; must match the decision (canon §13.5 Tier B for high/critical) | templates |
 | G-8 | Faction labels, Chronicle politics | LLM | names, prose | from event log | "{leader}'s people"; tabular Chronicle |
 
-Player text is always delimited untrusted data; Jev never computes numbers; every outcome is computed by
-the formulas above ([22](../tech/22-llm-integration.md)).
+**Decision points** (canon §13.1) — the LLM decides only where it is already voicing the character at
+a moment the player attends; otherwise the policy samples `p_i`. Every DP has a 4 s deadline, is
+guarded by the DRE, and is recorded as an input event (DP, menu hash, choice, decider).
+
+| Id | DP | Options | `p_i` from | Stakes | Executed by |
+|----|----|---------|-----------|--------|-------------|
+| G-9 | Stance (§6.9) | support · conditional_support(price) · undecided · oppose · oppose_loudly | §6.2 `U`, menu width §6.3 | medium; high for leader/banish/exodus/war | this doc (U, speaking slots); 15/§6.5 (price) |
+| G-10 | Bribe / threat response (§6.6–6.7) | accept · ask_more · refuse · refuse_and_denounce / yield · defy · report · retaliate | Honor, Greed, Fear; 16 §9.2 | medium; bribe ≥ 960f critical | 15 (coin), 16 (opinion, rumor, escalation) |
+| G-11 | Coup recruitment (§7.1) | join · join_for_price · refuse_silently · inform_ruler | `U` + risk; betrayal `p` | high | this doc (§7.1) |
+| G-12 | Council vote (§8.3), veto | yes · no · abstain; accept_result · veto | `U` with ±0.05 noise | low → high; **war declaration critical** | this doc (tally) |
+| G-13 | Verdict & punishment (§12.6) | convict(k) · acquit · defer · dismiss · grant_trial_by_combat | `B'`, `h` (evidence-only menu) | high; **hanging, maiming, banishment, outlawry, ≥ 960f critical** | this doc §11.2; 11, 15, 16, 18 |
+| G-14 | Testimony, ruling reaction, NPC lord's civil ruling (§13.3) | answer_truthfully · lie(alt) · evade · recant; accept · accept_grudgingly · protest · appeal · refuse_to_comply | `p_lie`; §4.4 compliance; `V_J` | medium–high | this doc (§12.4, §13.4, §4.4) |
+| G-15 | Envoy response (§17.6), ultimatum answer (§16.3) | accept · counter(k) · reject · walk_out; concede · co-opt · negotiate · repress · ignore | `U_B` (§17.4); `U` (§6.2) | medium–high; **vassalage, ≥ 960f critical** | treaty engine (§17.3), 15, 16, 18 |
+
+Player text is always delimited untrusted data; deciders choose only menu options and never compute
+numbers; every consequence is computed by the formulas above ([22](../tech/22-llm-integration.md)).
 
 ---
 
@@ -1193,12 +1453,12 @@ the formulas above ([22](../tech/22-llm-integration.md)).
 | Milestone | Governance & law features |
 |-----------|---------------------------|
 | **M0** | Polity/Office/Proposal/LawCode schemas; content validation |
-| **M1** | Talking Camp: gatherings, proposals, §6 support with Jev speech scoring and clamp harness; legitimacy T/C/P |
+| **M1** | Talking Camp: gatherings, proposals, §6 support; stance DP (§6.9) with fast-decider speech classification, menu-width harness and LLM-vs-policy calibration on stance; legitimacy T/C/P |
 | **M2** | Landfall: the Charter item, Heir vs. de-facto leaders, compliance model §4.4, salvage dispute gathering, acclaim |
-| **M3** | Household Council, Headman, councils & voting rules, promises/obligations, bribery, intimidation, factions (basic) |
-| **M4** | Law codes, crimes & punishments, justice process, constable, hue and cry, wanted/outlawry, headman/council trials |
+| **M3** | Household Council, Headman, councils & voting rules (vote DP), promises/obligations, bribery and intimidation DPs, factions (basic) |
+| **M4** | Law codes, crimes & punishments, justice process, verdict and testimony DPs (with the critical-punishment gate), constable, hue and cry, wanted/outlawry, headman/council trials |
 | **M5** | Feudal structure, fiefs, oaths, knighthood, court minigame & precedent, officials, finances screen, succession, grievance/rebellion/exodus, coups |
-| **M6** | Diplomacy, Accord, envoys, treaties, claims, war-declaration hand-off, vassalization, kingship |
+| **M6** | Diplomacy, Accord, envoys and the envoy DP, treaties, claims, war-declaration hand-off, vassalization, kingship |
 | **M7** | Balance via headless runs; court pacing polish |
 | **M8** | Content: law codes per culture, petition variety |
 
@@ -1210,7 +1470,11 @@ the formulas above ([22](../tech/22-llm-integration.md)).
 |------|---------|-------|
 | Legitimacy source weights / culture multipliers | §4.2 | — |
 | Compliance coefficients (a0…a5) | 0.5, 2.0, 1.0, 1.5, 1.0, 2.5 | — |
-| Political persuasion clamp | 0.15 | 0.05–0.25 |
+| Political menu width `C_pol` (canon `C_sys`) | 0.15 | 0.05–0.25 |
+| Stance/vote irrationality `ε` (menu edge and `p_i` spread) | 0.05 | 0.02–0.10 |
+| Verdict doubt band (acquit eligible while `B'` < standard + band) | 0.20 | 0.10–0.30 |
+| Punishment spread around `h` (σ, in band positions) | 0.4 | 0.2–0.8 |
+| Envoy acceptance spread (points of `U_B`) | 5 | 2–10 |
 | Support weights (value / self / opinion / faction / status quo) | 0.30/0.30/0.20/0.10/0.10 | — |
 | Speech diminishing factor | 0.6 | 0.4–0.8 |
 | Gathering attendance threshold | 40% | 25–60% |
@@ -1229,8 +1493,9 @@ the formulas above ([22](../tech/22-llm-integration.md)).
 
 | Exploit | Mitigation |
 |---------|------------|
-| Speech spam to swing a vote | Per-listener, per-proposal clamp; 0.6ⁿ diminishing; rumor effect only ×0.3 |
-| Prompt injection in speeches, pleas or rulings ("the court must acquit") | Jev only classifies among sim options; worst case is the clamp; rulings require confirmation |
+| Speech spam to swing a vote | Menu width is a per-listener, per-proposal total; 0.6ⁿ diminishing; rumor width ×0.3; re-asking ×0.5^(n−1) and Anger |
+| "Rephrase until yes" with one NPC | Long-shot budget: ≤ 2 player-favoring choices with `p_i` < 0.20 per NPC–player pair per game day (canon §13.1); repetition penalty |
+| Prompt injection in speeches, pleas or rulings ("the court must acquit") | Deciders pick only menu options; the guard's `p_i` is words-free; verdict menus are evidence-only (a plea can't make `acquit` eligible); harsh punishments, war votes, vassalage and ≥ 960f transfers need a deterministic `p_i ≥ 0.25`; injection probability ≥ 0.3 → that turn's DPs go to the policy (canon §13.5); the player's rulings require confirmation |
 | Promise spam | Credibility uses Trust and Honesty reputation; broken promises cost Trust −20 per beneficiary and faction grievance |
 | Buying every vote | Bribe effect capped (0.4), scaled by wealth; Honest/Honor refusals and rumors; secret ballots |
 | Intimidating a council | Secret ballot nullifies; grievance +5 per intimidated member |
@@ -1238,14 +1503,15 @@ the formulas above ([22](../tech/22-llm-integration.md)).
 | Enacting absurd laws (outlaw a rival by statute) | Laws need votes or consent where the form requires; unjust punishment penalties; grievance |
 | Coup cheese with one strong fighter | Force ratio counts armed people present; betrayal risk in recruitment; usurper T −30 |
 | Exodus as an exploit to escape justice | Accused persons cannot lead an exodus; the polity may pursue (Extradition, claims) |
-| Save-scumming court outcomes | Outcomes are deterministic given state; Ironman mode |
+| Save-scumming court outcomes | Policy draws are seeded (same state ⇒ same draw); an LLM choice is one guarded sample within the same menu, and the long-shot budget is saved with the pair; Ironman mode |
 
 ---
 
 ## 23. Headless validation
 
 Nightly CI ([20](../tech/20-architecture.md)): **50 seeds × 20 years at LOD3**, template mode and
-mocked-Jev mode.
+mocked-decider mode (recorded fast-decider answers; every DP decided by the policy, as headless runs
+require). V11 runs separately on the M1 decision suites with recorded LLM choices.
 
 | # | Assertion |
 |---|-----------|
@@ -1256,9 +1522,10 @@ mocked-Jev mode.
 | V5 | Justice: truly guilty convicted ≥ 70%; wrongful convictions 5–15% of trials |
 | V6 | NPC rulers resolve ≥ 80% of petitions within 2 sessions |
 | V7 | With ≥ 3 polities, ≥ 1 treaty by Y10 in ≥ 70% of seeds; Accord distributions not all-hostile |
-| V8 | No language-derived shift exceeds its clamp (asserted in code) |
-| V9 | Template-mode metrics within the same bands as mocked-Jev runs |
-| V10 | Determinism: same seed ⇒ identical political event logs |
+| V8 | No DP choice is off-menu or ineligible; no granted `G_i` exceeds its menu width; no critical option executes with words-free `p_i` < 0.25 (asserted in code) |
+| V9 | Template-mode metrics within the same bands as mocked-decider runs |
+| V10 | Determinism: same seed and the same recorded DP choices ⇒ identical political event logs |
+| V11 | Parity (canon §13.5): on neutral golden scenarios, LLM-vs-policy choice rates differ by ≤ 10 points per option family for stance, vote, verdict, testimony, reaction and envoy DPs; the refusal suite (NPCs who should say no — the Heir on `divide_stores`, a judge facing `B'` ≥ s + 0.20, an envoy offered vassalage at `U_B` ≪ θ) passes ≥ 95% |
 
 ---
 
@@ -1274,10 +1541,21 @@ mocked-Jev mode.
 6. Do serfs exist at all in Osmeri and Ashen polities, or only free tenants?
 7. Does the Charter's vague territorial claim apply to *other expeditions'* settlements (stronger casus
    belli) or only to the Wending Star's people?
+8. Should the **player as judge** face the same evidence-gated verdict menu as NPC judges (parity), or
+   keep free rulings judged only by onlookers (current answer: free, §12.6)?
+9. Silent members of an attended assembly are decided by the policy from one classification of the
+   speech. Is a per-listener fast-decider call worth its cost and latency for large gatherings (20+)?
+10. Is the 0.20 **doubt band** right? Too wide and LLM judges acquit plainly guilty people in the
+    player's presence; too narrow and the judge's choice is cosmetic. Calibrate against V5 and V11.
+11. Political `K_skill` here is `0.6·Persuasion + 0.4·Leadership` for speeches but Persuasion alone
+    for envoys; canon §13.4 names Persuasion. Keep Leadership for speeches to crowds?
+12. Stance and vote menus add an irrationality margin `ε = 0.05` beyond the canon width
+    `C_sys·s·(0.5 + 0.5·K_skill)`, so the old vote noise survives in policy runs. Accept that as a
+    canon extension (tenet 3), or drop `ε` and let only the width define the menu?
 
 ## Proposed canon additions
 
-> **Status (canon v0.2):** accepted items have been folded into [01-canon](../01-canon.md) (see its change log). Items not reflected there remain proposals for the owner to decide.
+> **Status (canon v0.2):** accepted items have been folded into [01-canon](../01-canon.md) (see its change log). Items not reflected there remain proposals for the owner to decide. Items 9, 14 and 15 were revised or added for canon v0.3 (decision points).
 
 1. **Governance forms** (ids): Co-op, Household Council, Headman, Chieftain, Charter-lordship, Feudal
    lordship, Kingship; variants Elders' Synod (Ashen), Merchant Council (Osmeri), Outlaw Band.
@@ -1291,11 +1569,18 @@ mocked-Jev mode.
 7. **Maiming is off by default** (world setting *Grim Justice*); **trial by combat** is an enactable
    procedure, default on for Brannoch only.
 8. World setting **Customs: Egalitarian (default) / Historical** for sex in succession and office.
-9. **Political persuasion clamp** ±0.15 on support per listener per proposal; words and skill weighted
-   50/50 (same as trade).
+9. **Political menu width** (canon v0.3 §13.4): `C_sys` = 0.15 on support per listener per proposal,
+   with political `K_skill = 0.6·Persuasion + 0.4·Leadership` for speeches; words and skill weighted
+   50/50 in the policy step (same as trade).
 10. **Fine bands** by severity: 2–8f, 8–48f, 48–240f, 240–960f, capital; fines capped at 50% of liquid
     wealth.
 11. **Manumission** price 480f; **knight's fee** ≈ 8–12 households, ≈ 1,000f/yr gross; vassal service 8 field days
     + 4 castle-guard days per year (scutage 240f).
 12. **Exodus minimum:** 6 adults and 16 ration-days of food per person.
 13. Shared with 15: corvée, scutage, tithe split (⅔ faith / ⅓ lay), official wages, quarter days.
+14. **Political decision points** (canon v0.3 §13.1): stance options `support · conditional_support ·
+    undecided · oppose · oppose_loudly` mapped onto the five support bands; vote options `yes · no ·
+    abstain`; a vote to declare war is critical.
+15. **Verdict menus:** `convict` eligible iff `B'` ≥ the standard of proof; `acquit` eligible iff `B'` <
+    standard + **0.20** (the doubt band); punishments drawn around harshness `h`; hanging, maiming,
+    banishment, outlawry and ≥ 960f fines/forfeitures are critical.

@@ -1,11 +1,12 @@
 # 20 — Technical Architecture
 
-> **Status:** Draft v0.1 · **Owner doc for:** engine/sim architecture, threading, clocks & ticks, ECS/data layout, the LOD0 embodiment boundary, commands/events, save/load, determinism, content pipeline, AI-gateway interfaces, Godot client structure, headless runner, testing, performance budgets, tooling, CI/CD, repo layout & engineering conventions · **Depends on:** [01-canon](../01-canon.md) (§4, §6, §8, §13, §14), [ADR-0001](../adr/0001-engine-godot-dotnet.md), [ADR-0002](../adr/0002-headless-deterministic-sim-core.md), [ADR-0003](../adr/0003-hard-systems-soft-voice.md), [ADR-0004](../adr/0004-single-player-scope.md) · **Interfaces with:** [21-npc-ai](21-npc-ai.md), [22-llm-integration](22-llm-integration.md), [10-world-and-setting](../design/10-world-and-setting.md), [13-crafting-and-minigames](../design/13-crafting-and-minigames.md), [18-conflict-and-warfare](../design/18-conflict-and-warfare.md), [19-player-experience](../design/19-player-experience.md), [30-roadmap](../production/30-roadmap.md)
+> **Status:** Draft v0.1, revised for canon v0.3 (decision points) · **Owner doc for:** engine/sim architecture, threading, clocks & ticks, ECS/data layout, the LOD0 embodiment boundary, commands/events, save/load, determinism, content pipeline, AI-gateway interfaces, Godot client structure, headless runner, testing, performance budgets, tooling, CI/CD, repo layout & engineering conventions · **Depends on:** [01-canon](../01-canon.md) (§4, §6, §8, §13, §14), [ADR-0001](../adr/0001-engine-godot-dotnet.md), [ADR-0002](../adr/0002-headless-deterministic-sim-core.md), [ADR-0003](../adr/0003-language-decides-systems-resolve.md), [ADR-0004](../adr/0004-single-player-scope.md) · **Interfaces with:** [21-npc-ai](21-npc-ai.md), [22-llm-integration](22-llm-integration.md), [10-world-and-setting](../design/10-world-and-setting.md), [13-crafting-and-minigames](../design/13-crafting-and-minigames.md), [18-conflict-and-warfare](../design/18-conflict-and-warfare.md), [19-player-experience](../design/19-player-experience.md), [30-roadmap](../production/30-roadmap.md)
 
 This document says **how FeudalSim is built**: where code lives, which thread runs what, how the
 simulation advances, how state is stored and saved, how determinism is kept, and how the Godot client
-attaches to a headless simulation. It defines mechanisms, not game rules — *what* NPCs decide is
-[21-npc-ai](21-npc-ai.md), *what* the LLM says is [22-llm-integration](22-llm-integration.md), and
+attaches to a headless simulation. It defines mechanisms, not game rules — *how* NPCs decide (utility,
+propensities, the deterministic policy) is [21-npc-ai](21-npc-ai.md), *how* language models choose at
+decision points and what they say is [22-llm-integration](22-llm-integration.md), and
 every design number belongs to its owning design doc ([canon §16](../01-canon.md#16-document-ownership-map)).
 
 Conventions used here: **MUST / SHOULD / MAY** are normative. `[M0]`…`[M8]` tag the milestone that
@@ -56,9 +57,10 @@ implementation time. C# snippets are sketches of shape, not final code.
 | D7 | Determinism is guaranteed for **same build + same OS + same CPU architecture**, independent of thread count, frame rate and time scale. Cross-platform determinism is **not** required. | [§8.1](#81-the-guarantee) |
 | D8 | A save is a **saga folder**: column-tolerant snapshot (MessagePack + LZ4) + input log since that snapshot + compacted history log. Autosave daily at 06:00 game time. | [§9](#9-commands-events--persistence) |
 | D9 | Content is **YAML → JSON Schema (generated from C# definition types) → semantic validation → compiled `ContentDatabase`** with numeric handles. | [§10](#10-content-pipeline) |
-| D10 | AI is reached by **outbox/inbox messages with sim-side deadlines and deterministic fallbacks**; results are recorded as commands, so replays never touch the network. | [§11](#11-ai-gateway-interfaces) |
+| D10 | AI is reached by **outbox/inbox messages with sim-side deadlines and deterministic fallbacks**; results — including every model-made choice — are recorded as commands, so replays never touch the network. | [§11](#11-ai-gateway-interfaces) |
 | D11 | Terrain: **Terrain3D** for the 8,192 m region, gated by an M0/M2 spike, with a custom chunked-mesh terrain as fallback. | [§12.4](#124-terrain--world-streaming) |
 | D12 | The **headless CLI** is a first-class product for designers (batch balance runs, replays, benchmarks), not a test harness afterthought. | [§13](#13-headless-runner) |
+| D13 | **Decision points** (canon §13): the sim builds the menu and propensities; an LLM or fast decider (`IDecider`) *may* choose; the sim guards and executes. The choice arrives as a recorded `DecisionMade` command; if none has applied by the sim-side deadline, the deterministic policy decides. Headless and CI are policy-only. | [§8.5](#85-external-inputs-are-logged-commands), [§11](#11-ai-gateway-interfaces) |
 
 ---
 
@@ -88,7 +90,8 @@ flowchart LR
   end
   subgraph AIG["FeudalSim.AI (async)"]
     GW["AI gateway: priorities, budgets, fallbacks, recording"]
-    PV["Providers: OpenAI-compatible LLM, Jev, local LLM, templates"]
+    PV["Providers: OpenAI-compatible chat (OpenRouter, local), fast deciders (openrouter-llm, typesafe, laya, local-llm, heuristic), templates"]
+    LS["laya-serve sidecar or in-process ONNX (optional, M7)"]
   end
   subgraph CT["Content"]
     Y[("content/*.yaml")]
@@ -110,9 +113,10 @@ flowchart LR
   EB --> BR
   BR --> VW
   BR -->|"BodyIntent"| EM
-  RUN -->|"AiRequest (step outbox)"| GW
+  RUN -->|"AiRequest, DecisionPointOpened (step outbox)"| GW
   GW --> PV
-  GW -->|"AiResultCommand"| CQ
+  PV -.-> LS
+  GW -->|"AiResultCommand, DecisionMade"| CQ
   Y --> CC --> DB --> SYS
   RUN --> IO --> PS
   PS -->|"load"| RUN
@@ -122,9 +126,9 @@ flowchart LR
 
 | Layer | Owns | Never does |
 |-------|------|-----------|
-| **Sim core** (`FeudalSim.Sim`) | All game state and rules; time; RNG; LOD tiers; validation of every input; serialization *to a stream*; the AI request/result *contract* | Call Godot, read files, open sockets, read the wall clock, block on anything |
+| **Sim core** (`FeudalSim.Sim`) | All game state and rules; time; RNG; LOD tiers; validation of every input; serialization *to a stream*; the AI request/result *contract*; decision-point menus, propensities, guards (the DRE), deadlines and the policy | Call Godot, read files, open sockets, read the wall clock, block on anything |
 | **Hosting** (`FeudalSim.Hosting`) | The sim thread and worker pool, queues and buffers, save/log file IO, settings and secrets loading, wiring Sim + Content + AI. Shared by the game and the headless CLI. | Contain game rules |
-| **AI** (`FeudalSim.AI`) | Prompt building, providers, HTTP, streaming, budgets, circuit breakers, recording (policy owned by [22](22-llm-integration.md)) | Mutate sim state (it only produces result *commands*) |
+| **AI** (`FeudalSim.AI`) | Prompt building, chat and fast-decider providers, HTTP, streaming, budgets, circuit breakers, recording (rules owned by [22](22-llm-integration.md)) | Mutate sim state (it only produces result *commands*); build menus, compute numbers or propensities, or pick anything the sim did not offer |
 | **Content** (`FeudalSim.Content`) | YAML parsing, schema + semantic validation, compiling to `ContentDatabase`, schema generation | Run at gameplay time except load/hot-reload |
 | **Client** (`game/`) | Rendering, input, audio, UI, LOD0 physics bodies & navmesh, minigame presentation | Decide outcomes; hold authoritative state other than LOD0 body pose |
 | **Headless** (`FeudalSim.Headless`) | CLI: run, batch, replay, bisect, bench, content, AI ping | Contain game rules |
@@ -137,7 +141,7 @@ flowchart LR
 | Godot render / physics | Godot | Rendering, physics server work | — |
 | **Sim thread** | Hosting (`SimRunner`) | Step loop: drain commands → run systems → publish outputs | Call Godot; do file or network IO; `await` |
 | Sim workers (N = clamp(cores − 3, 1, 6)) | Hosting (`JobRunner`) | Parallel phases inside one step, on **fixed chunks** ([§7.3](#73-parallel-execution-rules)) | Touch state outside their chunk contract |
-| AI gateway (async I/O) | AI | HTTP calls, streaming, JSON parsing | Touch sim state |
+| AI gateway (async I/O) | AI | HTTP calls, streaming, JSON parsing; in-process decider inference (ONNX, if adopted in M7) on its own capped worker | Touch sim state; run inference on the sim thread or sim workers |
 | IO thread | Hosting | Save compression + atomic writes, log segment appends, metrics files | — |
 
 One step of the loop:
@@ -156,10 +160,10 @@ sequenceDiagram
   S->>W: Sense / Decide over fixed chunks
   W-->>S: per-chunk buffers, merged in chunk order
   S->>S: Resolve, world systems, structural changes
-  S->>A: AiRequests from the step outbox
+  S->>A: AiRequests and opened DPs from the step outbox
   S->>IO: log records, autosave image (if due)
   S-->>M: publish snapshot + domain events
-  A-->>Q: AiResultCommand (whenever it completes)
+  A-->>Q: AiResultCommand / DecisionMade (whenever it completes)
   M->>M: interpolate and render at 60+ fps
 ```
 
@@ -173,6 +177,7 @@ public sealed class StepOutput            // pooled; one per step, handed to Hos
     public RenderSnapshot Snapshot;       // render-relevant subset (written into triple buffer)
     public EventEnvelope[] Events;        // domain events emitted this step, Seq-ordered
     public AiRequest[] AiRequests;        // new requests (outbox)
+    public DecisionPointOpened[] OpenedDps; // DPs a model may decide (§11); also written to the input log
     public AiRequestId[] AiCancels;       // superseded requests
     public StepDiagnostics Diagnostics;   // per-system µs, counts, warnings
 }
@@ -488,7 +493,7 @@ flowchart BT
 |---------|------|------|------------------------------|
 | `FeudalSim.Sim` | class lib, net8.0 | — | MessagePack (+ source generator), Microsoft.Extensions.Logging.Abstractions, System.IO.Hashing. **Nothing else without an ADR.** |
 | `FeudalSim.Content` | class lib | Sim | YamlDotNet, JsonSchema.Net (+ .Generation) |
-| `FeudalSim.AI` | class lib | Sim (port DTOs only) | BCL HTTP/JSON; optional Microsoft.Extensions.AI ([22](22-llm-integration.md) decides) |
+| `FeudalSim.AI` | class lib | Sim (port DTOs only) | BCL HTTP/JSON; optional Microsoft.Extensions.AI ([22](22-llm-integration.md) decides); **optional, M7 evaluation:** Microsoft.ML.OnnxRuntime for an in-process Laya decider (native binaries per RID, incl. osx-arm64 — needs an ADR) |
 | `FeudalSim.Hosting` | class lib | Sim, Content, AI | Microsoft.Extensions.Logging, ZLogger |
 | `FeudalSim.Headless` | exe | Hosting | Spectre.Console.Cli |
 | `game/FeudalSim.Game` | Godot C# | Hosting | Godot.NET.Sdk |
@@ -613,9 +618,12 @@ while (!_stop)
   [19](../design/19-player-experience.md); a natural default is to allow hurry only with no hostile
   at LOD0 and no conversation open.
 - **Pause** stops stepping. UI, the dialogue UI and LLM streaming keep running. Commands queue up
-  and apply on the next step. Whether dialogue pauses or slows the world is a
-  [19](../design/19-player-experience.md)/[22](22-llm-integration.md) decision; the architecture
-  supports both (scale 0 or 0.25×).
+  and apply on the next step.
+- **Focus time** (canon §6.3: the world clock runs at 12:1 while a conversation, court session or
+  battle is open) is proposed as a **logged clock-ratio change** — like `SetDayLength`, game-ms per
+  step drops to 1,200 — not a time-scale change, so steps keep their 10 Hz embodied rate and bodies
+  keep walking at normal speed. Decision-point deadlines in steps (§11) rely on this (open
+  question 16).
 - **Overload:** if the sim cannot keep up, it drops accumulated time ("time dilation") rather than
   spiralling. This is visible in the dev overlay and counted in metrics.
 - **Godot bodies follow sim time.** LOD0 bodies live in Godot physics, which runs on wall time, so
@@ -771,13 +779,13 @@ String ids such as `item.iron_axe` exist only at load/save boundaries and in too
 | # | Phase | Threading | Writes |
 |---|-------|-----------|--------|
 | 0 | **Begin:** advance clock, compute due schedules | serial | clock |
-| 1 | **Commands:** validate + apply in `Seq` order; rejected ones emit `CommandRejected` | serial | anything (via validated handlers) |
+| 1 | **Commands:** validate + apply in `Seq` order; rejected ones emit `CommandRejected`. Then the **DRE deadline sweep**: `DecisionMade` choices that applied are guarded; open DPs whose `DeadlineStep` is the current step (or earlier) and that have no applied `DecisionMade` take the policy's pick (DP-id order). Chosen options are queued for their owning systems. | serial | anything (via validated handlers) |
 | 2 | **Sense:** perception, spatial queries | parallel (fixed chunks) | own-row perception buffers |
 | 3 | **Decide:** utility AI, task selection ([21](21-npc-ai.md)) | parallel (fixed chunks) | own row + per-chunk request buffers |
-| 4 | **Resolve:** apply requests; arbitrate contested claims; run action timelines; combat | serial, or parallel by settlement | state |
+| 4 | **Resolve:** apply requests; execute chosen DP options in their owning systems (trade, ladder, relationship, obligation, justice); arbitrate contested claims; run action timelines; combat | serial, or parallel by settlement | state |
 | 5 | **World systems due:** crops, weather, markets, LOD3 slices | parallel by settlement where safe | state |
 | 6 | **Structural:** spawns, deaths, transfers from command buffers, in sorted order | serial | tables |
-| 7 | **Post:** dispatch events to in-sim subscribers, AI outbox and deadlines, hash (if due), publish snapshot | serial | stores, outputs |
+| 7 | **Post:** dispatch events to in-sim subscribers, AI outbox (incl. newly opened DPs, logged as `DecisionPointOpened`) and deadlines, hash (if due), publish snapshot | serial | stores, outputs |
 
 In-sim event subscribers run in phase 7. They may write only their own stores (memories,
 reputation, history) and enqueue intents for the next step.
@@ -797,6 +805,7 @@ reputation, history) and enqueue intents for the next step.
 | Actions & work | [13](../design/13-crafting-and-minigames.md) | timelines, every step | task granularity | statistical, hourly | aggregate, daily |
 | Combat | [18](../design/18-conflict-and-warfare.md) | every step | auto-resolve | auto-resolve | rolled |
 | Social interaction | [16](../design/16-social-systems.md) / [22](22-llm-integration.md) | real dialogue & barks | rolls when co-located (1 Hz) | hourly rolls | daily drift |
+| Decision points (DRE: open, guard, deadline, dispatch) | [22](22-llm-integration.md) (DRE) / [21](21-npc-ai.md) (propensities, policy) | recorded DPs in player conversations, attended scenes and fast-decider moments | policy inline in owning systems, not recorded | ← | ← |
 | Memory / belief / rumor | [16](../design/16-social-systems.md) | event-driven | event-driven | hourly gossip | daily diffusion |
 | Skill XP | [12](../design/12-skills-and-professions.md) | on action | on task | hourly | daily |
 
@@ -901,6 +910,9 @@ public struct Rng   // xoshiro128** seeded from the mixed key; value type, no al
   changed everything" problem).
 - World generation uses a stateful stream seeded from `(WorldSeed, WorldGen)`, because its
   sequential nature is natural there.
+- **Policy draws at decision points** use `RngStream.Ai` keyed by the chooser and `Salt.DecisionPolicy`
+  mixed with the `DecisionPointId`, drawn when the DP opens ([21 §7.8](21-npc-ai.md)). The fallback pick
+  therefore does not depend on when, or whether, a model answered.
 
 ### 8.3 Ordering rules
 
@@ -929,14 +941,22 @@ public struct Rng   // xoshiro128** seeded from the mixed key; value type, no al
 |--------|---------|-------|
 | Player | `PlayerInput`, `PlayerAction`, `PlayerShoot`, `PlayerMeleeClaim`, `MinigameOutcome`, `DialogueSubmit` | Raw text is stored with the command |
 | Client physics | `EmbodimentReport` | Quantized at creation |
-| LLM / Jev | `AiResultCommand` | Includes outcome, payload, provider tag, latency |
+| LLM / fast decider | `AiResultCommand`; **`DecisionMade`** | `AiResultCommand`: outcome, payload, provider tag, latency. `DecisionMade`: DP id, menu hash, chosen option (or "policy, now"), decider, provider tag, latency ([§11](#11-ai-gateway-interfaces)) |
 | Settings that change state | `SetDayLength`, `SetDifficulty` | Time scale and graphics settings are not state |
 | Scenario / dev | `ScenarioInjection`, `DevCommand` | Dev commands **taint** the save (flag in `saga.json`) |
-| Integrity | `Checksum(step, hash)` | Written hourly ([§8.7](#87-state-hashing-and-desync-detection)) |
+| Integrity | `Checksum(step, hash)`; **`DecisionPointOpened`** | `Checksum`: written hourly ([§8.7](#87-state-hashing-and-desync-detection)). `DecisionPointOpened` (DP id, chooser, menu hash, options, deadline): written when the sim opens a DP a model may decide. Integrity records are **verified, not applied**: replay re-opens the DP, recomputes the menu hash and compares |
 
-AI request ids are deterministic: `AiRequestId = hash(step, entity, kind, ordinal)`. Each request
-carries a sim-side `DeadlineStep`. If no result has been applied by then, the sim applies the
-fallback itself, and a late result is rejected the same way in replay.
+AI request ids are deterministic: `AiRequestId = hash(step, entity, kind, ordinal)`, and likewise
+`DecisionPointId = hash(step, chooser, owningSystem, ordinal)`. Each request and each DP carries a
+sim-side `DeadlineStep`. If no result has been applied by then, the sim applies the fallback itself —
+for a DP, the policy's pick — and a late result is rejected the same way in replay.
+
+**Decisions are recorded; replays never call models.** Every choice a model makes reaches the sim
+only as a logged `DecisionMade`, next to the logged `DecisionPointOpened` it answers. Replay, `bisect`
+and bug bundles re-open each DP, check the menu hash against the log (a mismatch is a desync, found
+like any other), and apply the logged choice. Nothing in replay calls a provider, whatever
+`LLM_MODE` says. Choices the policy makes inline (off-screen life, NPC↔NPC, Interludes, headless) are
+not logged at all: they are a pure function of state and seed.
 
 ### 8.6 Banned APIs and analyzers
 
@@ -1030,7 +1050,7 @@ Events are **ground truth**. Who *believes* what is a separate concern
 
 | Log | Contents | Needed for | Retention in a save |
 |-----|----------|------------|---------------------|
-| **Input log** | `CommandEnvelope`s + `Checksum`s | Replay, desync debugging, bug bundles | Since the slot's snapshot (dev builds: configurable, all) |
+| **Input log** | `CommandEnvelope`s (incl. `DecisionMade`) + integrity records (`Checksum`, `DecisionPointOpened`) | Replay, desync debugging, bug bundles, LLM-vs-policy calibration telemetry | Since the slot's snapshot (dev builds: configurable, all) |
 | **History log** | `EventEnvelope`s at salience ≥ Minor | Chronicles, journal, NPC fact retrieval, metrics | Minor: 1 game year, then folded into yearly aggregates. Notable and above: forever. |
 
 Both logs are append-only segment files with one segment per game day. Each record is
@@ -1205,8 +1225,8 @@ Example (values illustrative; owned by [13](../design/13-crafting-and-minigames.
 
 Behavior, prompts, guardrails, model choices and budgets are owned by
 [22-llm-integration](22-llm-integration.md). This section defines only the mechanism and the
-boundary required by [canon §13](../01-canon.md#13-the-llm-boundary-hard-systems-soft-voice) and
-[ADR-0003](../adr/0003-hard-systems-soft-voice.md).
+boundary required by [canon §13](../01-canon.md#13-the-llm-boundary-language-decides-systems-resolve) and
+[ADR-0003](../adr/0003-language-decides-systems-resolve.md).
 
 ```csharp
 // FeudalSim.Sim.Ports.Ai — pure DTOs, no HTTP, no prompts
@@ -1221,21 +1241,46 @@ public sealed record AiRequest(
 
 public sealed record AiResultCommand(
     AiRequestId Id, AiOutcome Outcome,                      // Ok, Timeout, ProviderError, Refused, Cancelled
-    AiPayload Payload,                                      // text and/or signals; sim validates + clamps (±15% rule)
+    AiPayload Payload,                                      // text and/or classifications; the sim validates them.
+                                                            // Choices never ride here: they arrive as DecisionMade.
     string ProviderTag, int LatencyMs, int TokensIn, int TokensOut) : StateCommand;
+
+// Decision points (canon §13.1). The DRE — a sim system, rules in 22 — opens them; the gateway only transports.
+public enum Stakes  : byte { Low, Medium, High, Critical }
+public enum Decider : byte { Policy, Llm, FastDecider }
+public readonly record struct MenuOption(
+    OptionId Id, OptionFamily Family,
+    OptionParams Params,                                    // fixed numbers set by the owning system, never by a decider
+    float P, Stakes Stakes);                                // P = base propensity p_i (21 §7.8); eligible options only
+public sealed record DecisionPointOpened(                   // outbox item + integrity record in the input log (§8.5)
+    DecisionPointId Id, EntityId Chooser, SystemId Owner,
+    ulong MenuHash,                                         // XxHash64 of options in id order, params, P quantized to 1e-4
+    MenuOption[] Options, long OpenStep, long DeadlineStep, // +40 steps (4 s) in conversation, +5 steps (0.5 s) fast decider
+    Decider Allowed,                                        // Llm or FastDecider (policy-only choices never open a recorded DP)
+    AiRequestId? BundledReply);                             // Llm: the reply request whose decision-first output carries the choice
+public sealed record DecisionMade(
+    DecisionPointId Id, ulong MenuHash,
+    OptionId? Choice,                                       // null = "policy, now": template mode, budget out, injection flag, chain exhausted
+    Decider Decider, string ProviderTag, int LatencyMs,
+    float[]? Probabilities) : StateCommand;                 // the fast decider's normalized distribution; telemetry only, no rule reads it
 
 // FeudalSim.AI
 public interface IAiGateway
 {
     void Submit(AiRequest request);
+    void Open(DecisionPointOpened dp);                                         // route to the bundled reply or to IDecider
     void Cancel(AiRequestId id);
+    void Cancel(DecisionPointId id);
     IAsyncEnumerable<string> StreamText(AiRequestId id, CancellationToken ct); // presentation-only tokens
     event Action<AiResultCommand> Completed;                                    // Hosting enqueues as command
+    event Action<DecisionMade> Decided;                                         // Hosting enqueues as command
     AiGatewayStats Stats { get; }
 }
-public interface IChatProvider     { string Tag { get; } Task<ChatResult> CompleteAsync(ChatRequest r, CancellationToken ct);
-                                     IAsyncEnumerable<ChatDelta> StreamAsync(ChatRequest r, CancellationToken ct); }
-public interface IDecisionProvider { string Tag { get; } Task<DecisionResult> DecideAsync(DecisionRequest r, CancellationToken ct); } // Jev-style
+public interface IChatProvider { string Tag { get; } Task<ChatResult> CompleteAsync(ChatRequest r, CancellationToken ct);
+                                 IAsyncEnumerable<ChatDelta> StreamAsync(ChatRequest r, CancellationToken ct); }
+// The fast decider, "System One" shape (canon §4.1): a state plus typed questions (choice / score / yes-no) in,
+// typed answers with per-option probabilities out. DecisionRequest / DecisionResult are defined in 22 §3.1.
+public interface IDecider      { string ProviderId { get; } ValueTask<DecisionResult> DecideAsync(DecisionRequest r, CancellationToken ct); }
 ```
 
 Mechanism (provided by `FeudalSim.AI`; numbers in [§19](#19-performance-budgets) are defaults
@@ -1243,26 +1288,104 @@ that [22](22-llm-integration.md) may change):
 
 - **Queues:** one channel per priority class, strict priority with aging for Background, and
   per-provider concurrency limits.
-- **Fallback chain:** circuit breaker per provider, and the canon §13 chain (cloud → local LLM
-  structured output → heuristics/templates).
-- **Two deadlines:** the gateway's real-time timeout produces a logged `Timeout` result, so a paused
-  dialogue still resolves. The sim's `DeadlineStep` guarantees the sim never waits.
+- **Fallback chain:** circuit breaker per provider, and canon §13.5's chain: cloud LLM → fast
+  decider → local model → policy and templates. A DP whose LLM call fails can still be picked by the
+  fast decider from the same menu (`Decider = FastDecider`) before the deadline.
+- **Two deadlines:** the gateway's real-time timeout produces a logged `Timeout` result (for a DP, a
+  "policy, now" `DecisionMade`), so a paused dialogue still resolves. The sim's `DeadlineStep`
+  guarantees the sim never waits.
 - **Streaming:** the dialogue UI may stream tokens straight from the gateway. The sim only sees the
-  final validated payload; if validation rejects it, the UI swaps in the fallback line.
-- **Budget:** token and USD accounting against `LLM_MAX_SPEND_USD_PER_SESSION` (`.env`). When it
-  runs out, Background/Batch drop to template mode first.
+  final validated payload; if validation rejects it, the UI swaps in the fallback line. Speech that
+  follows a decision is buffered until the sim publishes that DP's outcome (one step after
+  `DecisionMade` applies); if the guards rejected the choice, the buffer is discarded for the
+  regenerated or template line (Tier A/B rules: canon §13.5 #2, 22).
+- **Budget:** token and USD accounting against `LLM_MAX_SPEND_USD_PER_SESSION` and
+  `LLM_MAX_SPEND_USD_PER_MONTH`. When a budget runs out, Background/Batch drop to template mode
+  first; at 100% every DP is answered "policy, now".
 - **Gateway modes (`AI_GATEWAY_MODE` in `.env.example`)** — orthogonal to `LLM_MODE`
   (`auto`|`cloud`|`local`|`template`, which picks the provider chain; [22](22-llm-integration.md) §3.3):
   - `live`
   - `record`: live, plus request/response pairs to `llm_transcripts/`, only when
     `LLM_LOG_TRANSCRIPTS=true`
   - `replay`: serve from recordings by request hash; a miss falls back
-  - No network at all = `LLM_MODE=template`, **the default for headless and CI**
+  - No network at all = `LLM_MODE=template`, **the default for headless and CI**: the policy decides
+    every DP and templates voice every line
 
-  Replaying a save never calls the network, because results are in the input log.
-- **Providers** read `.env` keys: `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_DIALOGUE_MODEL`,
-  `LLM_UTILITY_MODEL`, `DECIDER_PROVIDER`, `DECIDER_MODEL`, `DECIDER_API_KEY`. Any
-  OpenAI-compatible endpoint works (OpenRouter now; llama.cpp, Ollama or LM Studio later).
+  Replaying a save never calls the network, because results — including every `DecisionMade` — are
+  in the input log (§8.5).
+
+**Decision-point plumbing.**
+
+- **Open.** When the DRE opens a DP a model may decide (only at LOD0: player conversations, attended
+  scenes, fast-decider moments; [21 §15.3](21-npc-ai.md)), phase 7 puts `DecisionPointOpened` in the
+  outbox and writes it to the input log. The policy's pick is drawn at the same moment (§8.2).
+- **Route.** `Allowed = Llm`: the choice comes from the bundled reply request in 22's decision-first
+  format; the gateway parses the leading choice, raises `Decided` at once, and keeps streaming the
+  speech. `Allowed = FastDecider`: the gateway asks the configured `IDecider` one choice question,
+  options labelled `A`, `B`, `C`… in a seeded shuffled order recorded with the DP (position-bias
+  control, [21 §8.9](21-npc-ai.md)), and maps the winning label back to its option id.
+- **Policy, now.** In `LLM_MODE=template`, with the budget exhausted, when the turn's injection-attempt
+  probability is ≥ 0.3 (canon §13.5 #4), or when the whole chain has failed, the gateway answers at
+  once with `DecisionMade(Choice: null, Decider: Policy)`, so no DP waits for its deadline when no
+  model can answer.
+- **Guard on apply.** Phase 1 (§7.1) checks the menu hash, that the choice is on the menu and still
+  eligible, the anti-exploit floors, the long-shot budget and, for critical options, the
+  deterministic `p_i ≥ 0.25`. Any failure gives the policy's pick and is counted. The gateway never
+  judges a choice.
+- **Deadline.** A `DecisionMade` applies only if its `ApplyStep ≤ DeadlineStep`; at the end of phase 1
+  of the deadline step, undecided DPs take the policy's pick, and a late `DecisionMade` is rejected
+  (`CommandRejected(LateDecision)`), identically in replay. Conversation DPs get 40 steps (4 s of
+  embodied time) and fast-decider DPs 5 steps (0.5 s). Time scale is not a sim input (§5.3), so the
+  deadline is a fixed step count; it equals 4 s / 0.5 s of real time because focus time is a clock-ratio
+  change that keeps 10 Hz stepping (§5.3; open question 16).
+  `DECIDER_TIMEOUT_MS` (default 1,200 ms) is the gateway's own HTTP timeout: where it is longer than
+  the DP deadline (combat's 0.5 s), the sim deadline wins and the late answer is simply rejected.
+- **Cancel.** A DP the sim closes early (P0 interrupt, conversation ended; 21 §14.6) emits a
+  `DecisionPointCancelled` domain event; the gateway cancels the call and any late `DecisionMade` is
+  rejected.
+
+**Configuration** (names exactly as in `.env.example`, which is authoritative; defaults and model
+choice are 22's):
+
+| Group | Keys |
+|-------|------|
+| Keys | `OPENROUTER_KEY` — the development key for both dialogue and the fast decider · `LLM_API_KEY` — optional override for a non-OpenRouter OpenAI-compatible endpoint (falls back to `OPENROUTER_KEY`) · `TYPESAFE_API_KEY` — Jev direct, empty until access is granted |
+| Mode | `LLM_MODE` (`auto` · `cloud` · `local` · `template`), `AI_GATEWAY_MODE` (`live` · `record` · `replay`) |
+| Chat | `LLM_BASE_URL`, `LLM_DIALOGUE_MODEL`, `LLM_UTILITY_MODEL`, `LLM_CHRONICLE_MODEL`, `LLM_TIMEOUT_TTFT_MS`, `LLM_MAX_CONCURRENCY`; local: `LLM_LOCAL_BASE_URL`, `LLM_LOCAL_DIALOGUE_MODEL` |
+| Fast decider | `DECIDER_PROVIDER`, `DECIDER_MODEL` (default `qwen/qwen3.5-9b`), `DECIDER_BASE_URL` (e.g. `http://127.0.0.1:8000` for `laya-serve`), `DECIDER_TIMEOUT_MS` |
+| Budgets, logs | `LLM_MAX_SPEND_USD_PER_SESSION`, `LLM_MAX_SPEND_USD_PER_MONTH`, `LLM_LOG_TRANSCRIPTS` |
+
+Any OpenAI-compatible endpoint works for chat (OpenRouter now; llama.cpp, Ollama or LM Studio later).
+Shipped builds keep these in the settings file and keys in the OS keychain (§18).
+
+**`IDecider` providers** (`DECIDER_PROVIDER`). All return the same `DecisionResult`, so they are
+interchangeable:
+
+| Value | Adapter | Transport | How it answers |
+|-------|---------|-----------|----------------|
+| `openrouter-llm` (default) | `LogprobChoiceDecider` | OpenRouter chat completions, `OPENROUTER_KEY` | Options labelled `A`, `B`, `C`…; `max_tokens = 1`, `temperature = 0`, `logprobs = true`, `top_logprobs ≈ 8`, `provider.require_parameters = true`; first-token probabilities normalized over the labels. `qwen/qwen3.5-9b` verified 2026-10-03 (≈ 117 input tokens, ≈ $0.000012 per call; latency not yet measured). No label log-probabilities in the response, or an HTTP error such as a provider 429, counts as a provider failure → next in chain |
+| `typesafe` | `JevDecider` | TypeSafe API (`TYPESAFE_API_KEY`, waitlisted) or Braintrust | Native choice / score / yes-no. Not via OpenRouter: its `typesafe/jev-router` routes to other models and is not the decision model |
+| `laya` | `LayaDecider` | `laya-serve` sidecar (`POST /v1/systemone` at `DECIDER_BASE_URL`), or in-process ONNX (below) | Native choice / score / yes-no in one forward pass; usable only after fine-tuning on our recorded decisions plus temperature scaling |
+| `local-llm` | `LogprobChoiceDecider` | `LLM_LOCAL_BASE_URL` | The same log-probability technique on the resident local model (M7) |
+| `heuristic` | `HeuristicDecider` | In-process | Lexicons, regex and a small linear classifier with calibrated pseudo-probabilities; always available |
+
+**Laya hosting (evaluate in M7).** Laya is the local-first fast-decider candidate (Apache-2.0; the
+English checkpoint is ModernBERT-large, **421M parameters**, 512-token context).
+
+| | `laya-serve` sidecar | In-process via ONNX Runtime |
+|-|----------------------|-----------------------------|
+| How | `pip install "laya[serve]"`; a separate local process reached at `DECIDER_BASE_URL` | `laya[onnx]` export loaded by `Microsoft.ML.OnnxRuntime` in `FeudalSim.AI`; inference on a capped gateway worker, never the sim thread (§2.3) |
+| For | No C# inference code; the same API shape as Jev; crash-isolated | No Python runtime to ship or supervise; one process |
+| Against | Ships and supervises a Python runtime per platform; start-up time; a local port | A native dependency per RID; we own tokenizer and pre/post-processing parity with the Python reference |
+
+Budget impact either way: weights are ≈ 1.7 GB fp32, ≈ 0.85 GB fp16, ≈ 0.43 GB int8. A GPU-resident
+fp16 model would take most of the 1,150 MB VRAM headroom in §19 and, on a 12 GB GPU, competes with the
+resident local LLM (canon §4). CPU int8 fits the 6 / 8 GB process-RAM budgets (≈ 0.45 GB), but must cap
+its intra-op threads (≤ 2) so it does not starve the sim workers on the 6-core minimum spec, and the
+published ~0.2–0.5 s per request on CPU (~33–40 ms per question on a T4 GPU; test hardware not stated)
+is marginal against the 0.5 s combat deadline — misses fall to the policy. The M7 evaluation measures
+p95 latency, RAM/VRAM and the LLM-vs-policy calibration gap on minimum and recommended specs, then an
+ADR picks sidecar, in-process or neither.
 
 ---
 
@@ -1404,7 +1527,7 @@ feudalsim replay   --save saves/<saga>/slots/auto-1 [--to-step N] [--verify]
 feudalsim bisect   --save … --against …
 feudalsim bench    --scenario content/scenarios/bench_1500.yaml --steps 20000 --budgets tests/perf-budgets.json
 feudalsim content  validate | compile | schemas
-feudalsim ai       ping | eval            # eval owned by 22
+feudalsim ai       ping | decide | eval | calibrate   # eval and calibrate owned by 22
 feudalsim save     inspect <slot> | migrate <slot>
 ```
 
@@ -1425,6 +1548,16 @@ assertions:
   - { at: end,           expr: "deaths.starvation <= 6" }
 ```
 
+**Headless runs are policy-only.** `--ai template` (the default, i.e. `LLM_MODE=template`) is used by
+every `run`, `batch` and `bench`, and by CI: there is no conversation with the player, so every
+decision-point menu is sampled inline by the policy ([21 §15.3](21-npc-ai.md)) and no model is called.
+`--ai replay` re-applies the logged `DecisionMade` records of a client save; `--ai live` exists only
+for 22's calibration job and manual experiments. `feudalsim ai decide` is the fast-decider ping
+([§20](#20-m0-foundations-checklist) step 10). `feudalsim ai calibrate` is the **calibration hook**
+owned by [22](22-llm-integration.md): it plays neutral golden DP scenarios (menus and `p_i` from 21)
+through a live decider and reports the LLM-vs-policy choice-rate gap per option family, the refusal
+suite and the other [21 §19](21-npc-ai.md) calibration metrics.
+
 **Outputs** go to `sim_runs/<run-id>/` (gitignored):
 
 - `run.json`: scenario, seed, git SHA, content hash, timings, final hash, assertion results
@@ -1441,7 +1574,8 @@ childbirth, age), mean needs, food stock in person-days, median price per tracke
 wealth Gini, employment by profession, skill-tier counts, **know-how holders per technique** (the
 "bus factor", canon tenet 6), crimes by type, detection and conviction rates, active feuds, fights,
 marriages, faction cohesion, schisms, settlements, wars, battles, casualties, LLM calls and fallback
-rate, and step timings (p50/p95/p99).
+rate, decision points by decider (policy, LLM, fast decider) with guard rejections and deadline
+fallbacks, and step timings (p50/p95/p99).
 
 **Designer loop:**
 
@@ -1478,7 +1612,14 @@ rate, and step timings (p50/p95/p99).
 | Allocation | Integration.Tests | Zero bytes allocated over 1,000 steady-state steps (`GC.GetAllocatedBytesForCurrentThread`) | every PR | M1 |
 | Godot integration | GdUnit4 headless | Boot, embody/disembody, report loop, snap distance < 10 m, UI smoke | PR (`godot.yml`) | M0–M2 |
 | Save corpus | Integration.Tests | Older saves load ([§9.5](#95-versioning-and-migrations)) | every PR | M3 (enforced M8) |
-| LLM evals | `FeudalSim.AI.Evals` ([22](22-llm-integration.md)) | Dialogue quality, guardrails, classifier accuracy | nightly / manual (needs secrets) | M1 |
+| Decision points | Integration.Tests with a fake `IDecider` and a fake chat provider | DP open → `DecisionPointOpened` logged; menu hash verified on replay; a fake 6 s decider on a 40-step DP → the policy's pick at the deadline, late result rejected identically in replay; guard failures → policy; "policy, now" answers apply on the next step; template mode decides every DP by policy | every PR | M1 |
+| LLM evals | `FeudalSim.AI.Evals` ([22](22-llm-integration.md)) | Dialogue quality, guardrails, classifier and fast-decider accuracy | nightly / manual (needs secrets) | M1 |
+| LLM-vs-policy calibration | `feudalsim ai calibrate` in `FeudalSim.AI.Evals` (owned by [22](22-llm-integration.md)) | Choice-rate gap ≤ 10 points per option family on neutral scenarios; refusal suite ≥ 95% (canon §13.5 #7; metrics in [21 §19](21-npc-ai.md)) | nightly / manual (needs secrets) | M1 |
+
+**No network in PR CI.** Unit, property, determinism, golden and integration tests run with
+`LLM_MODE=template` (and `AI_GATEWAY_MODE=replay` where recorded fixtures are needed), so the policy
+decides every DP and no key is read. Only the nightly/manual evals and the calibration hook touch a
+provider.
 
 **Re-blessing goldens:** run `tools/FeudalSim.Tools bless-golden --reason "<why>"`. It rewrites the
 goldens, appends a line to `tests/goldens/CHANGELOG.md` and attaches a metric-diff report. A human
@@ -1506,9 +1647,9 @@ reviews every re-bless. AI assistants MUST NOT re-bless unless explicitly asked.
 
 | Workflow | Trigger | Steps | Target time |
 |----------|---------|-------|-------------|
-| `ci.yml` | PR, push to `main` | Matrix **ubuntu-latest (x64)** + **macos-latest (arm64)** *(verify runner arch)*: `dotnet restore --locked-mode` → `dotnet build -warnaserror` → `dotnet format --verify-no-changes` → unit/property/determinism/architecture tests → `feudalsim content validate` + schema freshness → headless smoke (`m0_smoke` / later `landfall_smoke`, one season at LOD2, assertions) → short goldens (per-RID) | ≤ 10 min |
+| `ci.yml` | PR, push to `main` | Matrix **ubuntu-latest (x64)** + **macos-latest (arm64)** *(verify runner arch)*: `dotnet restore --locked-mode` → `dotnet build -warnaserror` → `dotnet format --verify-no-changes` → unit/property/determinism/architecture tests (`LLM_MODE=template`: policy decides every DP, no network) → `feudalsim content validate` + schema freshness → headless smoke (`m0_smoke` / later `landfall_smoke`, one season at LOD2, assertions) → short goldens (per-RID) | ≤ 10 min |
 | `godot.yml` | PR touching `game/` or `src/` | Set up Godot .NET headless (community action *(verify)*) → import → build C# → GdUnit4 headless; at M0 just build + boot smoke | ≤ 12 min |
-| `nightly.yml` | cron | Long goldens, soak, benchmarks vs `tests/perf-budgets.json` (fail > 10% over on a self-hosted/dedicated runner; warn on hosted), balance envelopes, LLM evals (repo secret, **never** for fork PRs) | ≤ 90 min |
+| `nightly.yml` | cron | Long goldens, soak, benchmarks vs `tests/perf-budgets.json` (fail > 10% over on a self-hosted/dedicated runner; warn on hosted), balance envelopes, LLM evals and the LLM-vs-policy calibration hook (`feudalsim ai calibrate`, owned by [22](22-llm-integration.md); repo secret `OPENROUTER_KEY`, **never** for fork PRs) | ≤ 90 min |
 | `release.yml` | tag `v*` (M7+) | Godot export per platform (Windows x64, macOS arm64/universal signed + notarized, Linux x64), checksums, artifacts. `export_presets.cfg` is gitignored, so CI renders it from a committed template with signing secrets injected. | — |
 
 - **Branching:** trunk-based. `main` is protected and always green, with required checks `ci` and
@@ -1549,18 +1690,22 @@ reviews every re-bless. AI assistants MUST NOT re-bless unless explicitly asked.
 - A **`Secret` type** makes `ToString()` return `***`, is excluded from MessagePack, and never
   reaches snapshots, logs, bug bundles or metrics. HTTP logging redacts `Authorization` and
   key-bearing fields. A CI test scans test-produced logs and saves for key patterns (e.g. `sk-or-`).
+  `feudalsim ai ping` and `ai decide` report only `key: set` / `key: missing` for `OPENROUTER_KEY`,
+  `LLM_API_KEY` and `TYPESAFE_API_KEY`, never a value or a prefix.
 - **Transcripts** are opt-in (`LLM_LOG_TRANSCRIPTS=false` by default), written to
   `llm_transcripts/` (gitignored), and pruned after 7 days.
 - **Player disclosure:** on first run in cloud mode, the player is told that typed dialogue and NPC
   context go to the configured provider; local mode keeps text on the device. No telemetry in v1.
   Crash reports are opt-in and scrubbed (M8).
 - **Untrusted inputs:**
-  - Player text is data (canon §13; guardrails in [22](22-llm-integration.md)).
+  - Player text is data (canon §13; guardrails in [22](22-llm-integration.md)). Fast-decider inputs
+    that contain it are untrusted too: a model may only pick a menu option, the DRE guards every pick,
+    and critical options also need a deterministic `p_i ≥ 0.25` computed without the text.
   - YAML loads with no type tags.
   - Saves are untrusted, since players share them: bounds-checked deserialization, size caps, hash
     verification.
   - Future mods are data-only.
-- **Spending guard:** `LLM_MAX_SPEND_USD_PER_SESSION`.
+- **Spending guard:** `LLM_MAX_SPEND_USD_PER_SESSION` and `LLM_MAX_SPEND_USD_PER_MONTH`.
 
 ---
 
@@ -1587,7 +1732,10 @@ reviews every re-bless. AI assistants MUST NOT re-bless unless explicitly asked.
 | Content | compile ≤ 2 s; cached load ≤ 200 ms | Dev | test | M1 |
 | Embodiment report → applied | ≤ 1 step | — | integration test | M2 |
 | Navmesh tile bake (64 m) | ≤ 50 ms, async | Minimum | profiler | M2 |
-| AI concurrency (defaults; [22](22-llm-integration.md) owns) | Cloud LLM 4 interactive/proximate + 6 background; Jev 8; local LLM 1–2 slots | — | gateway stats | M1 |
+| AI concurrency (defaults; [22](22-llm-integration.md) owns) | Cloud LLM 4 interactive/proximate + 6 background; fast decider 8; local LLM 1–2 slots | — | gateway stats | M1 |
+| Decision-point deadlines (canon §13.5) | Conversation DP: 40 steps (4 s of embodied time); fast-decider DP: 5 steps (0.5 s); the sim never waits | All | integration test | M1 |
+| Fast decider latency, p95 | ≤ 1,200 ms in conversation (`DECIDER_TIMEOUT_MS`); ≤ 500 ms for combat yield/mercy, else the policy decides | Recommended | gateway stats | M1 (cloud), M7 (local) |
+| Local fast decider (Laya, if adopted) | CPU int8: ≤ 0.5 GB RAM, ≤ 2 inference threads; GPU fp16: ≈ 0.85 GB of VRAM headroom — decided by the M7 evaluation ([§11](#11-ai-gateway-interfaces)) | Minimum / recommended | counters | M7 |
 
 **VRAM plan (≤ 4 GB):**
 
@@ -1599,7 +1747,7 @@ reviews every re-bless. AI assistants MUST NOT re-bless unless explicitly asked.
 | Characters (meshes, textures, VAT) | 450 MB |
 | Render targets, shadows, SSAO/GI, post | 650 MB |
 | UI, fonts, misc | 150 MB |
-| Headroom | 1,150 MB |
+| Headroom (a GPU-resident local decider would use most of it, [§11](#11-ai-gateway-interfaces)) | 1,150 MB |
 | **Total** | **4,000 MB** |
 
 ---
@@ -1620,7 +1768,7 @@ earlier ones.
 | 7 | **Content v0.** `ItemDef`, `SkillDef`, `NeedDef`; YAML for the **28 canonical skills** and ~10 items; schema generation; validator; compiler + `ContentHash`. | `feudalsim content validate` passes. A broken fixture fails with file:line. A test asserts the skill ids equal canon §10.2. Schema freshness check works. |
 | 8 | **Headless CLI v0.** `run` with `content/scenarios/m0_smoke.yaml` (seed, 24 people, 3 game days), CSV metrics, `--verify-determinism`. | `dotnet run --project src/FeudalSim.Headless -- run --scenario content/scenarios/m0_smoke.yaml` exits 0 and writes `sim_runs/<id>/metrics_daily.csv` + `run.json` with the final hash. |
 | 9 | **Hosting.** `SimRunner` thread (fixed step, time scale, pause, catch-up, dilation counter); triple-buffered snapshots; event ring; dev command registry with ≥ 5 commands. | A headless `--realtime` run holds 10.0 ± 0.2 steps/s for 60 s. Pause and resume via command. Snapshot reader test under contention (no torn reads). |
-| 10 | **AI gateway v0.** `.env` loader + `Secret`; OpenAI-compatible client (blocking + streaming); priority queue + concurrency limit; template fallback; `AiRequest` → `AiResultCommand` through the sim with `DeadlineStep`. | `feudalsim ai ping` with a key prints a completion from `LLM_DIALOGUE_MODEL` via OpenRouter, plus latency. Without a key it prints `fallback: template` and exits 0. The test output scan finds no key. A fake provider with a 3 s delay and a 10-step deadline gives a deterministic fallback, and the late result is rejected identically in replay. |
+| 10 | **AI gateway v0.** `.env` loader + `Secret` (reads `OPENROUTER_KEY`, with `LLM_API_KEY` as an optional override); OpenAI-compatible client (blocking + streaming); priority queue + concurrency limit; template fallback; `AiRequest` → `AiResultCommand` through the sim with `DeadlineStep`. **Fast-decider ping:** `IDecider` with the `openrouter-llm` adapter (log-probability technique, [§11](#11-ai-gateway-interfaces)) and the `heuristic` stub. | `feudalsim ai ping` with a key prints a completion from `LLM_DIALOGUE_MODEL` via OpenRouter, plus latency. **`feudalsim ai decide`** sends a fixed four-option sample question (labels `A`–`D`) to `DECIDER_MODEL` (`qwen/qwen3.5-9b`) with `max_tokens = 1`, `temperature = 0`, `logprobs = true`, `top_logprobs = 8`, `provider.require_parameters = true`, and prints the normalized option probabilities (summing to 1.00), the chosen label, latency and token counts. A fully peaked answer (e.g. `{B: 1.00}`) is valid output. A model that returns no label log-probabilities, or an HTTP error such as a provider 429, prints `decider: unavailable (<reason>)`, falls back to the heuristic distribution and exits 0. Both commands read the key from `.env` and print only `key: set` / `key: missing`, never the value; without a key they print `fallback: template` / `fallback: heuristic` and exit 0. The test output scan finds no key. A fake provider with a 3 s delay and a 10-step deadline gives a deterministic fallback, and the late result is rejected identically in replay. |
 | 11 | **Godot project.** `game/project.godot`, `FeudalSim.Game.csproj` → Hosting; `Boot.tscn` starts `SimHost`; debug overlay (step, date/time, ms/step, steps/s). | `dotnet build game/FeudalSim.Game.csproj` works from the CLI. The editor runs Boot on macOS with no errors, and the overlay ticks. |
 | 12 | **Test terrain spike.** The sim generates a seeded 512 m × 512 m heightfield. Godot renders it **two ways**: Terrain3D import, and an ArrayMesh + `HeightMapShape3D`. Sun, sky, collision. | A WASD/mouse player capsule (CharacterBody3D) walks on each at ≥ 60 fps on the dev Mac. Spike notes (C# interop, VRAM, import time) are written into the terrain ADR. |
 | 13 | **Sim-driven capsule NPC.** `Wander` picks sim waypoints. LodSystem with 80/100 m hysteresis. `GodotEmbodiment` with a baked NavigationRegion3D and NavigationAgent3D sends an `EmbodimentReport` each step. Beyond 100 m (for 5 s) the NPC becomes an LOD1 puppet driven by `SimKinematics`. | The NPC visibly wanders. Walking > 100 m away (for 5 s) switches it to a puppet; returning within 80 m re-embodies it with a logged snap distance < 1 m. **Replaying the recorded input log headless reproduces the session's final state hash.** |
@@ -1648,6 +1796,8 @@ tests are green in CI.
 | Interlude speed and rehydration plausibility | M | H | dt-parameterized LOD3 systems; rehydration property tests ([21](21-npc-ai.md)) | M4 |
 | AI-assisted code drift (large unreviewed diffs, silently changed rules) | M | M | `CLAUDE.md`, architecture tests, golden re-bless needs a human, small PRs | Ongoing |
 | Godot minor upgrades break APIs | M | L | Pin; upgrade in one PR with CI and smoke test | Each upgrade |
+| Model-made DP choices drift from the policy (sycophancy) or desync replays | M | H | Menus, guards and the policy stay in the sim; choices are logged `DecisionMade` with menu-hash checks; deadlines → policy; calibration hook (22) | M1 calibration exit (gap ≤ 10 points, refusal suite ≥ 95%) |
+| A local fast decider (Laya, 421M parameters) costs too much RAM/VRAM/CPU on minimum spec, or a Python sidecar is hard to ship | M | M | Cloud `openrouter-llm` and `heuristic` stay available; M7 evaluation of sidecar vs in-process ONNX with int8 on CPU and capped threads; ADR | M7 |
 
 ---
 
@@ -1674,6 +1824,18 @@ tests are green in CI.
 11. **LOD2 position:** continuous along routes, or "at location" snapshots? (Affects puppet
     plausibility in LOD1 view range; [21](21-npc-ai.md).)
 12. **Modding:** support data packs after M8?
+13. **Laya hosting:** `laya-serve` sidecar, in-process ONNX Runtime, or neither? Decide with the M7
+    measurements ([§11](#11-ai-gateway-interfaces)); either way a new ADR, since ONNX Runtime adds a
+    native dependency to `FeudalSim.AI`.
+14. **DP log size:** `DecisionPointOpened` carries the full option list. Is that affordable in long
+    sagas, or should the input log keep only ids, `p_i` and the hash, and rebuild options on replay?
+    (Estimate at M1 from play sessions.)
+15. **Calibration telemetry:** should play builds aggregate LLM-vs-policy choice rates locally for the
+    "drift" watch in canon §13.5 #7, given there is no telemetry in v1 ([§18](#18-security--privacy))?
+    Bug bundles already carry the DP records.
+16. **Focus time and DP deadlines:** is focus time a logged clock-ratio change with 10 Hz stepping
+    (proposed in §5.3), so 40 steps = 4 s, or a 0.25× time scale, which would make the same deadline
+    16 s of real time (10 steps would be needed)? 19/20 to confirm before M1.
 
 ---
 
@@ -1717,3 +1879,11 @@ Not applied. For the canon owner to accept or reject; each architectural one com
     once the pinned Godot release supports it". *(ADR-0010)*
 15. **Terrain technology:** Terrain3D, pending the spike, with a custom chunk-terrain fallback.
     *(ADR-0009)*
+16. **Decision-point records:** `DecisionPointOpened` (DP id, chooser, menu hash, options, deadline)
+    is an integrity record in the input log, verified on replay; `DecisionMade` (choice or "policy,
+    now", decider, latency) is the applied `StateCommand`. DP deadlines are counted in sim steps: 40
+    in conversation, 5 for the fast decider; the policy's pick is drawn when the DP opens.
+17. **`IDecider` = the System One contract** with providers `openrouter-llm` · `typesafe` · `laya` ·
+    `local-llm` · `heuristic` (as `.env.example`), and a `feudalsim ai decide` ping in M0.
+18. **Headless and CI are policy-only** (`LLM_MODE=template`, no network); the LLM-vs-policy
+    calibration hook `feudalsim ai calibrate` runs nightly or manually and is owned by 22.

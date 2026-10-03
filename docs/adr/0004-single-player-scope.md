@@ -1,6 +1,6 @@
 # ADR-0004 — Single-player only for v1
 
-> **Status:** Proposed · **Date:** 2026-10-03
+> **Status:** Accepted (confirmed by owner 2026-10-03) · **Date:** 2026-10-03
 > **Related:** [canon §4](../01-canon.md#4-core-product--technology-decisions), [02-game-overview §12](../02-game-overview.md#12-scope-goals-and-non-goals)
 
 ## Context

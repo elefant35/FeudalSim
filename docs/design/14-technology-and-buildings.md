@@ -1,6 +1,6 @@
 # 14 — Technology & Buildings
 
-> **Status:** Draft v0.1 · **Owner doc for:** tech tiers in detail (the capability graph), buildings, construction, infrastructure, settlement layout, institutions as buildings, settlement metrics, era criteria · **Depends on:** [01-canon](../01-canon.md), [10-world-and-setting](10-world-and-setting.md), [11-survival](11-survival.md), [12-skills-and-professions](12-skills-and-professions.md), [13-crafting-and-minigames](13-crafting-and-minigames.md), [15-economy-and-trade](15-economy-and-trade.md), [17-governance-and-law](17-governance-and-law.md), [18-conflict-and-warfare](18-conflict-and-warfare.md), [21-npc-ai](../tech/21-npc-ai.md)
+> **Status:** Draft v0.1 · revised for canon v0.3 (decision points) · **Owner doc for:** tech tiers in detail (the capability graph), buildings, construction, infrastructure, settlement layout, institutions as buildings, settlement metrics, era criteria · **Depends on:** [01-canon](../01-canon.md), [10-world-and-setting](10-world-and-setting.md), [11-survival](11-survival.md), [12-skills-and-professions](12-skills-and-professions.md), [13-crafting-and-minigames](13-crafting-and-minigames.md), [15-economy-and-trade](15-economy-and-trade.md), [17-governance-and-law](17-governance-and-law.md), [18-conflict-and-warfare](18-conflict-and-warfare.md), [21-npc-ai](../tech/21-npc-ai.md)
 
 The settlers already know what a smithy, a water mill and a castle are. What they lack is the ore,
 the charcoal, the lime, the hands and the one person who remembers how. This document defines how a
@@ -448,7 +448,8 @@ home project immediately (16 → household formation event).
 
 **Communal works (the Works Agenda).** Daily, the sim scores candidate projects from metric deficits
 (§9); the council or lord **decides** which to adopt ([17](17-governance-and-law.md) owns the
-decision rule; the LLM voices the debate):
+decision rule; in a session the player attends, each member's vote is a decision point the LLM may
+decide while voicing the debate, and the policy decides otherwise; §11):
 
 ```
 priority(project) = severity(deficit) × benefit(project) / (labor_h + 0.2 × material_haul_h)
@@ -568,7 +569,8 @@ siteScore = 0.25·freshWater + 0.20·arable(1 km) + 0.15·timber(500 m) + 0.15·
 ```
 
 The top three become proposals; the Charter heir and the de-facto leaders may back different ones
-([17](17-governance-and-law.md) decides; the LLM voices the argument). The player can scout and
+([17](17-governance-and-law.md) decides; members' votes in a session the player attends are decision
+points the LLM may decide, §11). The player can scout and
 propose a site. Splinter settlements (canon §5.4) re-run the same scoring.
 
 ### 6.2 Organic growth: the envelope
@@ -767,14 +769,17 @@ Labels can **regress** (a burned, depopulated town falls back to Village); the C
 
 | # | Touchpoint | Model | Input → output | Decided by | Fallback |
 |---|-----------|-------|----------------|-----------|----------|
-| 1 | Player proposes a project in free text ("we need a wall by the river") | Jev **choice** over Works Agenda candidate categories + a named-place reference from a closed list | untrusted text → candidate id + location id | Works Agenda feasibility; council/lord decision ([17](17-governance-and-law.md)) | Proposal menu |
-| 2 | Council debate over works | LLM | candidate scores, deficits, costs, speakers' interests | — (voice only) | Template pros/cons |
+| 1 | Player proposes a project in free text ("we need a wall by the river") | Fast decider **choice** over Works Agenda candidate categories + a named-place reference from a closed list | untrusted text → candidate id + location id | Works Agenda feasibility; council/lord decision ([17](17-governance-and-law.md)) | Proposal menu |
+| 2 | Council debate over works | LLM | candidate scores, deficits, costs, speakers' interests → speech, plus each speaking member's vote (`support` · `oppose` · `abstain`) when the player attends | 17's council-vote menus and tally (base propensities from `priority` and each member's interests); policy votes off-screen | Template pros/cons; policy votes |
 | 3 | Names of taverns, halls, streets, bridges | LLM proposes 5 names; sim picks deterministically by seed; the chosen name is written to the event log as data (replay stays deterministic) | culture, founder, events | — | Name tables per culture |
 | 4 | Grumbling about layout ("that tannery stinks") | LLM barks | nuisance exposure, opinion of owner | — | Bark templates |
 | 5 | Chronicle of construction, fires, lost capabilities | LLM | event-log facts | — | Template sentences |
-| 6 | Founding-site argument | LLM | site scores, factions' preferred sites | [17](17-governance-and-law.md) | Template speeches |
+| 6 | Founding-site argument | LLM | site scores, factions' preferred sites → speech and, when the player attends, members' votes among the top three sites | [17](17-governance-and-law.md)'s vote menus and tally | Template speeches; policy votes |
+| 7 | **Recruiting a work party** ("will you help raise my barn on Spring 6?") | **LLM** chooses, in the invitee's reply (policy for NPC hosts and off-screen) | Invitee's schedule, Opinion of the host, reciprocity owed → `join` (the full raising day) · `join_half` (half the day) · `join_for_return` (attends only on the host's promise of the same hours back, recorded as an obligation rather than an informal favor) · `decline` | `p_i` from `P(attend)` (§4.5); `join` options are ineligible if the invitee is bound by an obligation that day. Stakes low. Executed by the work-party scheduler (§4.5) and [21](../tech/21-npc-ai.md)'s schedules; reciprocity to [16](16-social-systems.md) | Policy samples `p_i` |
+| 8 | **Hiring a professional crew** (Era 2+) | **LLM**, in the master builder's reply | Blueprint, deadline → `accept_at_price` · `counter_step_k` (higher price or later deadline) · `refuse` | Price from [15](15-economy-and-trade.md); `p_i` from the crew's order book and Opinion; stakes from 15's trade rules. Executed as a commission (§4.5) | Policy samples `p_i` |
 
-No model chooses placements, sets priorities, computes costs or decides whether a fire spreads.
+Characters may decide whether to join a work party, take a building commission, or vote for a project
+(above). No model chooses placements, sets priorities, computes costs or decides whether a fire spreads.
 
 ---
 
@@ -902,7 +907,7 @@ public enum CapabilityStatus { KnownOf, Attempted, Established, Sustained, Lapse
 | Build/demolish loops for XP | XP only for net stage progress; demolition recovers < materials; repetition rules ([12 §5.3](12-skills-and-professions.md#53-repetition-and-daily-caps-diminishing-returns)) |
 | NPCs build in absurd places | Hard placement constraints; reserved road corridors; flood and slope rules |
 | A single tin deposit decides the whole game | Iron-direct and trade paths always exist; validation tracks path diversity |
-| Jev maps a proposal to the wrong building | The parsed proposal is shown back to the player for confirmation before tabling |
+| The fast decider maps a proposal to the wrong building | The parsed proposal is shown back to the player for confirmation before tabling |
 
 ---
 
@@ -983,6 +988,10 @@ public enum CapabilityStatus { KnownOf, Attempted, Established, Sustained, Lapse
 10. **Institution list** of §8 with their building + human/legal conditions.
 11. **Id prefixes:** `building.`, `module.`, `capability.`; building ids as in §3.
 12. Suggested material unit masses (§3.1) — for [13](13-crafting-and-minigames.md) to adopt or amend.
+13. **Work-party decision point** (canon v0.3, §11): an invitee asked in conversation chooses `join ·
+    join_half · join_for_return · decline`, with `P(attend)` as the base propensity; the work-party
+    scheduler executes. Building crews are hired through the commission menu (`accept_at_price ·
+    counter_step_k · refuse`).
 
 **Interface requests to other docs:** [10](10-world-and-setting.md) places at least one rival
 settlement site near a resource the player's region lacks, and defines stream-flow classes for mill

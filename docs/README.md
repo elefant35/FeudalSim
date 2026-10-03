@@ -23,7 +23,9 @@ whichever design or technical documents cover the system you're working on.
 | New to the project | 00 → 01 → 02 → 30 |
 | Implementing a system | 01 (canon) → that system's owning doc → [20-architecture](tech/20-architecture.md) |
 | Working on NPCs or dialogue | 01 → [21-npc-ai](tech/21-npc-ai.md) → [22-llm-integration](tech/22-llm-integration.md) → [16-social-systems](design/16-social-systems.md) |
-| Planning work | [30-roadmap](production/30-roadmap.md) → [31-risks-and-open-questions](production/31-risks-and-open-questions.md) |
+| Planning work | [30-roadmap](production/30-roadmap.md) → [31-risks-and-open-questions](production/31-risks-and-open-questions.md) → [33-progress](production/33-progress.md) |
+| Making art or audio | [02 §9–10](02-game-overview.md#9-art-direction) → [32-art-and-audio-production](production/32-art-and-audio-production.md) |
+| Running a development session | `/advance-plan` (skill in `.claude/skills/`) or a goal from [34-session-goals](production/34-session-goals.md) |
 
 ## Foundation
 
@@ -54,7 +56,7 @@ whichever design or technical documents cover the system you're working on.
 |-----|----------------|
 | [20 — Architecture](tech/20-architecture.md) | The sim/client split, the embodiment boundary, repo layout, clocks & ticks, data layout, scheduling, determinism, commands/events & saves, content pipeline, AI gateway interfaces, Godot client, headless runner, testing, tooling, CI, conventions, performance budgets, **the M0 checklist**. |
 | [21 — NPC AI](tech/21-npc-ai.md) | Agent architecture, personality & the trait catalog, needs, emotions & mood, utility AI, irrationality, schedules, job execution, ambitions, groups, perception, LOD behavior, the player's standing orders, debugging, performance. |
-| [22 — LLM integration](tech/22-llm-integration.md) | Providers & configuration, the dialogue turn pipeline, the Jev question catalog, the Dialogue Rules Engine, prompts & context, worked examples, other generation tasks, guardrails, replay, cost & latency, template mode, local-first, evals, **the M1 de-risking plan**. |
+| [22 — LLM integration](tech/22-llm-integration.md) | Providers & configuration (LLM and fast decider: small OpenRouter model now, Jev or Laya later), the dialogue turn pipeline with **decision points**, the fast-decider question catalog, the Dialogue Rules Engine (menus, guards, execution), prompts & context, worked examples, other generation tasks, guardrails, replay, cost & latency, template mode, local-first, evals & calibration, **the M1 de-risking plan**. |
 
 ## Production
 
@@ -62,6 +64,9 @@ whichever design or technical documents cover the system you're working on.
 |-----|----------------|
 | [30 — Roadmap](production/30-roadmap.md) | Milestones M0–M8, dependencies, risk-retiring spikes, exit criteria, cross-cutting tracks, playtests, definition of done, not-in-v1. |
 | [31 — Risks & open questions](production/31-risks-and-open-questions.md) | The risk register and the consolidated list of open questions awaiting the owner's decisions. |
+| [32 — Art & audio production](production/32-art-and-audio-production.md) | How every 3D model, animation, VFX, UI graphic and sound gets made: tools (headless Blender, verified), repo layout and the asset manifest, budgets, the 3D and audio pipelines, what Claude can generate vs. what needs people, asset and audio catalogs, licensing, validation, schedule, staffing. |
+| [33 — Progress tracker](production/33-progress.md) | Live state: current milestone, work items with evidence, owner approvals, blockers, discovered work, session log. Read and updated by `/advance-plan`. |
+| [34 — Session goals](production/34-session-goals.md) | Ready-to-paste `/goal` conditions for long-running Claude Code sessions, and how they pair with the `/advance-plan` skill. |
 
 ## Architecture decision records
 
@@ -69,7 +74,7 @@ whichever design or technical documents cover the system you're working on.
 |-----|----------|
 | [0001](adr/0001-engine-godot-dotnet.md) | Godot 4 (.NET / C#) for presentation |
 | [0002](adr/0002-headless-deterministic-sim-core.md) | A headless, deterministic simulation core |
-| [0003](adr/0003-hard-systems-soft-voice.md) | Hard systems, soft voice: the LLM boundary |
+| [0003](adr/0003-language-decides-systems-resolve.md) | Language decides, systems resolve: the LLM boundary |
 | [0004](adr/0004-single-player-scope.md) | Single-player only for v1 |
 | [template](adr/0000-template.md) | Copy this for new ADRs. [20-architecture](tech/20-architecture.md) proposes ADR-0005…0010 for M0. |
 
@@ -83,7 +88,7 @@ Every idea in the [original vision](00-vision-original.md) and where the plan im
 | Settlers arrive on an uninhabited land that is large, with varied terrains and resources | [01 §5](01-canon.md), [10 §3–5](design/10-world-and-setting.md) |
 | A survival first stage (tools, resources, shelter, food), like Minecraft/Rust/Valheim | [11](design/11-survival.md), [13](design/13-crafting-and-minigames.md), [14 §2–4](design/14-technology-and-buildings.md) |
 | You are one member of a town of AIs, all working to survive | [01 §2 P1](01-canon.md), [21](tech/21-npc-ai.md), [12 §11](design/12-skills-and-professions.md) |
-| Mostly hard-coded AI; LLM conversations (Qwen on OpenRouter first, small local later); Jev only where it makes sense | [01 §4, §13](01-canon.md), [ADR-0003](adr/0003-hard-systems-soft-voice.md), [22 §3, §16](tech/22-llm-integration.md) |
+| Mostly hard-coded AI; LLM conversations (Qwen on OpenRouter first, small local later); Jev (or an alternative such as Laya) only where it makes sense | [01 §4, §13](01-canon.md), [ADR-0003](adr/0003-language-decides-systems-resolve.md), [22 §3, §16](tech/22-llm-integration.md) |
 | Real-time actions (combat, evasion, farming) are hard code, not LLM | [21 §2, §7](tech/21-npc-ai.md), [18 §2–3](design/18-conflict-and-warfare.md) |
 | An identical skill tree for players and NPCs; people gravitate toward jobs | [01 §10.2](01-canon.md), [12 §4–7, §11](design/12-skills-and-professions.md) |
 | Technology tops out around the steel age | [01 §5.5, §9](01-canon.md), [14 §2](design/14-technology-and-buildings.md) |
@@ -100,6 +105,7 @@ Every idea in the [original vision](00-vision-original.md) and where the plan im
 | Lords and kings hold court and manage finances; shopkeeps set prices | [17 §13–14](design/17-governance-and-law.md), [15 §6, §11](design/15-economy-and-trade.md) |
 | Each profession feels like its own game | [13](design/13-crafting-and-minigames.md), [19 §3](design/19-player-experience.md) |
 | The LLM is a facade over real mechanics, yet has real-world impact | [01 §13](01-canon.md), [22 §6](tech/22-llm-integration.md) |
+| *(Owner direction, 2026-10-03)* LLMs can make decisions — build relationships, start or prevent fights, barter — but the systems those decisions run on are deterministic | [01 §13](01-canon.md#13-the-llm-boundary-language-decides-systems-resolve), [ADR-0003](adr/0003-language-decides-systems-resolve.md), [22 §4, §6, §8](tech/22-llm-integration.md), [16 §9](design/16-social-systems.md), [15 §5](design/15-economy-and-trade.md) |
 | Barter has hard-coded values; talk can sway the price, but willingness to be swayed is hard-coded | [15 §2, §5](design/15-economy-and-trade.md), [22 §6.3](tech/22-llm-integration.md) |
 | Wars start for petty or necessary reasons | [18 §7](design/18-conflict-and-warfare.md) |
 | Leaders must raise fighters from their own people, which hurts the economy and morale at home | [18 §8, §12](design/18-conflict-and-warfare.md), [15 §12](design/15-economy-and-trade.md) |

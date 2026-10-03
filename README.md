@@ -9,9 +9,11 @@ years and generations the camp becomes a hamlet, a village, a lordship — and t
 rival realms on the same coast. People disagree, gossip, steal, fall in love, and eventually march
 to war. What you become — hermit, farmer, smith, shopkeeper, knight, lord, outlaw — is up to you.
 
-**Hard systems, soft voice:** deterministic simulation decides what happens; language models
-(OpenRouter/Qwen now, local models later, plus TypeSafe's Jev decision model for fast
-classification) give those systems a human voice.
+**Language decides, systems resolve:** characters can make real choices through language models —
+pick a fight, strike a bargain, warm to you — but only among options the deterministic simulation
+offers, and the simulation (combat, trade, relationships, law) carries out the result. Models run on
+OpenRouter (Qwen) now and locally later, with a fast decider (a small model now, TypeSafe's Jev
+later) for quick choices.
 
 ## Status
 
@@ -41,6 +43,6 @@ No code yet — milestone **M0 (Foundations)** is next; see the
 
 - .NET 8 SDK
 - Godot 4.x **.NET** edition (exact version pinned at M0)
-- An OpenRouter API key for LLM features (optional — the game has an LLM-free "template mode")
+- An OpenRouter API key in `.env` as `OPENROUTER_KEY` (optional — the game has an LLM-free "template mode")
 
 Copy `.env.example` to `.env` and fill in keys. `.env` is gitignored; never commit secrets.

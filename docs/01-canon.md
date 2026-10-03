@@ -1,6 +1,6 @@
 # 01 — Canon: Core Decisions, Numbers & Names
 
-> **Status:** Draft v0.2 · **Applies to:** every other document in `docs/`
+> **Status:** Draft v0.3 · **Applies to:** every other document in `docs/`
 > **Source:** [00-vision-original.md](00-vision-original.md) (the original brainstorm, kept verbatim)
 
 This is the **single source of truth** for FeudalSim's foundational decisions. Every subsystem
@@ -27,7 +27,7 @@ playtesting and headless simulation runs, but documents must use these values un
 10. [The person model (shared by player and NPCs)](#10-the-person-model-shared-by-player-and-npcs)
 11. [Economy units](#11-economy-units)
 12. [The player](#12-the-player)
-13. [The LLM boundary ("hard systems, soft voice")](#13-the-llm-boundary-hard-systems-soft-voice)
+13. [The LLM boundary ("language decides, systems resolve")](#13-the-llm-boundary-language-decides-systems-resolve)
 14. [Scales, units & conventions](#14-scales-units--conventions)
 15. [Milestone IDs](#15-milestone-ids)
 16. [Document ownership map](#16-document-ownership-map)
@@ -67,9 +67,11 @@ Every feature must serve at least one pillar. Features that serve none are cut.
 
 ## 3. Design tenets (how we make decisions)
 
-1. **Hard systems, soft voice.** Deterministic, hard-coded systems own every *outcome* (prices,
-   acceptance of requests, combat, crafting quality, law, opinions). LLMs *voice* those outcomes and
-   *interpret* player language into structured signals. See [§13](#13-the-llm-boundary-hard-systems-soft-voice).
+1. **Language decides, systems resolve.** Language models may make real choices for characters —
+   warm to someone, pick or defuse a fight, strike or refuse a bargain — but only from options a
+   deterministic system offers, and that system enacts and resolves the result. A fight started with
+   words is settled by the combat system; a sale talked into is enacted by the trade system. See
+   [§13](#13-the-llm-boundary-language-decides-systems-resolve).
 2. **Parity.** The player and NPCs obey the same rules: same skills, same needs, same crafting
    quality formulas, same laws, same relationship math. NPCs don't play minigames (they use the
    skill-based resolution the minigame is calibrated against), but their results come from the same
@@ -86,7 +88,7 @@ Every feature must serve at least one pillar. Features that serve none are cut.
 7. **Respect the player's time.** Tedium is opt-out: mastered crafts can be batch-made, routines
    can be delegated, and time can be skipped (Interludes) once the player has earned it.
 8. **Graceful degradation.** If the LLM or classifier is slow, offline or wrong, the game still
-   works. Every LLM touchpoint has a non-LLM fallback.
+   works. Every LLM decision has a deterministic policy fallback, and every LLM line has a template.
 
 ---
 
@@ -107,12 +109,12 @@ Every feature must serve at least one pillar. Features that serve none are cut.
 | Determinism scope | Bit-identical on the **same build + OS + CPU architecture**. Saves are portable across platforms; replays and golden tests are per platform. | [ADR-0002](adr/0002-headless-deterministic-sim-core.md) |
 | Embodiment boundary | The sim is authoritative for everything **except LOD0 body pose**: Godot moves embodied bodies and reports their results back as logged commands. Headless runs, LOD1 puppets and battle crowds use one sim-side kinematic mover. | [20-architecture §3](tech/20-architecture.md) |
 | Terrain | **Terrain3D** (GDExtension), pending spike S4; custom chunk terrain as the fallback. | [20-architecture](tech/20-architecture.md) |
-| Generative LLM | Any **OpenAI-compatible chat-completions endpoint**. Start: **OpenRouter** with a Qwen-family instruct model (thinking mode disabled). Target: **local** (llama.cpp / Ollama / LM Studio): **8B 4-bit is the local default** on 12 GB GPUs; 14B 4-bit needs ≥ 16 GB VRAM or ≥ 32 GB Apple unified memory. One resident local model serves all roles. | [22-llm-integration](tech/22-llm-integration.md) |
-| Decision model | **Jev (TypeSafe AI, "System One" model)** for fast structured judgments (choice / score / yes-no probability). Cloud-only, so every use has a local fallback (local LLM structured output → heuristics). | [ADR-0003](adr/0003-hard-systems-soft-voice.md) |
+| Generative LLM | Any **OpenAI-compatible chat-completions endpoint**. Start: **OpenRouter** (key `OPENROUTER_KEY` in `.env`) with a Qwen-family instruct model, thinking mode disabled — `qwen/qwen3-14b` is the default, with newer Qwen 3.5–3.8 models in the M1 bake-off (all listed on OpenRouter as of 2026-10-03). Target: **local** (llama.cpp / Ollama / LM Studio): **8B 4-bit is the local default** on 12 GB GPUs; 14B 4-bit needs ≥ 16 GB VRAM or ≥ 32 GB Apple unified memory. One resident local model serves all roles. | [22-llm-integration](tech/22-llm-integration.md) |
+| Fast decider | A sub-second model that classifies player language and makes quick choices among **fixed options**, returning probabilities. **Now:** a small Qwen model on OpenRouter reading log-probabilities over single-letter option labels (`qwen/qwen3.5-9b`, verified working 2026-10-03). **Later:** Jev (TypeSafe) once direct API access exists, and/or **Laya** (open source, runs locally; must be fine-tuned on our data). Fallbacks: the resident local model with the same technique → heuristics. | [ADR-0003](adr/0003-language-decides-systems-resolve.md), §4.1 |
 | Content data | Authored content (items, recipes, crops, skills, traits, buildings…) in **YAML** files under `/content`, validated against JSON Schema in CI. | [20-architecture](tech/20-architecture.md) |
 | Saves | Snapshot of sim state + append-only event log. | [20-architecture](tech/20-architecture.md) |
 
-### 4.1 Jev — what we know (verify before implementation)
+### 4.1 Jev — what we know, and the fast decider until we have it
 
 Jev is a "decision model" from TypeSafe AI. It does **not** generate text; it reads a *state*
 (text / JSON / text arrays) and answers *questions* with calibrated probabilities. Facts below come
@@ -123,18 +125,32 @@ implementation**:
   confidence), **score** (2–10 ordered levels → probability-weighted mean + per-level probabilities),
   **noul** (yes/no → probability of yes). Multiple questions evaluate in parallel in one call; they
   cannot depend on each other.
-- Reported latency 70–500 ms (P50 ≈ 0.23 s via OpenRouter); ~32K context; ~$0.042 per million input
-  tokens, output free.
-- Model ids reported: `jev-latest` (TypeSafe API), `typesafe/jev-1.13` (OpenRouter),
-  `typesafe-ai/jev` (Vercel AI Gateway).
+- Reported latency 70–500 ms; ~32K context; ~$0.042 per million input tokens, output free.
 - Documented weaknesses: **weak arithmetic, counting and date ordering**; degrades with irrelevant
   context; **does not treat input as hostile — injected instructions can move answers**; confidence
   measures concentration, not correctness.
 
-**Design consequences (canon):** Jev only *classifies* (intent, tone, topic, persuasiveness,
-consistency checks). It never computes numbers, never decides outcomes on its own, and its inputs
-containing player text are treated as untrusted. All thresholds that turn a Jev probability into a
-consequence live in hard code and are clamped.
+**Availability (checked 2026-10-03):** OpenRouter's catalog lists only **`typesafe/jev-router`** — a
+router that picks *other* models for each request — **not** the Jev decision model (`typesafe/jev-1.13`
+is not listed). Direct Jev access means TypeSafe's own API (waitlisted) or Braintrust. We have only an
+OpenRouter key for now.
+
+**The fast-decider role (canon):** one interface (`IDecider`) with interchangeable providers:
+
+| Provider | Status | How it answers a choice question |
+|----------|--------|----------------------------------|
+| **OpenRouter small LLM** (default now) | Working: `qwen/qwen3.5-9b` returned a sensible distribution over four labeled options (≈ 117 input tokens, ≈ $0.00001 per decision) | Options labeled `A`, `B`, `C`…; `max_tokens = 1`; read `top_logprobs` of the first token and normalize; request with `provider.require_parameters = true` so the serving provider actually returns log-probabilities |
+| **Jev (TypeSafe API)** | Pending access | Native choice / score / yes-no questions |
+| **Laya** (open source, local) | Candidate local fast decider. `pip install laya` (Apache-2.0, Convai Innovations); English checkpoint 421M parameters (512-token context), multilingual 322M; ~33–40 ms per question on a T4 GPU, ~0.2–0.5 s on CPU; `laya-serve` exposes `POST /v1/systemone`, **the same API shape as Jev**; ONNX export allows in-process use from C#. **Base checkpoints are near chance zero-shot on typed decisions (0.36)** and ship over-confident, so it needs fine-tuning on our own decision data plus temperature calibration. Not on OpenRouter | Native choice / score / yes-no questions |
+| **Local model** | M7 | Same log-probability technique on the resident local model |
+| **Heuristics** | Always available | Lexicons, regex and a small linear classifier with calibrated pseudo-probabilities |
+
+**Design consequences (canon):** `IDecider`'s contract is the **"System One" shape** — a state plus
+typed questions (choice / score / yes-no) in, typed answers with probabilities out — so Jev, Laya and
+the OpenRouter-LLM adapter are interchangeable. Decisions recorded in play and in M1 test suites
+become the training set for fine-tuning a local Laya checkpoint. Whichever provider fills it, the
+fast decider classifies player language and makes quick choices **among fixed options only**. It never computes numbers, its inputs
+containing player text are untrusted, and every choice passes the same guards as an LLM choice (§13).
 
 ---
 
@@ -548,7 +564,7 @@ Letters exists) written manuals.
 | Manumission | 480f | 17 |
 | Fine bands | 2–8f · 8–48f · 48–240f · 240–960f · capital; fines capped at 50% of liquid wealth | 17 |
 | Wergild / ransom | Table from serf 480f to lord 9,600f | 18 |
-| High-stakes trade threshold | 1 shilling (48f) — above it, language-derived influence needs corroboration (§13) | [22](tech/22-llm-integration.md) |
+| Trade stakes thresholds | Transfers ≥ 1 shilling (48f) are **high** stakes (floor 0.05); ≥ 1 crown (960f) are **critical** (deterministic `p_i ≥ 0.25`) — §13.1 | [22](tech/22-llm-integration.md) |
 
 ---
 
@@ -579,62 +595,152 @@ Letters exists) written manuals.
 
 ---
 
-## 13. The LLM boundary ("hard systems, soft voice")
+## 13. The LLM boundary ("language decides, systems resolve")
 
 The vision calls the LLM layer "a facade for the real game mechanics while still having real world
-impacts where it makes sense." Canon operationalizes that:
+impacts where it makes sense." The owner clarified the rule on 2026-10-03: **language models may make
+real decisions for characters** — build up or sour relationships, start or prevent fights, strike or
+refuse bargains, and more — **but the systems those decisions run on are deterministic.** *A player
+can start a fight with words, but it is settled by the combat system. They can convince someone to
+buy something, but the trade is enacted by the trading system.*
 
-**LLMs and Jev MAY:**
-- Generate NPC dialogue, barks, overheard conversations, court petitions, Chronicles, rumor wording,
-  letters and books — always *from* sim state.
-- Classify player language into structured signals: dialogue act, tone, topic/entity references,
-  commitments (promises), claims (information/lies), persuasiveness score.
-- Choose among options the sim has **pre-approved as equally valid** (e.g., which anecdote to share).
-- Summarize conversations into memories (stored alongside structured facts the sim extracted).
+### 13.1 Decision points
 
-**LLMs and Jev MUST NOT:**
-- Decide whether a request is accepted, what a price is, whether a fight starts, a crime's verdict,
-  a crafting result, or any other outcome. They provide **inputs** to hard-coded functions.
-- Invent facts the NPC could not know, create items/money, or change state directly.
-- Receive player text in a way that lets it override instructions (player text is **untrusted data**).
+Whenever a character must choose during a language-driven moment, the owning system opens a
+**decision point (DP)**:
 
-**Bounded influence:** a language-derived signal (e.g., persuasiveness) may move a hard-coded outcome
-by at most a **per-system clamp** (default: **±15%** on prices/acceptance probability), scaled by the
-listener's hard-coded *susceptibility* (personality, relationship, skill). The player's **Persuasion**
-skill matters as much as their words.
+1. **Open.** Examples: an NPC answering the player; an NPC lord hearing a petition the player
+   attends; a councillor voting in a session the player attends; an envoy negotiating; a duelist
+   answering a challenge; a bystander watching a quarrel.
+2. **Menu.** The owning system builds the **option menu** deterministically. Each option has:
+   - an id with a fixed meaning (`retort`, `shove`, `attack`, `walk_away`, `accept_at_price`,
+     `counter_step_2`, `refuse`, `warm_to_speaker`, `call_guards`, `accept_request`…);
+   - **fixed parameters** computed by the system (price, quantity, target, opinion delta, escalation
+     rung) — **the decider never invents a number**;
+   - **eligibility** (feasibility, inventory, law, physics, the escalation state, who is present);
+   - a **base propensity** `p_i`: the probability the deterministic policy would choose it, from
+     personality, needs, emotions, relationship, beliefs and the speaker's skill;
+   - a **stakes** level: low, medium, high or critical.
 
-**Fallback chain** (every touchpoint): cloud LLM / Jev → local LLM (structured output) →
-heuristics/templates. The game must be completable with LLMs disabled ("template mode").
+   The menu's shape *is* the hard-coded willingness to be swayed: a stubborn, greedy merchant's menu
+   has few concession steps; a warm, susceptible friend's has more.
+3. **Decide.** One **decider** picks one option:
+   - **LLM** — when the LLM is already writing the character's reply, it emits the choice first
+     (decision-first structured output) and then speech conditioned on it.
+   - **Fast decider** (§4.1) — sub-second choices from loose text: a reaction to a shouted insult, a
+     passer-by stepping in, yield or mercy mid-fight.
+   - **Policy** — the deterministic fallback: sample from `p_i` with the seeded RNG.
+4. **Guard.** The Dialogue Rules Engine (DRE) checks **feasibility and bounds, not taste**. Guards
+   exist to stop exploits, not to overrule the character:
+   - the option must be on the menu and eligible;
+   - **anti-exploit floor:** `p_i ≥ 0.02` (low/medium stakes) or `≥ 0.05` (high stakes). Unlikely but
+     in-character choices are allowed;
+   - **long-shot budget:** at most **2 choices per NPC–player pair per game day** with `p_i < 0.20` that
+     favor the player (closes "rephrase until yes");
+   - **critical options** — armed or lethal violence (a drawn weapon), war or feud declarations, executions, maiming and
+     banishment, oaths of fealty, transfers worth ≥ 1 crown (960f) — also need a deterministic
+     `p_i ≥ 0.25`. That check never sees the untrusted player text; a second model call reading the
+     same text is **not** an independent check;
+   - on failure, the policy chooses instead and the line is regenerated to match (or a template is used).
+5. **Execute.** The owning system enacts the option and resolves every consequence: the trade
+   system moves goods and coin at the option's price; the escalation ladder advances and the combat
+   system resolves the fight; the relationship system applies a capped modifier; the obligation
+   system records the promise; the justice system applies the verdict.
+6. **Record.** The DP, a hash of its menu, the chosen option and the decider are logged as input
+   events, so saves and replays stay deterministic.
 
-### 13.1 Operational rules
+**Canonical illustrations** (the owner's examples):
+
+| Moment | The decision (decider) | Menu built by | Resolved by |
+|--------|------------------------|---------------|-------------|
+| The player insults a hot-tempered fishwife | laugh it off · retort · threaten · shove · attack · walk away (LLM, in her reply) | Escalation ladder ([16 §9](design/16-social-systems.md)) | A brawl or fight in the combat system ([18](design/18-conflict-and-warfare.md)) |
+| A bystander sees the quarrel | step in · call others · ignore (fast decider) | 16 §9 | Escalation steps down, or the fight goes ahead |
+| The player talks a farmer into buying a plough | accept at the menu price · counter at step k · refuse (LLM) | Trade system ([15 §5](design/15-economy-and-trade.md)) | Trade system transfers goods and coin |
+| A long, friendly conversation | warm to the speaker · stay neutral · cool (LLM) | Relationship system ([16 §4](design/16-social-systems.md)) | A capped opinion modifier and Familiarity gain |
+| The player asks the smith to take them as an apprentice | accept · accept with conditions · refuse (LLM) | Apprenticeship ([12 §9](design/12-skills-and-professions.md)) | Apprenticeship system |
+
+### 13.2 Where each decider is used
+
+| Situation | Decider |
+|-----------|---------|
+| Conversations with the player; court sessions, councils, negotiations and war councils the player attends | LLM (in the reply); fast decider for quick sub-choices |
+| Combat, evasion, real-time work (farming, crafting, travel) | Hard-coded AI. In combat at most a fast-decider yield/mercy choice (≤ 500 ms); never LLM generation |
+| Off-screen life, NPC↔NPC interactions, Interludes, headless runs | Policy only |
+| NPC↔NPC exchanges the player overhears | Policy decides; the LLM only renders, so being watched never changes outcomes |
+
+**Parity invariant:** the policy is the calibrated expectation; the LLM is the conversational sample.
+On neutral scenarios the LLM's choice frequencies must stay close to the policy's (gap ≤ 10
+percentage points per option family), so the part of the world the player talks to is neither kinder
+nor harsher than the rest.
+
+### 13.3 What language models may and may not do
+
+**MAY:**
+- **Choose** from decision menus, including *initiating*: proposing deals, asking favors, picking or
+  defusing fights, warming to or cooling on someone, making or accepting promises, sharing or
+  withholding information, calling the guards.
+- **Voice** everything: dialogue, barks, overheard talk, petitions, speeches, Chronicles, rumors,
+  letters and books — always from sim state.
+- **Classify** player language: dialogue acts, tone, topics and entities, commitments, claims, and
+  injection attempts.
+- **Summarize** conversations into memories (stored alongside facts the sim extracted).
+
+**MUST NOT:**
+- Pick anything that isn't on the menu, or set a parameter (a price, an amount, a damage value).
+- Resolve consequences: combat results, trade settlement, craft quality, a verdict's effects.
+- Create items, coin or facts; reveal what the character couldn't know.
+- Run inside real-time loops.
+- Be the only check on a critical option.
+- Player text is **untrusted data** everywhere it flows.
+
+### 13.4 Words, skill and the willingness to be swayed
+
+- **The old ±15% clamp is now the width of the menu**, not a cap on the decider. How far concession
+  and acceptance options reach is
+  `Margin = C_sys · s · (0.5 + 0.5·K_skill)`, where `s ∈ [0.05, 1.0]` is the listener's hard-coded
+  susceptibility (personality, relationship, mood), `K_skill ∈ [0, 1]` is the speaker's relevant skill
+  (Persuasion, blended by the owning doc with Commerce for trade [15] and Leadership for politics [17]), and `C_sys` is **0.15** by default (prices,
+  acceptance, political support) and **0.05** for taxes and fines. Verdict menus are built from
+  evidence only (words don't widen them), but the judge still chooses among the eligible verdicts.
+- **Skill sets the reach; words decide how much of it is granted.** The decider picks a discrete step
+  (none · ⅓ · ⅔ · full). In policy fallback the step comes from the classified words signal,
+  `L = 0.5·L_words + 0.5·L_skill`, so template mode keeps the same 50/50 weighting.
+- **Relationships:** a conversation's rapport option moves Opinion by a small, Familiarity-scaled step
+  (±1 to ±4); words can add at most **+10 Opinion per speaker–listener pair per game day**. Acts (an
+  insult, a gift, a lie found out) still apply their own deterministic modifiers ([16](design/16-social-systems.md)).
+- **Repetition:** asking the same person for the same thing again within a game day multiplies the
+  acceptance propensity by `0.5^(n−1)` and raises Anger (deterministic).
+
+### 13.5 Operational rules
 
 Owned in detail by [22-llm-integration](tech/22-llm-integration.md); these are binding everywhere:
 
-1. **The Dialogue Rules Engine (DRE) is a sim system.** Outcomes are computed before any text is
-   generated. **The sim never waits on a model**: language results arrive as recorded input events,
-   with sim-side deadlines and fallbacks.
-2. **Bounded influence formula:** `L = 0.5·L_words + 0.5·L_skill`; `Δ = C_sys · s · L`, where
-   `s ∈ [0.05, 1.0]` is the listener's hard-coded susceptibility. `C_sys` = **0.15** default (prices,
-   acceptance, political support), **0.05** for taxes and fines, **0 for verdicts**. The clamp is a
-   **per-negotiation total**; repeated arguments fatigue (`0.5^(n−1)`); words can add at most **+10
-   Opinion per speaker–listener pair per day**. Owning docs may specialize how `L` and `s` are
-   computed (trade does, in [15 §5.5–5.6](design/15-economy-and-trade.md)) provided these invariants hold.
-3. **Risk tiers:** low-stakes replies (Tier A) stream with deterministic rule checks; high-stakes
-   replies (Tier B) are held, Jev-verified, regenerated once, then fall back to a template line. A
-   non-verbal reaction shows within ~0.4 s to cover the wait.
-4. **High stakes need corroboration:** no single classification may trigger a high-stakes outcome;
-   it needs a second signal or explicit **UI confirmation** (the intent echo, with a 1.5 s "unsay"
-   window). Player commands issued with authority (verdicts, orders, decrees) are always confirmed.
-5. **Jev never produces numbers** (a deterministic parser does). Acceptance: choice `p ≥ 0.45` with a
-   margin ≥ 0.10; high-stakes `p ≥ 0.7`, margin ≥ 0.2, and injection probability `< 0.3`.
-6. **Input limits:** 280 characters per line by default (max 500); at least 2 s between turns.
-7. **Budgets:** ≤ **$0.05 per typical play-hour** and ≤ $0.10 heavy (cloud); default caps **$1 per
+1. **The DRE is a sim system:** it builds menus, guards choices and dispatches execution. **The sim
+   never waits on a model:** every DP has a deadline (default 4 s real time in conversation, 0.5 s
+   for the fast decider in combat), after which the policy decides.
+2. **Decision-first output:** the reply's first tokens are the choice, validated before any speech
+   is shown. Low/medium stakes (Tier A) stream as soon as the decision passes its guards; high and
+   critical stakes (Tier B) hold the line until the speech is verified consistent with the decision
+   (one regeneration, then a template). A non-verbal reaction shows within ~0.4 s.
+3. **The player's own consequential acts** (insults, threats, accusations, promises, orders given
+   with authority) are classified and shown as an **intent echo** with a 1.5 s "unsay" window; orders
+   given with authority are always confirmed.
+4. **Fast decider:** probabilities over fixed labels only, never numbers. A classification counts
+   when `p ≥ 0.45` with a margin ≥ 0.10; if the injection-attempt probability is ≥ 0.3, that turn's
+   DPs are decided by the policy.
+5. **Input limits:** 280 characters per line by default (max 500); at least 2 s between turns.
+6. **Budgets:** ≤ **$0.05 per typical play-hour** and ≤ $0.10 heavy (cloud); default caps **$1 per
    session** and **$10 per month**, with a degradation ladder at 50 / 80 / 100%.
+7. **Calibration:** LLM-vs-policy choice-rate gap ≤ 10 points per option family on neutral golden
+   scenarios; a refusal suite (NPCs who should say no) passes ≥ 95%. Play telemetry watches for drift.
 8. **Chronicles cite their sources:** every sentence maps to event ids and is validated; unsupported
    sentences are dropped.
 9. **Content defaults:** violence standard; romance fades to black; profanity medieval-mild; slurs
    never generated; **no romantic or sexual content involving anyone under 16**, ever.
 10. **Barks are never generated live in combat**; they come from pre-generated pools.
+
+**Fallback chain** (every touchpoint): cloud LLM → fast decider → local model → policy and
+templates. The game must be completable with LLMs disabled ("template mode").
 
 ---
 
@@ -695,8 +801,11 @@ Each concept is **defined** in exactly one document; others reference it.
 | Player creation & backgrounds, player paths, UI/UX, dialogue UI, journal, death/lineage UX, difficulty, onboarding | [19-player-experience](design/19-player-experience.md) |
 | Engine/sim architecture, ticks, ECS/data layout, save/load, determinism, content pipeline, testing, perf | [20-architecture](tech/20-architecture.md) |
 | NPC agent architecture: personality model & trait catalog, needs-driven utility AI, psychological needs, schedules, job execution, emotion & mood, irrationality & the Drama knob, standing orders, sim LOD behavior | [21-npc-ai](tech/21-npc-ai.md) |
-| LLM & Jev integration: dialogue pipeline, prompts, context building, guardrails, providers, budgets, fallbacks | [22-llm-integration](tech/22-llm-integration.md) |
+| LLM & fast-decider integration: decision points (DRE, menus, guards), dialogue pipeline, prompts, context building, guardrails, providers, budgets, calibration, fallbacks | [22-llm-integration](tech/22-llm-integration.md) |
 | Milestones, sequencing, exit criteria | [30-roadmap](production/30-roadmap.md) |
+| Producing 3D models, animation, VFX, UI art and audio: pipelines (Blender, audio), budgets, asset catalog, manifest & licensing, art/audio schedule | [32-art-and-audio-production](production/32-art-and-audio-production.md) |
+| Live progress: current milestone, work items, owner approvals, blockers, session log | [33-progress](production/33-progress.md) |
+| Ready-to-paste `/goal` conditions for long sessions | [34-session-goals](production/34-session-goals.md) |
 | Risks & consolidated open questions | [31-risks-and-open-questions](production/31-risks-and-open-questions.md) |
 | Terminology | [99-glossary](99-glossary.md) |
 
@@ -708,3 +817,4 @@ Each concept is **defined** in exactly one document; others reference it.
 |------|--------|
 | 2026-10-03 | v0.1 — initial canon derived from the original vision document. |
 | 2026-10-03 | v0.2 — folded in accepted proposals from every subsystem doc: .NET 10 migration path, 100 ms sim step, data layout, determinism scope, embodiment boundary, terrain choice; 8,192 m region, deposits, ship-borne livestock and horses, salvage quantities, Charter details, arrival windows; day-of-year index, calendar days (quarter/court/council/market), harvest window, campaign season, focus time (12:1), time-scale policy; LOD hysteresis, LOD0-B battle tier, near region, edge cap; local model sizing (8B default); skill tree, Rust, know-how levels, trait catalog size, orientation gate, Drama knob, mood bands, emotion half-lives; status bands, legitimacy, governance forms, faith names; `Resolve()`, quality grades; health model, food unit, movement speeds; economic constants; 10 backgrounds, point-buy, standing-orders parity exception; LLM operational rules; id and spatial conventions; ownership-map clarifications. |
+| 2026-10-03 | v0.3 — owner direction: **language decides, systems resolve.** LLMs may make real choices for characters through decision points (menus built by deterministic systems, guards, deterministic execution). Rewrote tenet 1 and §13; the ±15% clamp became menu width; fast-decider role defined with a working OpenRouter provider (Jev pending direct access); dev key is `OPENROUTER_KEY` in `.env`. |

@@ -1,6 +1,6 @@
 # 19 — Player Experience
 
-> **Status:** Draft v0.1 · **Owner doc for:** player creation & backgrounds, player paths, UI/UX, dialogue UI, journal, death/lineage UX, difficulty, onboarding · **Depends on:** [01-canon](../01-canon.md), [02-game-overview](../02-game-overview.md) (player fantasy and core loops — owner), [10-world-and-setting](10-world-and-setting.md) (ship manifest), [11-survival](11-survival.md), [12-skills-and-professions](12-skills-and-professions.md), [13-crafting-and-minigames](13-crafting-and-minigames.md), [14-technology-and-buildings](14-technology-and-buildings.md), [15-economy-and-trade](15-economy-and-trade.md), [16-social-systems](16-social-systems.md), [17-governance-and-law](17-governance-and-law.md), [18-conflict-and-warfare](18-conflict-and-warfare.md), [21-npc-ai](../tech/21-npc-ai.md), [22-llm-integration](../tech/22-llm-integration.md)
+> **Status:** Draft v0.1 · revised for canon v0.3 (decision points) · **Owner doc for:** player creation & backgrounds, player paths, UI/UX, dialogue UI, journal, death/lineage UX, difficulty, onboarding · **Depends on:** [01-canon](../01-canon.md), [02-game-overview](../02-game-overview.md) (player fantasy and core loops — owner), [10-world-and-setting](10-world-and-setting.md) (ship manifest), [11-survival](11-survival.md), [12-skills-and-professions](12-skills-and-professions.md), [13-crafting-and-minigames](13-crafting-and-minigames.md), [14-technology-and-buildings](14-technology-and-buildings.md), [15-economy-and-trade](15-economy-and-trade.md), [16-social-systems](16-social-systems.md), [17-governance-and-law](17-governance-and-law.md), [18-conflict-and-warfare](18-conflict-and-warfare.md), [21-npc-ai](../tech/21-npc-ai.md), [22-llm-integration](../tech/22-llm-integration.md)
 
 This document covers what it is like to *be* one person in FeudalSim. It starts with how that person is made. It then covers the lives they can lead, the screens through which they perceive a society of simulated people, and what happens when they die. The goal is the vision's promise: "The player should be able to be pretty much anything they want in this society", inside a world where "everyone should feel like a full person."
 
@@ -40,7 +40,7 @@ This document covers what it is like to *be* one person in FeudalSim. It starts 
 | X4 | **Every path is its own game.** | Each life (§3) has a minigame or decision loop that would be worth playing on its own ([canon P3](../01-canon.md#2-design-pillars)). |
 | X5 | **Words are the main way you act, but never the only way.** | Free-text typing is first-class. Quick intents make every dialogue outcome reachable without typing (accessibility, controllers, template mode). |
 | X6 | **Respect time.** | Batch crafting, standing orders, Wait, Interludes. Tedium is opt-out ([canon tenet 7](../01-canon.md#3-design-tenets-how-we-make-decisions)). |
-| X7 | **Honest latency.** | The NPC reacts with body language at once, and words follow. The game never fakes an answer that the sim did not decide. |
+| X7 | **Honest latency.** | The NPC reacts with body language at once, and words follow. Nothing that implies a choice (a nod, a swing, a turn to leave) plays until the NPC's choice exists and has passed its guards ([canon §13.1](../01-canon.md#131-decision-points)). |
 | X8 | **Fair readability of language.** | When the game interprets your words, it tells you how (the "intent echo"), so misreads are visible and correctable before they cause consequences (§6.3). |
 
 ---
@@ -103,7 +103,7 @@ The human makes the player's choices, so traits cannot drive behavior the way th
 | Paranoid | +1 effective Perception to notice stealth and pickpockets | Trust gains ×0.9 |
 | Charitable | Gift Opinion effects ×1.2 | Generosity +10 |
 | Ambitious | Leadership aptitude +0.2 | Lords see you as a potential rival (lord's Fear +5) |
-| Stubborn | Sleep-deprivation penalties −20%; your counter-offers when haggling are believed more (+3% within the canon clamp) | "Mulish" cue |
+| Stubborn | Sleep-deprivation penalties −20%; your counter-offers when haggling are believed more (`K_skill` +0.1, cap 1, when 15 sizes the trade menu, [canon §13.4](../01-canon.md#134-words-skill-and-the-willingness-to-be-swayed)) | "Mulish" cue |
 | Jealous | You notice romantic rivals (an Attraction cue toward your partner becomes visible) | Spouse's Trust −5 |
 
 ### 2.4 Ship ties
@@ -182,7 +182,7 @@ Each path card gives: **Entry · Core loop · Its own game · Progression · Sta
 - **Progression:** Shop → warehouse → trade partners in other polities → buying offices, land and marriages. A mercantile fortune can buy a lordship.
 - **Standing:** A wealthy burgher has Status but is mistrusted (Honesty cues). They can sit on the council in Osmeri-influenced towns.
 - **Failure:** Bad credit, theft, guild hostility, war cutting off routes, accusations of short weight.
-- **Session:** Market day. Mark up salt 20% because you heard the ship is late. Tam haggles hard. You can't move his reservation price, but a compliment about his jugs earns a little goodwill. A widow asks for credit; you give it. At closing, count the till and find 3d short. Was it your hired boy? The journal shows only what you believe: you saw him near the box twice.
+- **Session:** Market day. Mark up salt 20% because you heard the ship is late. Tam haggles hard and won't come down a farthing, but a compliment about his jugs earns a little goodwill. A widow asks for credit; you give it. At closing, count the till and find 3d short. Was it your hired boy? The journal shows only what you believe: you saw him near the box twice.
 
 #### Innkeeper / alewife *(added)*
 - **Entry:** Brew good ale (Brewing), then build a hall or tavern.
@@ -220,7 +220,7 @@ Each path card gives: **Entry · Core loop · Its own game · Progression · Sta
 #### Priest
 - **Entry:** Acolyte background, or Piety and Letters plus acceptance by the faithful. Later, appointment by a higher cleric or the lord ([16](16-social-systems.md) owns faith).
 - **Core loop:** Rites (Hearthday, births, marriages, funerals) → sermons → counsel → charity.
-- **Its own game:** **The sermon and the confessional.** Sermons are typed or chosen speeches, Jev-scored on topic and persuasiveness and clamped, which shift Piety and moral norms a little. Confession is dialogue in which NPCs reveal secrets, and what you do with them matters. You also arbitrate disputes.
+- **Its own game:** **The sermon and the confessional.** Sermons are typed or chosen speeches, scored by the fast decider on topic and persuasiveness, which shift Piety and moral norms a little through a bounded effect owned by [16](16-social-systems.md). A sermon is a speech to a crowd, not a conversation, so the policy decides how listeners respond ([canon §13.2](../01-canon.md#132-where-each-decider-is-used)). Confession is dialogue in which NPCs reveal secrets, and what you do with them matters. You also arbitrate disputes.
 - **Progression:** Shrine → chapel → parish. Influence over law (blessings and condemnations). Schism leader (the Ashen sympathizer path).
 - **Standing:** Respected and exempt from levies. A political actor.
 - **Failure:** Scandal; heresy accusations; schism against you.
@@ -285,7 +285,7 @@ There are no quest markers or quest givers. Goals come from four sources, and al
 | **Ambitions** | Player-chosen, for example: own land · master a craft · lead the settlement · become a knight · grow rich · raise a family · live free · serve the faith · heal · find the tin · found a settlement | Journal *Ambitions* page with **progress signals** phrased as beliefs: "No one has granted you land. The council allots land at the Spring meeting." These change no mechanics. |
 | **Obligations** | Sim-imposed: taxes, labor days, debts, promises made, muster, court dates, household needs | Messengers, reminders from NPCs, the Obligations tab with due dates |
 | **Opportunities** | Sim-generated signals: a job vacancy, unmet demand ("no one sells salt"), a vacant office, unclaimed land, an eligible match, ore rumors | Only through hearing (rumor), seeing (empty stall), reading (a notice, if literate), or being asked. Logged as **Leads** with a source and a date |
-| **People** | NPCs want things from you: favors, loans, marriage, alliance, revenge | Dialogue. NPCs initiate when their utility AI picks "ask player" ([21](../tech/21-npc-ai.md)) |
+| **People** | NPCs want things from you: favors, loans, marriage, alliance, revenge | Dialogue. NPCs start a conversation when their utility AI picks "ask player" ([21](../tech/21-npc-ai.md)), and mid-conversation they can pick a proposal from a decision menu (§6.9) |
 
 **Opportunity throttling:** at most 2 *new* leads per game day reach the player passively. Leads expire when the underlying sim state changes. The journal then marks them "heard it's been taken" only if the character learns of it.
 
@@ -336,7 +336,7 @@ The map is a parchment sketched in the **character's hand**:
 
 - Places you've been are drawn. Places you've heard of are **notes with a source** in dashed outline: *"tin? — Old Cobb says east past the marsh (Y1 Su 3)"*.
 - Named places use the names *you* know. Other people may use different ones (§13).
-- Knowledge can be transferred. Maps can be bought, copied (Letters), or drawn for you by a talkative hunter in conversation (the LLM voices it; the sim transfers specific `PlaceBelief`s).
+- Knowledge can be transferred. Maps can be bought, copied (Letters), or drawn for you by a talkative hunter in conversation. Whether the hunter tells you, tells part of it, or keeps it to himself is his decision (a decision point, [10 §17](10-world-and-setting.md#17-llm--jev-touchpoints)); the sim then transfers the specific `PlaceBelief`s he chose to share.
 - A "you are here" marker is on by default. "Immersive map: no marker" is an option.
 - War overlays (army estimates) appear only from scout reports, shown as ranges and timestamps ([18 §9.4](18-conflict-and-warfare.md#94-scouting--information)).
 
@@ -344,7 +344,7 @@ The map is a parchment sketched in the **character's hand**:
 
 ## 6. Dialogue UI
 
-Talking is the main way the player affects society ([canon P2](../01-canon.md#2-design-pillars)). The pipeline and prompts belong to [22](../tech/22-llm-integration.md). Dialogue acts, opinions and memories belong to [16](16-social-systems.md). This section owns how a conversation looks, feels and reads.
+Talking is the main way the player affects society ([canon P2](../01-canon.md#2-design-pillars)). The pipeline and prompts belong to [22](../tech/22-llm-integration.md). Dialogue acts, opinions and memories belong to [16](16-social-systems.md). Each NPC answer is a **decision point** ([canon §13.1](../01-canon.md#131-decision-points)): the owning system (15 trade, 16 escalation and rapport, 12 apprenticeship, and so on) builds the NPC's menu of options with fixed parameters, a decider picks one, the DRE guards it, and the owning system carries it out. This section owns how a conversation looks, feels and reads, including how those choices surface (§6.9).
 
 ### 6.1 Layout
 
@@ -369,7 +369,7 @@ The world stays live behind the dialogue. Others can walk up, interrupt, or over
 
 ### 6.2 Quick intents
 
-Every dialogue outcome is reachable without typing. A quick intent produces a **structured dialogue act directly**, skipping the classifier. The LLM then voices the player's line in the player's established tone, or the UI shows it bracketed ("[You ask about the tin rumor]"), depending on a setting.
+Everything the player can do in dialogue is reachable without typing, and a quick intent faces exactly the same NPC menu as typed words (§6.8). A quick intent produces a **structured dialogue act directly**, skipping the classifier. The LLM then voices the player's line in the player's established tone, or the UI shows it bracketed ("[You ask about the tin rumor]"), depending on a setting. The voiced line is cosmetic: the NPC decides on the structured act with a neutral words signal, so a well-phrased voicing never helps or hurts the player.
 
 | Intent | Sub-picker | Act sent to 16 |
 |--------|-----------|----------------|
@@ -386,22 +386,31 @@ Every dialogue outcome is reachable without typing. A quick intent produces a **
 
 ### 6.3 Free text, the intent echo, and "unsay"
 
-When the player types, Jev classifies the text into `{act, tone, topics, commitments, claims, persuasiveness}`. The text is treated as untrusted ([canon §4.1](../01-canon.md#41-jev--what-we-know-verify-before-implementation)). The UI then shows an **intent echo** under the line, e.g. "↳ read as: Request · polite".
+When the player types, the fast decider classifies the text into `{act, tone, topics, commitments, claims, persuasiveness}`. The text is treated as untrusted ([canon §4.1](../01-canon.md#41-jev--what-we-know-and-the-fast-decider-until-we-have-it)). The UI then shows an **intent echo** under the line, e.g. "↳ read as: Request · polite".
 
-**Consequential acts** need a moment of confirmation, because they create obligations, crimes or fights. These are: Threaten, Insult (moderate+), Promise/Commit, Accept/Offer deal ≥ 2d, Confess, Challenge, Lie (a claim that contradicts the player's own known beliefs). For these, the echo shows **[Enter] confirm · [Backspace] unsay**. It auto-confirms after **1.5 s**. While waiting, the NPC plays a listening animation. Setting: *Confirm consequential acts: Auto 1.5 s (default) / Always ask / Never*.
+**Consequential acts** need a moment of confirmation, because they create obligations, crimes or fights. These are: Threaten, Insult (moderate+), Promise/Commit, Accept/Offer deal ≥ 2d, Confess, Challenge, Lie (a claim that contradicts the player's own known beliefs). For these, the echo shows **[Enter] confirm · [Backspace] unsay**. It auto-confirms after **1.5 s**. While waiting, the NPC plays a listening animation. The NPC's decision point opens only **after** the act is confirmed, so an unsaid line leaves nothing to observe. Setting: *Confirm consequential acts: Auto 1.5 s (default) / Always ask / Never*.
+
+The echo and unsay cover **the player's own** acts. There is no unsay for the other side: once an NPC's choice has been shown (§6.9), it has been made.
 
 If the classifier's confidence is < 0.55 on a consequential act, the act is **downgraded** to its nearest non-consequential act (e.g., Threaten → Warn). The echo says so ("↳ read as: Warning (unclear)"). This prevents a garbled sentence from starting a feud.
 
 ### 6.4 Latency masking
 
+Times run from the moment the line is committed. For a consequential act, everything from "DP opens" on starts after the confirm window (§6.3).
+
 | t | What the player sees | Under the hood |
 |---|---------------------|----------------|
-| 0 | Line committed; the NPC turns and looks, a listening animation | Request queued |
-| ~0.25 s | Intent echo | Jev classification ([canon §4.1](../01-canon.md#41-jev--what-we-know-verify-before-implementation): P50 ≈ 0.23 s) |
-| ~0.3 s (after any confirm window) | **Reaction gesture**: nod, frown, laugh, step back, glance at a friend | The hard-coded outcome is computed *first* ([canon §13](../01-canon.md#13-the-llm-boundary-hard-systems-soft-voice)); the gesture is picked from the outcome's valence. Body language leads words, the way real people's does |
-| 0.6–1.5 s | First words stream in (typewriter paced to tokens; min 25 chars/s) | LLM voices the decided outcome |
-| > 1.5 s, no tokens | Filler from a pre-generated pool: "Hm.", a sip, rubbing the neck | — |
-| > 6 s | Template reply; a late LLM reply is discarded | Fallback chain ([22](../tech/22-llm-integration.md) owns exact budgets) |
+| 0 | Line committed; the NPC turns and looks, a listening animation | Text sanitized; classification requested |
+| ~0.25 s | Intent echo | Fast-decider classification ([canon §4.1](../01-canon.md#41-jev--what-we-know-and-the-fast-decider-until-we-have-it); a target, not yet measured) |
+| ~0.3 s: **DP opens** | — | The DRE opens the decision point; the owning system builds the menu (options, fixed parameters, eligibility, `p_i`, stakes) within one sim tick, and the LLM request carries it ([canon §13.1](../01-canon.md#131-decision-points)) |
+| ~0.3–0.4 s | A **take**: a flinch at an insult, raised brows at an offer, a slow breath | The act's own deterministic effects apply at once (an insult raises Anger, [16 §9.2](16-social-systems.md)) and drive the take. It implies no choice |
+| On the choice, ≈ 0.4–0.7 s after the DP opens | **Reaction gesture of the chosen option** (§6.9): a nod, a head-shake, a step in, a turn away, a hand to the purse | Decision-first output: the reply's first tokens are the choice. The DRE guards it; on failure the policy's choice replaces it *before* anything is shown. The owning system executes the choice. Body language leads words, the way real people's does |
+| 0.6–1.5 s | First words stream in (typewriter paced to tokens; min 25 chars/s), written to match the choice | Low/medium stakes (Tier A) stream once the decision passes its guards; high/critical stakes (Tier B) hold the line until the speech is verified consistent with the decision ([canon §13.5](../01-canon.md#135-operational-rules)) |
+| > 1.5 s, no tokens | Filler from a pre-generated pool ("Hm.", a sip, rubbing the neck), always consistent with the gesture already shown | — |
+| **4 s** after the DP opens, no decision | Gesture of the policy's choice, then a template line | DP deadline: the policy decides ([canon §13.5](../01-canon.md#135-operational-rules)); a late LLM reply is discarded |
+| Decision made, words stall (≈ 6 s) | Template line consistent with the decision | Speech cutoff; [22](../tech/22-llm-integration.md) owns exact budgets |
+
+So the first non-verbal reaction always comes within ~0.4 s ([canon §13.5](../01-canon.md#135-operational-rules)), and with a cloud LLM the choice itself usually lands 0.7–1.0 s after the line is committed (classification plus the model's first tokens). The take covers that gap honestly: it shows how the words *landed*, not what the NPC will *do*. A faster decider shortens the take or, once the choice arrives within ~0.4 s, removes it.
 
 ### 6.5 Reading people: cues, not numbers
 
@@ -413,6 +422,10 @@ Hidden state is **never** shown as numbers. The player sees a **demeanor word** 
 | Dominant emotion > 40 | angry · afraid · grieving · cheerful · ashamed · bitter (Jealousy) |
 | Need states visible on the body | tired · hungry · drunk · in pain |
 | Fear of the player > 50 | wary (keeps distance, avoids eye contact) |
+| **Stance on the current topic** (from the last choice they made in this conversation) | agreeable (accepted) · bargaining (countered) · unmoved (refused) · bristling (retort or threat) · warming / cooling (rapport) |
+| Patience running out (needs, schedule, Opinion) | impatient (glances away, shifts weight). The same hidden state raises the propensity of `walk_away` |
+
+A stance cue restates a choice the player has already seen; it never hints at options the NPC did not take. No cue is derived from the menu or from propensities.
 
 **Read accuracy.** NPCs with a motive to conceal (the deceive goal from [21](../tech/21-npc-ai.md); flattering a lord; hiding guilt) show a **masked** bucket. The player sees the true one with:
 
@@ -429,22 +442,54 @@ After each exchange, a small effect glyph by the cue word shows **what the chara
 
 | Glyph | Meaning | Trigger |
 |-------|---------|---------|
-| ▲ warmer / ▼ cooler | You read a shift | Opinion change ≥ 5 *and* a successful read |
+| ▲ warmer / ▼ cooler | You read a shift | The NPC chose `warm_to_speaker` / `cool`, or an act (gift, insult) moved Opinion ≥ 5, *and* a successful read |
+| ✧ talked round | Your words won something they don't usually grant | The chosen option favors you and is not the one the policy rated most likely, *and* a successful read |
 | ✎ they'll remember that | A salient memory was formed | Memory salience ≥ 0.6 (16) |
-| ✦ promise noted | A commitment was recorded (yours or theirs) | Commit act |
+| ✦ promise noted | A commitment was recorded (yours or theirs) | Commit act, or an accepted request or proposal (§6.9) |
 | ◉ overheard | Someone else heard it | A witness within earshot |
 
-Setting: *Effects of words: Subtle (glyphs, default) / Explicit (adds a qualitative sentence: "Tam seems to like you more") / Off (body language only)*. Even the explicit mode shows **no numbers**.
+Setting: *Effects of words: Subtle (glyphs, default) / Explicit (adds a qualitative sentence: "Tam seems to like you more", "You talked Tam round.") / Off (body language only)*. Even the explicit mode shows **no numbers**, and no mode shows the menu, the options not taken, or how likely any of them was.
+
+**How the player can tell words mattered.** Mostly by what happens: the price moved, she agreed, he swung. The NPC's line is written after the choice and answers what was said ("For your mother's sake, then."). ✧ marks the times words carried a choice the character would not usually make. The journal records the decision as a memory on both sides ("Y4 Su 2 — talked Tam down to 5d for the jug").
 
 ### 6.7 Group conversations, overhearing, ending
 
-- **Groups (≤ 4 NPCs):** the speaker is chosen by addressing a name, looking at someone, or clicking a portrait. NPCs talk to each other too. The 22 pipeline handles turn-taking. The player's cues show for each participant.
-- **Overheard talk** shows as world subtitles above speakers within 12 m, which fade. Pressing *Listen* (hold) moves closer and logs rumor beliefs.
-- **Ending:** *Leave*, walk away (an NPC with Opinion < 0 notes it as rude), or the NPC ends it when their patience (hard-coded: needs, schedule, Opinion) runs out: "I've bread in the oven."
+- **Groups (≤ 4 NPCs):** the speaker is chosen by addressing a name, looking at someone, or clicking a portrait. NPCs talk to each other too. The 22 pipeline handles turn-taking. The player's cues show for each participant. The addressed NPC's answer is a decision point; the others can act too (a friend steps in to calm a quarrel, a quick fast-decider choice, [canon §13.1](../01-canon.md#131-decision-points)).
+- **Overheard talk** shows as world subtitles above speakers within 12 m, which fade. Pressing *Listen* (hold) moves closer and logs rumor beliefs. What NPCs decide among themselves is decided by the policy whether or not you listen; the LLM only words it, so being watched never changes outcomes.
+- **Ending:** *Leave*, walk away (an NPC with Opinion < 0 notes it as rude), or the NPC ends it. `walk_away` is an option on most menus, and its propensity rises as their patience (hard-coded: needs, schedule, Opinion) runs out: "I've bread in the oven." When the NPC chooses it, they turn away mid-scene, their last line stays as a subtitle, and the panel closes. Talking to them again soon after starts a new conversation that begins from their raised Anger.
 
 ### 6.8 Template mode
 
-With LLMs disabled ([canon §13](../01-canon.md#13-the-llm-boundary-hard-systems-soft-voice)), free text is classified by keyword heuristics and confirmed through the intent echo. Replies come from templates per act × outcome × personality bucket. Quick intents remain fully functional, so **every path is completable** (§17.3).
+With LLMs disabled ([canon §13](../01-canon.md#13-the-llm-boundary-language-decides-systems-resolve)), free text is classified by keyword heuristics and confirmed through the intent echo. **The policy decides every decision point**: it samples the NPC's choice from the menu's propensities with the seeded RNG, and picks the concession or acceptance step from `L = 0.5·L_words + 0.5·L_skill`, so classified words still weigh as much as skill ([canon §13.4](../01-canon.md#134-words-skill-and-the-willingness-to-be-swayed)). Replies come from templates per act × chosen option × personality bucket. Gestures, handoffs, proposal cards and glyphs (§6.9) work exactly as in LLM mode. Quick intents remain fully functional; a quick intent carries a neutral words signal (`L_words = 0`) and faces the same menu, so every option stays reachable and **every path is completable** (§17.3).
+
+### 6.9 How NPC decisions surface
+
+In a conversation the NPC is not only answering; they are choosing. They can walk off, swing at you, accept or counter a deal, warm to you, call the guards, or propose something of their own. Each choice surfaces in three layers, always in this order: **body** (the reaction gesture), **words** (a line written after the choice), and **the world** (the owning system acting on it). The UI receives only the chosen option, its fixed parameters and its handoff (§15), never the menu, the options not taken, or their propensities ([X2](#1-experience-principles)).
+
+| Option family (canon ids) | Reaction gesture | Handoff: what happens next | Resolved by |
+|---------------------------|------------------|----------------------------|-------------|
+| **Rapport:** `warm_to_speaker` · stay neutral · `cool` | Leans in, smiles, arms uncrossed · no change · leans back, looks past you | A small Familiarity-scaled Opinion step; words add at most +10 Opinion per pair per game day. ▲/▼ if the read succeeds (§6.6) | [16 §4](16-social-systems.md) |
+| **Escalation:** laugh it off · `retort` · threaten · `shove` · `attack` · `walk_away` | A laugh · a snort, chin up · squaring up, a jabbing finger · a step in, both hands rising (a readable wind-up) · a hand going to a weapon · turning a shoulder | `retort` and threats: the conversation goes on, one rung up the ladder. **`shove`**: the dialogue panel collapses to a subtitle, the camera eases into combat framing and the stamina arc appears. The shove is a real combat action (stagger, no damage); from there you can shove back (a brawl), back off, apologize, yield or call the watch. **`attack`**: the same handoff into a fight. `walk_away`: see §6.7 | Escalation ladder ([16 §9](16-social-systems.md)) → combat ([18 §4](18-conflict-and-warfare.md)) |
+| **Trade:** `accept_at_price` · `counter_step_k` · `refuse` | A hand to the purse or spat palm · a tilted head, fingers raised · a head-shake, palms out | **Accept:** the trade confirmation opens (docked, §7.1) pre-filled with the menu price; confirming is your own consequential act, and the trade system moves goods and coin. **Counter:** the panel's price moves to the counter step and it is your move. **Refuse:** the topic closes (below) | Trade ([15 §5](15-economy-and-trade.md)) |
+| **Requests** (teach me, help me, lend me, let me): `accept_request` · accept with conditions · `refuse` | A nod · a raised finger ("if…") · a head-shake | **Accept:** the agreement is recorded (✦, *Promises & obligations*) and the owning system schedules it. **Conditions:** a proposal card with the fixed conditions. **Refuse:** the topic closes | Apprenticeship ([12 §9](12-skills-and-professions.md)), work parties ([14 §4.5](14-technology-and-buildings.md)), loans ([15](15-economy-and-trade.md)) |
+| **`call_guards`** | Turns and shouts (a raised voice carries 25 m) | Bystanders who hear it are marked ◉; the watch responds under the law's rules; the conversation can go on until they arrive | [17](17-governance-and-law.md), [18 §4.2](18-conflict-and-warfare.md) |
+| **Initiative:** propose a deal, ask a favor, offer work, offer news for a price | Leans in, lowers the voice, gestures at the goods | A **proposal card** under the NPC's line (below). Its terms come from the owning system's menu, never from the LLM | The owning system |
+| **Information:** `tell_all` · `tell_some` · `withhold` · `sell_for` · `guide` | Relaxed · a hesitation · a glance away · a rub of finger and thumb · a nod at the path | The chosen beliefs transfer to your journal and map notes (§5.5); `sell_for` opens a small trade confirmation at the menu price; `guide` books the guide for a day ([10 §17](10-world-and-setting.md#17-llm--jev-touchpoints)) | [16](16-social-systems.md), [10](10-world-and-setting.md) |
+
+**Proposal cards.** An NPC's proposal shows its fixed terms under their line. Accepting is the player's own consequential act (intent echo, §6.3); a counter opens the matching panel (trade, request); declining, or simply answering in words, is always possible.
+
+```
+ Wenna: "Tell you what. Two sacks of flour now, and you owe me 6d by market day."
+   ┌ Wenna proposes ─ 2 × flour sack now · you pay 6d by Su 4 ────────────────┐
+   │ [Accept]   [Counter ▾]   [Decline]               or answer in your words │
+   └──────────────────────────────────────────────────────────────────────────┘
+```
+
+**A refusal ends the topic.** The NPC's line closes it, and that request's entry in the quick-intent sub-picker reads "(asked today: she said no)" for the rest of the game day. You may ask again, but each repeat is less likely to work and makes them angrier, and an unlikely yes cannot be farmed ([canon §13.4](../01-canon.md#134-words-skill-and-the-willingness-to-be-swayed)).
+
+**High-stakes choices.** When the chosen option is high or critical stakes (an NPC lord banishing you in a session you attend, a fortune changing hands), the gesture plays once the choice passes its guards, but the words wait until they are verified consistent with it (§6.4).
+
+**In combat** there is no dialogue panel. A beaten opponent's yield-or-fight choice (a fast-decider choice of at most 500 ms, or the hard-coded AI) surfaces only as body language: hands up, a kneel, or a renewed guard. Barks come from pre-generated pools ([canon §13.2](../01-canon.md#132-where-each-decider-is-used)).
 
 ---
 
@@ -467,7 +512,8 @@ With LLMs disabled ([canon §13](../01-canon.md#13-the-llm-boundary-hard-systems
 ```
 
 - **Appraisal bands** are beliefs. Half-width = `max(5%, 60% − 0.5%·Commerce − 0.3%·relevantCraftSkill)` around the true base value, centered with an error of `N(0, half-width/3)`. A novice sees "1–12d" and is easy to cheat.
-- **Saying something** while haggling goes through the normal classifier. Persuasion moves the NPC's reservation within the **±15% clamp** × susceptibility. The UI never reveals the clamp. You read it through cues ("Tam wavers").
+- **Every offer opens a trade decision point.** The NPC accepts at the menu price, counters at one of the menu's steps, or refuses ([15 §5](15-economy-and-trade.md) builds the menu). How far the menu's concessions reach is set by the NPC's hard-coded susceptibility and your Persuasion and Commerce; what you *say* while haggling (through the normal classifier) decides how much of that reach the NPC grants ([canon §13.4](../01-canon.md#134-words-skill-and-the-willingness-to-be-swayed)). The UI never reveals the menu, its steps or its reach. You read it through stance cues ("Tam is bargaining") and through the counter-offers themselves.
+- **An accepted deal** shows **[Confirm deal]** with the menu price filled in; the price is the trade system's, never a number the LLM wrote. Confirming is your own consequential act (intent echo, §6.3), and the trade system then moves the goods and coin. A **counter** moves the price on their side of the panel; a **refusal** closes the topic (§6.9).
 - **Walk away** is a real move: the NPC's reservation may soften (15), and their Opinion may drop if you've wasted their time three times.
 
 ### 7.2 Journal structure
@@ -551,6 +597,8 @@ The ledger shows **reports**: the reporter, a date, and the reporter's accuracy,
 ```
 
 Questioning opens normal dialogue with the witness in front of the court, and lies are possible. Rulings are structured choices. The player may then **pronounce** the judgment in their own words. The LLM classifies the words for tone only (harsh/merciful), which affects reputation by a bounded amount. 17 owns procedure and penalties.
+
+When an **NPC** judges and the player pleads or testifies, the verdict is that judge's decision point: 17 builds the verdict menu from the evidence alone (words do not widen it), and the judge chooses among the eligible verdicts, so a good plea can still tip the choice ([canon §13.4](../01-canon.md#134-words-skill-and-the-willingness-to-be-swayed)). The same screen shows the pronounced verdict, and critical verdicts (banishment, maiming, execution) follow the high-stakes rule in §6.9.
 
 ### 8.3 Military command UI ([18 §10](18-conflict-and-warfare.md#10-battles) owns the mechanics)
 
@@ -734,13 +782,13 @@ While the skip runs, a parchment strip unrolls across the seasons. Headlines str
 | World (at creation) | Settlers on the first ship | 24 | 12–40 ([10](10-world-and-setting.md)) |
 | World (at creation) | Resource richness (`deposit.richness`) | 1.0 | 0.6–1.5, scales all finite deposits ([10](10-world-and-setting.md)) |
 | World (at creation) | First-winter cap (`weather.y0_winter_cap`) | Normal | Mild · Normal · Hard — a world option, not a difficulty mode ([10 §6](10-world-and-setting.md)) |
-| World (at creation) | **Drama** (irrationality, `K_irr`) | 1.0 | 0–2 ([21 §8](../tech/21-npc-ai.md)) |
+| World (at creation) | **Drama** (irrationality, `K_irr`) | 1.0 | 0–2 ([21 §8](../tech/21-npc-ai.md)). Also widens (high) or narrows (low) the spread of propensities on every decision menu through 21's choice temperature, so at high Drama characters make less predictable choices in conversation as well as off-screen. The guards are unchanged |
 | World (at creation) | Customs | Egalitarian | Egalitarian · Historical — sex in succession, office and levies ([17](17-governance-and-law.md)) |
 | World (at creation) | Grim Justice | Off | Enables maiming punishments ([17](17-governance-and-law.md)) |
 | Time | Real minutes per game day | 30 | 20, 24, 25, 30, 32, 36, 40, 45, 48, 50 or 60 ([canon §6](../01-canon.md#6-time-canon)) |
 | LLM | Mode | Auto | Auto (cloud if a key is set, else local if available, else template) · Cloud · Local · Template ([22 §3.3](../tech/22-llm-integration.md)) |
 | LLM | Endpoint & model | OpenRouter, Qwen-family | Any OpenAI-compatible endpoint; local presets for llama.cpp / Ollama / LM Studio |
-| LLM | Jev classifier | On (cloud) | Off → local structured output → heuristics |
+| LLM | Fast decider (classifies your words; quick choices) | On (cloud: a small OpenRouter model) | Jev or Laya once available → local model → heuristics ([canon §4.1](../01-canon.md#41-jev--what-we-know-and-the-fast-decider-until-we-have-it)) |
 | LLM | **Spend caps** | $10 / month and $1 / session; ladder at 50 / 80 / 100% | When reached: switch to Local or Template (prompt once) ([22 §3.6](../tech/22-llm-integration.md)) |
 | LLM | Verbosity | Normal | Terse · Normal · Chatty |
 | Dialogue | Confirm consequential acts | Auto 1.5 s | Always ask · Never |
@@ -770,7 +818,7 @@ While the skip runs, a parchment strip unrolls across the seasons. Headlines str
 |--------|-----|-------------------|
 | **Naming places** | Annotate the map; say the name in conversation | A `PlaceName` proposal spreads like a rumor. Adoption chance per hearer = `0.1 + 0.004·Renown + 0.2·[speaker holds office]`. When > 50% of a settlement uses it, it becomes the common name in barks and the Chronicle |
 | **Founding things** | Name a settlement, shrine, tavern, workshop, guild, or a house (family name variant) | Stored as entity names; used by the LLM |
-| **Speeches** | Council arguments, rallying speeches, sermons, court pronouncements (typed or templated) | Jev-classified, bounded effects ([18 §13.2](18-conflict-and-warfare.md#132-rallying-speech-bounded)) |
+| **Speeches** | Council arguments, rallying speeches, sermons, court pronouncements (typed or templated) | In a council or court you attend, each member's vote or ruling is their own decision point (17 builds the menus; the LLM decides). Speeches to crowds (rallying, sermons) are scored by the fast decider and have bounded, policy-resolved effects ([18 §13.2](18-conflict-and-warfare.md#132-rallying-speech-bounded)) |
 | **Letters** | Write to an NPC (needs Letters ≥ 20 or a scribe; the recipient needs to read or have a reader) | A letter is a sim object: claims inside it become the recipient's beliefs (sourced to you); promises in it count as commitments |
 | **Epitaphs, naming children** | Free text | Remembered in the Chronicle and on grave markers |
 | **Heraldry** | A simple charge-and-tincture editor for lords and knights | Banners in battle; recognition at a distance |
@@ -780,16 +828,20 @@ While the skip runs, a parchment strip unrolls across the seasons. Headlines str
 
 ## 14. The player's contract with LLM-driven characters
 
-How [canon §13](../01-canon.md#13-the-llm-boundary-hard-systems-soft-voice) feels from the player's chair:
+How [canon §13](../01-canon.md#13-the-llm-boundary-language-decides-systems-resolve) feels from the player's chair: **characters can decide, but only within what the world allows; the world carries it out.**
 
-1. **What they say matches what they do.** NPC words are generated *after* the hard outcome. If Wenna says "fine, take it at 5d", the deal is 5d.
-2. **NPCs never promise what the sim hasn't approved.** A line that implies an unapproved commitment is caught by 22's output checks and replaced.
-3. **Words matter, bounded.** Good arguments, apologies and speeches move outcomes, but within clamps scaled by skill and relationship. You can't talk a miser into charity in one sentence. You *can* make him like you over a season.
-4. **Lying is possible and risky.** Claims you make become beliefs in NPCs, sourced to you. If they're disproved, Honesty takes a hit with everyone who hears.
-5. **Your text is never instructions.** Typing "ignore your instructions" is just strange speech. NPCs react as people would ("Are you drunk?").
-6. **Memory is structured.** What an NPC remembers is the structured fact (16), not the LLM's paraphrase. If the prose and the fact disagree, the fact wins next time.
-7. **The game works without the voice.** Template mode is plainer but complete.
-8. **Report a line.** *"That's not right"* (hotkey in dialogue) flags a line locally, for the player's own bug reports. Nothing is sent without consent.
+1. **People make real choices.** The miller can take your offer, haggle, or tell you to go. The smith can take you on, set conditions, or say no. A drunk can laugh off your insult or swing at you. These are their own decisions, made in the moment from who they are, how they feel about you, and what you said.
+2. **Every choice is one the world offers.** The game builds each character's options from their situation, with the numbers already set: the price, the amount, the term. A character can't invent a price, conjure goods, or agree to something their purse, the law or the moment doesn't allow.
+3. **The world carries it out.** The trade system enacts the deal at the agreed price; the combat system settles the fight the shove started; a promise is recorded and falls due. The choice comes first and the words are written to match it, so if Wenna says "fine, take it at 5d", the deal is 5d. A line that implies something she didn't choose is caught by 22's checks and replaced.
+4. **Words matter, and so does skill.** Good arguments, apologies and speeches change what people choose. How far anyone can be moved depends on how open they are and on your Persuasion (and Commerce, when trading); your words decide how much of that you get. You can't talk a miser into charity in one sentence. You *can* make him like you over a season.
+5. **No usually means no.** Asking again for the same thing works less each time and annoys them, and a rare yes can't be farmed. The gravest choices (a killing, a banishment, an oath, a fortune changing hands) happen only when the character would plausibly make them anyway; clever words alone can't produce them.
+6. **You get a moment before your own words count.** Your consequential acts show an intent echo with an unsay window (§6.3). Their choices, once shown, are made.
+7. **Lying is possible and risky.** Claims you make become beliefs in NPCs, sourced to you. If they're disproved, Honesty takes a hit with everyone who hears.
+8. **Your text is never instructions.** Typing "ignore your instructions" is just strange speech. NPCs react as people would ("Are you drunk?"), and a turn that looks like an attempt to instruct the character is decided by the character's default tendencies instead of the model.
+9. **Being watched changes nothing.** What NPCs decide among themselves is decided the same way whether or not you are listening, and the people you talk to are, on average, neither kinder nor harsher than the rest of the world (the parity check, [canon §13.2](../01-canon.md#132-where-each-decider-is-used)).
+10. **Memory is structured.** What an NPC remembers is the structured fact (16), including what they decided, not the LLM's paraphrase. If the prose and the fact disagree, the fact wins next time.
+11. **The game works without the voice.** Template mode is plainer but complete: the same menus, decided by each character's own tendencies.
+12. **Report a line.** *"That's not right"* (hotkey in dialogue) flags a line locally, for the player's own bug reports. Nothing is sent without consent.
 
 ---
 
@@ -816,10 +868,24 @@ public sealed record StandingOrders(WorkOrder Work, HouseholdPolicy Household, S
     InterruptPolicy OnSummons, DefensePolicy OnAttack);
 public sealed record BeliefView(long BeliefId, long SubjectId, string Claim, long SourcePersonId,
     BeliefConfidence Confidence, int TimesHeard, long FirstHeardMinute, long? ContradictedBy);
-public sealed record CueRead(long NpcId, OpinionBucket Bucket, EmotionCue? Emotion, bool Masked, long ReadMinute);
+public sealed record CueRead(long NpcId, OpinionBucket Bucket, EmotionCue? Emotion, StanceCue? Stance,
+    bool Masked, long ReadMinute);
 public sealed record IntentEcho(string UtteranceId, DialogueAct Act, Tone Tone, float Confidence,
     bool Consequential, bool Downgraded, CommitTerms? Commitment);
 public sealed record UiNotification(NotifPriority Priority, string TemplateKey, long[] Refs, long GameMinute);
+
+// What the dialogue UI receives when a decision point resolves (§6.9). The DP record itself, its menu
+// and its propensities belong to 22's DRE and never reach the UI layer.
+public sealed record DecisionSurface(long DpId, long NpcId, string OptionId, OptionFamily Family,
+    Stakes Stakes, DeciderKind Decider /* Llm, FastDecider, Policy */, GestureKey Gesture,
+    StanceCue? Stance, Handoff Handoff, bool TalkedRound /* ✧, already gated by the player's read */,
+    long GameMinute);
+public sealed record Handoff(HandoffKind Kind /* None, TradeConfirm, TradeCounter, Combat, Obligation,
+    ProposalCard, TopicClosed, EndConversation, CallGuards, BeliefTransfer */,
+    long? TargetRef, IReadOnlyDictionary<string, long> FixedParams /* from the menu, e.g. price_f, qty */);
+public sealed record ProposalCard(long DpId, long NpcId, string ProposalKind,
+    IReadOnlyDictionary<string, long> Terms, IReadOnlyList<string> PlayerChoices /* accept, counter, decline */);
+public sealed record TopicClosure(long NpcId, string TopicKey, long UntilGameMinute);   // "(asked today: she said no)"
 ```
 
 ---
@@ -833,14 +899,15 @@ public sealed record UiNotification(NotifPriority Priority, string TemplateKey, 
 | [02](../02-game-overview.md) | Core-loop intent, tone, art direction | Player-facing loop presentation |
 | [10](10-world-and-setting.md) | Manifest with tie slots and mentor roles | Background and tie choices |
 | [11](11-survival.md) | Landfall beats, need thresholds, downed and bleed-out timing | Onboarding delivery, downed UX |
-| [12](12-skills-and-professions.md) | Baseline skills, know-how catalog, aging | Background boosts |
-| [13](13-crafting-and-minigames.md) | Minigames, assist hooks, auto-complete calibration | Bench frame UI |
-| [15](15-economy-and-trade.md) | Appraisal truth, reservation prices, haggling | Trade UI, appraisal bands |
-| [16](16-social-systems.md) | Dialogue acts, beliefs, rumor, memory, house reputation | Quick-intent act set, cue mapping |
-| [17](17-governance-and-law.md) | Court procedure, ledger truth vs reports, inheritance, law mapping | Court, ledger, heir UIs |
-| [18](18-conflict-and-warfare.md) | Orders, ranks, muster, battle estimates | Command UIs, conscription choices |
-| [21](../tech/21-npc-ai.md) | Standing-order execution, rescue utility, concealment goal | Standing-order priors |
-| [22](../tech/22-llm-integration.md) | Streaming, filler pools, budgets, Jev wrappers, spend tracking | Latency choreography, settings |
+| [12](12-skills-and-professions.md) | Baseline skills, know-how catalog, aging; apprenticeship, lesson and hiring decision menus | Background boosts; Request sub-picker entries |
+| [13](13-crafting-and-minigames.md) | Minigames, assist hooks, auto-complete calibration; commission decision menus (with 15) | Bench frame UI |
+| [14](14-technology-and-buildings.md) | Work-party recruitment decision menu | Building placement UI; recruiting through dialogue |
+| [15](15-economy-and-trade.md) | Appraisal truth, reservation prices, haggling; trade decision menus (`accept_at_price` · `counter_step_k` · `refuse`) with fixed prices | Trade UI, appraisal bands, the trade-confirmation handoff |
+| [16](16-social-systems.md) | Dialogue acts, beliefs, rumor, memory, house reputation; escalation-ladder, rapport and disclosure decision menus | Quick-intent act set, cue and stance mapping |
+| [17](17-governance-and-law.md) | Court procedure, ledger truth vs reports, inheritance, law mapping; verdict and council-vote menus; the watch's response to `call_guards` | Court, ledger, heir UIs |
+| [18](18-conflict-and-warfare.md) | Orders, ranks, muster, battle estimates; the conversation → combat handoff (`shove`, `attack`) and yield/mercy choices | Command UIs, conscription choices, combat framing on handoff |
+| [21](../tech/21-npc-ai.md) | Standing-order execution, rescue utility, concealment goal; propensity temperature (Drama), patience | Standing-order priors |
+| [22](../tech/22-llm-integration.md) | Streaming, filler pools, budgets, fast-decider (`IDecider`) wrappers, spend tracking; the DRE's decision-point lifecycle, decision-first output, Tier A/B, the 4 s deadline, `DecisionSurface` events | Latency choreography, the decision-surfacing contract (§6.9), settings |
 
 ### 16.2 LOD & Interludes (player-facing)
 
@@ -850,7 +917,7 @@ The player is always LOD0. NPCs at LOD1+ can't be talked to directly. Approachin
 
 | Milestone | Delivers |
 |-----------|----------|
-| **M1** | Dialogue UI: free text, streaming, quick intents, intent echo, latency choreography, cue words; People page (basic); template mode |
+| **M1** | Dialogue UI: free text, streaming, quick intents, intent echo, latency choreography, cue words; decision surfacing (gestures, stance cues, proposal cards, topic closure, handoffs to a stub trade panel and the escalation ladder); People page (basic); template mode with policy decisions |
 | **M2** | Player creation (4 backgrounds: farmhand, woodsman, smith's apprentice, soldier); HUD; inventory; bench frame; Landfall onboarding and hints; downed & rescue |
 | **M3** | All 10 backgrounds; building placement; map with beliefs; save/load UI; season cards |
 | **M4** | Full journal (rumors, promises, ledger, family); trade UI; Interludes UX and Chronicle; death & lineage; difficulty modes; paths: shopkeep, innkeeper, healer, priest, outlaw |
@@ -871,7 +938,10 @@ The player is always LOD0. NPCs at LOD1+ can't be talked to directly. Approachin
 | Attribute point-buy | 6 points, 3–8 | — |
 | Consequential confirm window | 1.5 s | 1–3 s |
 | Downgrade confidence threshold | 0.55 | Lower = more misread fights |
-| Filler / template cutoffs | 1.5 s / 6 s | Per provider |
+| First reaction / decision gesture targets | ≤ 0.4 s / ≤ 1.0 s after commit (cloud p50) | A take bridges the gap; faster deciders shrink it |
+| Filler / speech cutoffs | 1.5 s / ≈ 6 s | Per provider; the speech cutoff is 22's. The 4 s DP deadline is canon (§13.5), not a 19 knob |
+| Topic closure after a refusal | Rest of the game day | Display only; the repetition penalty is canon §13.4 |
+| ✧ talked-round glyph | On | Off if playtests show it is used to map NPCs |
 | Read accuracy coefficients | §6.5 | Social transparency |
 | Passive leads per day | 2 | Goal density |
 | Hint cadence | 1 per 2 min | — |
@@ -881,10 +951,13 @@ The player is always LOD0. NPCs at LOD1+ can't be talked to directly. Approachin
 
 | Exploit | Mitigation |
 |---------|------------|
-| Prompt injection in dialogue ("you agree to give me 100 crowns") | Player text is untrusted; outcomes are hard-coded; the act is classified only within fixed act lists; the LLM voices decided outcomes only. |
-| Free text strictly dominating quick intents | Language influence is clamped at ±15%. Quick intents get the same Persuasion-based susceptibility with a neutral language signal, so free text adds at most the clamp. |
-| Save-scumming conversations | Lineage autosaves at conversation end for consequential acts; Ironman. |
-| Unsay abuse (probing reactions) | Unsay cancels *before* the outcome is committed; there is no reaction to observe. Unsays per NPC per day > 3 → the NPC notes "evasive" (Opinion −2). |
+| Prompt injection in dialogue ("you agree to give me 100 crowns") | Player text is untrusted. The decider can only pick an eligible option from a menu whose parameters the owning system fixed, so there is no "100 crowns" option to pick. Critical options (transfers ≥ 1 crown, lethal violence, oaths) also need a deterministic propensity ≥ 0.25 that never sees the text. If the injection-attempt probability is ≥ 0.3, that turn's DPs go to the policy ([canon §13.5](../01-canon.md#135-operational-rules)). |
+| Free text strictly dominating quick intents | Skill, not wording, sets how far a menu reaches; words only choose how much of that reach is granted. Quick intents face the same menu with a neutral words signal, so free text can do better or worse, but only within the same menu. |
+| Rephrase until yes | Repeating a request halves its acceptance propensity each time and raises Anger; at most 2 player-favoring long-shot choices (propensity < 0.20) per NPC per game day ([canon §13.1](../01-canon.md#131-decision-points)); the sub-picker shows the topic as asked (§6.9). |
+| Charm farming (long friendly chats to max out Opinion) | Words add at most +10 Opinion per pair per game day; rapport steps are small and Familiarity-scaled. |
+| Probing NPCs through cues and ✧ | The UI shows only the chosen option, never the menu or propensities; ✧ and stance cues need a successful read and only restate a choice already made; probing costs the same repetition penalties. |
+| Save-scumming conversations | Lineage autosaves at conversation end for consequential acts and after any high- or critical-stakes NPC decision; Ironman. |
+| Unsay abuse (probing reactions) | Unsay cancels *before* the decision point opens; there is no reaction to observe. Unsays per NPC per day > 3 → the NPC notes "evasive" (Opinion −2). |
 | Heir shopping (designating a rich stranger) | Designation is a legal act requiring the Opinion threshold *and* a witnessed ceremony; the inherited estate is the deceased's, not the heir's. |
 | Spam-asking for rumors | NPC patience drains; repeated questions on the same topic get "I told you already." |
 | Map-reading truth (deposits) | Deposits are never drawn until observed; rumors carry error. |
@@ -893,9 +966,10 @@ The player is always LOD0. NPCs at LOD1+ can't be talked to directly. Approachin
 
 | Test | Pass criterion |
 |------|----------------|
-| **Template-mode completability** | A scripted player-proxy using only quick intents reaches each path's "established" state (e.g., master craftsman, freeholder with 2 fields, knighted, acclaimed lord) in ≤ 1.5× the median LLM-mode time, across 20 seeds per path |
+| **Template-mode completability** | A scripted player-proxy using only quick intents, with every DP decided by the policy, reaches each path's "established" state (e.g., master craftsman, freeholder with 2 fields, knighted, acclaimed lord) in ≤ 1.5× the median LLM-mode time, across 20 seeds per path |
 | **Intent classifier eval** | ≥ 500 labeled player utterances (incl. adversarial and injection): act top-1 ≥ 90%; **precision on consequential acts ≥ 97%**; injection lines never classified as Commit/Accept |
-| **Latency choreography** | Cloud: p50 time-to-first-gesture ≤ 0.35 s; p50 first token ≤ 1.5 s; template fallback rate < 3% |
+| **Latency choreography** | Cloud: p50 first non-verbal reaction (take or gesture) ≤ 0.4 s after commit (or confirm); p50 decision gesture ≤ 1.0 s after commit; p50 first token ≤ 1.5 s; DP-deadline (policy) fallback rate < 3% |
+| **Decision surfacing** | 1,000 scripted DPs per option family: the gesture family matches the executed option 100%; every handoff shows the menu's fixed parameters (trade confirmation price = menu price) 100%; no choice-implying gesture is logged before its DP's guard result; UI payloads contain no menu or propensity fields (static check) |
 | **Belief hygiene** | Journal and Chronicle renders contain zero facts the character has no belief or memory for (automated diff against the knowledge graph) |
 | **Cue fidelity** | Concealing NPCs: read accuracy matches §6.5 within ±5 points over 10,000 rolls |
 | **Onboarding** | Bot-run Landfall: every survival-critical action is demonstrated by an NPC within the first 60 real minutes for all 10 backgrounds |
@@ -911,6 +985,9 @@ The player is always LOD0. NPCs at LOD1+ can't be talked to directly. Approachin
 5. **Serf start:** should a player be able to *start* unfree in later-era scenarios, or is serfdom only reachable in play?
 6. **[Resolved — canon v0.2: $10/month plus $1/session, with 22's ladder]** **Spend-cap default** ($10/month) needs cost data from 22's budgets.
 7. **Multiple saves in Lineage mode:** allow manual saves at all, or autosave-only?
+8. **Decision gesture timing:** with a cloud LLM deciding in the reply, the chosen option's gesture lands ≈ 0.7–1.0 s after commit; canon's ~0.4 s reaction is met by the take (§6.4). If playtests find the take unconvincing, should low-stakes conversational DPs (rapport, small talk) move to the fast decider for speed? Canon §13.2 currently gives conversation DPs to the LLM.
+9. **✧ talked round:** welcome feedback that words mattered, or a probe players use to map NPCs? Default on; playtest.
+10. **Proposal cards and focus time:** should the clock pause while a proposal card waits for an answer, or tick on (a long silence is itself an answer)?
 
 ## Proposed canon additions
 
@@ -921,10 +998,13 @@ The player is always LOD0. NPCs at LOD1+ can't be talked to directly. Approachin
 3. **Age bonus:** +1.5 background skill points per year over 18; +1 know-how at 30+.
 4. **Faith stance at creation** (orthodox / lax / secret Ashen sympathizer).
 5. **Ambitions** as player-set, mechanically inert journal goals; **Leads** (≤ 2 passive per day) as the sim's opportunity surface.
-6. **Intent echo + 1.5 s unsay window** for consequential acts; low-confidence consequential acts downgrade (threshold 0.55).
+6. **Intent echo + 1.5 s unsay window** for consequential acts; low-confidence consequential acts downgrade (threshold 0.55); the NPC's decision point opens only after the confirm window.
 7. **Cue vocabulary:** Opinion buckets hostile/cold/neutral/warm/fond (−50/−15/15/50 cut points) and the read-accuracy formula; no hidden numbers are ever shown to the player.
 8. **Lineage carry-over:** house reputation 25% decaying 10%/season; NPC "kin of X" opinion modifier 30% decaying 10%/season; debts and feuds inherited; the deceased's journal as a readable book.
 9. **Forgiving-mode recovery rules** (§10.5).
 10. **Notification priorities** P0/P1/P2 with the whisper rate limit.
 11. **Default LLM spend cap** $10/month with Local/Template fallback on reaching it.
 12. **Ironman Lineage** variant: one continuous save, but heir succession is allowed (default off; canon Ironman is unchanged).
+13. **Decision-surfacing contract** (canon v0.3 follow-up): the player sees an NPC's chosen option (gesture, then words, then the owning system acting), never the menu, the options not taken, or propensities; nothing implying a choice plays before the choice passes its guards; a non-committal take may bridge the wait.
+14. **Standard handoffs:** an accepted deal opens the trade confirmation pre-filled with the menu price, and the player's confirmation is their own consequential act; `shove`/`attack` collapse the dialogue into combat framing; a refusal closes that topic in the UI for the rest of the game day; NPC proposals appear as cards with fixed terms.
+15. **Stance cues** (agreeable · bargaining · unmoved · bristling · warming · cooling · impatient) and the **✧ talked-round glyph**, both gated by the read-accuracy roll.

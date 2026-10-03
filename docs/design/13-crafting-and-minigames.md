@@ -1,6 +1,6 @@
 # 13 — Crafting, Land Work & Minigames
 
-> **Status:** Draft v0.1 · **Owner doc for:** the crafting/process model, item quality (score, grades, flaws, appraisal, maker's marks, durability), materials and their properties, every per-profession minigame for crafts **and** land work (farming incl. the crop & soil model, husbandry incl. the livestock model, hunting, fishing, foraging, woodcutting, mining), and how NPCs resolve the same work without playing minigames · **Depends on:** [01-canon](../01-canon.md), [02-game-overview](../02-game-overview.md), [10-world-and-setting](10-world-and-setting.md), [11-survival](11-survival.md), [12-skills-and-professions](12-skills-and-professions.md), [14-technology-and-buildings](14-technology-and-buildings.md), [15-economy-and-trade](15-economy-and-trade.md), [16-social-systems](16-social-systems.md), [17-governance-and-law](17-governance-and-law.md), [18-conflict-and-warfare](18-conflict-and-warfare.md), [19-player-experience](19-player-experience.md), [20-architecture](../tech/20-architecture.md), [21-npc-ai](../tech/21-npc-ai.md), [22-llm-integration](../tech/22-llm-integration.md), [30-roadmap](../production/30-roadmap.md)
+> **Status:** Draft v0.1 · revised for canon v0.3 (decision points) · **Owner doc for:** the crafting/process model, item quality (score, grades, flaws, appraisal, maker's marks, durability), materials and their properties, every per-profession minigame for crafts **and** land work (farming incl. the crop & soil model, husbandry incl. the livestock model, hunting, fishing, foraging, woodcutting, mining), and how NPCs resolve the same work without playing minigames · **Depends on:** [01-canon](../01-canon.md), [02-game-overview](../02-game-overview.md), [10-world-and-setting](10-world-and-setting.md), [11-survival](11-survival.md), [12-skills-and-professions](12-skills-and-professions.md), [14-technology-and-buildings](14-technology-and-buildings.md), [15-economy-and-trade](15-economy-and-trade.md), [16-social-systems](16-social-systems.md), [17-governance-and-law](17-governance-and-law.md), [18-conflict-and-warfare](18-conflict-and-warfare.md), [19-player-experience](19-player-experience.md), [20-architecture](../tech/20-architecture.md), [21-npc-ai](../tech/21-npc-ai.md), [22-llm-integration](../tech/22-llm-integration.md), [30-roadmap](../production/30-roadmap.md)
 
 The vision: *"Making a bow for example shouldn't just be clicking 'make bow' it should involve mini
 games of sorts where you carve a bow, treat it, string it etc … Farming involves tilling the land,
@@ -56,7 +56,7 @@ feed and products; NPC work resolution; work at every simulation LOD.
 | [17](17-governance-and-law.md) | Land tenure rules, labor services, hunting/forest rights, mark registration, forgery as crime | 13 records who worked/owns which strip and item. |
 | [18](18-conflict-and-warfare.md) | Weapon/armor use, archery shot model, quality multiplier on damage | 13 supplies Q, grade, durability, draw weight, flaws. |
 | [21](../tech/21-npc-ai.md) | Job selection, schedules, personality facets & traits, corner-cutting decisions | Personality acts on work only through those choices (§13.2), never on the dice. |
-| [22](../tech/22-llm-integration.md) | Dialogue pipeline for mentor hints, commissions, patients | 13 supplies structured hint tags and specs; never outcomes. |
+| [22](../tech/22-llm-integration.md) | Dialogue pipeline for mentor hints, commissions, patients | 13 supplies structured hint tags and specs, and builds commission decision menus with 15 (§14.4); never quality or yield outcomes. |
 
 **Skill mapping for activities without a canon skill name** (aligned with
 [12 §4.4](12-skills-and-professions.md)): knapping → **Masonry**; charcoal burning and birch-tar
@@ -1466,14 +1466,17 @@ observe the player identically.
 |-----------|-------|--------------------|--------|----------------|----------|
 | **Mentor advice** during/after a minigame | LLM | Hint tags from telemetry (`hint.tiller.left_limb_stiff_outer`, `hint.quench.too_slow`), mentor persona, relationship | 1–2 spoken lines | None | Template line per tag |
 | Workshop small talk while working beside someone | LLM | Recipe, last result grade, both personas | Banter | None | Canned barks |
-| **Commission request** voiced by a customer | LLM | Spec `{item, designParams, deadline, priceBand (15)}` | Request dialogue | None — the spec is data | Template request |
-| Player's free-text order → spec | **Jev choice** | Player text (untrusted) + closed list of item ids and parameter buckets (e.g. draw `light/medium/heavy`) | Selected buckets | Pre-fills a spec the player confirms in UI; never sets price or acceptance | Order form |
+| **Commission proposed to the player** (the player is the crafter) | In conversation, the LLM (the customer picks `propose_commission` from its menu); otherwise 15's order generation (policy) | Spec `{item, designParams, deadline, price (15)}` | A proposal card and request dialogue | The spec and price are data from the menu; the player's reply is their own act. Haggling over the price is 15's trade menu (`accept_at_price` · `counter_step_k` · `refuse`) | Template request |
+| Player's free-text order → spec | **Fast decider choice** | Player text (untrusted) + closed list of item ids and parameter buckets (e.g. draw `light/medium/heavy`) | Selected buckets | Pre-fills a spec the player confirms in UI; never sets price or acceptance | Order form |
+| **The player commissions an NPC crafter** | **LLM** chooses, in the crafter's reply (policy in template mode and NPC↔NPC) | The confirmed spec; a decision menu built by 13 with [15](15-economy-and-trade.md) | `accept_at_price` (15's price for spec + deadline) · `counter_step_k` (a higher price, or a later deadline in whole-day steps) · `refuse` (eligible options only: the crafter must hold the know-how and be able to source materials) | `p_i` from the crafter's order queue, skill fit to the spec, Opinion, and price vs. their labor rate; stakes from 15's trade rules (critical at ≥ 1 crown, canon §13.1). Executed by 15's order book (deposit, due date) and 13's process model (the NPC resolves the work through `Resolve()`) | Policy samples `p_i`; order form |
 | Customer reaction to delivered work | LLM | Appraised grade, flaws noticed (§5.8), spec fit | Reaction line | None (opinion via 16's math) | Template |
 | Patient's complaint (§8.12) | LLM | 11's observable symptom list for the condition | Patient speech | None (signs are data) | Symptom list read-out |
 | **Masterwork naming** | LLM | Item, maker, material, settlement | A name from a naming grammar | Cosmetic only | Grammar-generated name |
 | Chronicle lines (masterwork, blight, famine harvest) | LLM ([22](../tech/22-llm-integration.md)) | Event-log facts | Prose | None | Template sentences |
 
-No model reads or writes Q, PS, yields, flaws or recipe availability.
+Characters may decide whether to take or offer a commission and at which menu price or deadline
+(above). Mentor advice is only ever voiced from structured hint tags. No model reads or writes Q, PS,
+yields, flaws or recipe availability.
 
 ---
 
@@ -1723,3 +1726,7 @@ Runs in CI on the pure-C# core ([20](../tech/20-architecture.md)):
 8. **Shortcut ceiling (tenet 7 clarified):** batch and delegation resolve with the NPC draw;
    automation is a fixed, variance-free `m = +0.15`; only hand play can reach a practiced player's
    level, and it stays bounded by 12's ±24 window.
+9. **Commission decision points** (canon v0.3, §14.4): a crafter asked for a commission chooses
+   `accept_at_price · counter_step_k · refuse` from a menu built with 15 (counters raise the price or
+   push the deadline in whole days); customers may propose commissions in conversation; 15's order
+   book and 13's process model execute.

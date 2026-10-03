@@ -19,8 +19,8 @@ Likelihood (L) and Impact (I) on a 1–5 scale. **Score = L × I.** Review at ev
 | R2 | **NPC conversations don't feel like people** (generic, sycophantic, forgetful, inconsistent). | 3 | 5 | **15** | Rich persona cards from real sim state; decision-first prompting; verification pass; golden-conversation evals; human rubric playtests in M1. | Testers describe NPCs as "chatbots"; contradictions slip past verification. | [22-llm-integration](../tech/22-llm-integration.md) |
 | R3 | **LLM latency breaks immersion.** | 3 | 4 | 12 | Streaming; short replies; latency-masking UX (gestures, "thinking"); pre-generated barks; prompt caching; smaller model for low-stakes lines. | p50 TTFT > 1.5 s in M1 spike. | [22-llm-integration](../tech/22-llm-integration.md) |
 | R4 | **LLM cost per play-hour too high** for players or for us. | 3 | 4 | 12 | Token budgets per turn; caching; local-first by M7; template mode; spend caps. | M1 measured cost > target. | [22-llm-integration](../tech/22-llm-integration.md) |
-| R5 | **Prompt injection / exploits** — players talk NPCs into giving away the store. | 4 | 3 | 12 | Hard systems decide; clamps; untrusted-text handling; injection test suite in CI; never let a single classification trigger a high-stakes outcome. | Any injection-suite failure. | [ADR-0003](../adr/0003-hard-systems-soft-voice.md) |
-| R6 | **Jev vendor risk.** Jev is new (2026), cloud-only, possibly waitlisted; its API, ids or pricing may change; details so far come from third-party write-ups. | 3 | 3 | 9 | Provider interface with drop-in fallbacks (local LLM structured output → heuristics); verify API against TypeSafe docs at M1; never hard-depend. | API access delayed; accuracy below spike threshold. | [22-llm-integration](../tech/22-llm-integration.md) |
+| R5 | **Prompt injection / exploits** — players talk NPCs into giving away the store. | 4 | 3 | 12 | Decision menus bound every choice (fixed parameters, no invented numbers); guards: anti-exploit floors, the daily long-shot budget, and a deterministic propensity check (that never sees player text) for critical options; untrusted-text handling; red-team suite in CI. | Any red-team case producing an off-menu action or a guard bypass. | [ADR-0003](../adr/0003-language-decides-systems-resolve.md), [22](../tech/22-llm-integration.md) |
+| R6 | **Fast-decider vendor risk.** Jev isn't reachable through OpenRouter as a decision model (only `typesafe/jev-router`, a model router); direct access is waitlisted; its details come from third-party write-ups. | 2 | 3 | 6 | The `IDecider` contract uses the System One shape so providers swap freely. A small OpenRouter model reading log-probabilities works today (`qwen/qwen3.5-9b`); **Laya** (open source, Apache-2.0, Jev-compatible API) is the local fallback once fine-tuned; heuristics always work. | The logprob technique stops being served by providers; Laya fine-tuning underperforms. | [22](../tech/22-llm-integration.md), [01 §4.1](../01-canon.md#41-jev--what-we-know-and-the-fast-decider-until-we-have-it) |
 | R7 | **Emergent behavior is boring or chaotic** — no conflict, or constant chaos. | 4 | 4 | **16** | Headless runner with drama metrics and target ranges; tuning knobs per system; "storyteller-free" principle but with pressure systems (scarcity, status, rumor). | Drama metrics out of range across seeds. | [16-social-systems](../design/16-social-systems.md), [21-npc-ai](../tech/21-npc-ai.md) |
 | R8 | **Performance at scale** (1,500 simulated; ~200 rendered; battles of 150–300). | 3 | 4 | 12 | LOD tiers; data-oriented sim; spikes S1/S6 in M1; perf budgets enforced in CI. | Spike misses targets. | [20-architecture](../tech/20-architecture.md) |
 | R9 | **Godot 3D limits** (terrain scale, crowds, tooling). | 2 | 4 | 8 | Engine-agnostic sim (ADR-0002) keeps a port possible; spikes S1/S4 early. | S1 or S4 fail. | [ADR-0001](../adr/0001-engine-godot-dotnet.md) |
@@ -35,6 +35,11 @@ Likelihood (L) and Impact (I) on a 1–5 scale. **Score = L × I.** Review at ev
 | R18 | **Model churn** — hosted model ids are deprecated or change behavior. | 4 | 2 | 8 | Model ids in config, not code; eval suite run on any model change; keep 2 known-good models configured. | Provider deprecation notices. | [22-llm-integration](../tech/22-llm-integration.md) |
 | R19 | **Local LLM hardware bar** excludes many players. | 3 | 3 | 9 | Cloud mode and template mode; small-model option; VRAM budgeting. | S5 fails on recommended spec. | [22-llm-integration](../tech/22-llm-integration.md) |
 | R20 | **Bus factor / burnout** on a 1–2 person team over ~2 years. | 3 | 5 | **15** | Docs-first culture (this plan); CLAUDE.md and ADRs keep context; sustainable milestone sizing. | Repeated milestone slips; docs drifting from code. | [30-roadmap](30-roadmap.md) |
+| R21 | **Sycophancy / agreeable-NPC drift.** LLMs tend to agree with whoever is talking to them, so NPCs that decide through an LLM may say yes to the player far more often than their personalities justify. | 4 | 4 | **16** | Menus and propensities shown to the model as inclinations; long-shot budget; calibration gap ≤ 10 points vs the policy on neutral scenarios; refusal suite ≥ 95%; play telemetry on acceptance rates by NPC trait. | Calibration gap or refusal-suite failures in M1; testers say NPCs are pushovers. | [22](../tech/22-llm-integration.md), [01 §13](../01-canon.md#13-the-llm-boundary-language-decides-systems-resolve) |
+| R22 | **Railroading.** Guards that reject too many LLM choices make characters feel scripted again. | 2 | 3 | 6 | Floors kept low (2–5%) and purposed only as anti-exploit; over-rejection rate tracked; critical checks limited to the critical list. | Guard over-rejection > 5% of LLM decisions; testers say NPCs feel canned. | [22](../tech/22-llm-integration.md) |
+| R23 | **Local decider quality.** Laya's base checkpoints are near chance zero-shot on typed decisions (0.36) and over-confident until calibrated. | 3 | 2 | 6 | Fine-tune on our recorded decisions (M1 suites + play), temperature-scale, and keep the cloud decider and heuristics as fallbacks. | Fine-tuned accuracy below the cloud decider on the golden set. | [22](../tech/22-llm-integration.md) |
+| R24 | **Art & animation capacity.** ~1,000 meshes, ~300 animation clips and ~1,200 sounds for v1; human motion, characters and music need people. | 4 | 4 | **16** | Generators for regular families (trees, rocks, crops, building kits, props); one palette; placeholders allowed until each milestone's art gate; CC0/licensed packs for prototypes; contract character artist/animator from M2 and a composer from M3 ([32 §17](32-art-and-audio-production.md#17-staffing)). | Milestone art gates slip; style drift in reviews. | [32](32-art-and-audio-production.md) |
+| R25 | **License contamination** of assets (unclear sources, AI outputs without commercial terms). | 2 | 4 | 8 | Manifest entry with license required for every file; CI fails on missing licenses; acceptable-license list ([32 §14](32-art-and-audio-production.md#14-provenance--licensing)); the ledger doubles as the storefront AI disclosure. | Any asset without provenance. | [32](32-art-and-audio-production.md) |
 
 ---
 
@@ -44,27 +49,43 @@ These are the questions whose answers most change what gets built. Each has a **
 default**, which the plan already assumes. Confirm or override; record the answer in the owning doc
 (and in canon if it's cross-cutting).
 
-### 2.1 Foundational (confirm before M0)
+### 2.1 Foundational — **confirmed by the owner, 2026-10-03**
 
-| # | Question | Recommended default (assumed by the plan) | Where |
+| # | Question | Decision | Where |
 |---|----------|-------------------------------------------|-------|
-| D1 | **Engine** | Godot 4 .NET (C#) client + pure C# sim core. Unity is the fallback; the engine-agnostic sim keeps a port possible. | [ADR-0001](../adr/0001-engine-godot-dotnet.md) |
-| D2 | **Perspective & art** | 3D third-person, stylized low-poly | [01 §4](../01-canon.md#4-core-product--technology-decisions), [02 §9](../02-game-overview.md#9-art-direction) |
-| D3 | **Single-player only** | Yes for v1 | [ADR-0004](../adr/0004-single-player-scope.md) |
-| D4 | **Time scale** | 30-min days, 8-day seasons, 32-day years, Interludes for generational time | [01 §6](../01-canon.md#6-time-canon) |
-| D5 | **Where rival societies come from** | Several expeditions + resupply ships until "the Silence" + schisms/exodus + outlaw camps | [01 §5.4](../01-canon.md#54-how-multiple-societies-come-to-exist-so-war-is-possible) |
-| D6 | **Player mortality** | Players age and die; default **Lineage** (continue as heir); Forgiving and Ironman modes | [01 §12](../01-canon.md#12-the-player) |
-| D7 | **.NET version** | `net8.0` for M0 (support ends 2026-11-10), then .NET 10 LTS as soon as Godot supports it | [20](../tech/20-architecture.md) |
+| D1 | **Engine** | ✅ Godot 4 .NET (C#) client + pure C# sim core. Unity is the fallback; the engine-agnostic sim keeps a port possible. | [ADR-0001](../adr/0001-engine-godot-dotnet.md) |
+| D2 | **Perspective & art** | ✅ 3D third-person, stylized low-poly | [01 §4](../01-canon.md#4-core-product--technology-decisions), [02 §9](../02-game-overview.md#9-art-direction) |
+| D3 | **Single-player only** | ✅ Yes for v1 | [ADR-0004](../adr/0004-single-player-scope.md) |
+| D4 | **Time scale** | ✅ 30-min days, 8-day seasons, 32-day years, Interludes for generational time | [01 §6](../01-canon.md#6-time-canon) |
+| D5 | **Where rival societies come from** | ✅ Several expeditions + resupply ships until "the Silence" + schisms/exodus + outlaw camps | [01 §5.4](../01-canon.md#54-how-multiple-societies-come-to-exist-so-war-is-possible) |
+| D6 | **Player mortality** | ✅ Players age and die; default **Lineage** (continue as heir); Forgiving and Ironman modes | [01 §12](../01-canon.md#12-the-player) |
+| D7 | **.NET version** | ✅ `net8.0` for M0 (support ends 2026-11-10), then .NET 10 LTS as soon as Godot supports it | [20](../tech/20-architecture.md) |
 
 ### 2.2 Product & business
 
 | # | Question | Recommended default | Where |
 |---|----------|---------------------|-----------|
-| D8 | **Who pays for cloud LLM inference in Early Access?** Bring-your-own OpenRouter key, a developer-run relay with quotas, or local-only? | Ship with **bring-your-own key + local + template mode**; evaluate a relay after EA telemetry | [22 Q1](../tech/22-llm-integration.md#open-questions) |
+| D8 | **Who pays for cloud LLM inference?** | **Development: the owner's OpenRouter key in `.env` as `OPENROUTER_KEY` (decided 2026-10-03).** Early Access still open — recommended: bring-your-own key + local + template mode; evaluate a relay after EA telemetry | [22 Q1](../tech/22-llm-integration.md#open-questions) |
 | D9 | **Working title** | Decide by M8 | [02 Q1](../02-game-overview.md#14-open-questions) |
 | D10 | **Team & demo** | Budget part-time art from M2; consider a public "first winter" demo after M3 | [30 §10](30-roadmap.md#10-open-questions) |
 | D11 | **Localization** | English only in v1; per-language catalogs/classifiers later | [22 Q5](../tech/22-llm-integration.md#open-questions) |
 | D12 | **Voice** | Text-only v1; local TTS for barks is a post-v1 stretch | [19 Q3](../design/19-player-experience.md#open-questions), [22 Q6](../tech/22-llm-integration.md#open-questions) |
+
+### 2.2a LLM decisions (new with canon v0.3)
+
+| # | Question | Recommended default | Where |
+|---|----------|---------------------|-------|
+| D27 | **Overheard NPC↔NPC exchanges** — should the LLM decide them when the player is close enough to listen? | No: the policy decides and the LLM only renders, so being watched never changes outcomes. Revisit after M1 calibration | [01 §13.2](../01-canon.md#132-where-each-decider-is-used) |
+| D28 | **Fast-decider path** | OpenRouter small model (`qwen/qwen3.5-9b`, log-probability technique) now; request TypeSafe Jev access for the M1 bake-off; fine-tune **Laya** as the local decider by M7 | [01 §4.1](../01-canon.md#41-jev--what-we-know-and-the-fast-decider-until-we-have-it) |
+| D29 | **Guard strictness** | Floors 2% (low/medium stakes) and 5% (high); long-shot budget 2 per NPC–player pair per day; critical options need deterministic p ≥ 0.25. Tune after M1 playtests | [01 §13.1](../01-canon.md#131-decision-points) |
+
+### 2.2b Art & audio (new with doc 32)
+
+| # | Question | Recommended default | Where |
+|---|----------|---------------------|-------|
+| D30 | **Art/animation/music budget** — how much contract work, from which milestone? | Character & animal artist + animator from M2; composer from M3; 2–4 foley/voice sessions | [32 §17, Q1](32-art-and-audio-production.md#19-open-questions) |
+| D31 | **Generative-AI assets** in shipped content? | Placeholders only by default; shipped only with clear commercial terms, human review and a ledger entry | [32 §8, Q2](32-art-and-audio-production.md#19-open-questions) |
+| D32 | **CC0 packs** (e.g. Quaternius, Kenney) in shipped content? | Allowed if re-paletted and recorded; otherwise prototypes only | [32 Q4](32-art-and-audio-production.md#19-open-questions) |
 
 ### 2.3 Content & tone
 
@@ -112,3 +133,4 @@ marked **[Resolved — canon v0.2]** in place.
 | [21 NPC AI](../tech/21-npc-ai.md#open-questions) | 7 (1 resolved) |
 | [22 LLM integration](../tech/22-llm-integration.md#open-questions) | 10 (1 resolved) |
 | [30 Roadmap](30-roadmap.md#10-open-questions) | 3 |
+| [32 Art & audio production](32-art-and-audio-production.md#19-open-questions) | 5 |

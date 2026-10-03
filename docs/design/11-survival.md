@@ -1,6 +1,6 @@
 # 11 — Survival
 
-> **Status:** Draft v0.1 · **Owner doc for:** physical needs (Satiety, Hydration, Energy, Warmth) and Stamina use, health, injuries, bleeding, infection, disease & contagion, poisoning, exposure, food values, nutrition & spoilage, water safety, sleep, encumbrance, swimming & falling, early shelter performance, incapacitation & death, the Landfall scenario · **Depends on:** [01-canon](../01-canon.md), [10-world-and-setting](10-world-and-setting.md), [12-skills-and-professions](12-skills-and-professions.md), [13-crafting-and-minigames](13-crafting-and-minigames.md), [14-technology-and-buildings](14-technology-and-buildings.md), [15-economy-and-trade](15-economy-and-trade.md), [16-social-systems](16-social-systems.md), [17-governance-and-law](17-governance-and-law.md), [18-conflict-and-warfare](18-conflict-and-warfare.md), [19-player-experience](19-player-experience.md), [20-architecture](../tech/20-architecture.md), [21-npc-ai](../tech/21-npc-ai.md), [22-llm-integration](../tech/22-llm-integration.md)
+> **Status:** Draft v0.1 · revised for canon v0.3 (decision points) · **Owner doc for:** physical needs (Satiety, Hydration, Energy, Warmth) and Stamina use, health, injuries, bleeding, infection, disease & contagion, poisoning, exposure, food values, nutrition & spoilage, water safety, sleep, encumbrance, swimming & falling, early shelter performance, incapacitation & death, the Landfall scenario · **Depends on:** [01-canon](../01-canon.md), [10-world-and-setting](10-world-and-setting.md), [12-skills-and-professions](12-skills-and-professions.md), [13-crafting-and-minigames](13-crafting-and-minigames.md), [14-technology-and-buildings](14-technology-and-buildings.md), [15-economy-and-trade](15-economy-and-trade.md), [16-social-systems](16-social-systems.md), [17-governance-and-law](17-governance-and-law.md), [18-conflict-and-warfare](18-conflict-and-warfare.md), [19-player-experience](19-player-experience.md), [20-architecture](../tech/20-architecture.md), [21-npc-ai](../tech/21-npc-ai.md), [22-llm-integration](../tech/22-llm-integration.md)
 
 Survival is FeudalSim's first teacher and its longest-running pressure. In Era 0 it decides who lives
 to see a hamlet. In Era 4 it decides whether a besieged town surrenders. Every rule here applies
@@ -1300,12 +1300,16 @@ settlement.
 |------------|---------|-------------|--------------|-------|----------|
 | Need and condition barks | A tier change or symptom onset | Perceived state, place, relationships | A line ("My feet have gone numb") | Voices perceived state only | Templates per tier |
 | Healer's diagnosis | A Treat or diagnosis action | Diagnosis *result* (true conditions found / uncertain) | Explanation in character | Cannot reveal what the check didn't find | Templates |
-| The hungry child and other requests for food | Need P1 near a holder of food | Need, relationship | A plea | Acceptance by 21's utility, not the LLM | Templates |
-| Rationing and Landfall speeches | Gatherings (17) | Positions from values, FoodDays belief | Speech | 17's ±15% persuasion clamp (canon §13) | Intent menu |
-| Player claims ("I'm sick", "this water is bad") | Player text | **Untrusted** text | Jev classifies the claim type → a belief claim (16) | Listeners weigh it by Trust; claims can be lies | Dialogue menu |
+| The hungry child and other requests for food | Need P1 near a holder of food | Need, relationship | A plea | An NPC's plea to another NPC is decided by 21's utility (policy) | Templates |
+| **The player asks someone to share food** | Player request in conversation | Holder's own food, Satiety, FoodDays belief, dependents, relationship | The holder's **choice** (LLM, in the reply) and its line | Decision point: `share_meal` (one meal, 33 Sat, from the holder's personal food; eligible only if they hold it) · `share_half` (half the food they carry, in whole 33-Sat meals) · `point_to_store` (sends you to the custodian) · `refuse`. `p_i` from 21's utility for giving (need gap, Warmth, Charitable/Greedy, Opinion, kin, own dependents' hunger). Stakes low. Executed as an inventory transfer; 16 applies `fed_me_hungry` | Policy samples `p_i` |
+| **Asking the custodian for more than the ration** | Player request | Store policy (§10.5), FoodDays belief, the request's reason | The custodian's **choice** | Decision point: `grant_extra` (one extra meal from the store; eligible only if the rule is `need_first` or the custodian holds discretion, and believed FoodDays ≥ 4) · `refer_to_council` (tables the case in [17](17-governance-and-law.md)) · `refuse`. `p_i` from the custodian's values (§10.5 mapping), Trust, the asker's need. Stakes low. Executed by the store rules (§10.5) | Policy samples `p_i` |
+| Rationing and Landfall speeches | Gatherings (17) | Positions from values, FoodDays belief | Speech, and each attendee's **position** | Each attendee's stance on the tabled rule is a decision point (`support` · `oppose` · `abstain`; `p_i` from the value mapping in §10.5 and 17's support model; menu width per canon §13.4). In a gathering the player attends, the LLM decides for the speakers whose lines it writes; the policy decides for everyone else and for gatherings off-screen. 17 tallies; the adopted `{level, rule}` is executed by the store policy (§10.5) | Policy; intent menu |
+| Player claims ("I'm sick", "this water is bad") | Player text | **Untrusted** text | The fast decider classifies the claim type → a belief claim (16) | Listeners weigh it by Trust; claims can be lies | Dialogue menu |
 | Chronicle of hardship | Season or Interlude end | Deaths, famines, outbreaks from the log | Prose | Facts from the log | Templates |
 
-No model decides an infection, a death, a ration or a diagnosis.
+Characters may *decide* to share food, grant or refuse an extra meal, or back a rationing rule (above),
+and the stores and rationing rules carry the choice out. No model decides an infection, a death, a
+diagnosis, or how much food a ration holds.
 
 ---
 
@@ -1433,3 +1437,8 @@ No model decides an infection, a death, a ration or a diagnosis.
 10. **A `set_rations` proposal type** {level, rule} for [17](17-governance-and-law.md)'s catalog.
 11. **Swimming, climbing and breath-holding resolve through Athletics.** No new skill is needed
     (consistent with the canon 28).
+12. **Food decision points** (canon v0.3, §20): asking someone to share food (`share_meal · share_half
+    · point_to_store · refuse`) and asking the custodian for extra (`grant_extra · refer_to_council ·
+    refuse`); amounts are fixed in meals (new constant: 1 meal = 33 Sat; `grant_extra` = one meal,
+    only under `need_first` or custodial discretion with believed FoodDays ≥ 4), and the stores and
+    rationing rules execute them.

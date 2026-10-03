@@ -1,6 +1,6 @@
 # 21 — NPC AI: Agents, Personality, Needs, Emotion & Simulation LOD
 
-> **Status:** Draft v0.1 · **Owner doc for:** NPC agent architecture; personality model & trait catalog; needs-driven utility AI; psychological needs; emotions & mood; irrationality; schedules & routines; job *execution* (tasks, reservations, task boards, idle); long-term ambitions; group behavior; perception models; NPC-initiated interactions; simulation-LOD behavior incl. Interlude (LOD3) aggregate rules; NPC debugging & headless AI metrics · **Depends on:** [01-canon](../01-canon.md) (binding), [00-vision-original](../00-vision-original.md), [20-architecture](20-architecture.md) (ticks, ECS, determinism), [22-llm-integration](22-llm-integration.md) (voice), [11-survival](../design/11-survival.md) (physical-need decay), [12-skills-and-professions](../design/12-skills-and-professions.md) (job choice), [13-crafting-and-minigames](../design/13-crafting-and-minigames.md) (work resolution rates), [16-social-systems](../design/16-social-systems.md) (relationships, memory/belief/rumor, crime detection), [17-governance-and-law](../design/17-governance-and-law.md), [18-conflict-and-warfare](../design/18-conflict-and-warfare.md) (combat AI)
+> **Status:** Draft v0.1, revised for canon v0.3 (decision points) · **Owner doc for:** NPC agent architecture; personality model & trait catalog; needs-driven utility AI; psychological needs; emotions & mood; irrationality; schedules & routines; job *execution* (tasks, reservations, task boards, idle); long-term ambitions; group behavior; perception models; NPC-initiated interactions; simulation-LOD behavior incl. Interlude (LOD3) aggregate rules; NPC debugging & headless AI metrics · **Depends on:** [01-canon](../01-canon.md) (binding), [00-vision-original](../00-vision-original.md), [20-architecture](20-architecture.md) (ticks, ECS, determinism, decision-point records), [22-llm-integration](22-llm-integration.md) (DRE guards, deciders, voice), [11-survival](../design/11-survival.md) (physical-need decay), [12-skills-and-professions](../design/12-skills-and-professions.md) (job choice), [13-crafting-and-minigames](../design/13-crafting-and-minigames.md) (work resolution rates), [16-social-systems](../design/16-social-systems.md) (relationships, memory/belief/rumor, crime detection), [17-governance-and-law](../design/17-governance-and-law.md), [18-conflict-and-warfare](../design/18-conflict-and-warfare.md) (combat AI)
 
 ---
 
@@ -42,10 +42,18 @@ decision-making of every simulated person, from a starving Landfall settler choo
 foraging and begging, to a jealous smith deciding to slander a rival, to a militiaman deciding
 whether to answer the muster bell or run home to his children.
 
-**No LLM or Jev call is ever made by the NPC AI.** NPC behavior is 100% deterministic C# driven by
-seeded RNG streams. Language models only *voice* what this layer decided (via
-[22-llm-integration](22-llm-integration.md)) and *interpret* the player's words into signals that the
-Dialogue Rules Engine feeds into the same functions NPCs use (canon §13).
+**The NPC AI makes no LLM or Jev call itself, and it is the *policy*: the deterministic decider for
+every choice in the game.** It is deterministic C# driven by seeded RNG streams. Under canon §13
+("language decides, systems resolve") a language model may *also* choose, but only at a **decision
+point (DP)** in a moment where a model is already in the loop: conversations with the player; court
+sessions, councils, negotiations and war councils the player attends; and sub-second fast-decider
+choices (a bystander reacting to the player's quarrel, yield or mercy mid-fight). At a DP the owning
+system builds the menu, this layer supplies each option's **base propensity `p_i`** (§7.8), the LLM or
+fast decider *may* pick instead of the policy, the Dialogue Rules Engine
+([22](22-llm-integration.md)) guards the pick, and the chosen option goes down **the same execution
+path** the policy's choice would have taken (§2.4). Everywhere else — off-screen life, NPC↔NPC
+interactions, Interludes, headless runs — the policy decides alone. Language models also *voice*
+outcomes and *classify* the player's words (canon §13.3).
 
 ### 1.1 Design goals
 
@@ -58,6 +66,7 @@ Dialogue Rules Engine feeds into the same functions NPCs use (canon §13).
 | G5 | **Cheap.** 1,500 agents within the CPU budget; Interludes fast. | ms per tick per tier |
 | G6 | **Seamless LOD.** Promotion/demotion never produces visible teleports, lost items or broken tasks. | Reconciliation error counters |
 | G7 | **Parity.** Same needs, skills, laws, relationship math for player and NPCs; the player's Interlude routine runs on this AI. | Shared code paths |
+| G8 | **The world you talk to is the world.** Where an LLM chooses at a DP, its choice rates stay within canon's parity band of this layer's propensities — no kinder, no harsher. | LLM-vs-policy calibration (§19) |
 
 ### 1.2 What this document does not own
 
@@ -68,8 +77,10 @@ Physical-need decay rates ([11-survival](../design/11-survival.md)); skill/XP/jo
 propagation, crime detection rules ([16](../design/16-social-systems.md)); laws, offices, schism
 thresholds ([17](../design/17-governance-and-law.md)); combat AI and fight escalation
 ([18](../design/18-conflict-and-warfare.md)); ticks, ECS and save format
-([20](20-architecture.md)); all LLM/Jev usage ([22](22-llm-integration.md)). This document states
-the interface it needs from each.
+([20](20-architecture.md)); decision-point **menus** (owned by the system whose rules the choice
+runs on), the DRE's guards and all LLM/Jev/fast-decider usage ([22](22-llm-integration.md)). This
+document states the interface it needs from each, and owns the propensities and policy those menus
+are sampled with.
 
 ---
 
@@ -90,11 +101,21 @@ flowchart TD
   AMB["Ambitions and projects (days to years)"] --> US
   SCH["Schedule blocks and obligations"] --> US
   JOB["Job work orders and communal task board"] --> US
-  US["Utility action selection: considerations, curves, modifiers, noise, hijack"] --> PL["HTN-lite planner: action to task sequence, reservations"]
+  US["Utility action selection = the policy: considerations, curves, modifiers, noise, hijack"] --> PL["HTN-lite planner: action to task sequence, reservations"]
+  MENU["DP menu from the owning system: options, fixed params, eligibility, stakes"] --> PROP["Base propensities p_i (§7.8): same terms as utility"]
+  N --> PROP
+  EM --> PROP
+  MB --> PROP
+  PROP --> DEC{"LLM or fast decider in the loop? (LOD0 conversation / attended scene)"}
+  DEC -->|"no: policy samples p_i"| RUN["Owning system executes the chosen option"]
+  DEC -->|"yes: model picks, DRE guards, deadline or guard failure = policy"| RUN
+  RUN -->|"this layer's actions"| PL
+  RUN -->|"trade, ladder, relationship, obligation, justice"| EV
   PL --> EX["Task executor: LOD0 state machines / LOD1+ duration resolution"]
   EX --> LOC["Locomotion and animation: navmesh (LOD0), path graph (LOD1)"]
   EX -->|"outcomes"| EV
   US -->|"DecisionTrace"| DBG["Inspector, decision log, 'why?' explanations"]
+  RUN -->|"DecisionTrace with decider"| DBG
 ```
 
 ### 2.2 The decision stack (and why)
@@ -109,7 +130,21 @@ flowchart TD
 
 Combat is a special case: when an agent enters a fight, L1–L3 hand control to the combat AI owned
 by [18](../design/18-conflict-and-warfare.md); this layer still owns the *decision to flee, yield
-or join* (via utility with emotion inputs) and resumes control on exit.
+or join* (via utility with emotion inputs) and resumes control on exit. When the player is the
+opponent at LOD0, yield/mercy is a DP the fast decider may take within 500 ms (canon §13.2); the
+policy samples it otherwise, and no model ever generates text or moves inside the fight.
+
+**Who decides what.** Every layer above is *policy*. Language models plug in only at L3-level
+choices in language-driven moments, and only as an alternative picker over the same menu:
+
+| Choice | The policy (always available) | May be picked instead by |
+|--------|-------------------------------|--------------------------|
+| Routine actions, plans, task execution (L1–L4) | Utility AI (§7), HTN-lite, FSMs | Nobody — never a model |
+| A DP in a conversation with the player, or in a court session, council, negotiation or war council the player attends (LOD0) | Seeded sample from `p_i` (§7.8) | The LLM writing that character's reply (decision-first); the fast decider for quick sub-choices |
+| A bystander's reaction to the player's quarrel; yield/mercy when fighting the player | Seeded sample from `p_i` | Fast decider (≤ 0.5 s) |
+| Combat moves, evasion, real-time work | 18's combat AI; this layer's executors | Never a model |
+| Off-screen life, NPC↔NPC interactions (even overheard), Interludes, headless runs | `p_i` sample, or the LOD2/LOD3 rules calibrated against it (§15) | Never a model (the LLM may *render* an overheard exchange, §15.3) |
+| The player's own character | The human; standing orders in Interludes (§16) | **Never a model** |
 
 ### 2.3 Reconsideration model
 
@@ -117,6 +152,30 @@ Utility is not evaluated every tick. An agent **reconsiders** when (a) its curre
 completes or fails, (b) an *interrupt-class* stimulus arrives (§7.5), (c) its periodic timer fires
 (§7.6), or (d) a schedule block boundary passes. Between reconsiderations it executes. This
 keeps cost proportional to *events*, not agents × ticks.
+
+### 2.4 Decision points: where model choices plug in
+
+```mermaid
+flowchart TD
+  OPEN["Owning system opens a DP: 15 trade, 16 relationship / ladder / requests, 17 court and council, 18 duel and yield, this doc's initiative options (§14.5)"] --> MENU["Menu: option ids, fixed parameters, eligibility, stakes, option family"]
+  MENU --> P["This layer: base propensities p_i (§7.8)"]
+  P --> Q{"Model already in the loop and DP at LOD0?"}
+  Q -->|"no"| POL["Policy: seeded sample from p_i (stream ai.dp)"]
+  Q -->|"yes"| REC["DecisionPointOpened recorded, LLM (in its reply) or fast decider picks"]
+  REC --> G{"DRE guards: on menu, eligible, floor, long-shot budget, critical p_i >= 0.25"}
+  REC -->|"deadline: 4 s conversation, 0.5 s fast decider"| POL
+  G -->|"fail"| POL
+  G -->|"pass"| CH["Chosen option (DecisionMade recorded)"]
+  POL --> CH
+  CH --> EXE["Owning system executes and resolves deterministically"]
+  EXE --> APP["Appraisal, memories, opinion (§6, 16), DecisionTrace with decider (§17)"]
+```
+
+The picker is the *only* thing a model changes. Menu, numbers, eligibility, stakes, execution and
+every downstream consequence are identical whether the LLM, the fast decider or the policy chose, so
+template mode (canon tenet 8) is the same game with the policy picking every option. The policy's
+sample is drawn whenever the DP opens (keyed by DP id, §7.8), so a fallback never costs a second
+computation and never depends on when the model failed.
 
 ---
 
@@ -202,7 +261,7 @@ Facets are 0–100 (mean 50, SD 15). The AI uses the standardized value
 | **Warmth** (Agreeableness) | Utility of *help, gift, comfort, share food, apologize* | k = 0.30 | ×1.60 |
 | | Utility of *insult, confront, assault, steal* | k = −0.30 | ×0.40 |
 | | Opinion gain from positive interactions (multiplier passed to 16) | k = 0.15 | ×1.30 |
-| | Susceptibility to persuasion (passed to [22 §DRE](22-llm-integration.md)) | +0.06·z | +0.12 |
+| | Susceptibility to persuasion: the listener's `s` in canon §13.4's menu width (computed with [22](22-llm-integration.md)'s DRE) | +0.06·z | +0.12 |
 | **Volatility** (Neuroticism) | Emotion gain multiplier g_vol | k = 0.25 | ×1.50 |
 | | Anger & Fear half-life multiplier | k = 0.15 | ×1.30 |
 | | Decision temperature (§8.2) | +0.35·z term | higher noise |
@@ -247,7 +306,7 @@ description once Familiarity ≥ 30) and directly voiced in the LLM persona card
 ([22](22-llm-integration.md)). Every person has **2–4** (canon). The catalog has **45 traits** in
 8 groups; the 16 canon examples are marked ★. Notation: `U[x] ×m` = utility multiplier on action
 group x; `E[x] ×m` = emotion gain multiplier; `HL[x] ×m` = half-life multiplier; `τ` = decision
-temperature; `S` = susceptibility to persuasion (additive, see 22); `Op` = effects passed to
+temperature; `S` = susceptibility to persuasion (additive to the listener's `s`, canon §13.4; see 22); `Op` = effects passed to
 16-social as modifiers on how *others* react; ⚡ = irrationality hook (§8).
 
 #### Temper & emotion
@@ -585,6 +644,13 @@ function Decide(agent):
 Gumbel-max over `score/τ` is exactly softmax sampling, but because the noise draw is fixed per
 (agent, action, target, game hour) the agent does not flip-flop between reconsiderations.
 
+`Decide` is the **policy for actions** and no model ever replaces it. Choices *inside* a
+language-driven moment (how to answer an insult, whether to take a price, whether to propose
+something) are not candidates here; they are DP menus, sampled by the policy from the propensities
+of §7.8 unless an in-loop model picks first (§2.4). The two share every term — facets, traits,
+values, emotions, needs, schedule — so an NPC behaves the same way whether it is choosing what to
+do next or what to say yes to.
+
 ### 7.3 Response curves
 
 Authored per consideration in YAML; evaluated by a shared curve library (pure functions, no
@@ -665,13 +731,98 @@ mid-afternoon. If Satiety falls to 30 (W_eat = 4.08 → 3.96) eating wins outrig
 then. If the player insults him now, Anger jumps (§6.1) and `confront(player)` enters with E ×2.1 —
 or a hijack fires (§8.3).
 
+### 7.8 Decision-point propensities (the policy at DPs)
+
+When an owning system opens a DP (canon §13.1), this layer turns its menu into base propensities
+`p_i`. The same numbers serve three purposes: the **policy** samples them; the DRE's **guards** read
+them (floors, long-shot budget, critical `p_i ≥ 0.25`); and **calibration** compares LLM choice rates
+with them (§19). Existing outcome formulas in other docs become the *base* of a propensity rather
+than a decision.
+
+**Menu inputs** (from the owning system's menu builder): eligible options only — ineligible ones are
+dropped, never down-weighted; each option's id, fixed parameters, stakes and **option family**
+(`accept`, `counter`, `refuse`, `escalate`, `de-escalate`, `warm`, `cool`, `initiate`…); a **family
+base mass** `B_f ≥ 0` from the system's own formula (15's acceptance at the menu price, 16's
+`Willingness` or escalation-rung distribution, 17's vote support, 18's yield chance; `B_f = 1` if the
+system supplies none); and `includes`, the character terms `B_f` already models, so they are not
+applied twice.
+
+```
+m_o  = Π of this layer's terms NOT listed in `includes`:
+       clamp(P(o) × V(o), 0.4, 2.0)        facets & traits (§4.1, §4.3), values (§4.2), via the option's action-group and value tags
+     × E(o)                                 emotion bias (§6.3)
+     × N(o) = 1 + 0.5·u(need)               options that satisfy a need (u from §5.1 / §5.2)
+     × R(o) = 1 + 0.5·dir(o)·Opinion(self→speaker)/100     dir = +1 favors the speaker, −1 hostile, 0 neutral;
+                                            × BeliefConfidence when the option rests on a belief (§8.6)
+     × S(o) × M(o)                          schedule fit and momentum (§7.2), for options that start or abandon an activity
+w_f  = B_f × max_{o∈f} m_o × 0.5^(n−1)      a family is as attractive as its best variant; repetition (canon §13.4):
+                                            acceptance families, n-th request for the same thing this game day
+T    = clamp(τ / τ0, 0.25, 3.0)             τ from §8.2, so K_irr, Volatility, Diligence, mood, Fear and drink set the spread
+p_f  = w_f^(1/T) / Σ_g w_g^(1/T)            spread is applied per family, so splitting "accept" into variants never inflates acceptance
+p_o  = p_f × m_o / Σ_{o'∈f} m_o'            within a family, variants split by the character terms
+policy choice = sample(p, rng("ai.dp", chooser, dpId))   drawn when the DP opens; kept as the fallback
+```
+
+Rules that go with it:
+
+- **Calibration is preserved.** At `K_irr = 1` an average person has `τ = τ0`, so `T = 1` and the
+  owning system's calibrated base passes through unchanged. Volatile, miserable, frightened or drunk
+  people have flatter menus (more surprising choices); `K_irr = 0` sharpens every menu toward its
+  most likely family.
+- **Hard rules are eligibility, not propensity.** Trait rules written as "never" (Honest never lies
+  unless Fear ≥ 80), breaking-point states (§6.5: Withdraw refuses conversation) and stance locks
+  (Stubborn) are applied by the menu builder through this layer's `IsEligible(agent, option)`, so no
+  decider can pick them.
+- **Hijack folds in** (§8.3). If an emotion is at or above its hijack threshold, the menu has an
+  outlet option for it and `includes` does not already model that emotion:
+  `p_outlet ← P_hijack + (1 − P_hijack)·p_outlet`, every other option `× (1 − P_hijack)`. 16's
+  escalation pressure already models Anger, so ladder menus skip this.
+- **Text-blind.** `p_i` is a pure function of sim state. Player text never enters it; classified acts
+  reach it only through the state they changed (an insult's Anger, §6.1). Canon §13.4's
+  classified-words input (`L_words`, for concession-step families) belongs to the owning system's
+  base; when the DRE checks a **critical** option it asks for `p_i` with `L_words` held neutral, so
+  that check never depends on a model reading the player's text (canon §13.1).
+- **Re-validation.** If an option becomes ineligible before the choice applies (the goods were sold
+  meanwhile), the pre-drawn policy choice is re-sampled over the still-eligible options with the
+  next salt.
+- **Output** to the DRE: `MenuPropensities(DpId, OptionId[] Ids, float[] P, Factor[] KeyFactors,
+  float T)`. `KeyFactors` let [22](22-llm-integration.md) describe the character's inclination in
+  the prompt; 22 decides whether the model sees numbers or verbal bands.
+- **Cost:** ≤ 30 µs per menu of ≤ 12 options. Recorded DPs occur only at LOD0 (§15.3), a few per
+  second at most; inline policy menus elsewhere count against the per-tier decision budgets (§18.1).
+
+*Worked example — the player asks Bram for help.* Bram (§7.7: τ = 0.100, so T = 1.25), at the forge
+at 14:00, is asked to "help raise the wall of my hut — two hours, now." The request menu is 16's
+(§5.4): `accept_now` (2 h, now) and `accept_after_work` (2 h at 18:00), both family `accept`; and
+`refuse`. All low stakes.
+
+| Step | `accept_now` | `accept_after_work` | `refuse` |
+|------|--------------|---------------------|----------|
+| Base `B_f`: 16's `Willingness` without its language term (Opinion +20, Trust 40, Warmth 40, 2 h × Diligence 66) = 0.44; it *includes* opinion, trust, warmth, kin, charity, cost and fear | 0.44 (family) | | 0.56 |
+| This layer adds only schedule fit and momentum: off-block S = 0.77, abandoning the nails ÷ 1.15 | m = 0.67 | m = 1.00 | m = 1.00 |
+| Family weights `w_f = B_f × max m` | 0.44 | | 0.56 |
+| Tempered, exponent 1/T = 0.8, normalized | 0.45 (family) | | 0.55 |
+| Split within `accept` by m (0.40 / 0.60) | **0.18** | **0.27** | **0.55** |
+
+An average person (T = 1) would keep 16's 0.44 / 0.56 exactly; at `K_irr = 0` Bram's menu sharpens to
+0.28 / 0.72; at `K_irr = 2` it flattens to 0.48 / 0.52. In conversation, the LLM writing Bram's reply
+may pick any of the three: `accept_after_work` ("Not while the iron's hot. After the bell.") passes
+every guard; `accept_now` (0.18) is allowed above the 0.02 floor but is a player-favoring long shot
+(< 0.20), so it spends one of the pair's two long-shot picks for the day. Whoever picks, 16 records
+the promise (obligation due 18:00) and this layer schedules `help(player)` as a P2 obligation (§7.5).
+If the player asks again after a refusal, the `accept` family mass halves (0.22 → p_accept 0.32) and
+Anger rises (canon §13.4). If Edda asks Bram the same thing off-screen, the same menu and propensities
+apply and the policy samples.
+
 ---
 
 ## 8. Irrationality
 
 Canon tenet 3: "Irrationality is a feature, tuned deliberately." Every mechanism below has a knob,
 a default, an RNG stream, and a metric (§8.8). A master slider `K_irr` (0–2, default 1.0) scales all
-knobs together for difficulty/"drama" settings and for headless A/B runs.
+knobs together for difficulty/"drama" settings and for headless A/B runs — including the spread of
+decision-point propensities (§7.8). Where a language model picks at a DP, its judgment is a second,
+bounded source of human-like variance (§8.9); everything else in this section is the policy's own.
 
 ### 8.1 Mechanism overview
 
@@ -692,6 +843,7 @@ knobs together for difficulty/"drama" settings and for headless A/B runs.
 | 13 | Misinformation | Acting on false beliefs from rumors | via 16 credulity; `K_cred` (1.0) |
 | 14 | Scapegoating | Blaming innocents for misfortune | `K_scape` (1.0) |
 | 15 | Breaking points | Binges, tantrums, flight (§6.5) | `K_break` (1.0) |
+| 16 | Language-model choices (DPs at LOD0 only, §8.9) | Context-sensitive, conversational picks that differ from the policy's sample | Not a knob: bounded by menus, guards and the parity band (canon §13); `K_irr` widens the menus it picks from |
 
 ### 8.2 Decision noise
 
@@ -707,6 +859,15 @@ knobs together for difficulty/"drama" settings and for headless A/B runs.
 At τ = 0.08, an option scoring 90% of the best is chosen ~22% of the time against it; one at 80%,
 ~8%. Noise only acts *within the top band* (≥ 75% of best), so agents never do something absurd at
 random — absurdity requires emotion, bias or vice, which are explainable.
+
+At DPs the same τ sets the **spread of menu propensities** through `T = τ/τ0` (§7.8). There is no
+top-band cut on a menu, because the guards need a propensity for every eligible option. So the
+**Drama knob (`K_irr`) also spreads the base propensities `p_i` that DP menus carry**: higher Drama →
+higher τ → flatter propensity distributions → more unlikely-but-in-character options clear the
+anti-exploit floors (`p_i ≥ 0.02`, ≥ 0.05 high stakes) and fewer count as long shots (`p_i < 0.20`);
+lower Drama sharpens menus toward their most likely family. `K_irr` therefore scales how surprising
+*both* the policy and an LLM may be, by the same amount ([19](../design/19-player-experience.md)
+relies on this).
 
 ### 8.3 Emotional hijack
 
@@ -745,7 +906,7 @@ competes with E-bias ×2.1. Combat itself is then [18](../design/18-conflict-and
 | **Availability** | Safety threat terms from events in the last 8 days × (1 + b_recent) | Safety target (§5.2) | 0.5 |
 | **Halo** | Perceived competence of person X = true competence reputation + b_halo·(Charisma − 5)·10 + b_halo·(Renown − 50)/2 | Hiring, voting, following (12, 17) | 0.2 |
 | **Conformity** | When choosing a stance (vote, join mob/flee), utility × (1 + b_conform·(fraction of visible peers already doing it − 0.5)·2) | §12 | 0.3 |
-| **Stubbornness** | Stubborn: susceptibility −0.15, may not reverse a public stance in the same season | DRE (22), councils (17) | trait |
+| **Stubbornness** | Stubborn: susceptibility −0.15 (narrower menus), may not reverse a public stance in the same season (an eligibility rule, §7.8) | DRE (22), councils (17) | trait |
 | **Gambler's fallacy** | Gambler after a loss: next stake ×1.5 ("due a win"), up to 3 escalations | §8.5 | trait |
 
 ### 8.5 Vices
@@ -798,6 +959,35 @@ style drama occasionally, which the player can defuse by talking or exploit by l
 | Grudges formed per settlement-year (per 50 people) | 2–6 | no feuds | everyone hates everyone |
 | Share of opinion changes caused by false beliefs | 5–15% | rumors irrelevant | truth irrelevant |
 | Vice-driven debt events per settlement-year | 1–4 | — | economy drain |
+
+These are policy metrics; the off-argmax rate excludes DP choices. LLM choice rates are measured
+separately (§19, calibration).
+
+### 8.9 Language-model choices: a second, bounded source of variance
+
+At a DP the LLM reads the whole exchange — the player's argument, their tone, a joke from three turns
+back — which the policy sees only as classified state. Its pick is therefore a **conversational
+sample** that varies with the texture of the conversation in a way a seeded draw cannot, and that
+reads as human. The policy remains the **calibrated expectation** (canon §13.2). The model's variance
+is bounded on every side by canon §13: only at LOD0 DPs; only options on the menu; floors `p_i ≥ 0.02`
+(≥ 0.05 high stakes); at most two player-favoring long shots (`p_i < 0.20`) per NPC–player pair per
+game day; critical options need `p_i ≥ 0.25`; a deadline after which the policy decides; and a parity
+band of ≤ 10 points per option family on neutral scenarios.
+
+Irrationality still reaches the model through `p_i`: Bram's rage arrives as a strongly tilted menu
+(emotion bias and folded-in hijack, §7.8), and if the LLM picks the calm option anyway that is a
+legitimate sample — provided it does not happen *systematically*, which the parity band measures.
+
+Known language-model biases that policy calibration guards against:
+
+| Bias | What it looks like | Guard |
+|------|--------------------|-------|
+| **Sycophancy** — agreeing with whoever is talking | NPCs accept, concede and warm to the player more often than their propensities say | Parity band per family; sycophancy index and refusal suite ≥ 95% (§19); long-shot budget; repetition halving (§7.8) |
+| Conflict aversion | Hostile options (refuse, threaten, shove, call the guards) picked less often than `p_i` | Hostile-option rate inside the parity band (§19) |
+| Position / label bias | The first-listed option, or label `A`, over-picked | 22 shuffles option order with a seeded permutation recorded with the DP; calibration is checked per position |
+
+When telemetry shows drift, the fixes run in order: prompt changes (22); then tighter menus or higher
+floors (ADR-0003 "Revisit if").
 
 ---
 
@@ -985,8 +1175,9 @@ Before property and wages exist, the camp works from a shared list.
 
 Board-task utility: `W = 1.0 × priority/3`, considerations: skill fit (aptitude & level), distance,
 working with friends (+), personal benefit (household need it serves), **observed contribution
-fairness**. The board is how the player can lead in Era 0: proposing tasks in conversation (22's
-DRE converts accepted proposals into board entries — acceptance via 16/17 rules).
+fairness**. The board is how the player can lead in Era 0: proposing tasks in conversation opens a
+DP on the listener (accept · accept with changes · refuse; menu and base from 16/17, propensities
+§7.8), and the DRE turns an accepted proposal into a board entry.
 
 **Shirking and fairness:** each agent tracks *perceived contribution* of others (hours seen on board
 tasks, sampled through perception). Agents with Values.Fairness ≥ 60 who see someone below 40% of the
@@ -1160,10 +1351,18 @@ reduce visibility exactly as for NPCs).
 
 ## 14. NPC-initiated interactions and the conversation interface
 
+NPCs take the initiative in two ways. **Approaches** (§14.1–14.3) bring an NPC to the player with an
+agenda; choosing to approach is ordinary utility (the policy), because no model is in the loop yet.
+**Initiative options** (§14.5) let an NPC act *inside* a conversation — propose a trade, ask a favor,
+issue a challenge, flirt, warn, call the guards — as options on a DP menu, which the LLM writing the
+NPC's reply may pick (§2.4).
+
 ### 14.1 Approach intents
 
 Systems generate **approach intents** toward the player (and toward NPCs; same path). They enter
-utility as `approach(target, intent)` candidates.
+utility as `approach(target, intent)` candidates. The intent becomes the conversation's agenda: on
+the opening turn it is offered as the NPC's leading initiative option (§14.5) — `DemandDebt` opens
+with `demand_payment` — and voiced from that.
 
 | Intent | Generated by | Class | Example stance passed to 22 |
 |--------|--------------|-------|------------------------------|
@@ -1209,9 +1408,17 @@ sequenceDiagram
   loop each player turn
     P->>VO: free text
     VO->>AI: PlayerUtteranceClassified (input event, stamped at tick)
-    AI->>AI: DRE resolves turn (DialogueTurnResolved), commit outcomes, update emotions/opinion
-    AI-->>VO: DecidedOutcome + ConversationSnapshot
-    VO-->>UI: reaction cue, then reply (streamed or verified)
+    AI->>AI: appraisal (emotions, opinion) and a non-verbal cue from it
+    AI->>AI: DRE opens response DP + initiative DP, this layer supplies p_i, policy pre-draws
+    AI-->>VO: DecisionPointOpened (menus, deadline) + ConversationSnapshot
+    alt LLM answers before the deadline (4 s)
+      VO->>AI: DecisionMade (choice first, decider LLM, latency)
+      AI->>AI: DRE guards (on failure the policy's pick stands)
+    else deadline passes
+      AI->>AI: policy's pre-drawn pick applies, a late result is rejected
+    end
+    AI->>AI: owning systems execute, DialogueTurnResolved
+    VO-->>UI: reply consistent with the decision (streamed if low/medium stakes, verified if high/critical)
   end
   AI->>AI: conversation ends, resume plan or react
 ```
@@ -1231,18 +1438,91 @@ public sealed record ConversationRequest(
 ```
 
 - A conversation is an **activity** (`action.converse`, P3; P2 if summons) that holds the NPC at
-  LOD0. **The sim never blocks on language models**: while a turn is being classified or voiced, the
-  sim keeps ticking and the NPC plays listening idles. Results enter the sim only as recorded input
-  events (defined in [22](22-llm-integration.md)) applied at the tick they
-  arrive — exactly like player input, so replay is deterministic. The input events are
-  `PlayerUtteranceClassified`, `DialogueLineRendered` and `RenderCompleted`; the **Dialogue Rules
-  Engine** (a sim system specified in 22) then resolves each turn deterministically and emits
-  `DialogueTurnResolved`, calling this doc's appraisal (§6.1) and hijack (§8.3) logic.
-- Each turn, the NPC's **stay-in-conversation** utility is re-evaluated: continue if
-  `score(converse) ≥ 0.77 × best alternative` (i.e., alternative must beat it by 1.3×). If not, the
-  DRE emits `end_conversation` with a reason ("I've work to finish"); P0 interrupts end it at once.
+  LOD0. **The sim never blocks on language models**: while a turn is being classified, decided or
+  voiced, the sim keeps ticking and the NPC plays listening idles (§14.6). Results enter the sim only
+  as recorded input events applied at the tick they arrive — exactly like player input, so replay is
+  deterministic. The input events are `PlayerUtteranceClassified`, `DialogueLineRendered` and
+  `RenderCompleted` (defined in [22](22-llm-integration.md)) and the decision-point records
+  `DecisionPointOpened` / `DecisionMade` (defined in [20 §8.5, §11](20-architecture.md)). The
+  **Dialogue Rules Engine** (a sim system specified in 22) opens each turn's DPs, guards the choice,
+  dispatches it to the owning system and emits `DialogueTurnResolved`, calling this doc's appraisal
+  (§6.1), propensities (§7.8) and hijack (§8.3) logic.
+- Each turn, the NPC's **stay-in-conversation** utility becomes the propensity of the always-present
+  `end_conversation` option on its initiative DP (§14.5):
+  `p_end = logistic(10 × (best alternative / score(converse) − 1.3))` — ≤ 0.05 while the
+  conversation still scores best, 0.5 when an alternative beats it by 1.3×, 0.95 at 1.6×. Whoever
+  picks it, the NPC ends with a reason ("I've work to finish"). P0 interrupts end a conversation at
+  once and are not a decision.
+- The player's own acts are never on an NPC's menu. An NPC's initiative option *offers*; the player
+  answers in their own words or through the trade/UI flow, and consequential acts go through the
+  intent echo (canon §13.5 #3). See §16.
 - NPC↔NPC conversations: 21 picks partner and topic (shared events, rumors held, own top need or
-  ambition, complaints); outcomes are resolved by 16; 22 renders them only if overheard (§15.3).
+  ambition, complaints); every choice in them — answers and initiatives alike — is made by the
+  **policy** from the same menus and propensities, and resolved by 16; 22 renders them only if
+  overheard (§15.3), and the render never changes the outcome.
+
+### 14.5 Initiative options: NPCs acting inside a conversation
+
+Each NPC turn opens an **initiative DP** beside the **response DP** (the answer to the player's act,
+owned by the system that act touches). They are separate DPs — one decider picks one option per DP —
+decided together in one decision-first output (format owned by [22](22-llm-integration.md)) and
+guarded independently. The initiative menu holds at most **3 initiative options** plus `none` (just
+answer) and `end_conversation` (§14.4).
+
+**Generation** (bounded, like §7.4; recomputed every NPC turn from current state):
+
+```
+sources:
+  needs        top unmet need the player could serve (believed inventory, skill, coin)      → propose_trade, ask_favor
+  ambitions    next project step that involves the player (§11)                            → ask_favor, propose_trade, invite, challenge
+  obligations  debts or promises due between the two (15 / 16)                             → demand_payment, remind_promise
+  emotions     Anger at player ≥ 50 → challenge, accuse;  Attraction past 16's threshold → flirt;
+               Fear of player ≥ 50, or a believed crime by the player ≥ 0.7, with guards in earshot → call_guards
+  beliefs      believed threat to the player (≥ 0.5) and Opinion ≥ 20 → warn;  fresh rumor + Gossip trait → share_gossip
+  agenda       the approach intent (§14.1) on the opening turn
+score each candidate with §7.2's scorer (action initiative.<id>: same facets, traits, values, emotions, needs)
+keep the top 3:  B(o) = score(o) / θ_init   (θ_init = 2.0; ×2.5 for a P2 agenda such as an overdue debt)
+B(none) = 1, or 2 on a turn where the player asked or requested something (answer first);  B(end) per §14.4
+the owning system's menu builder sets fixed parameters and eligibility; §7.8 composes p_i
+(the score already holds every character term, so only the spread T applies)
+```
+
+| Option | Typical source | Fixed parameters (set by) | Stakes | Executed by |
+|--------|----------------|---------------------------|--------|-------------|
+| `propose_trade` | Need for something the player holds; surplus to sell (job, Wealth) | Goods, quantity, opening price within the menu width (15) | Low/medium; **critical** at ≥ 1 crown (960f) | 15, once the player accepts, counters or refuses in their own turn |
+| `ask_favor` | A need or ambition step the player can fill | Task, hours or item, offered return (16 reciprocity, 15 wage) | Low | 16 records the obligation if the player agrees |
+| `demand_payment` / `remind_promise` | Overdue debt or promise | Amount, new deadline (15 / 16) | Medium | 15 / 16 (consequences of refusal per 17) |
+| `challenge` | Anger ≥ 50, `insulted_me` with Honor ≥ 60, a rivalry ambition | Form (contest, wrestle, duel to first blood), time, place, terms (18) | Medium (contest), high (duel), **critical** (to the death) | 18, only if the player accepts; refusal has 16's reputation costs |
+| `flirt` | Attraction (16); both aged 16 or older; Romantic | Step on 16's courtship ladder | Low | 16 |
+| `warn` | Believed threat to the player | The claim to share (16) | Low | 16 belief transmission |
+| `share_gossip` | Gossip trait, fresh rumor | The claim (16) | Low | 16 rumor system |
+| `accuse` | Belief "the player did X" ≥ 0.7 | The claim; public or private (16 / 17) | High | 16 reputation; 17 if formal |
+| `call_guards` | Fear of the player, or a believed crime by the player | Which guards; the accusation (17) | High | 17: the guards respond under their own policy |
+| `invite` | An event; Social need | Event, time, place (16) | Low | 16 |
+| `none` / `end_conversation` | Always | — / reason code | Low | — / this layer ends the activity |
+
+**Eligibility** comes from law, presence and physics (no guards in earshot, no `call_guards`), 16's
+rules (`flirt` and every courtship option require both people to be aged 16 or older — canon §13.5 #9
+forbids any romantic content involving anyone under 16) and the NPC's own hard rules (§7.8).
+
+**Pacing**, so NPCs propose without badgering: one initiative act per NPC turn at most (structurally,
+one DP); after an act, the same option is not offered for the next 3 NPC turns; if the player
+declines, the NPC may re-ask at most once per conversation, at `0.5^(n−1)` of its weight (canon §13.4
+applied to the asker). A proposal only **offers**: what the player does with it is the player's own
+act (§16).
+
+### 14.6 Deadlines, and the NPC while a decision is pending
+
+| Item | Rule |
+|------|------|
+| Deadline | Conversation DPs: 4 s, i.e. 40 sim steps; fast-decider DPs (bystander, yield/mercy): 0.5 s = 5 steps (canon §13.5 #1). Fixed at open as `DeadlineStep` ([20 §11](20-architecture.md)); steps equal real time because focus time is proposed as a clock-ratio change with 10 Hz stepping (20 §5.3, open question there). |
+| Paused game | The sim does not step, so `DeadlineStep` is not reached; the gateway's real-time timeout returns a logged result and the policy's pick applies on the next step (20 §11). |
+| The NPC | Activity stays `action.converse`, sub-state `Deliberating`: listening or thinking idles, plus a non-verbal reaction within ~0.4 s (canon §13.5 #2) chosen from **appraisal** (an Anger flash, a laugh, a flinch), never from the pending decision, so the cue cannot contradict whatever is picked. It starts no other action. |
+| The world | Keeps ticking at focus time (12:1, canon §6.3): needs, emotion decay, perception and every other agent carry on. |
+| Interrupts | A P0 stimulus (attack, fire, kin in danger) cancels the NPC's open DPs (`DecisionPointCancelled`); a later `DecisionMade` for them is rejected; the NPC reacts through utility. |
+| State changes before apply | Eligibility is re-checked when the choice applies; a pick that became ineligible falls back to the policy over the still-eligible options (§7.8). Propensities are not recomputed — the recorded menu hash fixes them. |
+| The player speaks again | The new line queues until the pending DPs resolve (≤ 4 s; canon's ≥ 2 s between turns usually covers it). Turns resolve in order. |
+| Scenes with several NPCs (court, council) | Each speaker's DP has its own deadline; choices apply in `Seq` order of their `DecisionMade` commands, expired ones in DP-id order. Members who do not speak decide by the policy unless 17 routes them to the fast decider (open question 9). |
 
 ---
 
@@ -1252,7 +1532,7 @@ public sealed record ConversationRequest(
 
 | Tier (canon §8.2) | Membership rule (this doc's operationalization) | Tick |
 |-------------------|------------------------------------------------|------|
-| **LOD0 Embodied** | Within 80 m of the player or in active interaction/combat with the player or an LOD0 agent; cap 48, priority: interacting > in combat > in view > nearest | 10 Hz behavior |
+| **LOD0 Embodied** | Within 80 m of the player or in active interaction/combat with the player or an LOD0 agent, including the speaking participants of a court session, council, negotiation or war council the player attends; cap 48, priority: interacting > in combat > in view > nearest | 10 Hz behavior |
 | **LOD1 Local** | Player's current settlement (or within 400 m), not LOD0 | 1 Hz |
 | **LOD2 Abstract** | Away from the player's local area but in the **near region** (≤ 1.5 km of the player, satellite hamlets of the player's settlement, members of the player's settlement out working/traveling) or in the **relevance set** (player's kin & spouse, obligation counterparties, envoys/war parties en route, anyone with an active ConversationRequest) | Every game hour |
 | **LOD3 Statistical** | Everyone during Interludes and sleep-skips; populations of **far settlements** (> 1.5 km, not in relevance set) in normal play | Every game day (partial-day steps allowed) |
@@ -1279,11 +1559,29 @@ budgeted: ≤ 4 LOD0 promotions per frame, ≤ 50 LOD1 promotions per second.
 |--------|------|------|------|------|
 | Movement | Navmesh steering, physics | Path graph, edge interpolation | Location-to-location by schedule (travel time) | None (location = home/work) |
 | Perception | Sight/hearing (§13.1) | Zone rolls | Witness rolls | Event hazard only |
-| Decisions | Utility (§7) 1 s + events | Utility on step completion | Utility hourly (schedule-weighted) | Aggregate rules |
+| Decisions | Utility (§7) 1 s + events; DP menus by policy, or by an in-loop model in player conversations and attended scenes | Utility on step completion; DP menus by policy | Utility hourly (schedule-weighted); policy | Aggregate rules |
 | Work | Primitive FSMs; player-visible | Duration resolution via 13 | Hourly output via 13 | Daily output per job group |
 | Needs/emotions | Continuous (lazy eval) | Continuous | Hourly | Daily expectation |
-| Social | Conversations, barks, overheard (22) | Interactions resolved by 16 (no text) | Interaction rolls (≤ 2/agent-hour) | Opinion drift + event rolls |
+| Decision points recorded | Yes: conversations with the player, attended scenes, fast-decider moments in the player's bubble | No (policy inline, reproducible from state) | No | No |
+| Social | Player conversations (DPs); NPC↔NPC exchanges policy-decided, rendered by 22 only if overheard | Interactions resolved by 16 (no text) | Interaction rolls (≤ 2/agent-hour) | Opinion drift + event rolls |
 | Combat | 18 real-time | 18 auto-resolve | 18 auto-resolve | 18 statistical |
+
+**Decision points by tier.** A DP is opened and recorded — and a model may pick — only at **LOD0**,
+in a conversation with the player, in a court session, council, negotiation or war council the player
+attends, or for a fast-decider moment inside the player's bubble (a bystander to the player's quarrel,
+yield or mercy against the player). Which deciders are allowed is fixed when the DP opens: if the
+player leaves the hall, DPs opened afterwards are policy-only. Everywhere else the owning systems call
+the same menu builders and §7.8 propensities and the policy samples inline (stream `ai.dp`) with
+nothing recorded, because the result is reproducible from state; LOD2 interaction rolls and LOD3
+drift tables are calibrated against that policy (§15.6). Crowds the player addresses (§12.3–12.4)
+also decide by policy; the player's classified words enter as the bounded state changes those
+sections already define.
+
+**Overheard rendering rule.** An NPC↔NPC exchange is decided by the policy *before* any rendering is
+requested; the render request carries the decided outcome (16 §5.7 `SocialExchangeRender`), and a line
+that contradicts it is discarded for a template. Being watched never changes an outcome, and promoting
+participants to LOD0 never turns a decision already taken into a DP. If the player joins the
+exchange, only the turns addressed to the player from then on become DPs.
 
 ### 15.4 Canonical state and reconciliation
 
@@ -1378,6 +1676,16 @@ breaking points and vices are **disabled** for the player-agent and τ is fixed 
 is the personality; the AI just keeps the routine. The player's 2 traits still apply where they are
 *rules* (e.g., Pious → no work on Hearthday) and in how others perceive the player (16).
 
+**No model ever decides for the player's own character** — not in conversation, not in Interludes,
+not under standing orders. While the player is present, every choice is theirs (typed words, chips,
+UI); while they are away, the deterministic standing orders below choose, with no LLM or fast decider
+anywhere in that path (and in headless runs with `player: ai`, the same). Models touch the player's
+side only to *classify* their words (what act was meant), never to choose; misclassification is
+caught by the intent echo (canon §13.5 #3). An NPC's initiative option that would bind the player
+(a trade, a challenge, a favor, a marriage offer) only offers; accepting is the player's own act. Offers that
+reach the player-agent while the player is away are answered by the matching `responses:` entry, or
+by the conservative default below.
+
 ```yaml
 standing_orders:
   job: smith                 # from 12; work blocks from schedule template
@@ -1405,21 +1713,27 @@ candidate if it is on canon's list; otherwise the conservative default (decline/
 ### 17.1 DecisionTrace
 
 ```csharp
-public enum SelectionMode { Argmax, Noise, Hijack, BreakingPoint, Obligation, Forced }
+public enum SelectionMode { Argmax, Noise, Hijack, BreakingPoint, Obligation, Forced,
+                            DpPolicy, DpLlm, DpFastDecider, DpFallback }   // DpFallback = deadline or guard failure
 public readonly record struct Factor(FactorKind Kind, string Key, float Value);   // e.g. (Need, "satiety", 0.44)
 public readonly record struct ScoredOption(ActionId Action, EntityId Target, PriorityClass Class, float Score, Factor[] Factors);
 public sealed record DecisionTrace(
     long AtMin, EntityId Agent, ActionId Chosen, EntityId Target, SelectionMode Mode,
     ScoredOption[] Top,            // top 5 with factor breakdowns
     Factor[] KeyFactors,           // 1–3 dominant factors, for one-line explanation
-    string ExplanationTemplate);   // e.g. "explain.hungry_skipped_work"
+    string ExplanationTemplate,    // e.g. "explain.hungry_skipped_work"
+    DecisionPointId? Dp = null,    // set for DP choices: menu propensities and the decider are looked up by id
+    float ChosenPropensity = 1f);  // p_i of the chosen option (DP choices only)
 ```
 
 Every committed decision produces a trace. Explanations are generated from `KeyFactors` with
 templates ("Bram went to confront you because he was furious (Anger 76) after you insulted him in
 front of others."). The same trace feeds the **in-world "why?"**: if the player asks an NPC why it did
 something, [22](22-llm-integration.md)'s DRE decides whether the NPC admits the real reason (Honest,
-Trust in player, whether the reason is shameful/criminal) or gives a pre-approved cover story.
+Trust in player, whether the reason is shameful/criminal) or gives a pre-approved cover story. A
+choice an LLM made at a DP is explained the same way, from the option's `KeyFactors` (§7.8); the
+trace also records the decider and the chosen option's propensity, so the inspector shows "chosen by
+the LLM at p = 0.27" next to what the policy would have done.
 
 ### 17.2 Tools
 
@@ -1428,7 +1742,7 @@ Trust in player, whether the reason is shameful/criminal) or gives a pre-approve
 | **NPC inspector** (dev overlay & headless JSON) | Personality, traits, needs bars, emotions with targets, mood breakdown (each term), current plan & step, reservations, ambitions, top-5 last decision with factors | M1 |
 | **Decision log** | Ring buffer per agent: 256 traces at LOD0/1, 64 hourly summaries at LOD2; LOD3 logs events only | M1 |
 | **"Why?" button** | One-line explanation + expandable factors | M1 |
-| **Replay** | Deterministic: snapshot + event log (incl. recorded dialogue/LLM events) → identical decisions; replay divergence detector hashes AI state every game hour | M1 (headless), M3 (client) |
+| **Replay** | Deterministic: snapshot + event log (incl. recorded dialogue/LLM events and `DecisionMade` records) → identical decisions without calling any model; replay divergence detector hashes AI state every game hour | M1 (headless), M3 (client) |
 | **Heatmaps** | Idle locations, path congestion, reservation conflicts, crime/fight hotspots | M3 |
 | **Society graphs** | Opinion network, factions, grudge web over time | M4 |
 | **Scenario runner** | CLI: `sim run --scenario landfall --seeds 100 --days 128 --lod 1 --report metrics.json` | M1 |
@@ -1457,14 +1771,17 @@ Headroom matters for **speed-up**: sleep-skips/Interludes (§15.6 budget) and he
 
 1. **SoA component storage** for hot data (needs, emotions, activity, location) with stable
    iteration in entity-id order.
-2. **Per-agent, per-system seeded RNG streams** (`ai.decide`, `ai.hijack`, `ai.break`, `ai.scape`,
-   `ai.vice`, `lod2.*`, `lod3.*`, `persongen`) derived from (world seed, stream id, entity id, time
+2. **Per-agent, per-system seeded RNG streams** (`ai.decide`, `ai.dp` (keyed by DP id), `ai.hijack`,
+   `ai.break`, `ai.scape`, `ai.vice`, `lod2.*`, `lod3.*`, `persongen`) derived from (world seed, stream id, entity id, time
    bucket) — so adding an agent never shifts another agent's randomness.
 3. **Parallel LOD2/LOD3 updates** with writes through command buffers applied in deterministic order.
 4. **Time-slicing** for LOD2 (agents spread across the game hour) and staggered LOD0/1 decisions.
 5. **Spatial hash** (cell 16 m) and **path graph** service with distance/travel-time queries.
 6. **Ordered event bus** (appraisal subscriptions) with per-tick delivery guarantees.
-7. **Input-event channel** for asynchronous results (dialogue, LLM) stamped with the applying tick.
+7. **Input-event channel** for asynchronous results (dialogue, LLM, fast decider) stamped with the
+   applying tick, including the decision-point records `DecisionPointOpened` (menu hash, options,
+   deadline) and `DecisionMade` (choice, decider, latency) with a sim-side deadline after which the
+   policy decides ([20 §8.5, §11](20-architecture.md)).
 8. **Save:** all LOD-independent core state; transient LOD0 data is not saved (re-promotion
    rebuilds it).
 
@@ -1479,7 +1796,10 @@ AI state ≈ 1.7 KB/agent + decision logs (LOD0/1 ≈ 40 KB each, LOD2 ≈ 4 KB)
 
 Run in CI nightly over 100 seeds per scenario (Landfall 24 settlers, Hamlet 60, Village 150, Town
 400, Realms 1,500), without the player (or with a scripted passive player), at LOD1 for ≤ 500 agents
-and LOD2/LOD3 above.
+and LOD2/LOD3 above. **Headless runs are policy-only:** they run with `LLM_MODE=template`, no
+conversation with the player exists, so every DP menu is sampled inline by the policy and no model is
+ever called ([20 §13](20-architecture.md)). Every metric in the first table therefore measures the
+policy.
 
 | Metric | Definition | Target band | Era |
 |--------|------------|-------------|-----|
@@ -1504,6 +1824,25 @@ and LOD2/LOD3 above.
 | Determinism | Two runs, same seed → identical state hashes | 100% | all |
 | Irrationality | §8.8 bands | all within band | all |
 
+**Calibration metrics (LLM vs policy).** Headless runs cannot produce these, because they never call a
+model. They are computed by [22](22-llm-integration.md)'s calibration job (the `feudalsim ai
+calibrate` hook, [20 §13–14](20-architecture.md); nightly or manual, needs a key) on neutral golden
+scenarios, and by play telemetry. This doc supplies the scenarios' menus and `p_i`. A *neutral*
+scenario is a DP whose triggering player line is classified neutral (`L_words` at its neutral value),
+so the policy's propensities are the right expectation for the model's choice rates.
+
+| Metric | Definition | Target | Source |
+|--------|------------|--------|--------|
+| Choice-rate gap | Per option family: \|LLM choice frequency − mean policy `p_f`\| over ≥ 200 neutral DPs per family | ≤ 10 points (canon §13.5 #7) | Calibration job |
+| Refusal suite | Scenarios where the policy's refuse family has `p_f ≥ 0.8`: share the LLM refuses | ≥ 95% (canon) | Calibration job |
+| Sycophancy index | LLM share of player-favoring picks minus the policy's expected share | ≤ +5 points (proposal) | Calibration job, telemetry |
+| Hostile-option gap | The choice-rate gap restricted to escalate, refuse and `call_guards` families (conflict aversion) | ≤ 10 points | Calibration job |
+| Position bias | Choice-rate gap by shuffled display position | ≤ 5 points (proposal) | Calibration job |
+| Fast-decider gap | The choice-rate gap for fast-decider DPs (bystander, yield/mercy) | ≤ 10 points | Calibration job |
+| Long-shot use | Player-favoring picks with `p_i < 0.20` per NPC–player pair per game day | Budget of 2 never exceeded; mean ≤ 0.3 (proposal) | Telemetry |
+| Guard rejections | Share of LLM picks the DRE rejects | < 2% (proposal) | Calibration job, telemetry |
+| Deadline fallbacks | Share of conversation DPs decided by the policy after the deadline | < 5% in cloud mode (proposal) | Telemetry |
+
 ---
 
 ## 20. Milestone plan
@@ -1511,7 +1850,7 @@ and LOD2/LOD3 above.
 | Milestone | NPC AI scope | Exit criteria (AI-specific) |
 |-----------|--------------|------------------------------|
 | **M0** | Data schemas, curve library, RNG streams, scenario runner skeleton | Curves unit-tested; deterministic stream derivation |
-| **M1 Talking Camp** | Personality (facets, values, 16 canon traits + ~8 more), psych & simplified physical needs, emotions & mood, utility selection with noise & hijack, social actions (chat, gossip, confront, help), approach intents & pacing, conversation activity, DecisionTrace/inspector, LOD1/LOD2 headless | 24-NPC camp runs 8 game days with no stuck agents; **headless spike: 300–500 agents × 1 game year** within §18 budgets; conflict-emergence and irrationality metrics within bands; replay-identical |
+| **M1 Talking Camp** | Personality (facets, values, 16 canon traits + ~8 more), psych & simplified physical needs, emotions & mood, utility selection with noise & hijack, social actions (chat, gossip, confront, help), approach intents & pacing, conversation activity, **DP propensities (§7.8), initiative options (§14.5), pending-DP state (§14.6)**, DecisionTrace/inspector, LOD1/LOD2 headless | 24-NPC camp runs 8 game days with no stuck agents; calibration scenarios delivered to 22 and the §19 LLM-vs-policy gap ≤ 10 points with refusal suite ≥ 95% (ADR-0003); template mode plays the camp with the policy deciding every DP; **headless spike: 300–500 agents × 1 game year** within §18 budgets; conflict-emergence and irrationality metrics within bands; replay-identical |
 | **M2 Landfall** | LOD0 embodiment, perception, survival actions, communal task board, HTN-lite gather/build, reservations, panic | Landfall seed survival ≥ 90% (no player); idle 10–25% |
 | **M3 Hamlet** | Jobs & work orders, full HTN templates for crafts/farming/construction, seasonal schedules, ambitions v1, Hearthday | Job coverage ≥ 85%; task failure < 5% |
 | **M4 Village** | Full trait catalog (45), vices, biases complete, scapegoating, market-day schedules, LOD3 + Interludes + standing orders + calibration loop, witness rolls | LOD fidelity checks pass; 2-year Interlude ≤ 32 s at 400 agents |
@@ -1526,7 +1865,7 @@ and LOD2/LOD3 above.
 
 | Knob | Default | Range | Effect |
 |------|---------|-------|--------|
-| `K_irr` (master) | 1.0 | 0–2 | Scales all irrationality knobs (exposed to player as "Drama") |
+| `K_irr` (master) | 1.0 | 0–2 | Scales all irrationality knobs (exposed to player as "Drama"), including the spread of DP propensities `p_i` via τ (§7.8, §8.2) |
 | `τ0` | 0.08 | 0.02–0.2 | Decision noise |
 | `K_hijack` / θ default | 1.0 / 70 | 0–2 / 50–90 | Emotional rashness |
 | Emotion half-lives | §6.2 | ×0.5–×2 | Grudge vs. forgiveness feel |
@@ -1538,6 +1877,9 @@ and LOD2/LOD3 above.
 | Schedule weight | 0.35 | 0.1–0.6 | Routine rigidity |
 | Momentum | 1.15 | 1.0–1.5 | Task persistence |
 | Approach budget | 3 / 10 min | 0–6 | NPC talkativeness toward the player |
+| Menu spread `T` clamp | 0.25–3.0 | — | How far `K_irr` and personality can sharpen or flatten DP propensities (§7.8) |
+| `θ_init` (initiative threshold) | 2.0 | 1.0–4.0 | How readily NPCs propose, ask, challenge or warn inside a conversation (§14.5) |
+| Initiative cooldown | 3 NPC turns | 1–6 | Same initiative option not re-offered (§14.5) |
 | LOD radii | 80/100, 400/450 m | — | Perf vs fidelity |
 
 ---
@@ -1556,7 +1898,10 @@ and LOD2/LOD3 above.
 | Item duplication/loss across LOD | Conservation check fails | Commit-at-boundary rule; daily conservation validator |
 | LOD3 drift from LOD1 behavior | Interludes produce different societies | Calibration loop and fidelity check in CI |
 | Player harassed by NPCs | Too many approaches | Social director budget & deferral |
-| Exploitable AI | Player farms opinion with repeated gifts/talk | Diminishing returns (16), conversation fatigue (22 DRE), approach cooldowns |
+| Exploitable AI | Player farms opinion with repeated gifts/talk | Diminishing returns (16), conversation fatigue (22 DRE), approach cooldowns; repetition halving and long-shot budget at DPs (§7.8, canon §13) |
+| Sycophantic NPCs | LLM-picked choices favor the player more than the policy's | Parity band, sycophancy index, refusal suite (§19); floors and long-shot budget; prompt fixes, then tighter menus (§8.9) |
+| Conversations stall on model latency | NPC frozen while the LLM thinks | 4 s deadline then the pre-drawn policy pick; appraisal-driven non-verbal cue within ~0.4 s (§14.6) |
+| Pushy NPCs | Every turn carries a proposal | `θ_init`, answer-first weighting, initiative cooldown, one re-ask per conversation (§14.5) |
 | Perf regressions | Budget overrun | Per-tier budget counters in scenario runner; CI perf gates |
 
 ---
@@ -1578,6 +1923,20 @@ and LOD2/LOD3 above.
 6. **LOD2 relevance set size.** Kin + counterparties could grow large in late eras; may need a cap (e.g., 100).
 7. **Breaking-point visibility.** Should the UI warn the player when a friend is near breaking (to invite
    intervention)? 19 to decide.
+8. **Propensities in the prompt.** Should the LLM see numeric `p_i` or verbal inclination bands
+   ("strongly inclined to refuse")? Numbers may pin the model to the policy; bands may leave too much
+   room. Recommended: bands plus `KeyFactors`; [22](22-llm-integration.md) decides after the M1 bake-off.
+9. **Silent members of attended scenes.** In a council or court the player attends, should members
+   who do not speak decide by the policy (cheaper, already calibrated) or the fast decider?
+   Recommended: policy; 17 to decide.
+10. **Hijack at DPs.** Folding hijack into `p_i` (§7.8) lets an LLM pick the calm option during a
+    hijack. Should a hijack above some strength (e.g. `P_hijack ≥ 0.6`) force the outlet whoever
+    decides? Recommended: keep the fold-in (one mechanism, measured by the parity band); revisit if
+    playtests show rage that never boils over.
+11. **Option families across systems.** Per-family tempering and the parity metric need 15–18 to use
+    one family vocabulary (proposal 16 below).
+12. **Initiative frequency.** `θ_init = 2.0`, answer-first weighting and the 3-turn cooldown are
+    guesses; tune in M1 playtests between "NPCs feel alive" and "NPCs badger me".
 
 ## Proposed canon additions
 
@@ -1607,3 +1966,21 @@ and LOD2/LOD3 above.
 11. **Social director pacing:** ≤ 3 non-urgent NPC approaches to the player per 10 real minutes, ≥ 90 s apart.
 12. **Culture value means** for the four homelands (§4.2) and culture trait multipliers (§4.4).
 13. **Daylight anchors per season** (§9.2), consistent with canon's 16 h / 8 h extremes.
+14. **DP propensities** (§7.8): family base mass from the owning system × this layer's terms not
+    already in that base; per-family power tempering with `T = clamp(τ/τ0, 0.25, 3)`, so `K_irr` scales
+    menu spread and an average person reproduces the owning system's calibrated base; hard trait
+    rules are eligibility, never propensity; hijack folds into propensities; the policy's draw is
+    keyed by DP id (`ai.dp`) and made when the DP opens.
+15. **Ownership map:** 21 owns DP base propensities and the deterministic policy; owning systems own
+    their menus; 22 owns the DRE's guards and the deciders (amends canon §16).
+16. **Option families** as a required menu field with a shared vocabulary — `accept`, `counter`,
+    `refuse`, `escalate`, `de-escalate`, `warm`, `cool`, `initiate`, `end` — used for tempering and the
+    parity metric.
+17. **Initiative DP** on every NPC turn beside the response DP, decided in one output: ≤ 3 initiative
+    options plus `none` and `end_conversation`; at most one act per turn; the same option is not
+    re-offered for 3 NPC turns; one re-ask per conversation.
+18. **Pending-DP rules** (§14.6): the non-verbal cue comes from appraisal, not the decision; P0
+    stimuli cancel open DPs; the player's next line queues; eligibility is re-checked at apply.
+19. **No model ever decides for the player character** (extends canon §13.3 MUST NOT).
+20. **Calibration targets** beyond canon's two: sycophancy index ≤ +5 points, position bias ≤ 5
+    points, guard rejections < 2%, deadline fallbacks < 5% in cloud mode (§19).

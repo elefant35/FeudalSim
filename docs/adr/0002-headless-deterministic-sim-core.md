@@ -1,6 +1,6 @@
 # ADR-0002 — A headless, deterministic simulation core
 
-> **Status:** Proposed · **Date:** 2026-10-03
+> **Status:** Accepted (confirmed by owner 2026-10-03) · **Date:** 2026-10-03
 > **Related:** [ADR-0001](0001-engine-godot-dotnet.md), [canon §3 tenet 4, §8.2](../01-canon.md), [20-architecture](../tech/20-architecture.md)
 
 ## Context

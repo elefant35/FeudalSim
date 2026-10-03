@@ -1,6 +1,6 @@
 # 12 — Skills & Professions
 
-> **Status:** Draft v0.1 · **Owner doc for:** attributes, skills, XP & learning, aptitude, skill checks (the shared resolution function), specializations & perks, know-how, teaching & apprenticeship, professions, job choice & labor allocation · **Depends on:** [01-canon](../01-canon.md), [11-survival](11-survival.md), [13-crafting-and-minigames](13-crafting-and-minigames.md), [15-economy-and-trade](15-economy-and-trade.md), [16-social-systems](16-social-systems.md), [17-governance-and-law](17-governance-and-law.md), [21-npc-ai](../tech/21-npc-ai.md), [22-llm-integration](../tech/22-llm-integration.md)
+> **Status:** Draft v0.1 · revised for canon v0.3 (decision points) · **Owner doc for:** attributes, skills, XP & learning, aptitude, skill checks (the shared resolution function), specializations & perks, know-how, teaching & apprenticeship, professions, job choice & labor allocation · **Depends on:** [01-canon](../01-canon.md), [11-survival](11-survival.md), [13-crafting-and-minigames](13-crafting-and-minigames.md), [15-economy-and-trade](15-economy-and-trade.md), [16-social-systems](16-social-systems.md), [17-governance-and-law](17-governance-and-law.md), [21-npc-ai](../tech/21-npc-ai.md), [22-llm-integration](../tech/22-llm-integration.md)
 
 The vision asks for "a more or less identical skill tree for both players and the AI villagers" and
 says that "as people build their skills they should gravitate towards certain jobs and
@@ -202,7 +202,7 @@ these skills' games)
 
 | Skill | Governs | Attributes | Learn by doing (base XP) | Specializations @40 | Master capstone @80 |
 |-------|---------|-----------|--------------------------|---------------------|---------------------|
-| **Persuasion** | Convincing, favors, speeches, comforting, deceiving | CHA .7 · INT .3 | Persuasion attempt 5–20 by stakes · speech 10 + 1 per listener (cap 30) | **Orator** (groups) · **Negotiator** (deals, treaties) · **Charmer** (one-on-one, deceit) | *Golden Voice* — listener susceptibility +25 % (still inside the ±15 % clamp, canon §13) |
+| **Persuasion** | Convincing, favors, speeches, comforting, deceiving | CHA .7 · INT .3 | Persuasion attempt 5–20 by stakes · speech 10 + 1 per listener (cap 30) | **Orator** (groups) · **Negotiator** (deals, treaties) · **Charmer** (one-on-one, deceit) | *Golden Voice* — listener susceptibility +25 % (raises `s` in the menu-width formula, still capped at 1.0; canon §13.4) |
 | **Commerce** | Valuation, haggling, pricing, stock, credit, trade routes | INT .5 · CHA .3 · PER .2 | Completed trade 2 + value/100 f (cap 25) · day of shop pricing 5 · appraisal 5 | **Haggler** · **Appraiser** (true value, fakes) · **Factor** (long-distance trade, credit) | *Merchant Prince* — price information from +1 more settlement; shop margin +10 % |
 | **Leadership** | Directing crews, morale, meetings, court sessions, rallying | CHA .6 · INT .2 · END .2 | Leading a crew 4/h + 1/h per member (cap 15/h) · chairing a meeting/court 15 · rally 10 | **Rallier** (morale) · **Foreman** (crew efficiency) · **Arbiter** (disputes, court) | *Born Leader* — crew cap +50 %; order-compliance input +10 (17 consumes) |
 | **Stewardship** | Stores, rationing, estates, labor rotas, accounts, tax collection | INT .6 · PER .2 · CHA .2 | Stores/estate work 10/h · season accounts 20 · tax round 10 | **Quartermaster** (stores, rations) · **Reeve** (estates, labor obligations) · **Treasurer** (accounts, coin) | *Master Steward* — settlement storage spoilage −20 %; store theft detection ×2 |
@@ -812,7 +812,7 @@ stateDiagram-v2
   Dismissed --> [*]
 ```
 
-**Master willingness** (hard function; Persuasion and language move it within the canon clamp):
+**Master willingness** (hard function; it is the base propensity of the master's decision point, §14):
 
 ```
 W = 0.30
@@ -824,7 +824,8 @@ W = 0.30
   + 0.15 × [candidate's knack band known to master and ≥ "comes naturally"]
   − 0.30 × [trait Greedy and no premium]
   − 0.40 × secrecy (candidate from a rival household/faction/settlement; sole-holder know-how)
-P(accept) = clamp(W, 0, 1) ± 0.15 × persuasionSignal × susceptibility      // canon §13
+p(accept options) = clamp(W, 0, 1)   // base propensity; the asker's words and Persuasion reach up to
+                                     // Margin = C_sys·s·(0.5 + 0.5·K_skill) (canon §13.4)
 ```
 
 **Relationship effects** (events emitted to [16](16-social-systems.md), which owns the math): the
@@ -1071,7 +1072,7 @@ hireScore(c) = 0.40·(perceivedCompetence_p(c) + 100)/200 + 0.25·observedSkillF
 hire when hireScore ≥ 0.45 and marginal product ≥ wage (15 computes both sides)
 ```
 
-Player requests go through Jev intent classification and the ±15 % clamp (§14).
+Player requests open a decision point for the employer or worker, with hireScore as the base propensity (§14).
 
 ### 11.7 Preventing degenerate equilibria
 
@@ -1130,15 +1131,26 @@ Optional depth for **M5+**. A guild is an institution entity (members, rules, tr
 
 | # | Touchpoint | Model | Input → output | Outcome decided by | Fallback |
 |---|-----------|-------|----------------|-------------------|----------|
-| 1 | Player asks to learn, apprentice, be hired, or hire | Jev **choice** (intent: request_lesson / request_apprenticeship / request_job / offer_job / offer_apprenticeship / other) + entity from a closed list of skill/profession ids | Player text (untrusted) → intent + id | W (§9.2) / hireScore (§11.6) | Dialogue menu verbs |
-| 2 | Persuasiveness of that request | Jev **score** (5 levels) | → signal −1…+1 | ±15 % clamp × susceptibility (canon §13) | Signal 0 (Persuasion skill alone) |
+| 1 | Player asks to learn, apprentice, be hired, or hire | Fast decider **choice** (intent: request_lesson / request_apprenticeship / request_job / offer_job / offer_apprenticeship / other) + entity from a closed list of skill/profession ids | Player text (untrusted) → intent + id | Opens the decision point in row 2 | Dialogue menu verbs |
+| 2 | The NPC's answer | **LLM** chooses from the menu below, in its reply (policy in template mode, NPC↔NPC and off-screen) | Menu → one option + a line written to match | DRE guards; executed by the systems below | Policy samples `p_i`; the step comes from `L = 0.5·L_words + 0.5·L_skill`, with `L_words` from the classified words (fast decider; heuristics in template mode) (canon §13.4) |
 | 3 | "Why I became a cooper" | LLM | `JobChoiceExplanation` + persona | — (voice only) | Template per top term |
 | 4 | Lesson and workshop talk | LLM | skill, know-how, last PS, relationship | — | Canned lines |
 | 5 | Manual text | LLM | know-how description, author persona, readability | — (item mechanics fixed) | Template manual |
 | 6 | Chronicle: mastery, lost know-how, famous apprenticeships | LLM | event-log facts | — | Template sentences |
 | 7 | Skill boasts and claims | LLM extraction ([22](../tech/22-llm-integration.md)) | dialogue → Claim | Belief in [16](16-social-systems.md) | None needed |
 
-No model touches XP, check results, job choice, specialization picks or know-how transfer.
+**Decision menus** (built by this doc; canon §13.1):
+
+| DP | Options (fixed parameters) | `p_i` from | Stakes | Executed by |
+|----|----------------------------|-----------|--------|-------------|
+| Asked to take an apprentice | `accept` (the standard contract, §9.2: term, lodging, premium priced by 15) · `accept_with_conditions` (one condition from a fixed list: premium ×1.5, term +16 days, or an 8-day trial before the contract binds) · `defer` (re-ask after a named date; recorded as a promise) · `refuse` | W (§9.2); Greedy masters lean to the premium condition; `defer` is eligible only when labor need is low now | medium | Apprenticeship contract (§9.2), premium via 15 |
+| Asked for a lesson | `teach_now` · `teach_later` (a promise with a date) · `teach_for_fee` (a fee priced by 15) · `refuse` | TQ (§9.1), Opinion, schedule slack, the secrecy term of W | low | Teaching (§9.1); fee via 15 |
+| Asked for a job (NPC employer) | `hire_at_wage` (15's market wage) · `hire_trial` (8 days at that wage) · `refuse` | hireScore (§11.6) | medium | Hiring (§11.6); wages by 15 |
+| Offered work (NPC worker) | `accept_job` (the offered wage) · `counter_wage_step_k` (15's wage steps) · `refuse` | Job-choice utility (§11.2) | medium | Hiring (§11.6); wages by 15 |
+
+Models may decide whether a master takes the player on, teaches them, or hires them (above). No model
+touches XP, check results, NPCs' own job choice, specialization picks, contract terms or know-how
+transfer.
 
 ---
 
@@ -1262,7 +1274,7 @@ public struct AttributeBlock { public Float6 Potential, Training, InjuryMod, Tem
 | Job flip-flopping | Hysteresis, yearly switch limit, inertia |
 | Player hoards know-how to be indispensable | Allowed — NPCs do the same (secrecy term); it is political play |
 | Killing a rival's sole holder | Allowed; it is a crime handled by 16/17 and a Chronicle event |
-| Jev misclassifies a request | Player confirms the parsed intent in the dialogue UI before the hard function runs |
+| The fast decider misclassifies a request | Player confirms the parsed intent in the dialogue UI before the decision point opens |
 
 ---
 
@@ -1341,5 +1353,10 @@ public struct AttributeBlock { public Float6 Potential, Training, InjuryMod, Tem
     noise, outcome bands, PS, work rate); [13](13-crafting-and-minigames.md) owns how work tasks
     call it (recipe difficulties, target-quality uplift, PS → quality/yield mapping). Suggest
     amending 13's row to "NPC work resolution *via* 12's `Resolve()`".
+13. **Teaching and hiring decision points** (canon v0.3, §14): apprenticeship (`accept · accept_with_conditions · defer
+    · refuse`), lessons (`teach_now · teach_later · teach_for_fee · refuse`) and hiring (`hire_at_wage ·
+    hire_trial · refuse`; `accept_job · counter_wage_step_k · refuse`), with W, TQ, hireScore and
+    job-choice utility as base propensities. New constants: conditions premium ×1.5, term +16 days or
+    an 8-day trial; a hiring trial of 8 days.
 
 No numeric conflicts with canon; the one ownership-boundary note is item 12.

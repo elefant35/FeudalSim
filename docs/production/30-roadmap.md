@@ -89,7 +89,7 @@ Time-boxed experiments. Each answers one question and produces a short write-up 
 |-------|----------|----------|------|----------------|
 | **S1 Crowd render** | Can Godot render 150 animated low-poly characters at 60 fps (recommended spec), and 300 in battle mode at ≥ 30 fps? | 1–2 wks | M1 | Meets the budgets in [20 §19](../tech/20-architecture.md#19-performance-budgets) with animation LOD + MultiMesh/impostors |
 | **S2 Dialogue latency & cost** | Can a Qwen-class model on OpenRouter give in-character replies fast and cheaply enough? Includes the model bake-off in [22 §17.2](../tech/22-llm-integration.md#172-m1--talking-camp-the-de-risking-milestone-for-this-document). | 1 wk | M1 | LLM TTFT p50 < 1.0 s; first words p50 ≤ 1.2 s (Tier A); ≤ $0.05 per typical play-hour |
-| **S3 Jev classification** | Is Jev accurate enough on our dialogue-act/tone/persuasion taxonomy, and how injectable is it in practice? Also verifies the real API against TypeSafe's docs. | 1 wk | M1 | ≥ 88% dialogue-act accuracy on the golden set; red-team suite causes **0** unauthorized state changes |
+| **S3 Fast decider** | Which provider makes quick choices among fixed options accurately, fast and cheaply — and how injectable is it? Bake-off: `qwen/qwen3.5-9b` via log-probabilities (works today), `qwen/qwen3-30b-a3b-instruct-2507`, **Laya** zero-shot (local, open source), and Jev if TypeSafe grants access. | 1 wk | M1 | ≥ 88% on the golden set; p50 latency ≤ 500 ms; red-team suite causes **0** off-menu actions or guard bypasses |
 | **S4 Terrain streaming** | Does an 8 × 8 km stylized terrain stream smoothly in Godot (e.g. Terrain3D) within memory/VRAM budgets? | 1–2 wks | M0–M1 | Walk/run across the full map with no hitches > 50 ms; VRAM within budget |
 | **S5 Local LLM beside the game** | Can a 7–14B 4-bit model run alongside the Godot client on recommended hardware (incl. Apple Silicon) at acceptable latency? | 1 wk | M1 (early look), M7 (final) | p50 TTFT ≤ 1.5 s while the game holds 60 fps |
 | **S6 Sim scale** | Can the sim tick 1,500 agents across LOD tiers within budget, and fast-forward a year headless quickly? | 1–2 wks | M1 | Per-agent costs and step budgets in [20 §19](../tech/20-architecture.md#19-performance-budgets) on a synthetic population; 1 game year of 1,500 people headless ≤ 60 s at LOD2 / ≤ 5 s at LOD3 |
@@ -111,7 +111,9 @@ the waiver recorded in this doc).
   runtime database); headless runner CLI; Godot .NET project rendering a test terrain and a capsule
   NPC driven by the sim; AI gateway able to call OpenRouter (key from `.env`) and a Jev endpoint
   (behind interfaces, with a stub provider); CI (build, test, content validation, headless smoke
-  run); dev console and time controls.
+  run); dev console and time controls; **the art & audio pipeline skeleton** — Git LFS, palette v0,
+  headless-Blender export/check/preview scripts, one test model and one test sound end-to-end into
+  Godot, the asset manifest ([32 §16](32-art-and-audio-production.md#16-production-schedule-by-milestone)).
 - **Out of scope:** any gameplay system beyond what's needed to prove the plumbing.
 - **Deliverables:** the ordered 15-step checklist in
   [20 §20](../tech/20-architecture.md#20-m0-foundations-checklist), plus the M0 gateway scope in
@@ -141,27 +143,34 @@ hundreds.
     tend fire, socialize, idle, flee), simple schedules ([21-npc-ai](../tech/21-npc-ai.md)).
   - Social core: opinion modifiers, trust, familiarity, memories, beliefs, rumor propagation in a
     24-person camp ([16-social-systems](../design/16-social-systems.md)).
-  - The full dialogue turn pipeline: sanitize → Jev classification → Dialogue Rules Engine →
-    context assembly → LLM reply (streamed) → verification → state commit
+  - The full dialogue turn pipeline with **decision points** ([canon §13](../01-canon.md#13-the-llm-boundary-language-decides-systems-resolve)):
+    sanitize → fast-decider classification → DRE builds the menu → LLM reply with the decision
+    first → guards → the owning system executes → speech streamed/verified → state commit
     ([22-llm-integration](../tech/22-llm-integration.md)).
-  - Consequence demos: simple barter with hard-coded valuation and bounded persuasion
-    ([15-economy-and-trade](../design/15-economy-and-trade.md)); an insult escalating to a brawl
-    (placeholder brawl resolution); theft → witnesses → wariness and rumor.
-  - Template mode (no LLM) for every touchpoint above.
+  - The owner's examples working end-to-end: **an insult the NPC answers with a shove → brawl**
+    (placeholder brawl resolution); **a bystander who steps in and stops it**; **talking someone into
+    buying something → the trade system executes at a menu price**
+    ([15-economy-and-trade](../design/15-economy-and-trade.md)); **a long friendly talk → warm_to_speaker
+    → capped opinion change**; plus theft → witnesses → wariness and rumor.
+  - Calibration tooling: LLM choices vs the deterministic policy on the same scenarios.
+  - Template mode (no LLM): the policy makes every decision.
   - Spikes S1, S2, S3, S5 (early look), S6.
 - **Out of scope:** real terrain, art, crafting minigames, farming, construction, combat beyond a
   placeholder brawl, save/load (beyond the event log).
 - **Exit criteria:**
-  - **LLM & Jev:** all ten exit criteria in
+  - **LLM, fast decider & decision points:** all 13 exit criteria in
     [22 §17.2](../tech/22-llm-integration.md#172-m1--talking-camp-the-de-risking-milestone-for-this-document)
-    (latency, rules integrity under red-teaming, classification accuracy, text quality, cost,
-    resilience, determinism, feel, template mode, local spike). If latency, text quality or feel
-    fail, M1 iterates before M2 starts.
+    (latency, rules integrity under red-teaming, calibration and refusal suites, guards without
+    railroading, classification accuracy, the fast-decider bake-off, text quality, cost, resilience,
+    determinism, feel, template mode, the local spike). If latency, text quality or feel fail, M1 iterates before M2 starts.
   - **Feel (playtest, ≥ 5 people × ≥ 45 min):** in addition to 22's rubric, ≥ 70% can describe 3+
     NPC personalities unprompted and every tester reports at least one moment where their words
     changed an outcome.
   - **NPC AI:** the M1 metrics in [21 §19](../tech/21-npc-ai.md#19-headless-validation-metrics) are
     within their target ranges.
+  - **Decision integrity:** 0 off-menu actions or guard bypasses on the red-team suite; LLM-vs-policy
+    choice-rate gap ≤ 10 points per option family on neutral scenarios; refusal suite ≥ 95%; guard
+    over-rejection ≤ 5% of LLM decisions.
   - **Social sim (headless):** 30 in-game days of the camp with no deadlocks; rumors about a public
     event reach ≥ 80% of the camp within 3 days; at least one emergent dispute per 10 days.
   - **Scale:** spike S6 and S1 pass conditions met.
@@ -273,9 +282,12 @@ time that can pass.
 **Goal:** the game runs well, teaches itself, and works with local models.
 
 - **In scope:** local LLM runtime integration and user-initiated model download; hardware
-  detection and VRAM budgeting; template-mode completeness; performance optimization; onboarding
+  detection and VRAM budgeting; a **local fast decider** — Laya fine-tuned on the decisions recorded
+  since M1, temperature-calibrated, run in-process via ONNX or as a `laya-serve` sidecar;
+  template-mode completeness; performance optimization; onboarding
   and accessibility; settings; large-scale balance via batch headless runs; content pass.
-- **Exit criteria:** S5 final pass; full playthrough possible in template mode; no known
+- **Exit criteria:** S5 final pass; the local fast decider matches the cloud decider's accuracy on
+  the golden set within 3 points; full playthrough possible in template mode; no known
   progression blockers; balance targets met in ≥ 90% of 200 headless seeds.
 
 ### M8 — Early Access
@@ -290,6 +302,10 @@ time that can pass.
 ---
 
 ## 6. Cross-cutting tracks
+
+Art and audio production — pipelines, budgets, the full asset catalog and per-milestone deliverables —
+is planned in [32-art-and-audio-production](32-art-and-audio-production.md); the table below is the
+summary. Live status of every milestone's work items is in [33-progress](33-progress.md).
 
 | Track | M0 | M1 | M2 | M3 | M4 | M5 | M6 | M7–M8 |
 |-------|----|----|----|----|----|----|----|-------|

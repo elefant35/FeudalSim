@@ -1,4 +1,5 @@
 # ---- OS / editor junk ----
+.claude/settings.local.json
 .DS_Store
 Thumbs.db
 *.swp
@@ -58,3 +59,9 @@ models/
 # ---- Builds ----
 build/
 dist/
+
+# ---- Art & audio working files ----
+*.blend1
+*.blend2
+art/previews/
+audio/source/**/*.reapeaks
