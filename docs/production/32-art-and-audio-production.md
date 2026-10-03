@@ -91,7 +91,7 @@ scripts print a machine-readable `RESULT …` line for the caller.
   /music/                        Stems and project files (Git LFS)
 /game/assets/                    Game-ready exports imported by Godot: .glb, .png, .ogg, .wav (Git LFS)
 /content/assets/                 Asset manifest YAML (one file per category)
-/content/audio_events.yaml       Sim event → sound bank mapping
+/content/audio/*.yaml       Sim event → sound bank mapping
 /tools/art/                      fsart.py (shared), export.py, check.py, preview.py, make_palette.py, budgets.json (Blender headless)
 /tools/audio/                    synth.py, normalize.py, check.py
 ASSET_LICENSES.md                Generated from the manifest; feeds the in-game credits
@@ -342,7 +342,7 @@ Master
 ```
 
 - **Event-driven:** the client subscribes to sim events and plays sounds through
-  `content/audio_events.yaml`, which maps event ids (e.g. `craft.smithing.strike.hot`,
+  `content/audio/*.yaml`, which maps event ids (e.g. `craft.smithing.strike.hot`,
   `combat.hit.blunt.mail`, `need.hunger.stomach`) to banks with variation rules. Every sim event
   that should be audible has a mapping, so missing sounds are caught by a test.
 - **Ambience is simulated, not looped blindly:** layers mix by biome, time of day, season, weather,
@@ -430,7 +430,7 @@ flowchart LR
 | Mesh budgets, scale, origin, orientation, naming, normals, palette UVs | `tools/art/check.py` (headless Blender) | Pre-commit for changed assets; nightly full run |
 | Godot import succeeds with no warnings; perf scene stays within budget | Godot headless import + perf scene | Nightly; milestone gates |
 | Audio format, sample rate, channels, loudness (EBU R128), loop seams, naming | `tools/audio/check.py` (ffmpeg `ebur128`) | Every PR touching audio |
-| Every audible sim event has a mapping; every mapping resolves to files | Unit test over `audio_events.yaml` | Every PR (CI) |
+| Every audible sim event has a mapping; every mapping resolves to files | Unit test over `content/audio/*.yaml` | Every PR (CI) |
 | Silhouette and turntable previews regenerated for review | `tools/art/preview.py` | On demand / in review |
 
 Blender in CI is heavy (≈ 300 MB download); run art checks locally and in a nightly job rather than
@@ -442,7 +442,7 @@ on every push.
 
 | Milestone | Art deliverables | Audio deliverables |
 |-----------|------------------|--------------------|
-| **M0** | Pipeline skeleton: Git LFS on, palette v0, `export/check/preview` scripts, the test pine end-to-end into Godot, manifest schema | ffmpeg installed; `synth/check` scripts; one SFX end-to-end into Godot; `audio_events.yaml` schema |
+| **M0** | Pipeline skeleton: Git LFS on, palette v0, `export/check/preview` scripts, the test pine end-to-end into Godot, manifest schema | ffmpeg installed; `synth/check` scripts; one SFX end-to-end into Godot; `content/audio/*.yaml` schema |
 | **M1** | Graybox kit (capsule people with role markers, primitive props), placeholder dialogue UI | Placeholder UI sounds; reaction "barks" as vocalization placeholders |
 | **M2** | Coast terrain layers, flora v1 (8 tree families), rocks, the wreck and its sections, campfire, lean-to and hut, knapping/carving close-ups, settler bodies v1 (2 bases, 6 heads, 3 clothing sets), 6 wild animals + goats/chickens, locomotion + ~40 social/gathering/craft clips, basic combat clips | Coast/forest/meadow ambience, weather, footsteps, fire, chopping, knapping, wild-animal calls, first vocalization session, 10 min of music sketches |
 | **M3** | Crops × stages, farming tools, building kit T0–T1 (longhouse, granary, cellar, workshops), seasonal palettes and snow, furniture v1, pottery & kiln | Farm and seasonal ambience, winter, pottery and carpentry cues, music: exploration themes ×3 |

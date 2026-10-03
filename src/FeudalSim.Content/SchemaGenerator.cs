@@ -9,7 +9,7 @@ namespace FeudalSim.Content;
 
 /// <summary>
 /// Generates JSON Schemas (draft 2020-12) from the C# definition records: snake_case property names,
-/// snake_case enum values, required = non-nullable members, no additional properties. Deterministic
+/// snake_case enum values, required = C# `required` members, no additional properties. Deterministic
 /// output, so committed schemas can be checked for freshness in CI.
 /// </summary>
 public static class SchemaGenerator
@@ -18,12 +18,11 @@ public static class SchemaGenerator
     public static readonly IReadOnlyList<(string Folder, string Kind, Type Type)> Kinds =
     [
         ("assets", "asset", typeof(AssetDef)),
+        ("audio", "audio", typeof(AudioEventDef)),
         ("items", "item", typeof(ItemDef)),
         ("needs", "need", typeof(NeedDef)),
         ("skills", "skill", typeof(SkillDef)),
     ];
-
-    private static readonly NullabilityInfoContext Nullability = new();
 
     public static string Generate(string kind, Type type)
     {
@@ -46,11 +45,12 @@ public static class SchemaGenerator
         foreach (var p in type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(p => p.CanWrite))
         {
             var name = JsonNamingPolicy.SnakeCaseLower.ConvertName(p.Name);
-            var nullable = Nullability.Create(p).ReadState == NullabilityState.Nullable;
+            // Required exactly when the C# member is declared `required`; everything else has a default.
+            var required_ = p.IsDefined(typeof(System.Runtime.CompilerServices.RequiredMemberAttribute), inherit: false);
             var s = TypeSchema(Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType);
             if (name == "id" && idPattern is not null) { s["pattern"] = idPattern; }
             properties[name] = s;
-            if (!nullable) { required.Add(name); }
+            if (required_) { required.Add(name); }
         }
 
         return new JsonObject

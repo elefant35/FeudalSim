@@ -71,8 +71,8 @@ Source of truth for the steps: [20 §20](../tech/20-architecture.md#20-m0-founda
 | M0-A4 | Test asset end-to-end: `art/generators/conifer` → `.glb` → Godot import → manifest entry | [~] | Generator → `game/assets/flora/pine_a.glb` (LFS) → checks pass → preview reviewed → manifest `asset.flora.pine_a` (status review). **Godot import pending (Blockers)** |
 | M0-A5 | Asset manifest schema (`content/assets/*.yaml`) + `ASSET_LICENSES.md` generation | [x] | `AssetDef` kind in the content pipeline (schema generated, outputs + generator must exist, attribution needs a credit); `feudalsim content licenses [--check]` → `ASSET_LICENSES.md`; CI checks freshness; test: a missing output fails validation |
 | M0-AU1 | `ffmpeg` installed | [!] | `brew install ffmpeg` failed on macOS 14 (no bottles; source build of x265 died at `libtool … is not an object file` — Homebrew suggests updating Command Line Tools to Xcode 16.2's). See Blockers. Audio checks fall back to a numpy EBU R128 implementation meanwhile |
-| M0-AU2 | `tools/audio/synth.py` and `check.py` (format + EBU R128 loudness) | [ ] | |
-| M0-AU3 | One SFX end-to-end into Godot via `content/audio_events.yaml` | [ ] | |
+| M0-AU2 | `tools/audio/synth.py` and `check.py` (format + EBU R128 loudness) | [x] | `synth.py` (deterministic numpy recipes: knap_flake, fire_crackle, ui_click → 48 kHz 16-bit WAV at −1 dBFS); `check.py` (naming, 48 kHz, 16-bit, mono for 3D, peak, LUFS with bus targets). Numpy BS.1770 meter validated: 1 kHz full-scale sine → −3.00 LUFS (ref −3.01), amplitude 0.1 → −23.00 (ref −23.01). 4 SFX pass |
+| M0-AU3 | One SFX end-to-end into Godot via `content/audio_events.yaml` | [~] | `audio` content kind (`content/audio/events.yaml`: bus, files, spatial, jitter, loop; files must exist) + manifest entries for the 4 SFX; validated in the pipeline. **Godot playback pending (Blockers)** |
 
 ### Spikes started in M0
 

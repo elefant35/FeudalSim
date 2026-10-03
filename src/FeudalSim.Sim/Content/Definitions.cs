@@ -106,6 +106,23 @@ public sealed record AssetDef
     public string? Notes { get; init; }
 }
 
+public enum AudioBus { SfxWorld, SfxCombat, Ui, Ambience, Music, Vocal }
+
+/// <summary>
+/// Maps a sim/presentation event id to a sound bank (32 §11): the client picks one file at random,
+/// applying the pitch and volume jitter. Every audible sim event must have a mapping.
+/// </summary>
+public sealed record AudioEventDef
+{
+    public required string Id { get; init; }
+    public required AudioBus Bus { get; init; }
+    public required IReadOnlyList<string> Files { get; init; }
+    public required bool Spatial { get; init; }
+    public float PitchJitter { get; init; }
+    public float VolumeJitterDb { get; init; }
+    public bool Loop { get; init; }
+}
+
 /// <summary>Canonical id lists the content must match exactly (canon §10.2, §10.5).</summary>
 public static class CanonLists
 {
@@ -133,8 +150,9 @@ public static class CanonLists
 public sealed class ContentDatabase
 {
     public ContentDatabase(IReadOnlyList<SkillDef> skills, IReadOnlyList<ItemDef> items, IReadOnlyList<NeedDef> needs, ulong hash,
-        IReadOnlyList<AssetDef>? assets = null)
+        IReadOnlyList<AssetDef>? assets = null, IReadOnlyList<AudioEventDef>? audio = null)
     {
+        Audio = audio ?? [];
         Skills = skills;
         Items = items;
         Needs = needs;
@@ -146,6 +164,9 @@ public sealed class ContentDatabase
 
     /// <summary>Asset provenance manifest. Not part of <see cref="Hash"/> (it isn't gameplay data).</summary>
     public IReadOnlyList<AssetDef> Assets { get; }
+
+    /// <summary>Sound-bank mappings for the client. Not part of <see cref="Hash"/>.</summary>
+    public IReadOnlyList<AudioEventDef> Audio { get; }
 
     public IReadOnlyList<SkillDef> Skills { get; }
     public IReadOnlyList<ItemDef> Items { get; }

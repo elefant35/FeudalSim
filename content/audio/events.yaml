@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=../schemas/audio.schema.json
+# Sim event → sound bank (docs/production/32-art-and-audio-production.md §11). Files are 48 kHz WAV
+# checked by tools/audio/check.py; variation per 32 §12 (3-5 takes, pitch ±5 %, volume ±2 dB).
+- id: audio.craft.knap_flake
+  bus: sfx_world
+  files: [game/assets/audio/sfx/sfx_craft_knap_flake_01.wav, game/assets/audio/sfx/sfx_craft_knap_flake_02.wav]
+  spatial: true
+  pitch_jitter: 0.05
+  volume_jitter_db: 2
+- id: audio.world.campfire
+  bus: sfx_world
+  files: [game/assets/audio/sfx/sfx_world_fire_crackle_01.wav]
+  spatial: true
+  loop: true
+- id: audio.ui.journal_tick
+  bus: ui
+  files: [game/assets/audio/sfx/ui_journal_quill_tick_01.wav]
+  spatial: false
+  pitch_jitter: 0.03

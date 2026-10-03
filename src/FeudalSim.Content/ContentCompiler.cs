@@ -41,6 +41,7 @@ public static class ContentCompiler
         var items = new List<ItemDef>();
         var needs = new List<NeedDef>();
         var assets = new List<AssetDef>();
+        var audio = new List<AudioEventDef>();
         var repoRoot = Path.GetDirectoryName(Path.GetFullPath(contentRoot).TrimEnd(Path.DirectorySeparatorChar)) ?? contentRoot;
         var seen = new Dictionary<string, string>(StringComparer.Ordinal);
         var files = 0;
@@ -79,6 +80,7 @@ public static class ContentCompiler
                         case ItemDef i: ValidateItem(i, rel, mark, errors); items.Add(i); break;
                         case NeedDef n: ValidateNeed(n, rel, mark, errors); needs.Add(n); break;
                         case AssetDef a: ValidateAsset(a, rel, mark, repoRoot, errors); assets.Add(a); break;
+                        case AudioEventDef e: ValidateAudio(e, rel, mark, repoRoot, errors); audio.Add(e); break;
                     }
                 }
             }
@@ -92,7 +94,8 @@ public static class ContentCompiler
         items.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         needs.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         assets.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
-        return new Result(new ContentDatabase(skills, items, needs, Hash(skills, items, needs), assets), errors, files);
+        audio.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
+        return new Result(new ContentDatabase(skills, items, needs, Hash(skills, items, needs), assets, audio), errors, files);
     }
 
     private static IEnumerable<(JsonNode Node, Mark Mark)> ParseFile(string path, string rel, string kind, JsonSchema schema, List<ContentError> errors)
@@ -157,6 +160,20 @@ public static class ContentCompiler
         if (a.License.AttributionRequired && string.IsNullOrWhiteSpace(a.License.Credit))
         {
             errors.Add(new(rel, m.Line, m.Column, $"{a.Id}: license requires attribution but no credit line is recorded (32 §14)."));
+        }
+    }
+
+    private static void ValidateAudio(AudioEventDef e, string rel, Mark m, string repoRoot, List<ContentError> errors)
+    {
+        if (e.Files.Count == 0) { errors.Add(new(rel, m.Line, m.Column, $"{e.Id}: needs at least one file.")); }
+        foreach (var f in e.Files)
+        {
+            if (!File.Exists(Path.Combine(repoRoot, f))) { errors.Add(new(rel, m.Line, m.Column, $"{e.Id}: file '{f}' does not exist.")); }
+        }
+
+        if (e.PitchJitter is < 0 or > 0.5f || e.VolumeJitterDb is < 0 or > 12)
+        {
+            errors.Add(new(rel, m.Line, m.Column, $"{e.Id}: jitter out of range (pitch 0–0.5, volume 0–12 dB)."));
         }
     }
 

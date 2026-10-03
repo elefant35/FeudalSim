@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://feudalsim.dev/schemas/audio.schema.json",
+  "title": "AudioEventDef",
+  "description": "A list of audio definitions (generated from FeudalSim.Sim.Content.AudioEventDef; do not edit).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^audio(\\.[a-z0-9_]\u002B)\u002B$"
+      },
+      "bus": {
+        "type": "string",
+        "enum": [
+          "sfx_world",
+          "sfx_combat",
+          "ui",
+          "ambience",
+          "music",
+          "vocal"
+        ]
+      },
+      "files": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "spatial": {
+        "type": "boolean"
+      },
+      "pitch_jitter": {
+        "type": "number"
+      },
+      "volume_jitter_db": {
+        "type": "number"
+      },
+      "loop": {
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "id",
+      "bus",
+      "files",
+      "spatial"
+    ],
+    "additionalProperties": false
+  }
+}

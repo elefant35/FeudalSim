@@ -85,7 +85,7 @@ public class ContentPipelineTests
         var b = ContentCompiler.Compile(ContentRoot).Database!.Hash;
         a.ShouldBe(b);
 
-        var root = CopyContent(includeAssets: false);   // asset outputs are repo-relative and don't exist in a temp copy
+        var root = CopyContent(includeAssets: false);   // asset and audio files are repo-relative and don't exist in a temp copy
         var food = Path.Combine(root, "items", "food.yaml");
         File.WriteAllText(food, File.ReadAllText(food).Replace("base_value_f: 3 }", "base_value_f: 4 }", StringComparison.Ordinal));
         ContentCompiler.Compile(root).Database!.Hash.ShouldNotBe(a);
@@ -129,7 +129,8 @@ public class ContentPipelineTests
         var dest = Path.Combine(Path.GetTempPath(), "feudalsim-content-tests", Guid.NewGuid().ToString("N"));
         foreach (var file in Directory.GetFiles(ContentRoot, "*", SearchOption.AllDirectories))
         {
-            if (!includeAssets && Path.GetRelativePath(ContentRoot, file).StartsWith("assets", StringComparison.Ordinal)) { continue; }
+            var rel = Path.GetRelativePath(ContentRoot, file);
+            if (!includeAssets && (rel.StartsWith("assets", StringComparison.Ordinal) || rel.StartsWith("audio", StringComparison.Ordinal))) { continue; }
             var target = Path.Combine(dest, Path.GetRelativePath(ContentRoot, file));
             Directory.CreateDirectory(Path.GetDirectoryName(target)!);
             File.Copy(file, target);
