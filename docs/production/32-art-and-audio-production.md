@@ -82,7 +82,7 @@ scripts print a machine-readable `RESULT …` line for the caller.
 /art
   /generators/<family>/          Blender Python generators (text — the real source for procedural assets)
   /blender/<category>/           Hand-authored .blend sources (Git LFS)
-  /palettes/                     palette.png (256×256) + palette.yaml (named swatches)
+  /palettes/                     palette.png (256×256) + palette.json (named swatches; built by tools/art/make_palette.py)
   /reference/                    Small, licensed mood-board images
   /previews/                     Auto-rendered turntables/thumbnails (gitignored; regenerated)
 /audio
@@ -92,7 +92,7 @@ scripts print a machine-readable `RESULT …` line for the caller.
 /game/assets/                    Game-ready exports imported by Godot: .glb, .png, .ogg, .wav (Git LFS)
 /content/assets/                 Asset manifest YAML (one file per category)
 /content/audio_events.yaml       Sim event → sound bank mapping
-/tools/art/                      export.py, check.py, preview.py, lod.py (Blender headless)
+/tools/art/                      fsart.py (shared), export.py, check.py, preview.py, make_palette.py, budgets.json (Blender headless)
 /tools/audio/                    synth.py, normalize.py, check.py
 ASSET_LICENSES.md                Generated from the manifest; feeds the in-game credits
 ```

@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://feudalsim.dev/schemas/asset.schema.json",
+  "title": "AssetDef",
+  "description": "A list of asset definitions (generated from FeudalSim.Sim.Content.AssetDef; do not edit).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^asset(\\.[a-z0-9_]\u002B)\u002B$"
+      },
+      "kind": {
+        "type": "string",
+        "enum": [
+          "model",
+          "animation",
+          "texture",
+          "vfx",
+          "ui",
+          "sfx",
+          "ambience",
+          "music",
+          "vocal"
+        ]
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "placeholder",
+          "draft",
+          "review",
+          "approved",
+          "final"
+        ]
+      },
+      "milestone": {
+        "type": "string",
+        "minLength": 1
+      },
+      "source": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "generator",
+              "hand",
+              "external",
+              "recorded",
+              "synthesized",
+              "commissioned"
+            ]
+          },
+          "generator": {
+            "type": "string",
+            "minLength": 1
+          },
+          "params": {
+            "type": "object"
+          },
+          "url": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tool": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "budget_class": {
+        "type": "string",
+        "minLength": 1
+      },
+      "measured": {
+        "type": "object",
+        "properties": {
+          "tris_lod0": {
+            "type": "integer"
+          },
+          "materials": {
+            "type": "integer"
+          },
+          "loudness_lufs": {
+            "type": "number"
+          },
+          "peak_dbfs": {
+            "type": "number"
+          },
+          "duration_s": {
+            "type": "number"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "license": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "author": {
+            "type": "string",
+            "minLength": 1
+          },
+          "attribution_required": {
+            "type": "boolean"
+          },
+          "credit": {
+            "type": "string",
+            "minLength": 1
+          },
+          "url": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "name",
+          "author",
+          "attribution_required"
+        ],
+        "additionalProperties": false
+      },
+      "notes": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [
+      "id",
+      "kind",
+      "status",
+      "milestone",
+      "source",
+      "outputs",
+      "license"
+    ],
+    "additionalProperties": false
+  }
+}

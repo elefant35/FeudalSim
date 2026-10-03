@@ -65,3 +65,7 @@ dist/
 *.blend2
 art/previews/
 audio/source/**/*.reapeaks
+
+# ---- Python ----
+__pycache__/
+*.pyc

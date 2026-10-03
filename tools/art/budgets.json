@@ -1,0 +1,17 @@
+{
+  "_source": "docs/production/32-art-and-audio-production.md §5 (LOD0 triangle ranges and material caps)",
+  "character":        {"tris": [2500, 4000],  "materials": 3},
+  "animal_small":     {"tris": [300, 800],    "materials": 1},
+  "animal_medium":    {"tris": [1200, 2500],  "materials": 2},
+  "animal_large":     {"tris": [2000, 3500],  "materials": 2},
+  "tree":             {"tris": [40, 1500],    "materials": 2},
+  "shrub":            {"tris": [30, 300],     "materials": 1},
+  "rock":             {"tris": [50, 400],     "materials": 1},
+  "prop_handheld":    {"tris": [50, 600],     "materials": 2},
+  "prop_bench":       {"tris": [50, 3000],    "materials": 3},
+  "workstation":      {"tris": [300, 2000],   "materials": 2},
+  "building_small":   {"tris": [300, 1500],   "materials": 3},
+  "building_medium":  {"tris": [1500, 4000],  "materials": 3},
+  "building_large":   {"tris": [5000, 12000], "materials": 4},
+  "fortification":    {"tris": [1000, 6000],  "materials": 3}
+}

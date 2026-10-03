@@ -1,0 +1,582 @@
+{
+ "size": 256,
+ "grid": 8,
+ "swatches": [
+  {
+   "name": "soil_dark",
+   "row": "earth",
+   "r": 0,
+   "c": 0,
+   "hex": "#3b2a1e",
+   "u": 0.0625,
+   "v": 0.9375
+  },
+  {
+   "name": "soil",
+   "row": "earth",
+   "r": 0,
+   "c": 1,
+   "hex": "#5a4130",
+   "u": 0.1875,
+   "v": 0.9375
+  },
+  {
+   "name": "sand",
+   "row": "earth",
+   "r": 0,
+   "c": 2,
+   "hex": "#c8b48a",
+   "u": 0.3125,
+   "v": 0.9375
+  },
+  {
+   "name": "clay",
+   "row": "earth",
+   "r": 0,
+   "c": 3,
+   "hex": "#9c6a4a",
+   "u": 0.4375,
+   "v": 0.9375
+  },
+  {
+   "name": "bark_dark",
+   "row": "earth",
+   "r": 0,
+   "c": 4,
+   "hex": "#3f2f24",
+   "u": 0.5625,
+   "v": 0.9375
+  },
+  {
+   "name": "bark",
+   "row": "earth",
+   "r": 0,
+   "c": 5,
+   "hex": "#6b4f3a",
+   "u": 0.6875,
+   "v": 0.9375
+  },
+  {
+   "name": "wood_light",
+   "row": "earth",
+   "r": 0,
+   "c": 6,
+   "hex": "#b08a5e",
+   "u": 0.8125,
+   "v": 0.9375
+  },
+  {
+   "name": "straw",
+   "row": "earth",
+   "r": 0,
+   "c": 7,
+   "hex": "#d4b86a",
+   "u": 0.9375,
+   "v": 0.9375
+  },
+  {
+   "name": "pine_dark",
+   "row": "foliage",
+   "r": 1,
+   "c": 0,
+   "hex": "#1f3a2a",
+   "u": 0.0625,
+   "v": 0.8125
+  },
+  {
+   "name": "pine",
+   "row": "foliage",
+   "r": 1,
+   "c": 1,
+   "hex": "#2f5a3a",
+   "u": 0.1875,
+   "v": 0.8125
+  },
+  {
+   "name": "leaf_dark",
+   "row": "foliage",
+   "r": 1,
+   "c": 2,
+   "hex": "#2e4f22",
+   "u": 0.3125,
+   "v": 0.8125
+  },
+  {
+   "name": "leaf",
+   "row": "foliage",
+   "r": 1,
+   "c": 3,
+   "hex": "#4f7a2e",
+   "u": 0.4375,
+   "v": 0.8125
+  },
+  {
+   "name": "leaf_light",
+   "row": "foliage",
+   "r": 1,
+   "c": 4,
+   "hex": "#7fa24a",
+   "u": 0.5625,
+   "v": 0.8125
+  },
+  {
+   "name": "grass",
+   "row": "foliage",
+   "r": 1,
+   "c": 5,
+   "hex": "#6f8f3a",
+   "u": 0.6875,
+   "v": 0.8125
+  },
+  {
+   "name": "moss",
+   "row": "foliage",
+   "r": 1,
+   "c": 6,
+   "hex": "#5a6b2e",
+   "u": 0.8125,
+   "v": 0.8125
+  },
+  {
+   "name": "autumn",
+   "row": "foliage",
+   "r": 1,
+   "c": 7,
+   "hex": "#b8642a",
+   "u": 0.9375,
+   "v": 0.8125
+  },
+  {
+   "name": "granite_dark",
+   "row": "stone_metal",
+   "r": 2,
+   "c": 0,
+   "hex": "#4a4a4e",
+   "u": 0.0625,
+   "v": 0.6875
+  },
+  {
+   "name": "granite",
+   "row": "stone_metal",
+   "r": 2,
+   "c": 1,
+   "hex": "#7a7a80",
+   "u": 0.1875,
+   "v": 0.6875
+  },
+  {
+   "name": "limestone",
+   "row": "stone_metal",
+   "r": 2,
+   "c": 2,
+   "hex": "#c2bca8",
+   "u": 0.3125,
+   "v": 0.6875
+  },
+  {
+   "name": "flint",
+   "row": "stone_metal",
+   "r": 2,
+   "c": 3,
+   "hex": "#3a3a42",
+   "u": 0.4375,
+   "v": 0.6875
+  },
+  {
+   "name": "iron",
+   "row": "stone_metal",
+   "r": 2,
+   "c": 4,
+   "hex": "#5a5c62",
+   "u": 0.5625,
+   "v": 0.6875
+  },
+  {
+   "name": "steel",
+   "row": "stone_metal",
+   "r": 2,
+   "c": 5,
+   "hex": "#9aa0a8",
+   "u": 0.6875,
+   "v": 0.6875
+  },
+  {
+   "name": "copper",
+   "row": "stone_metal",
+   "r": 2,
+   "c": 6,
+   "hex": "#b06a3a",
+   "u": 0.8125,
+   "v": 0.6875
+  },
+  {
+   "name": "bronze",
+   "row": "stone_metal",
+   "r": 2,
+   "c": 7,
+   "hex": "#a07a3a",
+   "u": 0.9375,
+   "v": 0.6875
+  },
+  {
+   "name": "skin_1",
+   "row": "skin_hair",
+   "r": 3,
+   "c": 0,
+   "hex": "#f1d1b8",
+   "u": 0.0625,
+   "v": 0.5625
+  },
+  {
+   "name": "skin_2",
+   "row": "skin_hair",
+   "r": 3,
+   "c": 1,
+   "hex": "#e0b48f",
+   "u": 0.1875,
+   "v": 0.5625
+  },
+  {
+   "name": "skin_3",
+   "row": "skin_hair",
+   "r": 3,
+   "c": 2,
+   "hex": "#c48a62",
+   "u": 0.3125,
+   "v": 0.5625
+  },
+  {
+   "name": "skin_4",
+   "row": "skin_hair",
+   "r": 3,
+   "c": 3,
+   "hex": "#8e5a3c",
+   "u": 0.4375,
+   "v": 0.5625
+  },
+  {
+   "name": "skin_5",
+   "row": "skin_hair",
+   "r": 3,
+   "c": 4,
+   "hex": "#5a3826",
+   "u": 0.5625,
+   "v": 0.5625
+  },
+  {
+   "name": "hair_dark",
+   "row": "skin_hair",
+   "r": 3,
+   "c": 5,
+   "hex": "#2a201a",
+   "u": 0.6875,
+   "v": 0.5625
+  },
+  {
+   "name": "hair_brown",
+   "row": "skin_hair",
+   "r": 3,
+   "c": 6,
+   "hex": "#6a4628",
+   "u": 0.8125,
+   "v": 0.5625
+  },
+  {
+   "name": "hair_fair",
+   "row": "skin_hair",
+   "r": 3,
+   "c": 7,
+   "hex": "#c8a46a",
+   "u": 0.9375,
+   "v": 0.5625
+  },
+  {
+   "name": "linen",
+   "row": "cloth",
+   "r": 4,
+   "c": 0,
+   "hex": "#d8cfb8",
+   "u": 0.0625,
+   "v": 0.4375
+  },
+  {
+   "name": "wool_grey",
+   "row": "cloth",
+   "r": 4,
+   "c": 1,
+   "hex": "#8a8680",
+   "u": 0.1875,
+   "v": 0.4375
+  },
+  {
+   "name": "wool_brown",
+   "row": "cloth",
+   "r": 4,
+   "c": 2,
+   "hex": "#6a5440",
+   "u": 0.3125,
+   "v": 0.4375
+  },
+  {
+   "name": "russet",
+   "row": "cloth",
+   "r": 4,
+   "c": 3,
+   "hex": "#8a4a2e",
+   "u": 0.4375,
+   "v": 0.4375
+  },
+  {
+   "name": "ochre",
+   "row": "cloth",
+   "r": 4,
+   "c": 4,
+   "hex": "#c0902e",
+   "u": 0.5625,
+   "v": 0.4375
+  },
+  {
+   "name": "woad",
+   "row": "cloth",
+   "r": 4,
+   "c": 5,
+   "hex": "#3a5a8a",
+   "u": 0.6875,
+   "v": 0.4375
+  },
+  {
+   "name": "madder",
+   "row": "cloth",
+   "r": 4,
+   "c": 6,
+   "hex": "#9a2e2a",
+   "u": 0.8125,
+   "v": 0.4375
+  },
+  {
+   "name": "weld_green",
+   "row": "cloth",
+   "r": 4,
+   "c": 7,
+   "hex": "#5a7a3a",
+   "u": 0.9375,
+   "v": 0.4375
+  },
+  {
+   "name": "varrow_blue",
+   "row": "culture",
+   "r": 5,
+   "c": 0,
+   "hex": "#24386a",
+   "u": 0.0625,
+   "v": 0.3125
+  },
+  {
+   "name": "varrow_gold",
+   "row": "culture",
+   "r": 5,
+   "c": 1,
+   "hex": "#c8a02e",
+   "u": 0.1875,
+   "v": 0.3125
+  },
+  {
+   "name": "osmeri_teal",
+   "row": "culture",
+   "r": 5,
+   "c": 2,
+   "hex": "#2a7a7a",
+   "u": 0.3125,
+   "v": 0.3125
+  },
+  {
+   "name": "osmeri_cream",
+   "row": "culture",
+   "r": 5,
+   "c": 3,
+   "hex": "#e8dcc0",
+   "u": 0.4375,
+   "v": 0.3125
+  },
+  {
+   "name": "brannoch_green",
+   "row": "culture",
+   "r": 5,
+   "c": 4,
+   "hex": "#2e5a3a",
+   "u": 0.5625,
+   "v": 0.3125
+  },
+  {
+   "name": "brannoch_rust",
+   "row": "culture",
+   "r": 5,
+   "c": 5,
+   "hex": "#9a4a22",
+   "u": 0.6875,
+   "v": 0.3125
+  },
+  {
+   "name": "ashen_grey",
+   "row": "culture",
+   "r": 5,
+   "c": 6,
+   "hex": "#6e6a66",
+   "u": 0.8125,
+   "v": 0.3125
+  },
+  {
+   "name": "ashen_ember",
+   "row": "culture",
+   "r": 5,
+   "c": 7,
+   "hex": "#d2622a",
+   "u": 0.9375,
+   "v": 0.3125
+  },
+  {
+   "name": "water_deep",
+   "row": "water_sky",
+   "r": 6,
+   "c": 0,
+   "hex": "#1e3a52",
+   "u": 0.0625,
+   "v": 0.1875
+  },
+  {
+   "name": "water",
+   "row": "water_sky",
+   "r": 6,
+   "c": 1,
+   "hex": "#2e5a72",
+   "u": 0.1875,
+   "v": 0.1875
+  },
+  {
+   "name": "foam",
+   "row": "water_sky",
+   "r": 6,
+   "c": 2,
+   "hex": "#e6eef0",
+   "u": 0.3125,
+   "v": 0.1875
+  },
+  {
+   "name": "ice",
+   "row": "water_sky",
+   "r": 6,
+   "c": 3,
+   "hex": "#bcd8e4",
+   "u": 0.4375,
+   "v": 0.1875
+  },
+  {
+   "name": "snow",
+   "row": "water_sky",
+   "r": 6,
+   "c": 4,
+   "hex": "#f2f4f6",
+   "u": 0.5625,
+   "v": 0.1875
+  },
+  {
+   "name": "sky",
+   "row": "water_sky",
+   "r": 6,
+   "c": 5,
+   "hex": "#9ec4e0",
+   "u": 0.6875,
+   "v": 0.1875
+  },
+  {
+   "name": "fog",
+   "row": "water_sky",
+   "r": 6,
+   "c": 6,
+   "hex": "#c8ccd0",
+   "u": 0.8125,
+   "v": 0.1875
+  },
+  {
+   "name": "night",
+   "row": "water_sky",
+   "r": 6,
+   "c": 7,
+   "hex": "#16202e",
+   "u": 0.9375,
+   "v": 0.1875
+  },
+  {
+   "name": "fire_core",
+   "row": "special",
+   "r": 7,
+   "c": 0,
+   "hex": "#fff0b0",
+   "u": 0.0625,
+   "v": 0.0625
+  },
+  {
+   "name": "fire",
+   "row": "special",
+   "r": 7,
+   "c": 1,
+   "hex": "#f28a2a",
+   "u": 0.1875,
+   "v": 0.0625
+  },
+  {
+   "name": "ember",
+   "row": "special",
+   "r": 7,
+   "c": 2,
+   "hex": "#c03a1a",
+   "u": 0.3125,
+   "v": 0.0625
+  },
+  {
+   "name": "blood",
+   "row": "special",
+   "r": 7,
+   "c": 3,
+   "hex": "#6a1414",
+   "u": 0.4375,
+   "v": 0.0625
+  },
+  {
+   "name": "ink",
+   "row": "special",
+   "r": 7,
+   "c": 4,
+   "hex": "#1a1612",
+   "u": 0.5625,
+   "v": 0.0625
+  },
+  {
+   "name": "parchment",
+   "row": "special",
+   "r": 7,
+   "c": 5,
+   "hex": "#e8d8b0",
+   "u": 0.6875,
+   "v": 0.0625
+  },
+  {
+   "name": "highlight",
+   "row": "special",
+   "r": 7,
+   "c": 6,
+   "hex": "#ffffff",
+   "u": 0.8125,
+   "v": 0.0625
+  },
+  {
+   "name": "debug",
+   "row": "special",
+   "r": 7,
+   "c": 7,
+   "hex": "#ff00ff",
+   "u": 0.9375,
+   "v": 0.0625
+  }
+ ]
+}

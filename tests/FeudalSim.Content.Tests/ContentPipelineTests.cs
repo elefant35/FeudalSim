@@ -85,10 +85,32 @@ public class ContentPipelineTests
         var b = ContentCompiler.Compile(ContentRoot).Database!.Hash;
         a.ShouldBe(b);
 
-        var root = CopyContent();
+        var root = CopyContent(includeAssets: false);   // asset outputs are repo-relative and don't exist in a temp copy
         var food = Path.Combine(root, "items", "food.yaml");
         File.WriteAllText(food, File.ReadAllText(food).Replace("base_value_f: 3 }", "base_value_f: 4 }", StringComparison.Ordinal));
         ContentCompiler.Compile(root).Database!.Hash.ShouldNotBe(a);
+    }
+
+    [Fact]
+    public void Asset_outputs_must_exist_and_the_license_file_is_fresh()
+    {
+        var db = ContentCompiler.Compile(ContentRoot).Database!;
+        db.Assets.ShouldContain(a => a.Id == "asset.flora.pine_a" && a.Status == AssetStatus.Review);
+        File.ReadAllText(Path.Combine(RepoRoot(), "ASSET_LICENSES.md")).ShouldBe(AssetLicenses.Render(db.Assets),
+            "ASSET_LICENSES.md is stale; run `feudalsim content licenses`.");
+
+        var root = CopyContent();
+        File.AppendAllText(Path.Combine(root, "assets", "flora.yaml"), """
+            - id: asset.flora.ghost
+              kind: model
+              status: draft
+              milestone: M0
+              source: { type: hand }
+              outputs: [game/assets/flora/ghost.glb]
+              license: { name: CC0-1.0, author: Nobody, attribution_required: false }
+            """.Replace("            ", "", StringComparison.Ordinal));
+        var result = ContentCompiler.Compile(root);
+        result.Errors.ShouldContain(e => e.Message.Contains("output 'game/assets/flora/ghost.glb' does not exist"));
     }
 
     [Fact]
@@ -102,11 +124,12 @@ public class ContentPipelineTests
         }
     }
 
-    private static string CopyContent()
+    private static string CopyContent(bool includeAssets = true)
     {
         var dest = Path.Combine(Path.GetTempPath(), "feudalsim-content-tests", Guid.NewGuid().ToString("N"));
         foreach (var file in Directory.GetFiles(ContentRoot, "*", SearchOption.AllDirectories))
         {
+            if (!includeAssets && Path.GetRelativePath(ContentRoot, file).StartsWith("assets", StringComparison.Ordinal)) { continue; }
             var target = Path.Combine(dest, Path.GetRelativePath(ContentRoot, file));
             Directory.CreateDirectory(Path.GetDirectoryName(target)!);
             File.Copy(file, target);

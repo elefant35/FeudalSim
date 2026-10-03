@@ -84,3 +84,30 @@ public static class RepoPaths
         throw new DirectoryNotFoundException("Could not find the repo's content/ folder; pass --root.");
     }
 }
+
+public sealed class ContentLicensesCommand : Command<ContentSchemasSettings>
+{
+    public override int Execute(CommandContext context, ContentSchemasSettings settings, CancellationToken cancellationToken)
+    {
+        var root = settings.ResolveRoot();
+        var compiled = ContentCompiler.Compile(root);
+        if (!compiled.Ok)
+        {
+            foreach (var e in compiled.Errors) { Console.Error.WriteLine($"content/{e}"); }
+            return 1;
+        }
+
+        var path = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(root).TrimEnd(Path.DirectorySeparatorChar))!, "ASSET_LICENSES.md");
+        var generated = AssetLicenses.Render(compiled.Database!.Assets);
+        var current = File.Exists(path) ? File.ReadAllText(path) : null;
+        if (settings.Check)
+        {
+            Console.WriteLine(current == generated ? "licenses: up to date" : "licenses: STALE — run `feudalsim content licenses`.");
+            return current == generated ? 0 : 1;
+        }
+
+        File.WriteAllText(path, generated);
+        Console.WriteLine($"licenses: wrote ASSET_LICENSES.md ({compiled.Database!.Assets.Count} assets)");
+        return 0;
+    }
+}

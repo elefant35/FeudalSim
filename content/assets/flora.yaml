@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../schemas/asset.schema.json
+# Asset provenance manifest (docs/production/32-art-and-audio-production.md §3, §14). No entry, no merge.
+- id: asset.flora.pine_a
+  kind: model
+  status: review                  # only the owner sets approved
+  milestone: M0
+  source:
+    type: generator
+    generator: art/generators/conifer/conifer.py
+    params: { variant: a, seed: 11, tiers: 3, sides: 7, height_m: 3.7 }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/pine_a.glb]
+  budget_class: tree
+  measured: { tris_lod0: 56, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: M0 pipeline test asset (32 §16). Rebuild with tools/art/export.py.

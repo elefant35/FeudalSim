@@ -40,6 +40,8 @@ public static class ContentCompiler
         var skills = new List<SkillDef>();
         var items = new List<ItemDef>();
         var needs = new List<NeedDef>();
+        var assets = new List<AssetDef>();
+        var repoRoot = Path.GetDirectoryName(Path.GetFullPath(contentRoot).TrimEnd(Path.DirectorySeparatorChar)) ?? contentRoot;
         var seen = new Dictionary<string, string>(StringComparer.Ordinal);
         var files = 0;
 
@@ -76,6 +78,7 @@ public static class ContentCompiler
                         case SkillDef s: skills.Add(s); break;
                         case ItemDef i: ValidateItem(i, rel, mark, errors); items.Add(i); break;
                         case NeedDef n: ValidateNeed(n, rel, mark, errors); needs.Add(n); break;
+                        case AssetDef a: ValidateAsset(a, rel, mark, repoRoot, errors); assets.Add(a); break;
                     }
                 }
             }
@@ -88,7 +91,8 @@ public static class ContentCompiler
         skills.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         items.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         needs.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
-        return new Result(new ContentDatabase(skills, items, needs, Hash(skills, items, needs)), errors, files);
+        assets.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
+        return new Result(new ContentDatabase(skills, items, needs, Hash(skills, items, needs), assets), errors, files);
     }
 
     private static IEnumerable<(JsonNode Node, Mark Mark)> ParseFile(string path, string rel, string kind, JsonSchema schema, List<ContentError> errors)
@@ -136,6 +140,24 @@ public static class ContentCompiler
         if (i.MassKg <= 0) { errors.Add(new(rel, (int)m.Line, (int)m.Column, $"{i.Id}: mass_kg must be > 0.")); }
         if (i.BaseValueF < 0) { errors.Add(new(rel, (int)m.Line, (int)m.Column, $"{i.Id}: base_value_f must be ≥ 0 farthings.")); }
         if (i.Durability is <= 0) { errors.Add(new(rel, (int)m.Line, (int)m.Column, $"{i.Id}: durability must be > 0 when set.")); }
+    }
+
+    private static void ValidateAsset(AssetDef a, string rel, Mark m, string repoRoot, List<ContentError> errors)
+    {
+        foreach (var output in a.Outputs)
+        {
+            if (!File.Exists(Path.Combine(repoRoot, output))) { errors.Add(new(rel, m.Line, m.Column, $"{a.Id}: output '{output}' does not exist.")); }
+        }
+
+        if (a.Source.Type == AssetSourceType.Generator && (a.Source.Generator is null || !File.Exists(Path.Combine(repoRoot, a.Source.Generator))))
+        {
+            errors.Add(new(rel, m.Line, m.Column, $"{a.Id}: generator source '{a.Source.Generator}' does not exist."));
+        }
+
+        if (a.License.AttributionRequired && string.IsNullOrWhiteSpace(a.License.Credit))
+        {
+            errors.Add(new(rel, m.Line, m.Column, $"{a.Id}: license requires attribution but no credit line is recorded (32 §14)."));
+        }
     }
 
     private static void ValidateNeed(NeedDef n, string rel, Mark m, List<ContentError> errors)

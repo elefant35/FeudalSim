@@ -55,6 +55,57 @@ public sealed record NeedDef
     public string? Description { get; init; }
 }
 
+public enum AssetKind { Model, Animation, Texture, Vfx, Ui, Sfx, Ambience, Music, Vocal }
+
+public enum AssetStatus { Placeholder, Draft, Review, Approved, Final }
+
+public enum AssetSourceType { Generator, Hand, External, Recorded, Synthesized, Commissioned }
+
+public sealed record AssetSource
+{
+    public required AssetSourceType Type { get; init; }
+    public string? Generator { get; init; }
+    public IReadOnlyDictionary<string, object>? Params { get; init; }
+    public string? Url { get; init; }
+    public string? Tool { get; init; }
+}
+
+public sealed record AssetLicense
+{
+    public required string Name { get; init; }
+    public required string Author { get; init; }
+    public required bool AttributionRequired { get; init; }
+    public string? Credit { get; init; }
+    public string? Url { get; init; }
+}
+
+public sealed record AssetMeasured
+{
+    public int? TrisLod0 { get; init; }
+    public int? Materials { get; init; }
+    public double? LoudnessLufs { get; init; }
+    public double? PeakDbfs { get; init; }
+    public double? DurationS { get; init; }
+}
+
+/// <summary>
+/// One shippable asset's provenance (32-art-and-audio-production §3, §14): who made it, how, under what
+/// license, and its review status. No entry, no merge. Only the owner sets <c>approved</c>.
+/// </summary>
+public sealed record AssetDef
+{
+    public required string Id { get; init; }
+    public required AssetKind Kind { get; init; }
+    public required AssetStatus Status { get; init; }
+    public required string Milestone { get; init; }
+    public required AssetSource Source { get; init; }
+    public required IReadOnlyList<string> Outputs { get; init; }
+    public string? BudgetClass { get; init; }
+    public AssetMeasured? Measured { get; init; }
+    public required AssetLicense License { get; init; }
+    public string? Notes { get; init; }
+}
+
 /// <summary>Canonical id lists the content must match exactly (canon §10.2, §10.5).</summary>
 public static class CanonLists
 {
@@ -81,15 +132,20 @@ public static class CanonLists
 /// <summary>Compiled content. Handles are indices in ordinal id order (deterministic).</summary>
 public sealed class ContentDatabase
 {
-    public ContentDatabase(IReadOnlyList<SkillDef> skills, IReadOnlyList<ItemDef> items, IReadOnlyList<NeedDef> needs, ulong hash)
+    public ContentDatabase(IReadOnlyList<SkillDef> skills, IReadOnlyList<ItemDef> items, IReadOnlyList<NeedDef> needs, ulong hash,
+        IReadOnlyList<AssetDef>? assets = null)
     {
         Skills = skills;
         Items = items;
         Needs = needs;
         Hash = hash;
+        Assets = assets ?? [];
     }
 
     public static ContentDatabase Empty { get; } = new([], [], [], 0);
+
+    /// <summary>Asset provenance manifest. Not part of <see cref="Hash"/> (it isn't gameplay data).</summary>
+    public IReadOnlyList<AssetDef> Assets { get; }
 
     public IReadOnlyList<SkillDef> Skills { get; }
     public IReadOnlyList<ItemDef> Items { get; }

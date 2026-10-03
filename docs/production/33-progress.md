@@ -66,11 +66,11 @@ Source of truth for the steps: [20 §20](../tech/20-architecture.md#20-m0-founda
 | ID | Item | Status | Evidence |
 |----|------|--------|----------|
 | M0-A1 | Git LFS installed and `git lfs install` run; `.gitattributes` patterns active | [x] | 2026-10-03: git-lfs 3.8.0 via Homebrew; repo hooks installed (pre-push, post-checkout, post-commit, post-merge); `git lfs track` lists all 15 patterns; `git check-attr` resolves `.glb/.png/.wav` to `filter: lfs` |
-| M0-A2 | Palette v0 (`art/palettes/palette.png` + `palette.yaml`) | [ ] | |
-| M0-A3 | `tools/art/export.py`, `check.py`, `preview.py` (headless Blender) | [ ] | Prototype scripts proven 2026-10-03 (pine → .glb → EEVEE preview) |
-| M0-A4 | Test asset end-to-end: `art/generators/conifer` → `.glb` → Godot import → manifest entry | [ ] | |
-| M0-A5 | Asset manifest schema (`content/assets/*.yaml`) + `ASSET_LICENSES.md` generation | [ ] | |
-| M0-AU1 | `ffmpeg` installed | [ ] | |
+| M0-A2 | Palette v0 (`art/palettes/palette.png` + `palette.yaml`) | [x] | `tools/art/make_palette.py` → 64 named swatches in 8 rows (earth, foliage, stone/metal, skin/hair, cloth, culture accents, water/sky, special) as `palette.png` (256², LFS) + `palette.json` (machine-readable; replaces the planned YAML so Blender's Python can read it) |
+| M0-A3 | `tools/art/export.py`, `check.py`, `preview.py` (headless Blender) | [x] | `export.py` runs a generator → `.glb`; `check.py` → `RESULT {ok: true, tris {0: 56, 1: 24}, materials [palette], height 4.23 m, problems []}` against `budgets.json` (32 §5); `preview.py` → 2×2 turntable + 40 m silhouette (reviewed: palette colours correct, silhouette reads) |
+| M0-A4 | Test asset end-to-end: `art/generators/conifer` → `.glb` → Godot import → manifest entry | [~] | Generator → `game/assets/flora/pine_a.glb` (LFS) → checks pass → preview reviewed → manifest `asset.flora.pine_a` (status review). **Godot import pending (Blockers)** |
+| M0-A5 | Asset manifest schema (`content/assets/*.yaml`) + `ASSET_LICENSES.md` generation | [x] | `AssetDef` kind in the content pipeline (schema generated, outputs + generator must exist, attribution needs a credit); `feudalsim content licenses [--check]` → `ASSET_LICENSES.md`; CI checks freshness; test: a missing output fails validation |
+| M0-AU1 | `ffmpeg` installed | [!] | `brew install ffmpeg` failed on macOS 14 (no bottles; source build of x265 died at `libtool … is not an object file` — Homebrew suggests updating Command Line Tools to Xcode 16.2's). See Blockers. Audio checks fall back to a numpy EBU R128 implementation meanwhile |
 | M0-AU2 | `tools/audio/synth.py` and `check.py` (format + EBU R128 loudness) | [ ] | |
 | M0-AU3 | One SFX end-to-end into Godot via `content/audio_events.yaml` | [ ] | |
 
@@ -103,6 +103,7 @@ Verified only by running the command or test and pasting the result into **Evide
 | Date | Item | Question / needed approval | Status |
 |------|------|----------------------------|--------|
 | 2026-10-03 | M0-01, M0-11–13, M0-A4, M0-AU3, godot.yml in M0-14 | **Install Godot 4.7.2 (.NET edition)** — latest stable; its GodotSharp targets net8.0, matching our SDK. Self-install: `brew install --cask godot-mono` (official `Godot_v4.7.2-stable_mono_macos.universal.zip`), or approve the install in Owner approvals and the next session will do it | open |
+| 2026-10-03 | M0-AU1 (and OGG encoding later) | **ffmpeg didn't install** (Homebrew source build failed in x265 on macOS 14). Options: (a) update Command Line Tools (`sudo rm -rf /Library/Developer/CommandLineTools && sudo xcode-select --install`, or Software Update) then `brew install ffmpeg` again; (b) install a prebuilt static arm64 ffmpeg binary onto your PATH; (c) MacPorts (`sudo port install ffmpeg`). Not blocking until music/ambience needs OGG | open |
 
 ---
 

@@ -45,6 +45,9 @@ jobs:
       - name: Content — schemas are fresh
         run: dotnet run --project src/FeudalSim.Headless --no-build -c Release -- content schemas --check
 
+      - name: Content — asset licenses are fresh
+        run: dotnet run --project src/FeudalSim.Headless --no-build -c Release -- content licenses --check
+
       - name: Headless smoke run (determinism, 1 vs 4 threads)
         run: dotnet run --project src/FeudalSim.Headless --no-build -c Release -- run --scenario content/scenarios/m0_smoke.yaml --threads 4 --verify-determinism
 

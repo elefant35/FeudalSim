@@ -17,6 +17,7 @@ public static class SchemaGenerator
     /// <summary>Content kinds: folder name, id prefix, definition type.</summary>
     public static readonly IReadOnlyList<(string Folder, string Kind, Type Type)> Kinds =
     [
+        ("assets", "asset", typeof(AssetDef)),
         ("items", "item", typeof(ItemDef)),
         ("needs", "need", typeof(NeedDef)),
         ("skills", "skill", typeof(SkillDef)),
@@ -33,7 +34,7 @@ public static class SchemaGenerator
             ["title"] = type.Name,
             ["description"] = $"A list of {kind} definitions (generated from {type.FullName}; do not edit).",
             ["type"] = "array",
-            ["items"] = ObjectSchema(type, $"^{kind}\\.[a-z0-9_]+$"),
+            ["items"] = ObjectSchema(type, $"^{kind}(\\.[a-z0-9_]+)+$"),
         };
         return schema.ToJsonString(new JsonSerializerOptions { WriteIndented = true, TypeInfoResolver = new DefaultJsonTypeInfoResolver() }) + "\n";
     }
@@ -72,6 +73,12 @@ public static class SchemaGenerator
             var values = new JsonArray();
             foreach (var n in Enum.GetNames(t)) { values.Add(JsonNamingPolicy.SnakeCaseLower.ConvertName(n)); }
             return new JsonObject { ["type"] = "string", ["enum"] = values };
+        }
+
+        if (t == typeof(object)) { return new JsonObject(); }
+        if (t.IsGenericType && t.GetGenericTypeDefinition() is var g && (g == typeof(IReadOnlyDictionary<,>) || g == typeof(IDictionary<,>) || g == typeof(Dictionary<,>)))
+        {
+            return new JsonObject { ["type"] = "object" };
         }
 
         if (t != typeof(string) && typeof(IEnumerable).IsAssignableFrom(t) && t.IsGenericType)

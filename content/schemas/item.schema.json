@@ -10,7 +10,7 @@
       "id": {
         "type": "string",
         "minLength": 1,
-        "pattern": "^item\\.[a-z0-9_]\u002B$"
+        "pattern": "^item(\\.[a-z0-9_]\u002B)\u002B$"
       },
       "name": {
         "type": "string",

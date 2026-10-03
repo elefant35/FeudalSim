@@ -22,6 +22,7 @@ public static class Program
             {
                 content.SetDescription("Validate and compile game content (YAML).");
                 content.AddCommand<ContentValidateCommand>("validate").WithDescription("Parse, schema-check, validate and compile all content.");
+                content.AddCommand<ContentLicensesCommand>("licenses").WithDescription("Generate ASSET_LICENSES.md from the asset manifest (--check to verify).");
                 content.AddCommand<ContentSchemasCommand>("schemas").WithDescription("Regenerate JSON Schemas from the C# definition types (--check to verify they are fresh).");
             });
         });
