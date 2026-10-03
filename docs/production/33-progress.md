@@ -11,7 +11,7 @@
 
 ## Current milestone
 
-**M0 — Foundations** · started: — · target exit: all items below `[x]` and the exit criteria in
+**M0 — Foundations** · started: 2026-10-03 · target exit: all items below `[x]` and the exit criteria in
 [30-roadmap §5 (M0)](30-roadmap.md#m0--foundations) verified.
 
 Next milestone: **M1 — Talking Camp** (work breakdown is generated when M0 closes).
@@ -45,7 +45,7 @@ Source of truth for the steps: [20 §20](../tech/20-architecture.md#20-m0-founda
 
 | ID | Item | Status | Evidence |
 |----|------|--------|----------|
-| M0-01 | Prerequisites: pinned Godot 4.x .NET, .NET SDK check, `gh` (optional), remote set | [ ] | |
+| M0-01 | Prerequisites: pinned Godot 4.x .NET, .NET SDK check, `gh` (optional), remote set | [!] | .NET SDK 8.0.401 ✓; remote set ✓; Git LFS ✓; **Godot 4.7.2 .NET not installed** (see Blockers); `gh` optional, not installed |
 | M0-02 | Scaffolding: `global.json`, `Directory.Build.props`, `Directory.Packages.props`, `.editorconfig`, `BannedSymbols.txt`, `FeudalSim.sln` | [ ] | |
 | M0-03 | Projects + architecture test (Sim references no engine/IO/network/YAML) | [ ] | |
 | M0-04 | Sim kernel: ids, `SimClock`, calendar, `SimRandom`, phase pipeline, `People` table, commands/events, two toy systems | [ ] | |
@@ -55,9 +55,9 @@ Source of truth for the steps: [20 §20](../tech/20-architecture.md#20-m0-founda
 | M0-08 | Headless CLI v0 (`run` a scenario, CSV metrics, `--verify-determinism`) | [ ] | |
 | M0-09 | Hosting (sim thread, time scale, pause, snapshots, dev commands) | [ ] | |
 | M0-10 | AI gateway v0: chat ping via OpenRouter (`OPENROUTER_KEY`), **fast-decider ping** (normalized option probabilities), template fallback, recording | [ ] | |
-| M0-11 | Godot project boots `SimHost` with a debug overlay | [ ] | |
-| M0-12 | Test terrain spike (Terrain3D vs ArrayMesh) — feeds spike S4 | [ ] | |
-| M0-13 | Sim-driven capsule NPC with LOD0 ↔ LOD1 hysteresis; replay of a client session headless | [ ] | |
+| M0-11 | Godot project boots `SimHost` with a debug overlay | [!] | Needs Godot (Blockers) |
+| M0-12 | Test terrain spike (Terrain3D vs ArrayMesh) — feeds spike S4 | [!] | Needs Godot (Blockers) |
+| M0-13 | Sim-driven capsule NPC with LOD0 ↔ LOD1 hysteresis; replay of a client session headless | [!] | Needs Godot (Blockers) |
 | M0-14 | CI: `ci.yml` (ubuntu + macOS) and `godot.yml` | [ ] | |
 | M0-15 | ADRs 0005–0010 written (data layout, time model, embodiment, saves, terrain, .NET version); `CLAUDE.md` commands filled in | [ ] | |
 
@@ -102,7 +102,7 @@ Verified only by running the command or test and pasting the result into **Evide
 
 | Date | Item | Question / needed approval | Status |
 |------|------|----------------------------|--------|
-| — | — | — | — |
+| 2026-10-03 | M0-01, M0-11–13, M0-A4, M0-AU3, godot.yml in M0-14 | **Install Godot 4.7.2 (.NET edition)** — latest stable; its GodotSharp targets net8.0, matching our SDK. Self-install: `brew install --cask godot-mono` (official `Godot_v4.7.2-stable_mono_macos.universal.zip`), or approve the install in Owner approvals and the next session will do it | open |
 
 ---
 
