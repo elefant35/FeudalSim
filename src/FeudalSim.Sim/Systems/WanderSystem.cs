@@ -16,12 +16,18 @@ public sealed class WanderSystem : ISimSystem
 
     public void Run(in StepContext ctx, SimWorld world)
     {
+        var c = ctx;   // copy: in-parameters can't be captured
+        world.Jobs.ForEachChunk(world.People.Count, (start, end) => RunRows(c, world, start, end));
+    }
+
+    private static void RunRows(in StepContext ctx, SimWorld world, int start, int end)
+    {
         var ids = world.People.Ids;
         var transforms = world.People.Transforms;
         var wander = world.People.Wander;
         var stepDistance = WalkSpeedMetresPerSecond * ctx.DtEmbodiedSeconds;
 
-        for (var i = 0; i < ids.Length; i++)
+        for (var i = start; i < end; i++)
         {
             ref var w = ref wander[i];
             ref var t = ref transforms[i];

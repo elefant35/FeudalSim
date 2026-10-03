@@ -29,6 +29,9 @@ public sealed class SimWorld
     public EntityIdAllocator Ids { get; } = new();
     public PersonTable People { get; } = new();
 
+    /// <summary>Scheduler for parallel phases; Hosting swaps in a threaded one. Must not change results.</summary>
+    public IJobScheduler Jobs { get; set; } = SerialJobScheduler.Instance;
+
     /// <summary>Hash the state after every Nth step (0 = never). Hashing is read-only.</summary>
     public int HashEveryNSteps { get; set; }
 
