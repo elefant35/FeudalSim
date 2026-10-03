@@ -731,11 +731,17 @@ While the skip runs, a parchment strip unrolls across the seasons. Headlines str
 
 | Group | Setting | Default | Options / notes |
 |-------|---------|---------|-----------------|
-| Time | Real minutes per game day | 30 | 20–60 ([canon §6](../01-canon.md#6-time-canon)) |
-| LLM | Mode | Cloud | Cloud · Local · Template |
+| World (at creation) | Settlers on the first ship | 24 | 12–40 ([10](10-world-and-setting.md)) |
+| World (at creation) | Resource richness (`deposit.richness`) | 1.0 | 0.6–1.5, scales all finite deposits ([10](10-world-and-setting.md)) |
+| World (at creation) | First-winter cap (`weather.y0_winter_cap`) | Normal | Mild · Normal · Hard — a world option, not a difficulty mode ([10 §6](10-world-and-setting.md)) |
+| World (at creation) | **Drama** (irrationality, `K_irr`) | 1.0 | 0–2 ([21 §8](../tech/21-npc-ai.md)) |
+| World (at creation) | Customs | Egalitarian | Egalitarian · Historical — sex in succession, office and levies ([17](17-governance-and-law.md)) |
+| World (at creation) | Grim Justice | Off | Enables maiming punishments ([17](17-governance-and-law.md)) |
+| Time | Real minutes per game day | 30 | 20, 24, 25, 30, 32, 36, 40, 45, 48, 50 or 60 ([canon §6](../01-canon.md#6-time-canon)) |
+| LLM | Mode | Auto | Auto (cloud if a key is set, else local if available, else template) · Cloud · Local · Template ([22 §3.3](../tech/22-llm-integration.md)) |
 | LLM | Endpoint & model | OpenRouter, Qwen-family | Any OpenAI-compatible endpoint; local presets for llama.cpp / Ollama / LM Studio |
 | LLM | Jev classifier | On (cloud) | Off → local structured output → heuristics |
-| LLM | **Spend cap** | $10 / month, warn at 80% | When reached: switch to Local or Template (prompt once) |
+| LLM | **Spend caps** | $10 / month and $1 / session; ladder at 50 / 80 / 100% | When reached: switch to Local or Template (prompt once) ([22 §3.6](../tech/22-llm-integration.md)) |
 | LLM | Verbosity | Normal | Terse · Normal · Chatty |
 | Dialogue | Confirm consequential acts | Auto 1.5 s | Always ask · Never |
 | Dialogue | Effects of words | Subtle | Explicit · Off |

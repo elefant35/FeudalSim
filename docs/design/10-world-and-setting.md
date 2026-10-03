@@ -123,8 +123,9 @@ Structures and storage belong to [20](../tech/20-architecture.md) §6. Their gen
   (canon §14), so changing one stage's code does not reshuffle the others.
 - **WorldSpec:** an authored YAML profile that holds every hard constraint and target band. Mods and
   scenarios can provide alternative specs.
-- **Settler count** (12–40) and **difficulty knobs** (resource richness, Y0 winter cap). These shift
-  bands but never violate the hard asserts in §3.11.
+- **Settler count** (12–40) and **world-creation knobs** (resource richness, Y0 winter cap; exposed in
+  [19 §12](19-player-experience.md#12-settings-difficulty--accessibility)). They are world options, not
+  difficulty modes. They shift bands but never violate the hard asserts in §3.11.
 
 ```yaml
 id: worldspec.farstrand_default

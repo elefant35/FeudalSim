@@ -72,7 +72,7 @@ fight each other — the same rules for the player and for every NPC. Time refer
 | [11-survival](11-survival.md) | Health, disease, injuries, childbirth complications as health states | Pregnancy state, conception, birth events, background mortality hazard |
 | [12-skills-and-professions](12-skills-and-professions.md) | Teaching/apprenticeship contracts, job choice, attribute aging | Mentor/apprentice tags, Competence reputation, hiring inputs |
 | [19-player-experience](19-player-experience.md) | UI, journal, dialogue UI | Belief-only data views for the player ([§16](#16-the-players-knowledge-limits)) |
-| Inputs assumed from elsewhere | **Status band** (ordinal social rank: serf/landless, freeman, craftsman/merchant, notable, lord) from 17; **intoxication level 0–3** from 11 (consumption) / 21 (state) | — |
+| Inputs assumed from elsewhere | **Status band** (ordinal social rank: serf/landless, freeman, craftsman/merchant, notable, lord) from 17; **intoxication level 0–3** from 11 (consumption) / 21 (state) — derived from 21's Drunkenness 0–100 as `0` < 20 ≤ `1` < 45 ≤ `2` < 70 ≤ `3` | — |
 
 ### 1.3 Parity audit
 

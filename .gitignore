@@ -24,6 +24,7 @@ secrets/
 .godot/
 .import/
 export/
+# Contains signing credentials. Release CI will need a committed, secret-free template (e.g. export_presets.template.cfg) by M8.
 export_presets.cfg
 *.translation
 # Note: in Godot 4, *.import files next to assets SHOULD be committed.
