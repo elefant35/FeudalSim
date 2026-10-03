@@ -87,12 +87,12 @@ Time-boxed experiments. Each answers one question and produces a short write-up 
 
 | Spike | Question | Time-box | When | Pass condition |
 |-------|----------|----------|------|----------------|
-| **S1 Crowd render** | Can Godot render 150 animated low-poly characters at 60 fps (recommended spec), 300 in battle mode at ≥ 45 fps? | 1–2 wks | M1 | Meets fps with animation LOD + MultiMesh/impostors |
-| **S2 Dialogue latency & cost** | Can a Qwen-class model on OpenRouter give in-character replies with p50 time-to-first-token ≤ 1.0 s at ≤ the target $/play-hour? | 1 wk | M1 | Meets both on the M1 golden-conversation suite |
-| **S3 Jev classification** | Is Jev accurate enough on our dialogue-act/tone/persuasion taxonomy, and how injectable is it in practice? | 1 wk | M1 | ≥ 90% dialogue-act accuracy on a 300-utterance labeled set; injection suite causes no out-of-clamp outcome changes |
+| **S1 Crowd render** | Can Godot render 150 animated low-poly characters at 60 fps (recommended spec), and 300 in battle mode at ≥ 30 fps? | 1–2 wks | M1 | Meets the budgets in [20 §19](../tech/20-architecture.md#19-performance-budgets) with animation LOD + MultiMesh/impostors |
+| **S2 Dialogue latency & cost** | Can a Qwen-class model on OpenRouter give in-character replies fast and cheaply enough? Includes the model bake-off in [22 §17.2](../tech/22-llm-integration.md#172-m1--talking-camp-the-de-risking-milestone-for-this-document). | 1 wk | M1 | LLM TTFT p50 < 1.0 s; first words p50 ≤ 1.2 s (Tier A); ≤ $0.05 per typical play-hour |
+| **S3 Jev classification** | Is Jev accurate enough on our dialogue-act/tone/persuasion taxonomy, and how injectable is it in practice? Also verifies the real API against TypeSafe's docs. | 1 wk | M1 | ≥ 88% dialogue-act accuracy on the golden set; red-team suite causes **0** unauthorized state changes |
 | **S4 Terrain streaming** | Does an 8 × 8 km stylized terrain stream smoothly in Godot (e.g. Terrain3D) within memory/VRAM budgets? | 1–2 wks | M0–M1 | Walk/run across the full map with no hitches > 50 ms; VRAM within budget |
 | **S5 Local LLM beside the game** | Can a 7–14B 4-bit model run alongside the Godot client on recommended hardware (incl. Apple Silicon) at acceptable latency? | 1 wk | M1 (early look), M7 (final) | p50 TTFT ≤ 1.5 s while the game holds 60 fps |
-| **S6 Sim scale** | Can the sim tick 1,500 agents across LOD tiers within budget, and fast-forward a year headless in minutes? | 1–2 wks | M1 | Tick budgets met (see [20-architecture](../tech/20-architecture.md)); 1 year of 1,500 people simulated headless in ≤ 5 min |
+| **S6 Sim scale** | Can the sim tick 1,500 agents across LOD tiers within budget, and fast-forward a year headless quickly? | 1–2 wks | M1 | Per-agent costs and step budgets in [20 §19](../tech/20-architecture.md#19-performance-budgets) on a synthetic population; 1 game year of 1,500 people headless ≤ 60 s at LOD2 / ≤ 5 s at LOD3 |
 
 ---
 
@@ -113,8 +113,9 @@ the waiver recorded in this doc).
   (behind interfaces, with a stub provider); CI (build, test, content validation, headless smoke
   run); dev console and time controls.
 - **Out of scope:** any gameplay system beyond what's needed to prove the plumbing.
-- **Deliverables:** the ordered checklist in [20-architecture](../tech/20-architecture.md) (M0
-  section).
+- **Deliverables:** the ordered 15-step checklist in
+  [20 §20](../tech/20-architecture.md#20-m0-foundations-checklist), plus the M0 gateway scope in
+  [22 §17.1](../tech/22-llm-integration.md#171-by-milestone).
 - **Exit criteria:**
   - `dotnet build` and `dotnet test` green in CI on every push to `main`.
   - Headless runner simulates 1 in-game year of an empty world with 24 placeholder agents
@@ -122,6 +123,10 @@ the waiver recorded in this doc).
   - Godot client shows a capsule moving according to sim commands; pausing and time-scale work.
   - A test command line call reaches OpenRouter and records the response into the event log.
   - Content validation fails CI on a malformed YAML file.
+  - All 15 steps of the [20 §20](../tech/20-architecture.md#20-m0-foundations-checklist) checklist
+    pass, including the replay-of-a-recorded-client-session test.
+  - The ADRs proposed in [20](../tech/20-architecture.md) (time model, data layout, embodiment
+    boundary, saves, terrain, .NET version) are written and accepted.
 
 ### M1 — Talking Camp
 
@@ -147,13 +152,16 @@ hundreds.
 - **Out of scope:** real terrain, art, crafting minigames, farming, construction, combat beyond a
   placeholder brawl, save/load (beyond the event log).
 - **Exit criteria:**
-  - **Latency:** dialogue p50 time-to-first-token ≤ 1.0 s (cloud), p95 ≤ 2.5 s.
-  - **Cost:** measured $/play-hour within the target set in [22-llm-integration](../tech/22-llm-integration.md).
-  - **Correctness:** verification catches ≥ 95% of seeded contradictions in the test suite; prompt
-    injection suite produces **zero** out-of-clamp outcome changes.
-  - **Feel (playtest, ≥ 5 people × 1 hour):** ≥ 70% can describe 3+ NPC personalities unprompted;
-    every tester reports at least one moment where their words changed an outcome; NPCs are rated
-    ≥ 4/5 on "remembered what I did/said".
+  - **LLM & Jev:** all ten exit criteria in
+    [22 §17.2](../tech/22-llm-integration.md#172-m1--talking-camp-the-de-risking-milestone-for-this-document)
+    (latency, rules integrity under red-teaming, classification accuracy, text quality, cost,
+    resilience, determinism, feel, template mode, local spike). If latency, text quality or feel
+    fail, M1 iterates before M2 starts.
+  - **Feel (playtest, ≥ 5 people × ≥ 45 min):** in addition to 22's rubric, ≥ 70% can describe 3+
+    NPC personalities unprompted and every tester reports at least one moment where their words
+    changed an outcome.
+  - **NPC AI:** the M1 metrics in [21 §19](../tech/21-npc-ai.md#19-headless-validation-metrics) are
+    within their target ranges.
   - **Social sim (headless):** 30 in-game days of the camp with no deadlocks; rumors about a public
     event reach ≥ 80% of the camp within 3 days; at least one emergent dispute per 10 days.
   - **Scale:** spike S6 and S1 pass conditions met.
