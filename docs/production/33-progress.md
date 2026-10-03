@@ -30,7 +30,7 @@ answer.
 | Install the pinned Godot 4.x .NET editor | **not yet** | The skill proposes the exact version first |
 | Push to `origin/main` after a work item passes verification | **yes — proposed default, owner to confirm or change** | Never force-push |
 | LLM spend from `OPENROUTER_KEY` during development | **yes, ≤ $2 per session** — owner approved using the key (2026-10-03); the $2 cap is a proposed default | Prefer replay/template mode in tests |
-| Commit generated binary assets (requires Git LFS installed) | **yes, once LFS is installed** | — |
+| Commit generated binary assets (requires Git LFS installed) | **yes** — Git LFS installed 2026-10-03 | — |
 | Approve art "looks" (manifest status → `approved`) | **owner only** | Claude may set `review`, never `approved` |
 
 ---
@@ -65,7 +65,7 @@ Source of truth for the steps: [20 §20](../tech/20-architecture.md#20-m0-founda
 
 | ID | Item | Status | Evidence |
 |----|------|--------|----------|
-| M0-A1 | Git LFS installed and `git lfs install` run; `.gitattributes` patterns active | [ ] | `.gitattributes` committed 2026-10-03; LFS itself not installed yet |
+| M0-A1 | Git LFS installed and `git lfs install` run; `.gitattributes` patterns active | [x] | 2026-10-03: git-lfs 3.8.0 via Homebrew; repo hooks installed (pre-push, post-checkout, post-commit, post-merge); `git lfs track` lists all 15 patterns; `git check-attr` resolves `.glb/.png/.wav` to `filter: lfs` |
 | M0-A2 | Palette v0 (`art/palettes/palette.png` + `palette.yaml`) | [ ] | |
 | M0-A3 | `tools/art/export.py`, `check.py`, `preview.py` (headless Blender) | [ ] | Prototype scripts proven 2026-10-03 (pine → .glb → EEVEE preview) |
 | M0-A4 | Test asset end-to-end: `art/generators/conifer` → `.glb` → Godot import → manifest entry | [ ] | |
@@ -123,4 +123,5 @@ Newest first. One entry per session or work item: date, what changed, evidence, 
 
 | Date | Work | Evidence | Next |
 |------|------|----------|------|
+| 2026-10-03 | M0-A1: owner installed Git LFS; verified tracking and hooks | `git lfs track`, `git check-attr` | M0-01 (Godot .NET, ffmpeg, gh) |
 | 2026-10-03 | Planning complete: 25 docs, canon v0.3 (decision points), art & audio production plan, `/advance-plan` skill, session goals | commits on `main` | Start M0-01 |
