@@ -30,6 +30,10 @@ pushing, spend) so Claude doesn't stop to ask for things you'd say yes to anyway
 
 ## Goal A — Finish the current milestone (the main one)
 
+**Expect a milestone to span several sessions** (M0 alone has ~24 work items). The 80-turn stop is a
+per-session safety limit, not a failure: when a session stops, the tracker holds the state, and you
+start the next session by pasting the same goal again — it picks up from the tracker.
+
 ```text
 /goal Finish the current FeudalSim milestone, working through it with the /advance-plan skill one verified work item at a time. The current milestone, its work items, owner approvals and blockers are in docs/production/33-progress.md. The goal is met only when ALL of these are shown in this session's transcript: (1) every work item for the current milestone in 33-progress.md is marked [x] with evidence; (2) every exit criterion for that milestone in docs/production/30-roadmap.md section 5 was checked in this session, with its passing command output or measurement pasted in the transcript and recorded in the tracker; (3) as the final step, a fresh run of dotnet build, dotnet test, content validation and the headless determinism smoke run all pass, with their output shown; (4) 33-progress.md marks the milestone complete, names the next milestone and lists its work breakdown; (5) git status -sb shows a clean working tree, in sync with origin/main if pushing is approved in the tracker (otherwise everything committed locally). Stop early, record the reason under Blockers in 33-progress.md, and report if: an owner decision or approval is needed that the tracker does not grant; the same failure persists after three different fix attempts; LLM spend this session would exceed the cap approved in the tracker; or 80 turns have passed.
 ```

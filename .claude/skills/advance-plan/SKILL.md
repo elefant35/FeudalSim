@@ -2,7 +2,6 @@
 name: advance-plan
 description: Advance FeudalSim's development plan by one verified step — pick the next work item for the current milestone from docs/production/33-progress.md, implement it (code, content, 3D/audio assets, docs), verify it, update the tracker and owning docs, and commit. Use whenever asked to continue, advance, or work on the game, the plan, the current milestone, or a specific work item id.
 argument-hint: "[work-item id | next | gate | free-text focus]"
-allowed-tools: Read Edit Write Bash(dotnet *) Bash(git status *) Bash(git diff *) Bash(git log *) Bash(git add *) Bash(git commit *)
 ---
 
 # Advance the FeudalSim plan
@@ -86,7 +85,11 @@ Follow `CLAUDE.md`. The rules that most often matter:
    get an ADR (`docs/adr/0000-template.md`). New open questions go in the owning doc and 31.
 3. **Tracker:** mark the item `[x]` with evidence (commit hash, command + result), add any
    discovered work, and add a one-line session-log entry with "Next".
-4. **Commit** with a conventional message (`feat(sim): …`, `test(content): …`, `art(flora): …`,
+4. **Binary guard:** before *any* commit, check whether the staged files include binaries (`.png`,
+   `.glb`, `.blend`, `.wav`, `.ogg`, … — the patterns in `.gitattributes`). If they do, run
+   `git lfs version`; if Git LFS isn't installed, unstage the binaries, record a blocker
+   (`brew install git-lfs && git lfs install`), and commit only the text files.
+5. **Commit** with a conventional message (`feat(sim): …`, `test(content): …`, `art(flora): …`,
    `docs(plan): …`) and the session's attribution trailer. Push to `origin/main` only if the tracker's
    Owner approvals say pushing is approved; never force-push.
 

@@ -1,5 +1,7 @@
 # Prototype (2026-10-03): renders an EEVEE preview of a .glb for review (Claude can Read the PNG).
 # Run: /Applications/Blender.app/Contents/MacOS/Blender -b --factory-startup -P tools/art/prototypes/preview_test.py -- in.glb out.png
+# Known issue: `world.color` is ignored by EEVEE (background renders dark grey); the real preview.py
+# should build a world node tree (Background node) to set the sky colour.
 import bpy, sys, math
 argv = sys.argv[sys.argv.index("--")+1:]
 glb, png = argv[0], argv[1]
