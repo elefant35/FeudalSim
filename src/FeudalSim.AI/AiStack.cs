@@ -33,7 +33,8 @@ public sealed class AiStack : IDisposable
         {
             "heuristic" => new HeuristicDecider(),
             _ => new LogprobChoiceDecider(
-                new OpenAiCompatibleChatProvider(http, config.DeciderBaseUrl, config.DeciderKey.IsSet ? config.DeciderKey : chatKey), config.DeciderModel),
+                new OpenAiCompatibleChatProvider(http, config.DeciderBaseUrl, config.DeciderKey.IsSet ? config.DeciderKey : chatKey), config.DeciderModel,
+                config.DeciderProviderSort),
         };
         return new AiStack(config, http, chat, decider);
     }

@@ -34,6 +34,9 @@ public sealed class AiConfig
     public string DeciderBaseUrl { get; init; } = "https://openrouter.ai/api/v1";
     public Secret DeciderKey { get; init; } = new(null);
     public int DeciderTimeoutMs { get; init; } = 1_200;
+
+    /// <summary><c>DECIDER_PROVIDER_SORT</c>: OpenRouter routing for the fast decider. S3 chose latency (p50 391 ms vs 620 ms).</summary>
+    public string DeciderProviderSort { get; init; } = "latency";
     public double MaxSpendUsdPerSession { get; init; } = 1.00;
 
     /// <summary><c>AI_GATEWAY_MODE</c>: live · record · replay (20 §11). Orthogonal to <see cref="LlmMode"/>.</summary>
@@ -78,6 +81,7 @@ public sealed class AiConfig
             DeciderBaseUrl = Get("DECIDER_BASE_URL", baseUrl),
             DeciderKey = new Secret(Get("DECIDER_PROVIDER", "openrouter-llm") == "typesafe" ? Get("TYPESAFE_API_KEY", "") : openRouter),
             DeciderTimeoutMs = GetInt("DECIDER_TIMEOUT_MS", 1_200),
+            DeciderProviderSort = Get("DECIDER_PROVIDER_SORT", "latency"),
             MaxSpendUsdPerSession = GetDouble("LLM_MAX_SPEND_USD_PER_SESSION", 1.00),
             GatewayMode = Get("AI_GATEWAY_MODE", "live").ToLowerInvariant() is var m && m is "live" or "record" or "replay" ? m : "live",
             LogTranscripts = Get("LLM_LOG_TRANSCRIPTS", "false").Equals("true", StringComparison.OrdinalIgnoreCase),

@@ -72,3 +72,7 @@ __pycache__/
 
 # Third-party Godot addons with native binaries: fetched by tools/godot/fetch_addons.sh (pinned + SHA-256)
 game/addons/terrain_3d/
+
+# Local Python environments for benches (e.g. Laya, spike S3)
+.venv*/
+tools/**/.venv*/

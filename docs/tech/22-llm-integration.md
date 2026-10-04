@@ -310,6 +310,12 @@ Cloud ids and prices (per million tokens, input / output) as **listed on OpenRou
 | **Chronicle** | = dialogue model (`LLM_CHRONICLE_MODEL` empty) | `qwen/qwen3-32b` · `qwen/qwen3.5-35b-a3b` | Resident model, batched during the skip | Resident model | Template chronicle |
 | **Fast decider** | `openrouter-llm` with `qwen/qwen3.5-9b` — $0.10 / $0.15, logprobs verified | `qwen/qwen3-30b-a3b-instruct-2507` (429 on first try) · Laya zero-shot · Jev if access (TypeSafe API) — §17.2 bake-off. Not usable: `qwen/qwen3-8b` (no logprobs). `qwen/qwen3-14b` (fully peaked): classification argmax only, never quick-choice DPs | **Laya** in-process (ONNX, CPU or GPU) once fine-tuned (§14.6); else the resident model via the same technique | Laya or resident model | Laya on CPU, or heuristic |
 
+**S3 result (2026-10-04, [spike](../spikes/s3-fast-decider.md), [ADR-0011](../adr/0011-fast-decider.md)):** the fast
+decider for M1–M3 is `qwen/qwen3.5-9b` with `provider.sort = latency` (`DECIDER_PROVIDER_SORT`): `act` 88.2%,
+ECE 0.068, injection recall 90% at 2.2% FPR, p50/p95 391/613 ms per call, Core pack 465 ms in parallel,
+$0.000023 per question. Laya zero-shot: 61 ms on GPU but 67.7% and over-confident (fine-tune first);
+`qwen3-30b-a3b-instruct-2507`: no log-probability endpoint for this account; Jev: no access yet.
+
 **S2 result (2026-10-04, [spike](../spikes/s2-dialogue-latency.md)):** `qwen/qwen3-14b` stays the dialogue
 default, routed with OpenRouter `provider.sort = latency` (`LLM_PROVIDER_SORT`): TTFT p50/p95 286/649 ms, first
 words 628/965 ms, 100% valid headers, 0 wrong prices in 40 priced lines, ≈ $0.032 typical / $0.083 heavy hour at

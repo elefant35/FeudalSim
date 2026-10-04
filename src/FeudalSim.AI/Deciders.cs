@@ -28,11 +28,14 @@ public sealed class LogprobChoiceDecider : IDecider
 {
     private readonly OpenAiCompatibleChatProvider _chat;
     private readonly string _model;
+    private readonly string? _providerSort;
 
-    public LogprobChoiceDecider(OpenAiCompatibleChatProvider chat, string model)
+    /// <param name="providerSort">OpenRouter <c>provider.sort</c> (latency · throughput · price); null = default routing.</param>
+    public LogprobChoiceDecider(OpenAiCompatibleChatProvider chat, string model, string? providerSort = null)
     {
         _chat = chat;
         _model = model;
+        _providerSort = string.IsNullOrWhiteSpace(providerSort) || providerSort == "default" ? null : providerSort;
     }
 
     public string ProviderId => $"openrouter-llm:{_model}";
@@ -57,7 +60,9 @@ public sealed class LogprobChoiceDecider : IDecider
             {
                 p["logprobs"] = true;
                 p["top_logprobs"] = 8;
-                p["provider"] = new JsonObject { ["require_parameters"] = true };
+                p["provider"] = _providerSort is null
+                    ? new JsonObject { ["require_parameters"] = true }
+                    : new JsonObject { ["require_parameters"] = true, ["sort"] = _providerSort };
             });
             using var response = await HttpFor(_chat).SendAsync(message, ct).ConfigureAwait(false);
             var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);

@@ -105,6 +105,36 @@ public sealed class AiGateway : IDisposable
         return order;
     }
 
+    /// <summary>
+    /// 22 §5.3: floor the decider's distribution <paramref name="d"/> (presentation order) at 0.01, renormalize,
+    /// blend with the policy prior, <c>q_i ∝ p_i^0.5 · d_i^0.5</c>, and draw one option on a stream keyed by the DP id.
+    /// Sampling (not argmax) keeps choice frequencies near calibrated rates. Pure: the logged <c>d</c> and the DP
+    /// reproduce the draw, so <c>q</c> is not stored.
+    /// </summary>
+    public static (string Choice, float[] Q) BlendAndDraw(DecisionPointOpened dp, IReadOnlyList<string> order, IReadOnlyList<float> d)
+    {
+        var q = new float[order.Count];
+        var dSum = 0f;
+        for (var i = 0; i < order.Count; i++) { dSum += Math.Max(0.01f, d[i]); }
+        var total = 0f;
+        for (var i = 0; i < order.Count; i++)
+        {
+            var p = Math.Max(1e-6f, dp.Options.First(o => o.Id == order[i]).P);
+            q[i] = MathF.Sqrt(p) * MathF.Sqrt(Math.Max(0.01f, d[i]) / dSum);
+            total += q[i];
+        }
+
+        for (var i = 0; i < q.Length; i++) { q[i] /= total; }
+        var r = new Rng(SplitMix64.Avalanche(dp.Id ^ 0xFA57_D0C1_5E00_0002UL)).NextFloat01();   // stream "dp.fast"
+        for (var i = 0; i < q.Length; i++)
+        {
+            r -= q[i];
+            if (r < 0f) { return (order[i], q); }
+        }
+
+        return (order[^1], q);
+    }
+
     private async Task DecideAsync(DecisionPointOpened dp)
     {
         var order = PresentationOrder(dp);
@@ -135,9 +165,10 @@ public sealed class AiGateway : IDisposable
 
         DeciderBreaker.RecordSuccess();
         lock (_lock) { _spentUsd += result.CostUsd; }
-        var probabilities = new float[dp.PreCleared.Length];   // telemetry, reported in PreCleared order
+        var probabilities = new float[dp.PreCleared.Length];   // the decider's d, telemetry, reported in PreCleared order
         for (var i = 0; i < order.Length; i++) { probabilities[Array.IndexOf(dp.PreCleared, order[i])] = result.Probabilities[i]; }
-        Decided?.Invoke(new DecisionMade(dp.Id, dp.MenuHash, order[result.Chosen], DeciderKind.Fast, result.ProviderId, result.LatencyMs, probabilities));
+        var (choice, _) = BlendAndDraw(dp, order, result.Probabilities);
+        Decided?.Invoke(new DecisionMade(dp.Id, dp.MenuHash, choice, DeciderKind.Fast, result.ProviderId, result.LatencyMs, probabilities));
     }
 
     private async Task PumpAsync()

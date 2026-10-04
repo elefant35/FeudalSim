@@ -161,11 +161,34 @@ public sealed class GatewayResilienceTests : IDisposable
                 gw.Decided += d => made = d;
                 gw.Open(dp);
                 made.ShouldNotBeNull();
-                decider.Requests.Single().Options[pick].ShouldBe($"gloss {shown[chosen]}");
-                (made.Choice, made.Decider, made.MenuHash).ShouldBe((shown[chosen], DeciderKind.Fast, 42UL));
+                decider.Requests.Single().Options[pick].ShouldBe($"gloss {shown[chosen]}");   // label → option at that position
+                var d = shown.Select((_, i) => i == pick ? 0.8f : 0.1f).ToArray();
+                (made.Choice, made.Decider, made.MenuHash).ShouldBe((AiGateway.BlendAndDraw(dp, shown, d).Choice, DeciderKind.Fast, 42UL));
                 made.Probabilities![Array.IndexOf(dp.PreCleared, shown[chosen])].ShouldBe(0.8f);
             }
         }
+    }
+
+    [Fact]
+    public void BlendAndDraw_FollowsQ_FromThePolicyPriorAndTheDecider()
+    {
+        // p = 0.25 each; the decider is sure of option 0 (d = 0.97). q ∝ √p·√d → q0 = √.97 / (√.97 + 3·√.01) ≈ 0.77.
+        var counts = new Dictionary<string, int>();
+        float[]? q = null;
+        for (ulong id = 1; id <= 4000; id++)
+        {
+            var dp = Dp(id);
+            var order = dp.PreCleared;
+            var (choice, qq) = AiGateway.BlendAndDraw(dp, order, [0.97f, 0.01f, 0.01f, 0.01f]);
+            q ??= qq;
+            counts[choice == order[0] ? "top" : "other"] = counts.GetValueOrDefault(choice == order[0] ? "top" : "other") + 1;
+        }
+
+        q![0].ShouldBe(0.766f, 0.005f);
+        (counts["top"] / 4000.0).ShouldBe(0.766, 0.03);
+        var (c1, q1) = AiGateway.BlendAndDraw(Dp(9), Dp(9).PreCleared, [0.4f, 0.3f, 0.2f, 0.1f]);
+        var (c2, q2) = AiGateway.BlendAndDraw(Dp(9), Dp(9).PreCleared, [0.4f, 0.3f, 0.2f, 0.1f]);
+        (c1, q1.SequenceEqual(q2)).ShouldBe((c2, true));   // pure: same DP + same d → same draw
     }
 
     [Fact]
@@ -216,7 +239,8 @@ public sealed class GatewayResilienceTests : IDisposable
         }
 
         var resolved = liveDecisions.ShouldHaveSingleItem();
-        (resolved.Chosen, resolved.Decider, resolved.Guard, resolved.ProviderTag).ShouldBe(("refuse", DeciderKind.Fast, GuardOutcome.Passed, "fake-decider"));
+        (resolved.Decider, resolved.Guard, resolved.ProviderTag).ShouldBe((DeciderKind.Fast, GuardOutcome.Passed, "fake-decider"));
+        resolved.Chosen.ShouldBeOneOf("accept_at_price", "counter_step_1", "refuse");
         decider.Requests.Count.ShouldBe(1);
 
         var logged = InputLogFile.ReadAll(log);
