@@ -1,0 +1,542 @@
+[
+  {
+    "id": "asset.nature.boulder_a",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/nature/nature.py",
+      "params": {
+        "species": "boulder",
+        "seed": 201,
+        "variant": "a"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/nature/rocks/boulder_a.glb"
+    ],
+    "budget_class": "rock",
+    "measured": {
+      "tris_lod0": 80,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Grounded boulder; palette-painted, deterministic seed."
+  },
+  {
+    "id": "asset.nature.boulder_b",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/nature/nature.py",
+      "params": {
+        "species": "boulder",
+        "seed": 202,
+        "variant": "b"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/nature/rocks/boulder_b.glb"
+    ],
+    "budget_class": "rock",
+    "measured": {
+      "tris_lod0": 80,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Grounded boulder; palette-painted, deterministic seed."
+  },
+  {
+    "id": "asset.nature.boulder_c",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/nature/nature.py",
+      "params": {
+        "species": "boulder",
+        "seed": 203,
+        "variant": "c"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/nature/rocks/boulder_c.glb"
+    ],
+    "budget_class": "rock",
+    "measured": {
+      "tris_lod0": 80,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Grounded boulder; palette-painted, deterministic seed."
+  },
+  {
+    "id": "asset.nature.boulder_d",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/nature/nature.py",
+      "params": {
+        "species": "boulder",
+        "seed": 204,
+        "variant": "d"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/nature/rocks/boulder_d.glb"
+    ],
+    "budget_class": "rock",
+    "measured": {
+      "tris_lod0": 80,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Grounded boulder; palette-painted, deterministic seed."
+  },
+  {
+    "id": "asset.nature.fieldstone_a",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/nature/nature.py",
+      "params": {
+        "species": "fieldstone",
+        "seed": 201,
+        "variant": "a"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/nature/rocks/fieldstone_a.glb"
+    ],
+    "budget_class": "rock",
+    "measured": {
+      "tris_lod0": 80,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Grounded fieldstone; palette-painted, deterministic seed."
+  },
+  {
+    "id": "asset.nature.fieldstone_b",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/nature/nature.py",
+      "params": {
+        "species": "fieldstone",
+        "seed": 202,
+        "variant": "b"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/nature/rocks/fieldstone_b.glb"
+    ],
+    "budget_class": "rock",
+    "measured": {
+      "tris_lod0": 80,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Grounded fieldstone; palette-painted, deterministic seed."
+  },
+  {
+    "id": "asset.nature.fieldstone_c",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/nature/nature.py",
+      "params": {
+        "species": "fieldstone",
+        "seed": 203,
+        "variant": "c"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/nature/rocks/fieldstone_c.glb"
+    ],
+    "budget_class": "rock",
+    "measured": {
+      "tris_lod0": 80,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Grounded fieldstone; palette-painted, deterministic seed."
+  },
+  {
+    "id": "asset.nature.fieldstone_d",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/nature/nature.py",
+      "params": {
+        "species": "fieldstone",
+        "seed": 204,
+        "variant": "d"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/nature/rocks/fieldstone_d.glb"
+    ],
+    "budget_class": "rock",
+    "measured": {
+      "tris_lod0": 80,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Grounded fieldstone; palette-painted, deterministic seed."
+  },
+  {
+    "id": "asset.nature.flint_scatter_a",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/nature/nature.py",
+      "params": {
+        "species": "flint_scatter",
+        "seed": 201,
+        "variant": "a"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/nature/rocks/flint_scatter_a.glb"
+    ],
+    "budget_class": "rock",
+    "measured": {
+      "tris_lod0": 120,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Grounded flint_scatter; palette-painted, deterministic seed."
+  },
+  {
+    "id": "asset.nature.flint_scatter_b",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/nature/nature.py",
+      "params": {
+        "species": "flint_scatter",
+        "seed": 202,
+        "variant": "b"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/nature/rocks/flint_scatter_b.glb"
+    ],
+    "budget_class": "rock",
+    "measured": {
+      "tris_lod0": 120,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Grounded flint_scatter; palette-painted, deterministic seed."
+  },
+  {
+    "id": "asset.nature.flint_scatter_c",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/nature/nature.py",
+      "params": {
+        "species": "flint_scatter",
+        "seed": 203,
+        "variant": "c"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/nature/rocks/flint_scatter_c.glb"
+    ],
+    "budget_class": "rock",
+    "measured": {
+      "tris_lod0": 120,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Grounded flint_scatter; palette-painted, deterministic seed."
+  },
+  {
+    "id": "asset.nature.driftwood_a",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/nature/nature.py",
+      "params": {
+        "species": "driftwood",
+        "seed": 201,
+        "variant": "a"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/nature/rocks/driftwood_a.glb"
+    ],
+    "budget_class": "rock",
+    "measured": {
+      "tris_lod0": 168,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Grounded driftwood; palette-painted, deterministic seed."
+  },
+  {
+    "id": "asset.nature.driftwood_b",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/nature/nature.py",
+      "params": {
+        "species": "driftwood",
+        "seed": 202,
+        "variant": "b"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/nature/rocks/driftwood_b.glb"
+    ],
+    "budget_class": "rock",
+    "measured": {
+      "tris_lod0": 168,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Grounded driftwood; palette-painted, deterministic seed."
+  },
+  {
+    "id": "asset.nature.driftwood_c",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/nature/nature.py",
+      "params": {
+        "species": "driftwood",
+        "seed": 203,
+        "variant": "c"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/nature/rocks/driftwood_c.glb"
+    ],
+    "budget_class": "rock",
+    "measured": {
+      "tris_lod0": 168,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Grounded driftwood; palette-painted, deterministic seed."
+  },
+  {
+    "id": "asset.nature.outcrop_a",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/nature/nature.py",
+      "params": {
+        "species": "outcrop",
+        "seed": 201,
+        "variant": "a"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/nature/rocks/outcrop_a.glb"
+    ],
+    "budget_class": "rock",
+    "measured": {
+      "tris_lod0": 80,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Grounded outcrop; palette-painted, deterministic seed."
+  },
+  {
+    "id": "asset.nature.outcrop_b",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/nature/nature.py",
+      "params": {
+        "species": "outcrop",
+        "seed": 202,
+        "variant": "b"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/nature/rocks/outcrop_b.glb"
+    ],
+    "budget_class": "rock",
+    "measured": {
+      "tris_lod0": 80,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Grounded outcrop; palette-painted, deterministic seed."
+  },
+  {
+    "id": "asset.nature.outcrop_c",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/nature/nature.py",
+      "params": {
+        "species": "outcrop",
+        "seed": 203,
+        "variant": "c"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/nature/rocks/outcrop_c.glb"
+    ],
+    "budget_class": "rock",
+    "measured": {
+      "tris_lod0": 80,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Grounded outcrop; palette-painted, deterministic seed."
+  },
+  {
+    "id": "asset.nature.outcrop_d",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/nature/nature.py",
+      "params": {
+        "species": "outcrop",
+        "seed": 204,
+        "variant": "d"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/nature/rocks/outcrop_d.glb"
+    ],
+    "budget_class": "rock",
+    "measured": {
+      "tris_lod0": 80,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Grounded outcrop; palette-painted, deterministic seed."
+  }
+]
