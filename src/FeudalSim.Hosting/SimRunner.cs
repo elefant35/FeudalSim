@@ -36,7 +36,11 @@ public sealed class SimRunner : IDisposable
         _log = log;
         _mode = mode;
         _gateway = gateway;
-        if (gateway is not null) { gateway.Completed += r => Submit(CommandSource.Ai, r); }
+        if (gateway is not null)
+        {
+            gateway.Completed += r => Submit(CommandSource.Ai, r);
+            gateway.Decided += d => Submit(CommandSource.Ai, d);
+        }
         _seq = world.LastCommandSeq;   // continue the world's command numbering
         Snapshots = new TripleBuffer<RenderSnapshot>(() => new RenderSnapshot());
         _thread = new Thread(Loop) { IsBackground = true, Name = "sim" };
@@ -141,7 +145,11 @@ public sealed class SimRunner : IDisposable
         foreach (var c in output.AppliedCommands) { _log?.Append(c); }
         foreach (var e in output.Events) { Events.Push(e); }
         foreach (var r in output.AiRequests) { _gateway?.Submit(r); }
-        foreach (var dp in output.OpenedDecisions) { Submit(CommandSource.Integrity, dp); }   // logged + verified next step, live and in replay
+        foreach (var dp in output.OpenedDecisions)
+        {
+            Submit(CommandSource.Integrity, dp);   // logged + verified next step, live and in replay
+            _gateway?.Open(dp);                    // after the integrity record, so an inline "policy, now" queues behind it
+        }
         Snapshots.Back.CopyFrom(_world);
         Snapshots.Publish();
         Interlocked.Increment(ref _steps);

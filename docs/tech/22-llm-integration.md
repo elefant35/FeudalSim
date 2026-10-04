@@ -335,6 +335,11 @@ leakage, §10.6).
 target for 2 minutes; half-open probe every 30 s (one P3 request); closes after 3 consecutive
 successes. While open, traffic routes to the next tier silently; the UI shows a small "voices
 muffled" indicator only if dialogue falls to template.
+*Implemented in M0-18 (`FeudalSim.AI.CircuitBreaker`):* the failure-count trigger, a single in-flight
+probe while half-open (a failed probe re-opens for 30 s), separate breakers for chat and the fast
+decider; an open decider breaker answers DPs "policy, now" at once. The latency (p95 TTFT) trigger
+arrives with S2's latency telemetry in M1. `AI_GATEWAY_MODE` record/replay is
+`FeudalSim.AI.TranscriptHandler`, an HTTP stage under every provider (20 §11).
 
 ### 3.6 Priority queues, concurrency, spend caps
 

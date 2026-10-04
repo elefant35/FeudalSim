@@ -19,9 +19,6 @@ public static class AiCli
         output.WriteLine($"key: {(config.ChatKey.IsSet ? "set" : "missing")}");
         return config;
     }
-
-    public static HttpClient Http(HttpMessageHandler? handler = null)
-        => handler is null ? new HttpClient { Timeout = TimeSpan.FromSeconds(30) } : new HttpClient(handler, disposeHandler: false);
 }
 
 public sealed class AiPingCommand : AsyncCommand<NoSettings>
@@ -40,11 +37,10 @@ public sealed class AiPingCommand : AsyncCommand<NoSettings>
             return 0;
         }
 
-        using var http = AiCli.Http(TestHandler);
-        var chat = new OpenAiCompatibleChatProvider(http, config.ChatBaseUrl, config.ChatKey);
+        using var stack = AiStack.Create(config, TestHandler);   // AI_GATEWAY_MODE applies (record / replay)
         try
         {
-            var result = await chat.CompleteAsync(new ChatRequest(config.DialogueModel,
+            var result = await stack.Chat!.CompleteAsync(new ChatRequest(config.DialogueModel,
                 [new("system", "You are a settler in a medieval village game. Reply in one short sentence."),
                  new("user", "A stranger greets you on the beach the morning after the shipwreck. What do you say?")]), ct);
             output.WriteLine($"model: {config.DialogueModel} via {result.ProviderTag}");
@@ -84,11 +80,11 @@ public sealed class AiDecideCommand : AsyncCommand<NoSettings>
         }
         else
         {
-            using var http = AiCli.Http(TestHandler);
-            var chat = new OpenAiCompatibleChatProvider(http, config.DeciderBaseUrl, config.DeciderKey.IsSet ? config.DeciderKey : config.ChatKey);
+            using var stack = AiStack.Create(config, TestHandler);   // AI_GATEWAY_MODE applies (record / replay)
+            output.WriteLine($"gateway: {config.GatewayMode}");
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(Math.Max(config.DeciderTimeoutMs, 5_000));   // CLI ping allows a cold start
-            result = await new LogprobChoiceDecider(chat, config.DeciderModel).DecideAsync(Sample, cts.Token);
+            result = await stack.Decider!.DecideAsync(Sample, cts.Token);
             if (!result.Ok)
             {
                 output.WriteLine($"decider: unavailable ({result.Failure})");

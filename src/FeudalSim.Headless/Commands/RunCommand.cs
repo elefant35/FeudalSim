@@ -114,13 +114,14 @@ public sealed class RunCommand : Command<RunSettings>
         Directory.CreateDirectory(dir);
         using var jobs = new JobRunner(settings.Threads);
         var world = scenario.CreateWorld(content, jobs);
-        using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+        FeudalSim.AI.AiStack? stack = null;
         FeudalSim.AI.AiGateway? gateway = null;
-        if (scenario.AiPingStep is not null)
+        if (scenario.AiPingStep is not null || scenario.DecisionPingStep is not null)
         {
             var config = FeudalSim.AI.AiConfig.Load(FeudalSim.AI.AiConfig.FindEnvFile(Directory.GetCurrentDirectory()));
-            Console.WriteLine($"ai: key {(config.ChatKey.IsSet ? "set" : "missing")}, mode {(config.TemplateMode ? "template" : "live")}, model {config.DialogueModel}");
-            gateway = new FeudalSim.AI.AiGateway(config, new FeudalSim.AI.OpenAiCompatibleChatProvider(http, config.ChatBaseUrl, config.ChatKey));
+            Console.WriteLine($"ai: key {(config.ChatKey.IsSet ? "set" : "missing")}, mode {(config.TemplateMode ? "template" : "live")}, gateway {config.GatewayMode}, model {config.DialogueModel}, decider {config.DeciderModel}");
+            stack = FeudalSim.AI.AiStack.Create(config);
+            gateway = stack.CreateGateway();
         }
 
         var events = new List<FeudalSim.Sim.Events.EventEnvelope>();
@@ -140,13 +141,17 @@ public sealed class RunCommand : Command<RunSettings>
                 }
             }
 
+            var (measuredSteps, measuredSeconds) = (runner.StepsExecuted, sw.Elapsed.TotalSeconds);   // before the pause and drain
             runner.Pause();
             Thread.Sleep(200);
             while (runner.Events.TryPop(out var e)) { events.Add(e); }
-            var rate = runner.StepsExecuted / sw.Elapsed.TotalSeconds;
+            var (finalStep, finalHash) = runner.Invoke(w => (w.Clock.Step, FeudalSim.Sim.StateHasher.Hash(w))).GetAwaiter().GetResult();
+            Console.WriteLine($"realtime: final step {finalStep} hash {finalHash:x16}");
+            var rate = measuredSteps / measuredSeconds;
             var ok = Math.Abs(rate - 10.0) <= 0.2;
-            Console.WriteLine($"realtime: {runner.StepsExecuted} steps in {sw.Elapsed.TotalSeconds:F1} s = {rate:F2} steps/s (target 10.0 ± 0.2) → {(ok ? "OK" : "OUT OF RANGE")}; dilation events {runner.TimeDilationEvents}");
-            foreach (var e in events.Where(e => e.Payload is FeudalSim.Sim.Events.AiResultApplied or FeudalSim.Sim.Events.CommandRejected))
+            Console.WriteLine($"realtime: {measuredSteps} steps in {measuredSeconds:F1} s = {rate:F2} steps/s (target 10.0 ± 0.2) → {(ok ? "OK" : "OUT OF RANGE")}; dilation events {runner.TimeDilationEvents}");
+            foreach (var e in events.Where(e => e.Payload is FeudalSim.Sim.Events.AiResultApplied or FeudalSim.Sim.Events.CommandRejected
+                         or FeudalSim.Sim.Events.DecisionResolved or FeudalSim.Sim.Events.IntegrityMismatch))
             {
                 Console.WriteLine($"event @step {e.Step}: {e.Payload}");
             }
@@ -154,6 +159,7 @@ public sealed class RunCommand : Command<RunSettings>
             using var eventLog = File.Create(Path.Combine(dir, "events.fslog"));
             foreach (var e in events) { FeudalSim.Sim.Persistence.LogCodec.WriteEvent(eventLog, e); }
             gateway?.Dispose();
+            stack?.Dispose();
             Console.WriteLine($"realtime: wrote {dir}/inputs.fslog, events.fslog");
             return ok ? 0 : 3;
         }

@@ -71,6 +71,8 @@ dotnet run --project src/FeudalSim.Headless -- run --realtime --seconds 60   # S
 dotnet run --project src/FeudalSim.Headless -- ai ping                   # one chat completion (key from .env, never printed)
 dotnet run --project src/FeudalSim.Headless -- ai decide                 # one fast-decider question (option probabilities)
 dotnet run --project src/FeudalSim.Headless -- run --scenario content/scenarios/m0_ai_ping.yaml --realtime --seconds 25   # live AI round trip, logged
+dotnet run --project src/FeudalSim.Headless -- run --scenario content/scenarios/m0_dp_ping.yaml [--realtime --seconds 10]   # a decision point: policy at deadline / live fast decider
+AI_GATEWAY_MODE=record LLM_LOG_TRANSCRIPTS=true dotnet run --project src/FeudalSim.Headless -- ai decide   # then AI_GATEWAY_MODE=replay: no network, no key
 dotnet run --project src/FeudalSim.Headless -- log inputs|events <file.fslog> [--filter X]   # inspect logs
 dotnet run --project src/FeudalSim.Headless -- replay --scenario <yaml> --log <inputs.fslog> --until-step N   # final hash of a recorded session
 dotnet run --project tests/FeudalSim.Benchmarks -c Release -- --filter '*'

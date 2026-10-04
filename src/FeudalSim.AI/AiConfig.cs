@@ -33,7 +33,17 @@ public sealed class AiConfig
     public int DeciderTimeoutMs { get; init; } = 1_200;
     public double MaxSpendUsdPerSession { get; init; } = 1.00;
 
-    public bool TemplateMode => LlmMode == "template" || !ChatKey.IsSet;
+    /// <summary><c>AI_GATEWAY_MODE</c>: live · record · replay (20 §11). Orthogonal to <see cref="LlmMode"/>.</summary>
+    public string GatewayMode { get; init; } = "live";
+
+    /// <summary><c>LLM_LOG_TRANSCRIPTS</c>: record mode only writes transcripts when this is true.</summary>
+    public bool LogTranscripts { get; init; }
+
+    /// <summary>Where transcripts live (<c>LLM_TRANSCRIPT_DIR</c>, default <c>llm_transcripts/</c>; gitignored).</summary>
+    public string TranscriptDir { get; init; } = "llm_transcripts";
+
+    /// <summary>No provider calls at all. Replay needs no key: it never reaches the network.</summary>
+    public bool TemplateMode => LlmMode == "template" || (!ChatKey.IsSet && GatewayMode != "replay");
 
     public static AiConfig Load(string? envFile = null)
     {
@@ -65,6 +75,9 @@ public sealed class AiConfig
             DeciderKey = new Secret(Get("DECIDER_PROVIDER", "openrouter-llm") == "typesafe" ? Get("TYPESAFE_API_KEY", "") : openRouter),
             DeciderTimeoutMs = GetInt("DECIDER_TIMEOUT_MS", 1_200),
             MaxSpendUsdPerSession = GetDouble("LLM_MAX_SPEND_USD_PER_SESSION", 1.00),
+            GatewayMode = Get("AI_GATEWAY_MODE", "live").ToLowerInvariant() is var m && m is "live" or "record" or "replay" ? m : "live",
+            LogTranscripts = Get("LLM_LOG_TRANSCRIPTS", "false").Equals("true", StringComparison.OrdinalIgnoreCase),
+            TranscriptDir = Get("LLM_TRANSCRIPT_DIR", "llm_transcripts"),
         };
     }
 
