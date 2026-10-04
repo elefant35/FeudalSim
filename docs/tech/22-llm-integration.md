@@ -552,6 +552,17 @@ public sealed record PlayerActConfirmed(ConversationId Conversation, int TurnInd
 public sealed record PlayerActUnsaid(ConversationId Conversation, int TurnIndex);      // input event: Backspace within the window
 ```
 
+*Implemented (M1-11, `FeudalSim.AI/Dialogue`):* `Sanitizer` (§4.4; NFKC by `Fold`, since the process runs with
+invariant globalization and `string.Normalize` leaves non-ASCII text as is: fullwidth ASCII, ideographic space,
+ligatures, typographic quotes), `TurnRateLimiter` (2 s **per conversation**, 30 per minute across NPCs — a single 2 s gap
+would make the 30/minute rule unreachable), `Extractor` (§4.5 numbers, money in farthings incl. "two and six", items,
+names with Levenshtein ≤ 2), `TurnClassifier` (Core pack of 6 every turn — act, act2, tone, hostility, politeness,
+injection — plus persuasiveness/appeal and sincerity behind regex prefilters; the §5.2 acceptance rule with the
+less-consequential reading for ambiguous turns; injection ≥ 0.3 or the lexicon → policy; per-question heuristic fallback)
+and `HeuristicClassifier` v1 (lexicons; 77 % act accuracy on golden set v0 — tuned with that set in view, so the
+number is optimistic). `feudalsim ai classify`: **qwen3.5-9b 89.2 % act accuracy (83/93), injection recall 10/10, false
+positives 2/93, turn p50 438 ms / p95 765 ms (slowest question of the parallel pack), $0.014 for 103 lines.**
+
 ### 4.7 Step 4 — DRE (inside the sim)
 
 At the next sim tick, the DRE (specified in §6):

@@ -328,3 +328,54 @@ public sealed class AiBenchDeciderCommand : AsyncCommand<BenchDeciderSettings>
         return 0;
     }
 }
+
+public sealed class ClassifySettings : CommandSettings
+{
+    [CommandOption("--golden <PATH>")]
+    public string Golden { get; init; } = "tools/bench/s3/golden_act_v0.tsv";
+
+    [CommandOption("--max-usd <USD>")]
+    public double MaxUsd { get; init; } = 0.10;
+}
+
+/// <summary>
+/// M1-11 check: the golden set through the real input pipeline (22 §4.4–4.6: sanitize → Core/prefiltered packs in
+/// parallel → acceptance rule → injection gate), with the configured fast decider (or the heuristic in template mode).
+/// </summary>
+public sealed class AiClassifyCommand : AsyncCommand<ClassifySettings>
+{
+    public override async Task<int> ExecuteAsync(CommandContext context, ClassifySettings settings, CancellationToken cancellationToken)
+    {
+        var config = AiCli.LoadConfig(Console.Out);
+        using var stack = AiStack.Create(config);
+        var classifier = new FeudalSim.AI.Dialogue.TurnClassifier(stack.Decider);
+        var golden = DeciderBench.LoadGolden(settings.Golden);
+        var ctx = new FeudalSim.AI.Dialogue.ClassifierContext("a newcomer", "Bram, the smith, at his forge", [], "", []);
+        int right = 0, acts = 0, ambiguous = 0, fallbacks = 0, questions = 0, injTp = 0, injFp = 0, injN = 0;
+        double cost = 0;
+        var latency = new List<int>();
+        foreach (var g in golden)
+        {
+            if (cost >= settings.MaxUsd) { Console.WriteLine("classify: spend cap reached"); break; }
+            var line = FeudalSim.AI.Dialogue.Sanitizer.Clean(g.Text);
+            var c = await classifier.ClassifyAsync(line, ctx, cancellationToken);
+            cost += c.CostUsd;
+            latency.Add(c.LatencyMs);
+            (fallbacks, questions) = (fallbacks + c.Fallbacks, questions + c.Questions);
+            if (g.Injection) { injN++; if (c.InjectionFlag) { injTp++; } }
+            else
+            {
+                acts++;
+                if (c.Act == g.Act) { right++; }
+                if (c.Ambiguous) { ambiguous++; }
+                if (c.InjectionFlag) { injFp++; }
+            }
+        }
+
+        latency.Sort();
+        static string F(FormattableString s) => s.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        Console.WriteLine(F($"classify: {(stack.Decider?.ProviderId ?? "heuristic")} · {acts + injN} lines · act accuracy {right}/{acts} = {right / (double)Math.Max(1, acts):P1} (ambiguous {ambiguous}) · injection recall {injTp}/{injN}, false positives {injFp}/{acts}"));
+        Console.WriteLine(F($"  questions {questions} · decider fallbacks {fallbacks} · turn latency p50 {latency[latency.Count / 2]} ms / p95 {latency[(int)(0.95 * (latency.Count - 1))]} ms (slowest question, parallel) · cost ${cost:F4}"));
+        return 0;
+    }
+}

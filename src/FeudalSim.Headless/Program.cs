@@ -20,6 +20,7 @@ public static class Program
             {
                 ai.SetDescription("Check the AI gateway (OpenRouter key from .env; never printed).");
                 ai.AddCommand<AiPingCommand>("ping").WithDescription("One chat completion from LLM_DIALOGUE_MODEL.");
+                ai.AddCommand<AiClassifyCommand>("classify").WithDescription("M1-11: the golden set through sanitize + classification (accuracy, injection, latency, cost).");
                 ai.AddCommand<AiDecideCommand>("decide").WithDescription("One fast-decider choice question (normalized option probabilities).");
                 ai.AddCommand<AiBenchDialogueCommand>("bench-dialogue").WithDescription("Spike S2: stream decision-first dialogue turns per model; latency percentiles and cost per play-hour.");
                 ai.AddCommand<AiBenchDeciderCommand>("bench-decider").WithDescription("Spike S3: fast-decider bake-off on the golden set (accuracy, ECE, injection, latency, fan-out, cost).");
