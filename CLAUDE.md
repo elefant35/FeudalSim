@@ -77,7 +77,8 @@ dotnet run --project src/FeudalSim.Headless -- log inputs|events <file.fslog> [-
 dotnet run --project src/FeudalSim.Headless -- replay --scenario <yaml> --log <inputs.fslog> --until-step N   # final hash of a recorded session
 dotnet run --project tests/FeudalSim.Benchmarks -c Release -- --filter '*'
 dotnet build game/FeudalSim.Game.csproj                                  # the Godot client (also builds Hosting/Sim)
-$GODOT --path game                                                       # run Boot (Space pause · 1/2/4 speed)
+$GODOT --path game                                                       # the M1 camp view (m1_view): Space pause · 1/2/4/8 speed · WASD pan · wheel zoom
+$GODOT --path game -- --scenario m1_overheard                            # any content/scenarios/<name>.yaml; `-- --shot out.png 30` saves a screenshot and quits
 $GODOT --headless --path game -- --autotest                              # Boot smoke: movement, pause, time scale (exit 0/1)
 tools/godot/embodiment_check.sh                                          # LOD0 bodies + headless replay of the client session
 tools/godot/fetch_addons.sh                                              # pinned third-party addons (Terrain3D) → game/addons/ (SHA-256 checked)

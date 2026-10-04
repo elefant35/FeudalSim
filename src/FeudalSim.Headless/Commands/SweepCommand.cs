@@ -38,6 +38,7 @@ public sealed class SweepCommand : Command<SweepSettings>
         ("breaking-band agent-days", s => s.BreakingShare, 0, 0.05),
         ("behavior divergence (same role)", s => s.Divergence, 0.15, 1),
         ("task failure", s => s.TaskFailure, 0, 0.05),
+        ("friends per person at the end (16 Q15)", s => s.FinalFriends, 0.08, 3.0),   // ≥ one mutual friendship per camp
     ];
 
     public override int Execute(CommandContext context, SweepSettings settings, CancellationToken cancellationToken)

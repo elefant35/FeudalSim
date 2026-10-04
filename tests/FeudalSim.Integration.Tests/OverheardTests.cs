@@ -75,6 +75,25 @@ public sealed class OverheardTests
         Sim.StateHasher.Hash(w).ShouldBe(Sim.StateHasher.Hash(template));
     }
 
+    [Fact]
+    public async Task ASave_WaitsForRendersInFlight_ThenReleasesTheHold()
+    {
+        // 31 R27: with the player at the fire, overheard renders are almost always in flight. A save holds new ones
+        // (they play their template at once) and captures only when none is pending.
+        var w = Fire.CreateWorld(Content, SerialJobScheduler.Instance);
+        using var runner = new SimRunner(w, mode: RunMode.MaxSpeed);
+        await runner.StepWhilePaused(0);
+        while (runner.StepsExecuted < 600) { await Task.Delay(5, TestContext.Current.CancellationToken); }
+        var image = await runner.SaveWhenSettled().WaitAsync(TimeSpan.FromSeconds(20), TestContext.Current.CancellationToken);
+
+        var restored = Sim.Persistence.SaveCodec.Restore(image, out _);
+        restored.PendingAiRequests.ShouldBe(0);
+        restored.AiHeld.ShouldBeFalse();
+        var held = await runner.Invoke(world => world.AiHeld);
+        for (var k = 0; k < 50 && held; k++) { await Task.Delay(10, TestContext.Current.CancellationToken); held = await runner.Invoke(world => world.AiHeld); }
+        held.ShouldBeFalse();   // the hold lifts after the capture
+    }
+
     private static string RepoRoot()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);

@@ -61,6 +61,9 @@ public sealed class SimWorld
     /// <summary>The player's last reported pose (set by logged <see cref="PlayerMoved"/> commands).</summary>
     public PlayerState Player;
 
+    /// <summary>Set by <see cref="HoldAiRequests"/> while a save waits; not saved (a restored world is never holding).</summary>
+    public bool AiHeld { get; private set; }
+
     /// <summary>Compiled content (definitions and tuning). Its hash is recorded in saves and run outputs.</summary>
     public Content.ContentDatabase Content { get; set; } = FeudalSim.Sim.Content.ContentDatabase.Empty;
 
@@ -192,6 +195,10 @@ public sealed class SimWorld
                 Emit(Salience.Minor, id, new PersonSpawned(id, c.Name));
                 break;
 
+            case HoldAiRequests c:
+                AiHeld = c.Hold;
+                break;
+
             case PlayerMoved c:
                 if (!float.IsFinite(c.X) || !float.IsFinite(c.Z)) { Reject(command, "Invalid player pose."); break; }
                 Player = new PlayerState { Present = true, X = c.X, Z = c.Z, Yaw = c.Yaw };
@@ -255,6 +262,12 @@ public sealed class SimWorld
     public long RequestAi(AiTaskKind kind, AiPriority priority, int deadlineSteps, EntityId speaker, EntityId listener, string context, string fallbackText)
     {
         var request = new AiRequest(++_aiRequestSeq, kind, priority, Clock.Step, Clock.Step + deadlineSteps, speaker, listener, context, fallbackText);
+        if (AiHeld)
+        {
+            Emit(Salience.Trace, speaker, new AiResultApplied(request.RequestId, true, fallbackText, "fallback:save"));
+            return request.RequestId;
+        }
+
         _aiPending.Add(request.RequestId, request);
         _aiOutbox.Add(request);
         return request.RequestId;

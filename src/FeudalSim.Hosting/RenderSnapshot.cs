@@ -17,6 +17,13 @@ public sealed class RenderSnapshot
     public float[] TargetZ = new float[64];
     public bool[] HasTarget = new bool[64];
 
+    /// <summary>Current action handle per settler (−1 none); M1 camp view colours by it.</summary>
+    public short[] Action = new short[64];
+
+    /// <summary>Camp stocks (M1 graybox camp): food in Satiety points, firewood bundles, minutes of fire left.</summary>
+    public float Food, Firewood, FireFuelMin;
+    public bool CampActive;
+
     public void CopyFrom(SimWorld world)
     {
         Step = world.Clock.Step;
@@ -27,6 +34,7 @@ public sealed class RenderSnapshot
             var size = Math.Max(p.Count, Ids.Length * 2);
             Ids = new ulong[size]; X = new float[size]; Z = new float[size]; Yaw = new float[size];
             Tier = new byte[size]; TargetX = new float[size]; TargetZ = new float[size]; HasTarget = new bool[size];
+            Action = new short[size];
         }
 
         Count = p.Count;
@@ -40,6 +48,10 @@ public sealed class RenderSnapshot
             TargetX[i] = p.Wander[i].TargetX;
             TargetZ[i] = p.Wander[i].TargetZ;
             HasTarget[i] = p.Wander[i].HasTarget;
+            Action[i] = p.Activity[i].Action;
         }
+
+        CampActive = world.Camp.Active != 0;
+        (Food, Firewood, FireFuelMin) = (world.Camp.Food, world.Camp.Firewood, world.Camp.FireFuelMin);
     }
 }

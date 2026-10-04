@@ -78,9 +78,9 @@ public sealed class ReputationTests
         var (w, a, b, c) = Three();
         for (var k = 0; k < 6; k++) { Believe(w, a, w.Claims.Observe(Content.ClaimHandle("claim.lied"), b, c, 1f, w.Clock.GameMinute + k), 1f, firstHand: true); }
         var honesty = w.Reputation.R(a, b, RepAxis.Honesty);
-        honesty.ShouldBeLessThan(-50f);
+        honesty.ShouldBeLessThan(-60f);   // ceiling ≤ 50 for a believed liar
         for (var k = 0; k < 20; k++) { w.Relationships.TrustEvidence(a, b, 10f); }
-        w.Relationships.Trust(a, b).ShouldBe(50f + (0.5f * honesty), 0.01f);   // 16 §4.8 ceiling
+        w.Relationships.Trust(a, b).ShouldBe(RelationshipStore.TrustCeilingBase + (0.5f * honesty), 0.01f);   // 16 §4.8 ceiling
     }
 
     [Fact]

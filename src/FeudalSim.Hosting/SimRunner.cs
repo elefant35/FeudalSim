@@ -83,6 +83,36 @@ public sealed class SimRunner : IDisposable
         Volatile.Write(ref _timeScale, scale);
     }
 
+    private TaskCompletionSource<Sim.Persistence.SaveImage>? _save;
+
+    /// <summary>
+    /// Saves once no AI request is in flight (31 R27): new requests are held (they play their template at once), the ones
+    /// out finish or time out (≤ their deadline, 3 s for overheard talk), then the image is captured and the hold lifts.
+    /// While paused, the runner steps just far enough for those deadlines to pass.
+    /// </summary>
+    public Task<Sim.Persistence.SaveImage> SaveWhenSettled()
+    {
+        var tcs = new TaskCompletionSource<Sim.Persistence.SaveImage>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _control.Enqueue(_ =>
+        {
+            if (_save is not null) { _save.Task.ContinueWith(t => tcs.TrySetResult(t.Result), TaskScheduler.Default); return; }
+            _save = tcs;
+            Submit(CommandSource.Settings, new HoldAiRequests(true));
+        });
+        _wake.Set();
+        return tcs.Task;
+    }
+
+    private void CompleteSaveIfSettled()
+    {
+        if (_save is null || !_world.AiHeld || _world.PendingAiRequests > 0) { return; }
+        var image = Sim.Persistence.SaveCodec.Capture(_world);
+        Submit(CommandSource.Settings, new HoldAiRequests(false));
+        var tcs = _save;
+        _save = null;
+        tcs.SetResult(image);
+    }
+
     /// <summary>Advances exactly <paramref name="steps"/> steps while paused.</summary>
     public Task<long> StepWhilePaused(int steps) => Invoke(w =>
     {
@@ -101,6 +131,9 @@ public sealed class SimRunner : IDisposable
 
             switch (_mode)
             {
+                case RunMode.Paused when _save is not null:
+                    StepOnce();   // a save waits on AI requests; let their deadlines pass
+                    continue;
                 case RunMode.Paused:
                     _wake.WaitOne(50);
                     last = clock.Elapsed;
@@ -153,6 +186,7 @@ public sealed class SimRunner : IDisposable
         Snapshots.Back.CopyFrom(_world);
         Snapshots.Publish();
         Interlocked.Increment(ref _steps);
+        CompleteSaveIfSettled();
     }
 
     public void Dispose()

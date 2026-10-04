@@ -16,6 +16,7 @@ public enum CommandSource : byte { Player, Embodiment, Ai, Settings, Scenario, D
 [Union(4, typeof(EmbodimentReport))]
 [Union(5, typeof(Decisions.DecisionPointOpened))]
 [Union(6, typeof(Decisions.DecisionMade))]
+[Union(7, typeof(HoldAiRequests))]
 public abstract record StateCommand;
 
 /// <summary>Changes the real-minutes-per-game-day setting (canon §6). Logged; applies at the next step.</summary>
@@ -36,6 +37,13 @@ public sealed record SpawnPerson(
     [property: Key(3)] string? Culture = null,
     [property: Key(4)] string? Profession = null,
     [property: Key(5)] int AgeYears = 0) : StateCommand;
+
+/// <summary>
+/// While held, new AI requests resolve at once with their template instead of going out (logged, so replays match).
+/// A save holds requests and waits for those in flight to finish or time out (31 R27).
+/// </summary>
+[MessagePackObject]
+public sealed record HoldAiRequests([property: Key(0)] bool Hold) : StateCommand;
 
 /// <summary>The player's body position as reported by the client each step (the player is always embodied).</summary>
 [MessagePackObject]

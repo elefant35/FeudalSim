@@ -10,7 +10,7 @@ ambient_light_color = Color(0.7, 0.72, 0.75, 1)
 ambient_light_energy = 0.6
 
 [sub_resource type="PlaneMesh" id="Ground_1"]
-size = Vector2(120, 120)
+size = Vector2(160, 160)
 
 [sub_resource type="StandardMaterial3D" id="GroundMat_1"]
 albedo_color = Color(0.42, 0.52, 0.28, 1)
@@ -36,7 +36,7 @@ surface_material_override/0 = SubResource("GroundMat_1")
 material_override = SubResource("SettlerMat_1")
 
 [node name="Camera" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.8192, 0.5736, 0, -0.5736, 0.8192, 10, 28, 30)
+transform = Transform3D(1, 0, 0, 0, 0.7071, 0.7071, 0, -0.7071, 0.7071, 10, 34, 26)
 current = true
 
 [node name="Overlay" type="CanvasLayer" parent="."]

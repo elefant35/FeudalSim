@@ -1,0 +1,16 @@
+# What the game window shows today (`$GODOT --path game`): the M1 graybox camp late on the first afternoon, the
+# player standing by the fire so NPC↔NPC talk nearby is overheard (live with OPENROUTER_KEY, else template lines).
+# Settlers are capsules coloured by activity; the full camp scene with bodies and dialogue is M1-18/19.
+id: scenario.m1_view
+seed: 42
+start: Y0 Spring 1 16:00
+days: 30
+settlers: 24
+ai: utility
+player: [12, -6]
+camp:
+  food: 32000
+  firewood: 10
+  fire_fuel_min: 240
+  bedding: 0.85
+  schedule: schedule.landfall_communal

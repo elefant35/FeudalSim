@@ -92,10 +92,12 @@ public sealed class RelationshipTests
     {
         var (w, a, b) = Pair();
         var rel = w.Relationships;
-        rel.TrustEvidence(a, b, 10f);                       // kept a major promise: +10·(100 − 49.5)/100 = +5.05, capped at 50
-        rel.Trust(a, b).ShouldBe(50f, 0.01f);
+        rel.TrustEvidence(a, b, 10f);                       // kept a major promise: +10·(100 − 49.5)/100 = +5.05 (ceiling 80 at neutral reputation)
+        rel.Trust(a, b).ShouldBe(54.55f, 0.01f);
+        rel.TrustEvidence(a, b, 40f, honestyReputation: -60f);
+        rel.Trust(a, b).ShouldBe(50f, 0.01f);                // a believed liar: ceiling 80 − 30
         rel.TrustEvidence(a, b, 40f, honestyReputation: 60f);
-        rel.Trust(a, b).ShouldBeGreaterThan(60f);            // a reputation for honesty lifts the ceiling to 80
+        rel.Trust(a, b).ShouldBeGreaterThan(60f);            // a reputation for honesty lifts the ceiling toward 100
         var before = rel.Trust(a, b);
         rel.TrustEvidence(a, b, -20f);                       // broke a major promise: −20·(0.5 + T/100)
         (before - rel.Trust(a, b)).ShouldBeGreaterThan(20f); // betrayal hurts more when trust was high

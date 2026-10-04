@@ -348,7 +348,7 @@ strangers start at `T0 − 10`. Evidence updates are asymmetric — betrayal hur
 ```
 positive:  T ← T + g · (100 − T)/100
 negative:  T ← T − l · (0.5 + T/100)
-ceiling:   T ≤ 50 + 0.5 · R_full_A,Honesty(B)       // you cannot deeply trust a believed liar
+ceiling:   T ≤ 80 + 0.5 · R_full_A,Honesty(B)       // you cannot deeply trust a believed liar (owner 2026-10-04: base 80, was 50)
 drift:     T ← T0 + (T − T0) · 0.9^(Δdays/32)        // absent contact: 10 %/year back to baseline
 ```
 
@@ -1874,14 +1874,14 @@ betray a confidence, an Honest guard asked to ignore a theft) refuse in ≥ 95% 
 13. How many bystander DPs per exchange can the fast decider afford in a crowded tavern (cap 3 now),
     and should called allies always get one?
 14. Should the player be told (UI) when a pick was blocked by a guard, or should it stay invisible?
-16. **§7.8 vs §7.2.** At camp trust, §7.2's credibility gives ≈ 0.35–0.40 acceptance, but §7.8's speeds assume ≈ 0.7,
+16. **§7.8 vs §7.2.** *Owner (2026-10-04): keep §7.2 for now; tune later if play needs it.* At camp trust, §7.2's credibility gives ≈ 0.35–0.40 acceptance, but §7.8's speeds assume ≈ 0.7,
     so a 3-witness juicy claim takes 1.2–1.5 d to t50, not 0.5 d (§7.10 note). Keep §7.2 and restate the §7.8 targets,
     or raise `cred`'s intercept (e.g. 0.15 → 0.35)? The M1 exit criterion passes either way, measured as *heard*.
-17. **Trust ceiling at neutral reputation.** §4.8's `T ≤ 50 + 0.5·R_full Honesty` caps trust at 50 for anyone without
+17. **Trust ceiling at neutral reputation.** *Resolved (owner, 2026-10-04): the base is 80, so most people (no explicit honest acts) can be trusted to 80 and a believed liar stays capped lower; revisit when honest acts exist.* §4.8's `T ≤ 50 + 0.5·R_full Honesty` caps trust at 50 for anyone without
     a positive Honesty record. The M1 vocabulary has almost no positive Honesty claims (`made_amends` +4), so Close
     friend (T ≥ 60) is unreachable and claim acceptance stays ≈ 0.4 (Q16). Should the ceiling apply only when
     R < 0 (a believed liar), or should kept promises and returned property (17/15) create `Honest` claims?
-15. **Friendship formation rate.** The M1 camp makes 0.31 friends / person by day 30 with D9 (0.09 before) with no rapport DPs and no
+15. **Friendship formation rate.** *Decided (owner delegated, 2026-10-04): the sweep enforces 0.08–3 friends / person at day 30 (≥ one mutual friendship per camp; 98 % of 100 seeds pass at 0.31 mean) as a regression guard; aim for ≈ 1 once rapport DPs (M1-09) exist.* The M1 camp makes 0.31 friends / person by day 30 with D9 (0.09 before) with no rapport DPs and no
     gossip yet. What target (e.g. 1–2 friends / person by day 30) should the 21 §19 sweep enforce? It interacts
     with Q12.
 

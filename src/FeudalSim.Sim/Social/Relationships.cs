@@ -155,7 +155,10 @@ public sealed class RelationshipStore
         e.Mods[index] = slot;
     }
 
-    /// <summary>16 §4.8 evidence: positive g → T += g·(100 − T)/100; negative l → T −= l·(0.5 + T/100); ceiling 50 + 0.5·R_full Honesty.</summary>
+    /// <summary>16 §4.8 evidence: positive g → T += g·(100 − T)/100; negative l → T −= l·(0.5 + T/100); ceiling 80 + 0.5·R_full Honesty (owner, Q17).</summary>
+    /// <summary>Trust ceiling at neutral honesty reputation (16 §4.8; owner 2026-10-04: 80, was 50, until honest acts exist).</summary>
+    public const float TrustCeilingBase = 80f;
+
     public void TrustEvidence(EntityId holder, EntityId other, float amount, float? honestyReputation = null)
     {
         var honesty = honestyReputation ?? _world.Reputation.R(holder, other, RepAxis.Honesty);
@@ -171,7 +174,7 @@ public sealed class RelationshipStore
             e.Trust -= -amount * (0.5f + (e.Trust / 100f));
         }
 
-        e.Trust = Math.Clamp(e.Trust, 0f, Math.Min(100f, 50f + (0.5f * honesty)));
+        e.Trust = Math.Clamp(e.Trust, 0f, Math.Min(100f, TrustCeilingBase + (0.5f * honesty)));
     }
 
     /// <summary>16 §4.9: ΔF = w·(1 − F/100) in both directions; social contact capped at +6 per pair per day.</summary>
