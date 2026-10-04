@@ -29,6 +29,10 @@ public sealed partial class TurnClassifier(IDecider? decider)
 {
     public const float AcceptTop = 0.45f, AcceptMargin = 0.10f, InjectionGate = 0.30f;
 
+    /// <summary>22 §5 catalog version (22 §15.2 change protocol): v2.1 = the injection question reworded (M1-28), act2 and
+    /// tone off the critical path (M1-26). Decider caches key on it.</summary>
+    public const string CatalogVersion = "classification.catalog v2.1";
+
     public static readonly (string Id, string Gloss)[] Acts = DeciderBench.Acts;
 
     /// <summary>Least to most consequential: the ambiguous fallback picks the lower of the top two (22 §5.2).</summary>

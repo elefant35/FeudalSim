@@ -51,5 +51,6 @@ Consequential lines (insults, threats, promises, deals) wait 1.5 s: **Backspace*
 choices; ≥ 70% recall an earlier reaction; ≥ 70% describe 3+ personalities; every tester reports words changing an
 outcome; < 10% answer "felt railroaded" (#4).
 
-Known M1 limits to tell testers up front: graybox art, settlers' names may be placeholders, no crafting/farming/building,
-fights are placeholders, the sun never sets far from the fire.
+Known M1 limits to tell testers up front: graybox art and placeholder sounds, no crafting/farming/building, fights are
+placeholders, and **settlers quarrel and come to blows among themselves far more often than intended** (≈ one brawl a
+camp-day; calibration is an M2 item — discount it when rating "reaction proportionate").

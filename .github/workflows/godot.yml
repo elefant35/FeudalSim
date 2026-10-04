@@ -80,12 +80,14 @@ jobs:
       - name: Boot smoke (movement, pause, time scale)
         run: |
           "$GODOT" --headless --max-fps 60 --path game -- --autotest 2>&1 | tee boot.log
+          grep -E "autotest FAIL|AUTOTEST|Unhandled|Exception" boot.log | sed 's/^/::error title=boot smoke::/' || true
           grep -q "AUTOTEST PASS" boot.log
           if grep -E '^(ERROR|WARNING|SCRIPT ERROR)' -A3 boot.log; then echo "Godot reported errors or warnings"; exit 1; fi
 
       - name: "Camp + dialogue autotest (M1-18/19: bodies, walk up, talk, echo, unsay, quick intent, People page, leave)"
         run: |
           "$GODOT" --headless --max-fps 60 --path game -- --autotest-dialogue 2>&1 | tee camp.log
+          grep -E "autotest FAIL|CAMP AUTOTEST|Unhandled|Exception" camp.log | sed 's/^/::error title=camp autotest::/' || true
           grep -q "CAMP AUTOTEST PASS" camp.log
           if grep -E '^(ERROR|WARNING|SCRIPT ERROR)' -A3 camp.log; then echo "Godot reported errors or warnings"; exit 1; fi
 

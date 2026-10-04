@@ -11,11 +11,28 @@
 
 ## Current milestone
 
-**M1 — Talking Camp** · started: 2026-10-04 · target exit: all M1 items `[x]` and the exit criteria in
-[30-roadmap §5 (M1)](30-roadmap.md#m1--talking-camp) verified (including 22 §17.2's 13 criteria).
+**M2 — Landfall** · started: 2026-10-04 · target exit: all M2 items `[x]` and the exit criteria in
+[30-roadmap §5 (M2)](30-roadmap.md#m2--landfall) verified.
 
-Previous: **M0 — Foundations — complete 2026-10-04** (gate passed at 7f4756e; evidence in the M0
-sections below). Next after M1: **M2 — Landfall**.
+Previous: **M1 — Talking Camp — complete except owner items, 2026-10-04** (transition checks at a445365; gate
+table below). Open for the owner: **M1-24 playtest** (kit ready) and **31 D37** (cloud latency targets, 22 §17.2 #1).
+Before that: **M0 — Foundations — complete 2026-10-04** (gate passed at 7f4756e).
+
+## Morning summary (Goal F session, 2026-10-04)
+
+- **Done:** M1 — every item except the playtest: decision points end to end (DRE, menus, owners for escalation,
+  bystanders, rapport, apology, requests, being told, trade, initiative), the decision-first reply route with Tier A/B,
+  verification, resilience and replay; calibration & red-team harness; template-mode completability in CI; the
+  headless social sim; cost/latency report; the graybox camp with the player, the dialogue UI, the graybox kit (40
+  assets), placeholder audio (26 sounds); spikes S1 (crowds), S4 (terrain streaming), S5 (local LLM), S6; .NET 10;
+  real settler names; placeholder theft. Evidence: the **M1 exit criteria** table below (all PASS except #1 latency
+  and the owner-run feel criteria). 251 tests; CI green (one unexplained ubuntu boot-smoke flake — now annotated).
+- **Awaiting you:** M1-24 playtest ([kit](../playtests/m1-playtest-kit.md), ready now) · 31 **D37** cloud latency
+  targets (may M1 close with #1 failing?) · confirm/override **D33–D36** (below) · asset looks:
+  `asset.char.humanoid_a`, the 40 `asset.graybox.*`, the 26 M1 sounds (all `status: review`).
+- **Decisions taken on your behalf:** the "Owner decisions pending" table below (8 rows; all reversible).
+- **Spend:** ≈ $1.31 of the $15 session cap (dev total ≈ $1.39 of ≈ $50).
+- **Next step:** M2 — Landfall, starting with world generation v1 (M2-01a) and the sim heightfield cache (M2-02).
 
 ---
 
@@ -36,6 +53,55 @@ answer.
 | Approve art "looks" (manifest status → `approved`) | **owner only** | Claude may set `review`, never `approved` |
 
 ---
+
+## M2 — Landfall work breakdown
+
+Generated 2026-10-04 from [30 §5 M2](30-roadmap.md#m2--landfall), the owning docs' M2 rows (10, 11, 12, 13, 14, 18, 21,
+22) and [32 §16](32-art-and-audio-production.md#16-production-schedule-by-milestone). Risk-retiring work first; art
+and audio produce `status: review` assets for the owner.
+
+| ID | Item (owning doc) | Status | Evidence |
+|----|-------------------|--------|----------|
+| M2-01a | World generation v1, terrain: stages 1–6 for the 8 km region and a 2 × 2 km playable area — landmass, landing coast, rivers, fords, tides (10) | [ ] | |
+| M2-01b | World generation v1, life: 8 biomes; flint, wood, clay, stone, water, herbs, wild foods as content-driven resource nodes (10) | [ ] | |
+| M2-01c | World generation v1, places: the wreck POI, knowledge tiles, travel speeds (10) | [ ] | |
+| M2-02 | Cache the sim heightfield / world beside Terrain3D's under `user://worlds/<seed>/` (ADR-0009 §S4 open item) | [ ] | |
+| M2-03 | Weather basics (no snow) and day/night: temperature, rain, wind, light (10, 11) | [ ] | |
+| M2-04 | Skills & XP: attributes, 28 skills, XP curve, DF, `Resolve()`, work rate, rust (12) | [ ] | |
+| M2-05 | Survival I: warmth, wetness, clothing, exposure, Stamina use (11) | [ ] | |
+| M2-06 | Survival II: Health, injury, bleeding, infection, treatment interface, incapacitation (11) | [ ] | |
+| M2-07 | Survival III: the Flux, food poisoning, misidentification, spoilage (fresh/smoked/dried), water contamination and boiling (11) | [ ] | |
+| M2-08 | Survival IV: encumbrance, swimming and drowning, falling, accidents (11) | [ ] | |
+| M2-09 | Items, inventory and the quality model with flaws (13) | [ ] | |
+| M2-10 | Process model with passive stages; the minigame contract (calibrated NPC resolution + tedium shortcut) (13) | [ ] | |
+| M2-11 | Knapping (minigame + NPC resolution) (13) | [ ] | |
+| M2-12 | Woodcutting: fell, limb, split (13) | [ ] | |
+| M2-13 | Foraging ID with lookalikes (13, 10) | [ ] | |
+| M2-14 | Campfire cooking, drying and smoking (13, 11) | [ ] | |
+| M2-15 | Cordage and basketry; lashing and thatching (13, 14) | [ ] | |
+| M2-16a | Building I: campfire, lean-to, sailcloth shelter, drying rack, storage pit, latrine — whole-blueprint placement, stages, hauling (14) | [ ] | |
+| M2-16b | Building II: hut and longhouse, basic condition, the founding-site decision (14) | [ ] | |
+| M2-17 | Wildlife: deer, hare, boar, wolf (bear) with embodiment and naivety (10, 18) | [ ] | |
+| M2-18 | Hunting: tracking-lite, snares, spear/bow shots, field dressing, rawhide and brain-tan (13, 18) | [ ] | |
+| M2-19a | Personal combat core: T0 weapons, sling and bow, stamina, block/parry/dodge, downed state (18) | [ ] | |
+| M2-19b | NPC Combat Controller; brawling and the physical rungs of insult → fight (replaces `BrawlStub`; `attack_armed` critical gate) (18, 16) | [ ] | |
+| M2-20 | Yield and mercy quick-choice DPs (fast decider ≤ 500 ms, policy fallback) (18, 22) | [ ] | |
+| M2-21 | NPC AI for M2: LOD0 embodiment, perception, survival actions, the communal task board, HTN-lite gather/build, reservations, panic (21) | [ ] | |
+| M2-22 | The ship's manifest: 24 generated settlers, pre-seeded relationships, the contested Charter (16, 17, 19) | [ ] | |
+| M2-23 | The Landfall scenario beats, Day 1–8, with L1–L9 tests (11) | [ ] | |
+| M2-24 | Onboarding: NPCs teach the basics diegetically; contextual hints (19 §9) | [ ] | |
+| M2-25 | Bark pools; approach opening lines at scale; place-name grammars (22) | [ ] | |
+| M2-26 | NPC↔NPC escalation calibration (31 D36; 16 §9.4 hard end; brawl rate vs 18 §16) — with an owner decision | [ ] | |
+| M2-27 | Single-call multi-answer classification variant (22 §17.2; informs 31 D37) | [ ] | |
+| M2-28 | Art: coast terrain layers, flora v1 (8 tree families), rocks (32 §16) | [ ] | |
+| M2-29 | Art: the wreck and its sections, campfire, lean-to and hut, knapping/carving close-ups (32 §16) | [ ] | |
+| M2-30 | Art: settler bodies v1 (2 bases, 6 heads, 3 clothing sets) — blockouts; looks need the owner / a character artist (32 §7) | [ ] | |
+| M2-31 | Art: 6 wild animals + goats/chickens; locomotion + ~40 social/gathering/craft clips; basic combat clips (32 §7.3: CC0/licensed sources need the owner's D32 call) | [ ] | |
+| M2-32 | Audio: coast/forest/meadow ambience, weather, footsteps, fire, chopping, knapping, animal calls; music sketches (32 §16) | [ ] | |
+| M2-33 | Exported build check (.NET 10 export templates; ADR-0010) | [ ] | |
+| M2-34 | Exit: ≥ 90% of settlers survive Y0 Spring–Summer with the player idle, 20 headless seeds | [ ] | |
+| M2-35 | Exit: 60 fps on recommended spec in the camp with 24 settlers + wildlife | [ ] | |
+| M2-36 | Exit: playtest from the wreck through Y0 Summer without help (owner) | [!] awaiting owner | Needs testers once M2-23/24 land |
 
 ## M1 — Talking Camp work breakdown
 
@@ -116,7 +182,7 @@ the M1 spikes. Items are sized ≈ ½–2 days; split them (`M1-12a`…) when th
 |----|------|--------|----------|
 | M1-22 | Headless social sim: 30 game days of the camp, no deadlocks; a public event's rumor reaches ≥ 80% within 3 days; ≥ 1 emergent dispute per 10 days | [x] | `FeudalSim.Hosting/SocialCheck.cs` + **`feudalsim social`** (+ CI step): a dispute = a settler answering another's provocation at Argument or above, one per pair-day; a deadlock = awake on one activity > 16 game h or walking > 2 h, or no activity starts. Fix: NPC arguments reach 16 §9's ladder via §5.2's persuasion contest (before: **0 disputes** in 10 worlds). **10 worlds × 30 days: disputes 21.6 / 10 days (min 9.3) PASS · deadlocks 0 PASS** (longest awake activity 1.0 h, travel 0.7 h). **Rumor** (`rumor --witnesses 0 --days 3`, 10 worlds): notable/juicy public events ≥ 80% in 10/10 (95–99%) PASS; mundane 69%. Sweep (20 × 30) all bands ≥ 90% (friends 0.47 → 0.22, 90% in band). **Finding:** brawls 0.46 / camp-day ≈ 4–15× 18 §16 → 16 Q22, 31 D36. `SocialCheckTests` 1. 243 tests |
 | M1-23 | Cost and latency report at verified prices: ≤ $0.05 per typical play-hour (22 §17.2 #1, #8) | [x] report; **latency carried to the M1 gate** | [docs/spikes/m1-23-cost-latency.md](../spikes/m1-23-cost-latency.md); **`feudalsim session`** (live multi-settler session through the full pipeline; per-beat timing, spend by component, extrapolated hours). Two runs × 40 turns ($0.026): **cost PASS** — $0.00031 / turn, typical hour **$0.024–0.025** (≤ $0.05), heavy **$0.048–0.050** (≤ $0.10); **latency FAIL** — classification p50 0.73–0.91 s (≤ 0.3), gesture p50 1.48–1.59 s (≤ 1.1), first words p50 1.70–1.90 s (≤ 1.2); deadline expiries 2.5–3.4% (< 3%). `DialogueHost.Rendered`, `ReplyBreaker` |
-| M1-24 | **Playtest** (owner-run: ≥ 5 people × ≥ 45 min; 22 §17.2 #11 rubric + 30's feel criteria) | [!] awaiting owner | Needs the owner to recruit ≥ 5 testers for ≥ 45 min each, once the dialogue UI (M1-19) and the camp scene (M1-18) are in; Claude prepares the rubric sheet and build · **Kit ready:** [docs/playtests/m1-playtest-kit.md](../playtests/m1-playtest-kit.md) (setup, controls, 45-minute outline, 22 §15.4 rubric, interview, results table); best run after M1-26…30 |
+| M1-24 | **Playtest** (owner-run: ≥ 5 people × ≥ 45 min; 22 §17.2 #11 rubric + 30's feel criteria) | [!] awaiting owner | Needs the owner to recruit ≥ 5 testers for ≥ 45 min each, once the dialogue UI (M1-19) and the camp scene (M1-18) are in; Claude prepares the rubric sheet and build · **Kit ready:** [docs/playtests/m1-playtest-kit.md](../playtests/m1-playtest-kit.md) (setup, controls, 45-minute outline, 22 §15.4 rubric, interview, results table); ready now |
 | M1-25 | ADR-0010 step 3: spike a `net10.0` game project on Godot 4.7.x (or adopt a Godot release whose GodotSharp targets net10) — .NET 8 support ends 2026-11-10 | [x] | Spike in a scratch worktree, then applied on main: `Directory.Build.props` + `game/FeudalSim.Game.csproj` → **`net10.0`**; Godot 4.7.2 hosts it (runtimeconfig `Microsoft.NETCore.App 10.0.0`). Evidence: 0 warnings; 246/246 tests; smoke hash **22e904d95294ad74** and `m1_camp` hash **ad3e70f63d9ab6ca** identical to net8; boot autotest, `--autotest-dialogue`, embodiment check PASS. Canon §4 + change log v0.3.1, ADR-0010 step 3, 20, CLAUDE.md, README, CI (only the .NET 10 SDK). Exported builds verify at M2 |
 | M1-26 | **Gate gap — latency (22 §17.2 #1):** classification p50 0.7–0.9 s puts gesture at ~1.5 s and first words ~1.8 s (targets 1.1 / 1.2 s). Shorten the critical path (the questions a DP's menu needs before it opens; the rest after), pin faster providers, consider the single-call multi-answer variant; re-measure with `feudalsim session` | [!] **finding → awaiting owner (31 D37)** | `TurnClassifier.CriticalPathOnly` (default on): act2 and tone off the critical path (4–7 calls instead of 6–9; ~2 fewer decider calls per turn). 40 live turns: classification p50 **0.71 s**, TTFT 0.63, gesture **1.62 s**, first words **2.10 s**, expiries 2.5%. **Calibration finding:** one logprob call is ≈ 0.39 s p50 with this provider, above the 0.3 s classification target, so 1.1 / 1.2 s are unreachable by trimming. Target kept (rule b); 22 Q18, 31 D37; applied default: the 0.3 s take covers the first reaction; revisit with the single-call variant / Laya (M4). Owner decides whether M1 may close on #1 |
 | M1-27 | **Gate gap — calibration (22 §17.2 #3):** acceptance lift +5.8–6.3 (≤ +5) and request/accept gap 10.0 (≤ 10) at rules v2.1; next in 22 §15.3's order: gloss wording for `dp.request`, then menu shape; re-run `ai calibrate --suite neutral,refusal,pressure,argument` | [x] | After M1-30 names: gap 9.4, lift +6.1. **Gloss wording** (22 §15.3 step 2; `content/decisions/social.yaml`): the yes states its cost ("give {hours} hour(s) of your own time…", "accept … and let it go"), the no a legitimate reason ("say no: your own work and rest come first…", "keep the grudge for now…"). **Neutral × 50: gap 7.7 (≤ 10) PASS, lift +2.2 (≤ +5) PASS**; refusal 100%, pressure flip 0%, argument sensitivity +22.7, guard violations 0/650, red-team 0 off-menu executions, character breaks 0.5%. One attempt. Spend $0.39 |
@@ -206,7 +272,9 @@ PASS · `complete --seeds 10` PASS · Godot boot autotest, `--autotest-dialogue`
 | 30 Template mode | PASS | M1-17 |
 | 30 Owner examples | PASS (M1-29) | insult → shove → brawl (EscalationTests), bystander steps in (EscalationTests), talked into buying → trade at menu price (TradeTests), long friendly talk → warm_to_speaker capped (SocialDpTests) ✓; theft → witnesses → wariness and rumor (TheftTests: 8 saw, 13/24 believe after 2 days) ✓ |
 
-**Gate result: M1 stays open.** Gaps M1-26…M1-30 above; M1-24 (playtest) awaits the owner.
+**Gate result (2026-10-04, re-run at a445365): M1 complete except owner items.** M1-27…30 closed the gaps
+(#3, #5, #7, theft); #1 latency is a recorded finding awaiting the owner (31 D37, M1-26); feel awaits the playtest
+(M1-24, kit ready). Transition checks (rule e) all PASS at a445365.
 
 ## M0 exit criteria (from [30 §5](30-roadmap.md#m0--foundations))
 
@@ -251,7 +319,7 @@ record in 31 §2.
 | 2026-10-04 | Conversations end quickly mid-shift: 21 §14.4's p_end gives 0.6–0.9 per turn while work outscores talk (M1-04b) | Keep the formula; `action.converse` sits in the `social` schedule block (stable evening talk, p_end < 0.2); revisit after the M1 playtest | 21 Q13 |
 | 2026-10-04 | Dialogue model is mode-seeking on inclination words alone (M1-16: gap 14.6, lift +7.3) | Prompt rules v2.1 show the DRE's pre-drawn pick as a LEANING (gap ≈ 10, lift ≈ +6) | 31 D34, 22 Q16 |
 | 2026-10-04 | Cloud latency targets unreachable with the logprob decider (M1-26) | Keep 22's targets; the 0.3 s take covers the first reaction; revisit with the single-call variant / Laya; **owner decides whether M1 closes on #1** | 31 D37, 22 Q18 |
-| 2026-10-04 | NPC↔NPC brawls ≈ 4–15× 18 §16's rate once arguments reach the ladder (M1-22) | Keep 16's formulas; calibrate before M2 (authority, mediation, walk-away, argue weight, ε) | 31 D36, 16 Q22 |
+| 2026-10-04 | NPC↔NPC brawls ≈ 4–15× 18 §16's rate once arguments reach the ladder (M1-22) | Keep 16's formulas; calibrate in M2 (authority, mediation, §9.4 hard end, argue weight, ε) | 31 D36, 16 Q22 |
 | 2026-10-04 | 16 §5.4's conditional yes keeps ≈ ⅓ of the mass when the NPC hates the asker | Keep the formula; the refusal suite counts only the unconditional yes | 31 D35, 16 Q21, 22 Q17 |
 | 2026-10-04 | The player's character is a Person row (parity), not a separate struct | `PersonFlags.Player`; AI/psych/NPC-talk skip it; relationships and DPs key on its id | 20 §6.4 note |
 
@@ -274,7 +342,7 @@ Items found while working that belong to a later milestone or need triage.
 | 2026-10-04 | Ship Terrain3D's MIT notice in builds (Godot export filters drop `LICENSE.txt`) | M8 | ADR-0009 |
 | 2026-10-04 | ~~**Choice skew vs inclinations**~~ — **measured in M1-16:** qwen3-14b is near-deterministic per scenario (gap 14.6 at rules v2.0); the LEANING (v2.1) brings it to ≈ 10 | M1 → **M1-16** | S2 |
 | 2026-10-04 | ~~**Acceptance lift +5.8–6.3 (target ≤ +5) and request/accept gap ≈ 10.0 at rules v2.1** — next per 22 §15.3's fix order: gloss wording for `dp.request`, then menu shape; re-run `ai calibrate --suite neutral` (≈ $0.16)~~ — **done in M1-27** (gloss wording: gap 7.7, lift +2.2); still: run the suites on the §17.2 dialogue bake-off models | **M1 gate** (22 §17.2 #3) | M1-16 |
-| 2026-10-04 | **Calibrate NPC↔NPC escalation** (0.46 brawls / camp-day vs ≈ 0.03–0.12): 16 Q22's levers, re-measured with `feudalsim social`; watch friends per person (now 0.22, band edge) | **M1 gate / before M2** | M1-22 |
+| 2026-10-04 | **Calibrate NPC↔NPC escalation** (0.46 brawls / camp-day vs ≈ 0.03–0.12): 16 Q22's levers, re-measured with `feudalsim social`; watch friends per person (now 0.22, band edge) | **M2** (with an owner decision, 31 D36; §9.4 hard end tried: brawls −14%, friends 85% in band → reverted) | M1-22 |
 | 2026-10-04 | **Dialogue latency above 22 §12.4** (M1-23: classification p50 0.7–0.9 s → gesture 1.5 s, first words 1.8 s): act + injection first and scores after the gesture, single-call multi-answer, faster providers, Laya (M4); re-measure with `feudalsim session` | **M1 gate** (22 §17.2 #1) | M1-23 |
 | 2026-10-04 | ~~**Speech must carry the option's price**~~ — **done in M1-13** (`SpeechChecks.CarriesPrice`) | M1 → **M1-13** | S2 |
 | 2026-10-04 | **Quick choices are injectable** (S3: +0.33 mean, +0.98 max sway on 4 red-team pairs): red-team the whole turn (classifier → injection gate → DP) and measure quick-choice deadline expiries (p95 613 ms vs 0.5 s) | M1 → **M1 gate** (M1-16 red-teamed conversation DPs only) | S3 |
@@ -317,6 +385,7 @@ Newest first. One entry per session or work item: date, what changed, evidence, 
 | 2026-10-04 | **M1-27** calibration PASS with gloss wording (gap 7.7, lift +2.2; refusal/pressure/argument/red-team all PASS) | ai calibrate runs ($0.39) | M1-29 theft |
 | 2026-10-04 | **M1-29** theft placeholder: Steal → §10.1 witnesses → stole_from_me, wary, rumor (13/24 after 2 days); [T] in the client | TheftTests; 251 tests | M1-26 latency (time-boxed) |
 | 2026-10-04 | **M1-26** latency: critical-path trim (act2/tone off); gesture 1.62 s, first words 2.10 s — finding (one call ≈ 0.39 s > 0.3 s target) → awaiting owner (31 D37) | session 40 turns | M1 transition checks + advisor |
+| 2026-10-04 | **M1 complete except owner items** (M1-24 playtest, 31 D37 latency). Transition checks at a445365 all PASS; §9.4 hard end tried and reverted (D36 → M2-26); catalog v2.1; Godot CI failures now annotated. **M2 breakdown generated** (37 items). Morning summary written | gate table; a445365 checks | M2-01a world generation v1 (terrain) + M2-02 heightfield cache |
 | 2026-10-04 | **M1-14** resilience: latency breaker, reply-route breaker + TTFT fail-over, sim never waits | ResilienceTests 5; 236 tests | M1-15 determinism of a recorded session |
 | 2026-10-04 | **M1-13** persona voice phrases, price must-say, template/prompt tests | PromptAndTemplateTests 7; 229 tests | M1-14 resilience |
 | 2026-10-04 | **M1-12** decision-first reply route, templates, dialogue host, `feudalsim talk` | ReplyRouterTests 6, DialogueHostTests 2; 222 tests; live 4-turn talk | M1-13 prompt/persona depth + template coverage |

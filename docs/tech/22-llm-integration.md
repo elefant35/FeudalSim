@@ -798,6 +798,10 @@ each, ≈ $0.000025 per question, §12).
 
 ### 5.2 Full catalog (v2)
 
+*Catalog v2.1 (2026-10-04, `TurnClassifier.CatalogVersion`):* the injection question reworded (M1-28: in-story hostile
+false positives 25% → 0, golden recall 10/10), act2 and tone moved off the turn's critical path (M1-26). 22 §15.2's
+protocol was followed: the suites were re-run with no regression (calibrate, classify, `session --audit`).
+
 Catalog v2 (2026-10-03) merges v1's 32-option `act` into 20 options so every provider can answer
 it; the detail moved to `request_kind`, `question_kind`, `claim_kind` and `person_ref`.
 
