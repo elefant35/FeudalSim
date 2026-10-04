@@ -27,12 +27,22 @@ Before that: **M0 — Foundations — complete 2026-10-04** (gate passed at 7f47
   assets), placeholder audio (26 sounds); spikes S1 (crowds), S4 (terrain streaming), S5 (local LLM), S6; .NET 10;
   real settler names; placeholder theft. Evidence: the **M1 exit criteria** table below (all PASS except #1 latency
   and the owner-run feel criteria). 251 tests; CI green (one unexplained ubuntu boot-smoke flake — now annotated).
+- **Done since (M2, in progress):** world generation stages 1–6 (W3 rivers on massif/twin islands open, D38);
+  skills & XP (M2-04); weather and day/night (M2-03); survival — exposure, clothing, wetness, hypothermia (M2-05a),
+  stamina and gait (M2-05b), injuries, blood, health, Downed/Dying/death with bodies (M2-06a), infection and the
+  treatment interface (M2-06b); items, inventory and 13's quality model with flaws (M2-09); escalation calibration
+  with 16 §9.4's hard end and mediation, which fixed CI's marginal friends gate and an old quarrel-expiry bug
+  (M2-26a). 323 tests; CI green through 4604d31 (later runs pending at the time of writing).
+- **Awaiting you (M2):** M2-26b brawl rate (31 D36: accept until 17's authority terms, recommended) · new findings
+  with reversible defaults applied: D39 Dry-summer persistence, D40 soaked-kit night anchor, D41 arterial anchor,
+  D42 wound-cleaning anchor (11 Q7–Q10) · 11 Q8 exposure modelling choices · flaw `hidden_difficulty` values (proposed).
 - **Awaiting you:** M1-24 playtest ([kit](../playtests/m1-playtest-kit.md), ready now) · 31 **D37** cloud latency
   targets (may M1 close with #1 failing?) · confirm/override **D33–D36** (below) · asset looks:
   `asset.char.humanoid_a`, the 40 `asset.graybox.*`, the 26 M1 sounds (all `status: review`).
-- **Decisions taken on your behalf:** the "Owner decisions pending" table below (9 rows; all reversible).
-- **Spend:** ≈ $1.31 of the $15 session cap (dev total ≈ $1.39 of ≈ $50).
-- **Next step:** M2 — Landfall, starting with world generation v1 (M2-01a) and the sim heightfield cache (M2-02).
+- **Decisions taken on your behalf:** the "Owner decisions pending" table below (12 rows; all reversible).
+- **Spend:** ≈ $1.31 of the $15 session cap (dev total ≈ $1.39 of ≈ $50); M2 work so far has made no paid model calls.
+- **Next step:** M2-10 the process model and minigame contract (13 §3–4, §7), then the crafts (M2-11…15), building
+  (M2-16), wildlife and hunting (M2-17/18), combat (M2-19/20) and M2-21's NPC AI.
 
 ---
 
@@ -326,6 +336,9 @@ record in 31 §2.
 | 2026-10-04 | Dialogue model is mode-seeking on inclination words alone (M1-16: gap 14.6, lift +7.3) | Prompt rules v2.1 show the DRE's pre-drawn pick as a LEANING (gap ≈ 10, lift ≈ +6) | 31 D34, 22 Q16 |
 | 2026-10-04 | W3's river count fails on massif/twin-ridge islands (M2-01a-iii) | Keep W3 enforced by retries; CI enforces W1/W5 and reports W2/W3; first world passing the finished stages returned when none pass all | 31 D38, 10 Q16 |
 | 2026-10-04 | Dry summers can't reach 60 % Clear with p_stay 0.6 (M2-03) | Clear p_stay 0.75 in Dry summers (all regimes fit within 1.5 points) | [31 D39](31-risks-and-open-questions.md) |
+| 2026-10-04 | 11 §2.3's soaked-kit night is harsher under the §9 rules (Freezing ≈ 22:00, Hypothermia ≈ 74 at dawn vs 02:00 / 50) (M2-05a) | Keep the §9 rules; prose or rules need your choice | [31 D40](31-risks-and-open-questions.md) |
+| 2026-10-04 | An arterial cut downs on Health ≤ 0 at ≈ 1.4 h, before §2.3's Blood < 35 at 1.6 h (M2-06a) | Keep §4.1's Health formula | [31 D41](31-risks-and-open-questions.md) |
+| 2026-10-04 | 11 §5.3's cleaning example (c 0.12) disagrees with its formula ×(1 − 0.7q) (c 0.204) (M2-06b) | Use the formula | [31 D42](31-risks-and-open-questions.md) |
 | 2026-10-04 | Cloud latency targets unreachable with the logprob decider (M1-26) | Keep 22's targets; the 0.3 s take covers the first reaction; revisit with the single-call variant / Laya; **owner decides whether M1 closes on #1** | 31 D37, 22 Q18 |
 | 2026-10-04 | NPC↔NPC brawls ≈ 4–15× 18 §16's rate once arguments reach the ladder (M1-22) | Keep 16's formulas; calibrate in M2 (authority, mediation, §9.4 hard end, argue weight, ε) | 31 D36, 16 Q22 |
 | 2026-10-04 | 16 §5.4's conditional yes keeps ≈ ⅓ of the mass when the NPC hates the asker | Keep the formula; the refusal suite counts only the unconditional yes | 31 D35, 16 Q21, 22 Q17 |
