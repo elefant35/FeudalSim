@@ -9,7 +9,7 @@ namespace FeudalSim.Hosting;
 public sealed record CampDay(
     double IdleRate, double LowNeedShare, double MoodMean, double BreakingShare, double Divergence,
     double Food, double Firewood, double FireShare, double FriendsPerPerson = 0, double EnemiesPerPerson = 0, double MeanOpinion = 0,
-    double MeanWarmth = 0, double ColdShare = 0, double FreezingShare = 0, double WarmingShare = 0, double MeanWetness = 0, double MinWarmth = 100, double MaxHypothermia = 0, int DeadAtEnd = 0, double DownedShare = 0, int Alive = 0);
+    double MeanWarmth = 0, double ColdShare = 0, double FreezingShare = 0, double WarmingShare = 0, double MeanWetness = 0, double MinWarmth = 100, double MaxHypothermia = 0, int DeadAtEnd = 0, double DownedShare = 0, int Alive = 0, double IllShare = 0);
 
 /// <summary>
 /// Samples a utility-AI world once per game minute and summarizes each game day per 21 §19: idle rate (share of awake
@@ -25,7 +25,7 @@ public sealed class CampMetrics
     private long _lastMinute = -1;
     private int _minutes, _awake, _idleMinutes, _lowNeed, _agentMinutes, _fireMinutes, _cold, _freezing, _warming;
     private double _warmthSum, _wetSum, _minWarmth = 100, _maxHypo;
-    private int _downed;
+    private int _downed, _ill;
     private readonly int _warmUp;
     private double _moodSum;
     private int _moodN;
@@ -59,6 +59,7 @@ public sealed class CampMetrics
         {
             if (world.IsPlayer(i) || world.IsDead(i)) { continue; }   // living settlers only: the player is not on the AI; a body is not a settler
             if (world.IsDown(i)) { _downed++; }
+            foreach (var c in world.Conditions.Of(p.Ids[i])) { if (c.Stage > 0) { _ill++; break; } }   // 11 §6–8: symptomatic
             var a = p.Activity[i].Action;
             _hist[i][a < 0 ? _actions : a]++;
             _agentMinutes++;
@@ -109,10 +110,10 @@ public sealed class CampMetrics
             _agentMinutes == 0 ? 0 : _freezing / (double)_agentMinutes, _awake == 0 ? 0 : _warming / (double)_awake,
             _agentMinutes == 0 ? 0 : _wetSum / _agentMinutes, _minWarmth, _maxHypo,
             Enumerable.Range(0, p.Count).Count(i => !world.IsPlayer(i) && world.IsDead(i)), _agentMinutes == 0 ? 0 : _downed / (double)_agentMinutes,
-            Enumerable.Range(0, p.Count).Count(i => !world.IsPlayer(i) && !world.IsDead(i)));
+            Enumerable.Range(0, p.Count).Count(i => !world.IsPlayer(i) && !world.IsDead(i)), _agentMinutes == 0 ? 0 : _ill / (double)_agentMinutes);
         Days.Add(day);
         (_minutes, _awake, _idleMinutes, _lowNeed, _agentMinutes, _fireMinutes, _moodSum, _moodN) = (0, 0, 0, 0, 0, 0, 0, 0);
-        (_cold, _freezing, _warming, _warmthSum, _wetSum, _minWarmth, _maxHypo, _downed) = (0, 0, 0, 0, 0, 100, 0, 0);
+        (_cold, _freezing, _warming, _warmthSum, _wetSum, _minWarmth, _maxHypo, _downed, _ill) = (0, 0, 0, 0, 0, 100, 0, 0, 0);
         foreach (var h in _hist) { Array.Clear(h); }
         Array.Clear(_dayMood);
         return day;

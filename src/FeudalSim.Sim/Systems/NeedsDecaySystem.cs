@@ -58,14 +58,16 @@ public sealed class NeedsDecaySystem : ISimSystem
             var dtH = due.Dt(k) / (float)Time.SimClock.MsPerGameHour;
             ref var n = ref people.Needs[i];
             var level = (int)people.Activity[i].Level;
-            var fever = people.Vitals[i].Fever != 0;   // 11 §2.1: fever Satiety ×1.1, Hydration ×1.3, Energy ×1.3
-            n.Satiety = MathF.Max(0, n.Satiety - (sat[level] * Survival.Exposure.SatietyColdFactor(n.Warmth) * (fever ? 1.1f : 1f) * dtH));
-            n.Hydration = MathF.Max(0, n.Hydration - (hyd[level] * hot * (fever ? 1.3f : 1f) * dtH));
+            var fever = people.Vitals[i].Fever != 0 || people.Vitals[i].DiseaseFever != 0;   // 11 §2.1: fever Satiety ×1.1, Hydration ×1.3, Energy ×1.3
+            var disease = Health.Conditions.Of(world, people.Ids[i]);   // 11 §7.1 hydration_decay (the Flux)
+            var rebuilding = people.Vitals[i].Starvation > 0f && n.Satiety >= 60f ? 1.15f : 1f;   // 11 §6.1: recovering from starvation
+            n.Satiety = MathF.Max(0, n.Satiety - (sat[level] * Survival.Exposure.SatietyColdFactor(n.Warmth) * (fever ? 1.1f : 1f) * rebuilding * dtH));
+            n.Hydration = MathF.Max(0, n.Hydration - (hyd[level] * hot * (fever ? 1.3f : 1f) * disease.HydrationMult * dtH));
             n.Energy = MathF.Max(0, n.Energy - (en[level] * Survival.Exposure.EnergyColdFactor(n.Warmth) * (fever ? 1.3f : 1f) * dtH));
         }
     }
 
-    private static float Rate(ContentDatabase content, string id, ActivityLevel level, float fallback)
+    internal static float Rate(ContentDatabase content, string id, ActivityLevel level, float fallback)
     {
         var d = content.Need(id)?.DecayPerHour;
         return d is null ? fallback : level switch

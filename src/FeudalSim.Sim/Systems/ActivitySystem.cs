@@ -389,6 +389,7 @@ public sealed class ActivitySystem : ISimSystem
                 }
 
                 SetNeed(ref n, need, Need(n, need) + MathF.Max(0f, gain));
+                if (need == "hydration" && def.Place == PlaceKind.Water && gain > 0f) { WaterExposure(ctx, world, i, gain); }
             }
         }
 
@@ -426,6 +427,21 @@ public sealed class ActivitySystem : ISimSystem
         }
         if (def.Activity == ActivityLevel.Sleep && n.Warmth < 20f) { finished = true; }   // 11 §3.2: the cold wakes them
         if (finished) { act.EndGameMs = ctx.GameMs; }
+    }
+
+    /// <summary>
+    /// 11 §11.1: each 0.5 L drunk (+20 Hydration) from the camp's water carries Flux exposure c_src × 0.04 (boiling and ale:
+    /// M2-07c). Exposure that takes goes through the condition engine (incubation, immunity).
+    /// </summary>
+    private static void WaterExposure(in StepContext ctx, SimWorld world, int i, float hydrationGain)
+    {
+        var c = world.Camp.WaterContamination;
+        if (c <= 0f) { return; }
+        var flux = world.Content.DiseaseHandle("disease.flux");
+        if (flux < 0) { return; }
+        var p = 1f - MathF.Pow(1f - (c * 0.04f), hydrationGain / 20f);
+        var rng = new Rng(SplitMix64.Mix(world.WorldSeed, (ulong)RngStream.Health, world.People.Ids[i].Value, (ulong)ctx.Step, Salt.WaterExposure));
+        if (rng.Chance(p)) { Health.Conditions.Infect(world, i, flux, (ulong)ctx.Step); }
     }
 
     /// <summary>The difficulty of routine camp work (gathering, tending the fire) for XP's difficulty factor (12 §5.2).</summary>

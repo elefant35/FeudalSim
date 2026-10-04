@@ -2,17 +2,17 @@
 # 13 §9.5 foraged produce (M2-13), one gathering trip's worth per unit. Food values, spoilage and the toxins' effects are
 # 11's (M2-07). Toxic look-alikes are items too: a mis-identified stack holds the toxin under the edible's label (11 §8.2).
 - { id: item.wild_carrot,      name: Wild carrot roots,      category: food, tier: t0, trade_unit: bunch, mass_kg: 0.5, base_value_f: 0, tags: [forage.root] }
-- { id: item.hemlock,          name: Hemlock roots,          category: misc, tier: t0, trade_unit: bunch, mass_kg: 0.5, base_value_f: 0, tags: [toxic] }
+- { id: item.hemlock,          name: Hemlock roots,          category: misc, tier: t0, trade_unit: bunch, mass_kg: 0.5, base_value_f: 0, tags: [toxic], toxin: disease.toxin_hemlock }
 - { id: item.field_mushroom,   name: Field mushrooms,        category: food, tier: t0, trade_unit: basket, mass_kg: 0.5, base_value_f: 0, tags: [forage.fungus] }
-- { id: item.death_cap,        name: Death caps,             category: misc, tier: t0, trade_unit: basket, mass_kg: 0.5, base_value_f: 0, tags: [toxic] }
+- { id: item.death_cap,        name: Death caps,             category: misc, tier: t0, trade_unit: basket, mass_kg: 0.5, base_value_f: 0, tags: [toxic], toxin: disease.toxin_death_cap }
 - { id: item.ramsons,          name: Ramsons leaves,         category: food, tier: t0, trade_unit: bunch, mass_kg: 0.3, base_value_f: 0, tags: [forage.greens, herb.ramsons] }
-- { id: item.lily_of_the_valley, name: Lily-of-the-valley leaves, category: misc, tier: t0, trade_unit: bunch, mass_kg: 0.3, base_value_f: 0, tags: [toxic] }
+- { id: item.lily_of_the_valley, name: Lily-of-the-valley leaves, category: misc, tier: t0, trade_unit: bunch, mass_kg: 0.3, base_value_f: 0, tags: [toxic], toxin: disease.toxin_lily_of_the_valley }
 - { id: item.comfrey,          name: Comfrey leaves,         category: misc, tier: t0, trade_unit: bunch, mass_kg: 0.3, base_value_f: 1, tags: [herb.comfrey] }
-- { id: item.foxglove,         name: Foxglove leaves,        category: misc, tier: t0, trade_unit: bunch, mass_kg: 0.3, base_value_f: 0, tags: [toxic] }
+- { id: item.foxglove,         name: Foxglove leaves,        category: misc, tier: t0, trade_unit: bunch, mass_kg: 0.3, base_value_f: 0, tags: [toxic], toxin: disease.toxin_foxglove }
 - { id: item.valerian,         name: Valerian roots,         category: misc, tier: t0, trade_unit: bunch, mass_kg: 0.3, base_value_f: 1, tags: [herb.valerian] }
-- { id: item.water_hemlock,    name: Water hemlock roots,    category: misc, tier: t0, trade_unit: bunch, mass_kg: 0.3, base_value_f: 0, tags: [toxic] }
+- { id: item.water_hemlock,    name: Water hemlock roots,    category: misc, tier: t0, trade_unit: bunch, mass_kg: 0.3, base_value_f: 0, tags: [toxic], toxin: disease.toxin_water_hemlock }
 - { id: item.bilberries,       name: Bilberries,             category: food, tier: t0, trade_unit: basket, mass_kg: 0.5, base_value_f: 0, tags: [forage.fruit] }
-- { id: item.nightshade_berries, name: Nightshade berries,   category: misc, tier: t0, trade_unit: basket, mass_kg: 0.2, base_value_f: 0, tags: [toxic] }
+- { id: item.nightshade_berries, name: Nightshade berries,   category: misc, tier: t0, trade_unit: basket, mass_kg: 0.2, base_value_f: 0, tags: [toxic], toxin: disease.toxin_nightshade }
 - { id: item.hazelnuts,        name: Hazelnuts,              category: food, tier: t0, trade_unit: basket, mass_kg: 1.0, base_value_f: 1, tags: [forage.nuts] }
 - { id: item.blackberries,     name: Blackberries,           category: food, tier: t0, trade_unit: basket, mass_kg: 0.8, base_value_f: 0, tags: [forage.fruit] }
 - { id: item.nettles,          name: Nettle tops,            category: food, tier: t0, trade_unit: bunch, mass_kg: 0.3, base_value_f: 0, tags: [forage.greens] }

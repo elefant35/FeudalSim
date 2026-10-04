@@ -24,6 +24,7 @@ public static class SchemaGenerator
         ("cultures", "culture", typeof(CultureDef)),
         ("flaws", "flaw", typeof(FlawDef)),
         ("decisions", "dp", typeof(DecisionDef)),
+        ("diseases", "disease", typeof(DiseaseDef)),
         ("items", "item", typeof(ItemDef)),
         ("lines", "line", typeof(LineTemplateDef)),
         ("minigames", "minigame", typeof(MinigameDef)),

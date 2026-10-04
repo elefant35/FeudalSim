@@ -47,6 +47,9 @@ public static class Salt
     public const uint Minigame = 31;
     public const uint WorkAccident = 36;
     public const uint ForageId = 37;
+    public const uint Condition = 38;
+    public const uint Contagion = 39;
+    public const uint WaterExposure = 40;
 }
 
 /// <summary>SplitMix64 finalizer-based mixing (Steele, Lea &amp; Flood 2014).</summary>

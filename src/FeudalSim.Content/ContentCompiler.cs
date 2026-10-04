@@ -57,6 +57,7 @@ public static class ContentCompiler
         var flaws = new List<FlawDef>();
         var minigames = new List<MinigameDef>();
         var nodes = new List<NodeDef>();
+        var diseases = new List<DiseaseDef>();
         var recipes = new List<(RecipeDef Def, string Rel, Mark Mark)>();
         var repoRoot = Path.GetDirectoryName(Path.GetFullPath(contentRoot).TrimEnd(Path.DirectorySeparatorChar)) ?? contentRoot;
         var seen = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -125,6 +126,19 @@ public static class ContentCompiler
                             worldSpecs.Add(w);
                             break;
                         case RecipeDef r: recipes.Add((r, rel, mark)); break;
+                        case DiseaseDef dd:
+                            if (dd.IncubationH.Count != 2 || dd.Stages.Count == 0 || dd.Stages.Any(st => st.Hours.Count != 2 || st.Hours[0] > st.Hours[1]))
+                            {
+                                errors.Add(new(rel, mark.Line, mark.Column, $"{dd.Id}: incubation_h and each stage's hours are [min, max]."));
+                            }
+
+                            foreach (var k in dd.Grave?.Mult.Keys ?? [])
+                            {
+                                if (k is not ("child" or "adult" or "elder" or "malnourished" or "starving")) { errors.Add(new(rel, mark.Line, mark.Column, $"{dd.Id}: grave mult '{k}' is not child, adult, elder, malnourished or starving.")); }
+                            }
+
+                            diseases.Add(dd);
+                            break;
                         case NodeDef nd:
                             string[] biomeKeys = ["coast_dunes", "meadow", "broadleaf", "pine", "wetland", "river_valley", "hills_moor", "highland"];
                             if (nd.Density.Keys.Any(k => !biomeKeys.Contains(k)) || nd.Density.Values.Any(v => v < 0f || v > 2000f))
@@ -190,12 +204,14 @@ public static class ContentCompiler
         foreach (var g in minigames.Where(g => !recipeDefs.Any(r => r.Id == g.Recipe))) { errors.Add(new("minigames", 0, 0, $"{g.Id}: unknown recipe {g.Recipe}.")); }
         minigames.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         nodes.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
+        diseases.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
+        foreach (var it in items.Where(i => i.Toxin is { } t && !diseases.Any(d => d.Id == t))) { errors.Add(new("items", 0, 0, $"{it.Id}: unknown toxin {it.Toxin}.")); }
         foreach (var nd in nodes.Where(nd => nd.Confusable is { } c && !nodes.Any(x => x.Id == c))) { errors.Add(new("nodes", 0, 0, $"{nd.Id}: unknown confusable {nd.Confusable}.")); }
         foreach (var nd in nodes.Where(nd => nd.Forage is { } f && !items.Any(i => i.Id == f.Item))) { errors.Add(new("nodes", 0, 0, $"{nd.Id}: unknown forage item {nd.Forage!.Item}.")); }
         if (nodes.Count > 65535) { errors.Add(new("nodes", 0, 0, "At most 65,535 node types.")); }
         if (flaws.Count > 64) { errors.Add(new("flaws", 0, 0, "At most 64 flaws (an instance holds them as a bit mask).")); return new Result(null, errors, files); }
-        var hash = Hash(skills, items, needs, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs, worldSpecs, flaws, recipeDefs, nodes);   // minigame curves are presentation calibration: not in the sim hash
-        return new Result(new ContentDatabase(skills, items, needs, hash, assets, audio, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs, lines, worldSpecs, flaws, recipeDefs, minigames, nodes), errors, files);
+        var hash = Hash(skills, items, needs, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs, worldSpecs, flaws, recipeDefs, nodes, diseases);   // minigame curves are presentation calibration: not in the sim hash
+        return new Result(new ContentDatabase(skills, items, needs, hash, assets, audio, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs, lines, worldSpecs, flaws, recipeDefs, minigames, nodes, diseases), errors, files);
     }
 
     private static IEnumerable<(JsonNode Node, Mark Mark)> ParseFile(string path, string rel, string kind, JsonSchema schema, List<ContentError> errors)
@@ -341,7 +357,7 @@ public static class ContentCompiler
         IEnumerable<TraitDef> traits, IEnumerable<CultureDef> cultures, IEnumerable<ProfessionDef> professions,
         IEnumerable<ActionDef> actions, IEnumerable<ScheduleDef> schedules, IEnumerable<OpinionModifierDef> opinionMods, IEnumerable<ClaimPredicateDef> claims, IEnumerable<OverheardLineDef> overheard,
         IEnumerable<DecisionDef> decisions, IEnumerable<WorldSpecDef>? worldSpecs = null, IEnumerable<FlawDef>? flaws = null, IEnumerable<RecipeDef>? recipes = null,
-        IEnumerable<NodeDef>? nodes = null)
+        IEnumerable<NodeDef>? nodes = null, IEnumerable<DiseaseDef>? diseases = null)
     {
         var h = new XxHash64();
         foreach (var d in worldSpecs ?? []) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }   // M2-01: world generation inputs
@@ -362,6 +378,7 @@ public static class ContentCompiler
         foreach (var d in flaws ?? []) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }   // M2-09
         foreach (var d in recipes ?? []) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }   // M2-10
         foreach (var d in nodes ?? []) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }   // M2-01b-ii: node scattering input
+        foreach (var d in diseases ?? []) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }   // M2-07a
         return h.GetCurrentHashAsUInt64();
     }
 

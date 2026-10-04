@@ -41,13 +41,21 @@ public sealed class CraftingTests
     private static List<object> Run(SimWorld w, CommandSource source, StateCommand c)
     {
         w.Enqueue(new CommandEnvelope(w.LastCommandSeq + 1, 0, source, c));
-        return [.. w.Step().Events.Select(e => e.Payload)];
+        return [.. Step(w).Events.Select(e => e.Payload)];
+    }
+
+    private static readonly HeadlessBodies Bodies = new();   // with a player, the LOD0 camp needs bodies to walk to food and water (ADR-0007)
+
+    private static StepOutput Step(SimWorld w)
+    {
+        foreach (var r in Bodies.Step(w)) { w.Enqueue(new CommandEnvelope(w.LastCommandSeq + 1, 0, CommandSource.Embodiment, r)); }
+        return w.Step();
     }
 
     private static List<object> Until(SimWorld w, Func<bool> done, int maxSteps = 20_000)
     {
         var events = new List<object>();
-        for (var s = 0; s < maxSteps && !done(); s++) { events.AddRange(w.Step().Events.Select(e => e.Payload)); }
+        for (var s = 0; s < maxSteps && !done(); s++) { events.AddRange(Step(w).Events.Select(e => e.Payload)); }
         return events;
     }
 

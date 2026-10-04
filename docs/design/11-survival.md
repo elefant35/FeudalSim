@@ -557,6 +557,33 @@ water source. This doc turns them into incidence:
 - **Army camps** ([18](18-conflict-and-warfare.md) §9.5): 18's daily outbreak probability picks
   Flux (70%) or Camp fever (30%), seeding 1–3 cases into the camp's contact model.
 
+
+### 7.5 Implementation notes (M2-07a)
+
+Diseases and toxins are content (`content/diseases/`, kind `disease`: routes, incubation [min, max] h, stages with hours,
+contagiousness, fever and effects, a grave branch, immunity days, β). `Sim/Health/Conditions.cs` runs them: a condition
+incubates, steps through its stages (keyed draws per person, disease and stage), may kill at the end of a `grave` stage
+(base × child / adult / elder × malnourished (S ≥ 50) or starving (S ≥ 75)), and leaves immunity. Effects:
+`hydration_decay` and `satiety_absorb` multiply needs, `work` multiplies work rate, `condition_load` × 50 is Health's
+ConditionLoad (§4.1), and `fever` feeds §2.1's fever multipliers. Toxins (§8.1) are single-stage conditions: the onset
+is the incubation and the untreated CFR the grave branch. Dehydration (§6.2) and Starvation (§6.1) are tracks on the
+person's vitals (Downed at 85 / 90, dead at 100; Health −0.5·D and −0.3·S). Choices the rules left open (Q12):
+
+- **Sleeping rooms:** until households own huts, people fill the camp's shelters in row order (sailcloth: 3 in 9 m²,
+  w = (6/3)^0.5 = 1.41), and only roommates share §7.3's night context. Treating the whole camp as one room gave R ≈ 2
+  and ≈ 7.5 Flux cases per person-year; rooms give ≈ 1.1 (the stream's own exposure is ≈ 1.2). Old saves restore
+  rooms of one (no spread) until the scenario sets them again.
+- **Food poisoning's** "≈ 0 (0.5% children and elders)" is base 0.005 with an `adult` multiplier of 0.
+- **Starvation demand** is the hour's §2.1 Satiety rate for the person's activity level × the cold factor, and
+  Satiety burns ×1.15 while Starvation > 0 and Satiety ≥ 60 (rebuilding).
+- **Not yet:** `work` from conditions and §6.1's tier effects (TempMods, healing ×, susceptibility ×, work ×) wait for
+  M2-07b with eating and rations; the heat term of §2.2's "+2 if Heavy or heat"; contact contexts other than the
+  sleeping room (dwelling, work, conversation, caregiving, shared pot) wait for 14's buildings and 21's tasks; §7.4's
+  background Flux and Sanitation wait for M2-07c.
+
+T-DEHY-01 (standard day 44–52 h, continuous moderate 38–44 h) and T-STARVE-01's no-food row (day 5.5–6.5) pass as
+written (`ConditionTests`); the ½ and ¾ ration rows need eating (M2-07b).
+
 ---
 
 ## 8. Poisoning & misidentification
@@ -1512,6 +1539,9 @@ diagnosis, or how much food a ration holds.
 11. **Q11: foraging ID before lore exists (§8.2).** With no lore know-how and no shared beliefs yet, novices misidentify
     about half of look-alike trips. Should the M2 camp start with homeland `wild_food_lore` for the forager-cook roles
     (the manifest, 10 §15), or should the clamp floor be higher until lore exists? (M2-13; 31 D45.)
+12. **Q12: condition modelling choices** (§7.5): sleeping rooms by row order in the camp's shelters, food poisoning's
+    `adult` multiplier, starvation demand from the activity level, and the deferred effects. Applied (reversible);
+    confirm or override. (M2-07a.)
 
 ## Proposed canon additions
 

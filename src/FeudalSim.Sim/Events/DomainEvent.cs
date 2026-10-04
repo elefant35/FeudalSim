@@ -46,6 +46,8 @@ public enum Salience : byte { Trace, Minor, Notable, Major, Historic }
 [Union(37, typeof(ToolBroke))]
 [Union(38, typeof(Foraged))]
 [Union(39, typeof(ItemInspected))]
+[Union(40, typeof(ConditionStarted))]
+[Union(41, typeof(ConditionEnded))]
 public abstract record DomainEvent;
 
 [MessagePackObject]
@@ -240,3 +242,11 @@ public sealed record Foraged([property: Key(0)] EntityId Worker, [property: Key(
 /// <summary>11 §8.2: an inspection of stacks held under one label; <c>Corrected</c> units were relabelled to what they are.</summary>
 [MessagePackObject]
 public sealed record ItemInspected([property: Key(0)] EntityId Inspector, [property: Key(1)] EntityId Container, [property: Key(2)] int Seen, [property: Key(3)] int Corrected) : DomainEvent;
+
+/// <summary>11 §7: a disease, toxin or food poisoning took hold (disease handle; symptoms come after incubation).</summary>
+[MessagePackObject]
+public sealed record ConditionStarted([property: Key(0)] EntityId Person, [property: Key(1)] int Disease) : DomainEvent;
+
+/// <summary>11 §7: a condition ran its course (immunity follows where the disease gives it).</summary>
+[MessagePackObject]
+public sealed record ConditionEnded([property: Key(0)] EntityId Person, [property: Key(1)] int Disease) : DomainEvent;

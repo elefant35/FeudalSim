@@ -19,6 +19,16 @@ public struct CampRecord
     public byte Coastal;
     public Worn Kit;
 
+    /// <summary>11 §11.1 c_src of the camp's water place (stream 0.02, river 0.04, lake 0.05, spring 0; M2-07a).</summary>
+    public float WaterContamination;
+
+    /// <summary>
+    /// 14 §T0 the camp's shelters as sleeping rooms (sailcloth: 3×3 m, sleeps 3; M2-07a). People fill them in row order,
+    /// so row / <see cref="ShelterSleeps"/> is a sleeper's room (11 §7.3 "same sleeping room") until households own huts.
+    /// </summary>
+    public byte ShelterSleeps;
+    public float ShelterAreaM2;
+
     public readonly (float X, float Z) Place(PlaceKind kind) => kind switch
     {
         PlaceKind.Fire => (FireX, FireZ),

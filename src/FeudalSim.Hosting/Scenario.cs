@@ -89,7 +89,7 @@ public sealed record ScenarioDef
         world.Decisions.Register(new Sim.Social.BeingToldOwner());
         world.Decisions.Register(new Sim.Economy.TradeOwner());
         return world.AddSystem(new SkillSystem()).AddSystem(new ActivitySystem()).AddSystem(new StaminaSystem()).AddSystem(new ExposureSystem()).AddSystem(new HealthSystem()).AddSystem(new NeedsDecaySystem()).AddSystem(new PsychologySystem())
-            .AddSystem(new Lod3System()).AddSystem(new SocialSystem()).AddSystem(new InteractionSystem()).AddSystem(new ProcessSystem()).AddSystem(new RegrowthSystem());
+            .AddSystem(new Lod3System()).AddSystem(new SocialSystem()).AddSystem(new InteractionSystem()).AddSystem(new ProcessSystem()).AddSystem(new RegrowthSystem()).AddSystem(new ContagionSystem());
     }
 
     public static ScenarioDef Load(string path)
@@ -188,6 +188,9 @@ public sealed record CampDef
     public ShelterDef Shelter { get; init; } = new();
 
     public float ElevationM { get; init; } = 3f;         // the beach (10 §6.2 worked example)
+
+    /// <summary>11 §11.1: the camp's water place — spring, stream, river, lake or marsh (c_src 0 / 0.02 / 0.04 / 0.05 / 0.30).</summary>
+    public string WaterSource { get; init; } = "stream";
     public bool Coastal { get; init; } = true;           // within 500 m of the sea (coastF 0.7)
 
     /// <summary>What everyone wears on landing (11 §9.2 homeland kit, Ins 12.5).</summary>
@@ -220,7 +223,8 @@ public sealed record CampDef
         {
             Active = 1, Food = Food, Firewood = Firewood, FireFuelMin = FireFuelMin, Bedding = Bedding,
             BeddingInsulation = BeddingInsulation, ShelterWindBlock = Shelter.WindBlock, ShelterRainBlock = Shelter.RainBlock,
-            ShelterInsulation = Shelter.Insulation, ElevationM = ElevationM, Coastal = Coastal ? (byte)1 : (byte)0, Kit = KitOf(content),
+            ShelterInsulation = Shelter.Insulation, ShelterSleeps = (byte)Math.Clamp(Shelter.Sleeps, 1, 255), ShelterAreaM2 = Shelter.AreaM2, ElevationM = ElevationM, Coastal = Coastal ? (byte)1 : (byte)0, Kit = KitOf(content),
+            WaterContamination = WaterSource switch { "spring" or "rain" => 0f, "well" => 0.01f, "river" => 0.04f, "lake" => 0.05f, "marsh" => 0.30f, _ => 0.02f },
             Schedule = handle < 0 ? (ushort)0xFFFF : (ushort)handle,
             FireX = P("fire").X, FireZ = P("fire").Z, StoresX = P("stores").X, StoresZ = P("stores").Z,
             ShelterX = P("shelter").X, ShelterZ = P("shelter").Z, WaterX = P("water").X, WaterZ = P("water").Z,
@@ -243,6 +247,10 @@ public sealed record ShelterDef
     public float WindBlock { get; init; } = 0.8f;
     public float RainBlock { get; init; } = 0.9f;
     public float Insulation { get; init; } = 2f;
+
+    /// <summary>14 §T0: sleepers per shelter and its floor (sailcloth_shelter 3×3 m, sleeps 3).</summary>
+    public int Sleeps { get; init; } = 3;
+    public float AreaM2 { get; init; } = 9f;
 }
 
 /// <summary>One row of <c>metrics_daily.csv</c>.</summary>
@@ -257,7 +265,7 @@ public sealed record RunResult(long Steps, ulong FinalHash, IReadOnlyList<DayMet
 public sealed record CampSummary(double IdleRate, double LowNeedShare, double MoodMean, double BreakingShare, double Divergence, double TaskFailure,
     double FinalFood, double FireShare, double FinalFriends = 0, double FinalEnemies = 0, double InteractionsPerDay = 0, IReadOnlyDictionary<string, double>? InteractionMix = null, double[]? InteractionFunnel = null, double[]? FriendGates = null,
     double MeanWarmth = 0, double ColdShare = 0, double FreezingShare = 0, double WarmingShare = 0, double MeanWetness = 0,
-    double DeathsPer100PersonYears = 0, double DownedShare = 0);
+    double DeathsPer100PersonYears = 0, double DownedShare = 0, double IllShare = 0);
 
 /// <summary>Runs a scenario at max speed, collecting daily metrics (20 §13).</summary>
 public static class ScenarioRunner
@@ -297,7 +305,7 @@ public static class ScenarioRunner
                 MeanWarmth: cm.Days.Average(d => d.MeanWarmth), ColdShare: cm.Days.Average(d => d.ColdShare), FreezingShare: cm.Days.Average(d => d.FreezingShare),
                 WarmingShare: cm.Days.Average(d => d.WarmingShare), MeanWetness: cm.Days.Average(d => d.MeanWetness),
                 DeathsPer100PersonYears: cm.Days[^1].DeadAtEnd * 100.0 / Math.Max(1, cm.Days[^1].DeadAtEnd + cm.Days[^1].Alive) / (cm.Days.Count / (double)Sim.Time.GameDate.DaysPerYear),
-                DownedShare: cm.Days.Average(d => d.DownedShare));
+                DownedShare: cm.Days.Average(d => d.DownedShare), IllShare: cm.Days.Average(d => d.IllShare));
             if (world.Systems.OfType<InteractionSystem>().FirstOrDefault() is { } ix)
             {
                 var total = ix.Counts.Sum();

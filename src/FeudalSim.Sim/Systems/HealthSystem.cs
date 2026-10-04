@@ -41,6 +41,15 @@ public sealed class HealthSystem : ISimSystem
         var people = world.People;
         ref var v = ref people.Vitals[i];
         if (v.Dead) { return; }
+        if (Conditions.Advance(world, i, now))
+        {
+            Die(world, i, ref v, VitalCause.Disease);
+            return;
+        }
+
+        var cond = Conditions.Of(world, people.Ids[i]);
+        v.DiseaseFever = cond.Fever ? (byte)1 : (byte)0;
+        Tracks(world, i, ref v, dtH);
         ref readonly var n = ref people.Needs[i];
         var list = world.Injuries.ListOf(people.Ids[i]);
         var bleeding = 0f;
@@ -101,25 +110,53 @@ public sealed class HealthSystem : ISimSystem
         var hypo = people.Body[i].Hypothermia;
         IReadOnlyList<Injury> injuries = list ?? (IReadOnlyList<Injury>)[];
         v.Pain = HealthRules.Pain(injuries);
-        v.Health = HealthRules.Health(v.Bruise, severitySum, v.Blood, hypo, infection);
+        v.Health = Math.Clamp(HealthRules.Health(v.Bruise, severitySum, v.Blood, hypo, infection) - cond.LoadPoints - (0.5f * v.Dehydration) - (0.3f * v.Starvation), 0f, 100f);
         v.Fever = infection > 30f ? (byte)1 : (byte)0;
         Transition(world, i, ref v, bleeding > 0f || people.Needs[i].Warmth < 25f || septicRising, hypo, infection, injuries, now);
+    }
+
+    private static void Die(SimWorld world, int i, ref Vitals v, VitalCause cause)
+    {
+        var id = world.People.Ids[i];
+        (v.State, v.Cause) = (VitalState.Dead, cause);
+        world.People.Activity[i] = new ActivityState { Action = -1, Level = ActivityLevel.Rest };
+        world.Emit(Events.Salience.Major, id, new Events.PersonDied(id, (byte)cause));
+    }
+
+    /// <summary>
+    /// 11 §6.2 dehydration (Hydration &lt; 20: +2/h; empty: +5/h, +2 when heavy or hot; recovers −10/h once Hydration ≥ 40)
+    /// and §6.1 starvation (while Satiety = 0: +0.25 × the hour's Satiety demand, children ×1.3, elders ×1.2; recovers
+    /// −0.25/h once Satiety ≥ 60).
+    /// </summary>
+    private static void Tracks(SimWorld world, int i, ref Vitals v, float dtH)
+    {
+        var people = world.People;
+        ref readonly var n = ref people.Needs[i];
+        var heavy = people.Activity[i].Level == ActivityLevel.Heavy;
+        var rate = n.Hydration <= 0f ? 5f + (heavy ? 2f : 0f) : n.Hydration < 20f ? 2f : n.Hydration >= 40f ? -10f : 0f;
+        v.Dehydration = Math.Clamp(v.Dehydration + (rate * dtH), 0f, 100f);
+        var age = (world.Clock.GameMinute - people.Core[i].BirthGameMinute) / Time.GameDate.MinutesPerYear;
+        if (n.Satiety <= 0f)
+        {
+            var demand = NeedsDecaySystem.Rate(world.Content, "need.satiety", people.Activity[i].Level, NeedsDecaySystem.DefaultSatietyPerHour) * Survival.Exposure.SatietyColdFactor(n.Warmth);   // the hour's unmet demand (11 §2.1)
+            v.Starvation = MathF.Min(100f, v.Starvation + (0.25f * demand * (age < 14 ? 1.3f : age >= 65 ? 1.2f : 1f) * dtH));
+        }
+        else if (n.Satiety >= 60f) { v.Starvation = MathF.Max(0f, v.Starvation - (0.25f * dtH)); }
     }
 
     private static void Transition(SimWorld world, int i, ref Vitals v, bool lethalRising, float hypothermia, float infection, IReadOnlyList<Injury> injuries, long now)
     {
         var people = world.People;
         var id = people.Ids[i];
-        if (v.Blood <= 0f || hypothermia >= 100f || infection >= 100f)
+        if (v.Blood <= 0f || hypothermia >= 100f || infection >= 100f || v.Dehydration >= 100f || v.Starvation >= 100f)
         {
-            (v.State, v.Cause) = (VitalState.Dead, v.Blood <= 0f ? VitalCause.BloodLoss : hypothermia >= 100f ? VitalCause.Hypothermia : VitalCause.Infection);
-            people.Activity[i] = new ActivityState { Action = -1, Level = ActivityLevel.Rest };
-            world.Emit(Events.Salience.Major, id, new Events.PersonDied(id, (byte)v.Cause));
+            Die(world, i, ref v, v.Blood <= 0f ? VitalCause.BloodLoss : hypothermia >= 100f ? VitalCause.Hypothermia : infection >= 100f ? VitalCause.Infection
+                : v.Dehydration >= 100f ? VitalCause.Dehydration : VitalCause.Starvation);
             return;
         }
 
         var trigger = v.Health <= 0f ? VitalCause.Trauma : v.Blood < 35f ? VitalCause.BloodLoss : hypothermia >= 80f ? VitalCause.Hypothermia
-            : infection >= 90f ? VitalCause.Infection : VitalCause.None;
+            : infection >= 90f ? VitalCause.Infection : v.Dehydration >= 85f ? VitalCause.Dehydration : v.Starvation >= 90f ? VitalCause.Starvation : VitalCause.None;
         if (!v.Down)
         {
             if (trigger != VitalCause.None)

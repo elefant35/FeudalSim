@@ -44,6 +44,9 @@ public sealed class SimWorld
     /// <summary>Injury records by person (11 §4.2; M2-06a). Saved and hashed.</summary>
     public Health.InjuryStore Injuries { get; } = new();
 
+    /// <summary>Diseases, toxins and food poisoning in progress, and immunities (11 §7; M2-07a). Saved and hashed.</summary>
+    public Health.ConditionStore Conditions { get; } = new();
+
     /// <summary>Interned claims (16 §7.1); ground truth via observed events.</summary>
     public Social.ClaimStore Claims { get; } = new();
 

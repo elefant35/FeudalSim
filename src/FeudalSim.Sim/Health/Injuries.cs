@@ -32,7 +32,7 @@ public static class Treated
 public enum VitalState : byte { Active, Impaired, Downed, Dying, Recovering, Dead }
 
 /// <summary>Why someone went down or died (11 §14 triggers).</summary>
-public enum VitalCause : byte { None, Trauma, BloodLoss, Hypothermia, Infection }
+public enum VitalCause : byte { None, Trauma, BloodLoss, Hypothermia, Infection, Disease, Dehydration, Starvation }
 
 /// <summary>11 §4.2 injury record (blittable, packed without padding: saved and hashed as bytes).</summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
@@ -61,9 +61,10 @@ public struct Vitals
 {
     public float Blood, Bruise, Pain, Health;
     public long DownedSinceMin, StableSinceMin;
+    public float Dehydration, Starvation;   // 11 §6.2 / §6.1 tracks, 0–100 (M2-07a)
     public VitalState State;
     public VitalCause Cause;
-    public byte Fever, Reserved1;   // Fever: any wound Infected or Septic (11 §5.3 → §2.1 need multipliers)
+    public byte Fever, DiseaseFever;   // Fever: any wound Infected or Septic (11 §5.3); DiseaseFever: a feverish disease stage (11 §7)
 
     public static Vitals Healthy => new() { Blood = 100f, Health = 100f, DownedSinceMin = -1, StableSinceMin = -1 };
 

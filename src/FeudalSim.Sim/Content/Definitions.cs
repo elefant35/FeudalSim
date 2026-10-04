@@ -35,6 +35,9 @@ public sealed record ItemDef
     public int? Durability { get; init; }
     public IReadOnlyList<string>? Aliases { get; init; }
 
+    /// <summary>A toxin the item carries (11 §8.1): the disease id eating it starts (M2-07).</summary>
+    public string? Toxin { get; init; }
+
     /// <summary>Clothing only (11 §9.2): how the item is worn and what it does against cold and rain.</summary>
     public WearDef? Wear { get; init; }
 
@@ -48,6 +51,46 @@ public sealed record ItemDef
     public bool HasTag(string tag) => Tags is { } t && t.Contains(tag);
 
     public bool IsStackable => Stackable ?? Category is ItemCategory.Raw or ItemCategory.Metal or ItemCategory.Food or ItemCategory.Drink or ItemCategory.Misc;
+}
+
+/// <summary>
+/// 11 §7.1 disease (or toxin, or food poisoning): routes, incubation, staged course with effects, the grave branch and
+/// immunity. Toxins are single-stage diseases entered by eating (11 §8.1).
+/// </summary>
+public sealed record DiseaseDef
+{
+    public required string Id { get; init; }
+    public required string Name { get; init; }
+    public IReadOnlyList<string> Routes { get; init; } = [];
+    public required IReadOnlyList<float> IncubationH { get; init; }
+    public required IReadOnlyList<DiseaseStage> Stages { get; init; }
+    public GraveBranch? Grave { get; init; }
+    public float ImmunityDays { get; init; }
+
+    /// <summary>11 §7.3 contact transmission β (0 = not person to person).</summary>
+    public float Beta { get; init; }
+}
+
+public sealed record DiseaseStage
+{
+    public required string Id { get; init; }
+    public required IReadOnlyList<float> Hours { get; init; }
+    public float Contagious { get; init; }
+
+    /// <summary>hydration_decay, satiety_absorb, work, condition_load (11 §7.1 effect keys).</summary>
+    public IReadOnlyDictionary<string, float> Effects { get; init; } = new Dictionary<string, float>();
+
+    /// <summary>The grave branch (death roll) fires at the end of this stage.</summary>
+    public bool Grave { get; init; }
+
+    public bool Fever { get; init; }
+}
+
+/// <summary>11 §7.1 grave branch: base death chance and multipliers (child, elder, malnourished, starving).</summary>
+public sealed record GraveBranch
+{
+    public required float Base { get; init; }
+    public IReadOnlyDictionary<string, float> Mult { get; init; } = new Dictionary<string, float>();
 }
 
 public enum NodeKind : byte { Tree, Bush, Rock, Patch }
@@ -746,8 +789,9 @@ public sealed class ContentDatabase
         IReadOnlyList<OpinionModifierDef>? opinionModifiers = null, IReadOnlyList<ClaimPredicateDef>? claimPredicates = null,
         IReadOnlyList<OverheardLineDef>? overheardLines = null, IReadOnlyList<DecisionDef>? decisions = null, IReadOnlyList<LineTemplateDef>? lines = null,
         IReadOnlyList<WorldSpecDef>? worldSpecs = null, IReadOnlyList<FlawDef>? flaws = null, IReadOnlyList<RecipeDef>? recipes = null,
-        IReadOnlyList<MinigameDef>? minigames = null, IReadOnlyList<NodeDef>? nodes = null)
+        IReadOnlyList<MinigameDef>? minigames = null, IReadOnlyList<NodeDef>? nodes = null, IReadOnlyList<DiseaseDef>? diseases = null)
     {
+        Diseases = diseases ?? [];
         Nodes = nodes ?? [];
         Minigames = minigames ?? [];
         Recipes = recipes ?? [];
@@ -810,6 +854,11 @@ public sealed class ContentDatabase
     public IReadOnlyList<NodeDef> Nodes { get; }
 
     public int NodeHandle(string id) => HandleOf(Nodes, id, n => n.Id);
+
+    /// <summary>11 §7–8 diseases, toxins and food poisoning (M2-07a).</summary>
+    public IReadOnlyList<DiseaseDef> Diseases { get; }
+
+    public int DiseaseHandle(string id) => HandleOf(Diseases, id, d => d.Id);
 
     public int ItemHandle(string id) => HandleOf(Items, id, i => i.Id);
 

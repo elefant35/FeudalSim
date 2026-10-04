@@ -71,7 +71,7 @@ public sealed class SweepCommand : Command<SweepSettings>
         Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
             $"  camp: final food mean {food.Average():F0} (min {food.Min():F0}) · fire burning {summaries.Average(x => x.S.FireShare):P0} of the time · seeds with food left {food.Count(f => f > 0) / (double)food.Length:P0}"));
         Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
-            $"  health (11 §14): deaths per 100 persons per year {summaries.Average(x => x.S.DeathsPer100PersonYears):F2} (21 §19 Y0 band 0–8; seeds with a death {summaries.Count(x => x.S.DeathsPer100PersonYears > 0)}) · downed {summaries.Average(x => x.S.DownedShare):P2} of agent-hours"));
+            $"  health (11 §14): deaths per 100 persons per year {summaries.Average(x => x.S.DeathsPer100PersonYears):F2} (21 §19 Y0 band 0–8; seeds with a death {summaries.Count(x => x.S.DeathsPer100PersonYears > 0)}) · downed {summaries.Average(x => x.S.DownedShare):P2} of agent-hours · ill (11 §7) {summaries.Average(x => x.S.IllShare):P2}"));
         Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
             $"  exposure (11 §9): mean warmth {summaries.Average(x => x.S.MeanWarmth):F1} · cold (< 40) {summaries.Average(x => x.S.ColdShare):P1} · freezing (< 25) {summaries.Average(x => x.S.FreezingShare):P2} of agent-hours · warming up {summaries.Average(x => x.S.WarmingShare):P1} of awake time · mean wetness {summaries.Average(x => x.S.MeanWetness):F1}"));
 
@@ -100,11 +100,11 @@ public sealed class SweepCommand : Command<SweepSettings>
 
         Directory.CreateDirectory(settings.Out);
         var csv = Path.Combine(settings.Out, $"sweep-{scenario.Id.Replace("scenario.", "", StringComparison.Ordinal)}-{DateTime.UtcNow:yyyyMMdd-HHmmss}.csv");
-        var sb = new StringBuilder("seed,idle_rate,low_need_share,mood_mean,breaking_share,divergence,task_failure,final_food,fire_share,final_hash,friends,enemies,interactions_per_day,argue_share,insult_share,opinion_p50,opinion_p90,opinion_max,mean_warmth,deaths_per_100py,downed_share\n");
+        var sb = new StringBuilder("seed,idle_rate,low_need_share,mood_mean,breaking_share,divergence,task_failure,final_food,fire_share,final_hash,friends,enemies,interactions_per_day,argue_share,insult_share,opinion_p50,opinion_p90,opinion_max,mean_warmth,deaths_per_100py,downed_share,ill_share\n");
         foreach (var (seed, run) in results)
         {
             var s = run.Camp!;
-            sb.Append(CultureInfo.InvariantCulture, $"{seed},{s.IdleRate:F4},{s.LowNeedShare:F5},{s.MoodMean:F2},{s.BreakingShare:F4},{s.Divergence:F4},{s.TaskFailure:F4},{s.FinalFood:F0},{s.FireShare:F3},{run.FinalHash:x16},{s.FinalFriends:F3},{s.FinalEnemies:F3},{s.InteractionsPerDay:F2},{s.InteractionMix?.GetValueOrDefault("Argue"):F4},{s.InteractionMix?.GetValueOrDefault("Insult"):F4},{s.FriendGates?[4]:F1},{s.FriendGates?[5]:F1},{s.FriendGates?[6]:F1},{s.MeanWarmth:F1},{s.DeathsPer100PersonYears:F2},{s.DownedShare:F5}\n");
+            sb.Append(CultureInfo.InvariantCulture, $"{seed},{s.IdleRate:F4},{s.LowNeedShare:F5},{s.MoodMean:F2},{s.BreakingShare:F4},{s.Divergence:F4},{s.TaskFailure:F4},{s.FinalFood:F0},{s.FireShare:F3},{run.FinalHash:x16},{s.FinalFriends:F3},{s.FinalEnemies:F3},{s.InteractionsPerDay:F2},{s.InteractionMix?.GetValueOrDefault("Argue"):F4},{s.InteractionMix?.GetValueOrDefault("Insult"):F4},{s.FriendGates?[4]:F1},{s.FriendGates?[5]:F1},{s.FriendGates?[6]:F1},{s.MeanWarmth:F1},{s.DeathsPer100PersonYears:F2},{s.DownedShare:F5},{s.IllShare:F5}\n");
         }
 
         File.WriteAllText(csv, sb.ToString());
