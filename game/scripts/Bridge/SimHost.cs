@@ -118,6 +118,10 @@ public partial class SimHost : Node3D
         _jobs = new JobRunner(1);
         _autotestDialogue = args.Contains("--autotest-dialogue");
         _autotestKnap = args.Contains("--autotest-knap");
+        if (string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("FEUDALSIM_WORLD_CACHE")))   // M2-02: generated regions cache under user://worlds
+        {
+            System.Environment.SetEnvironmentVariable("FEUDALSIM_WORLD_CACHE", ProjectSettings.GlobalizePath("user://worlds"));
+        }
         _openKnap = args.Contains("--open-knap");
         _autotestCamp = _autotestDialogue || args.Contains("--autotest-camp");
         var templateOnly = _autotestCamp || _autotestKnap;   // autotests never call a model (unless --live)

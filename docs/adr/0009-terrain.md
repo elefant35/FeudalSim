@@ -89,6 +89,8 @@ detail texture tinted by the palette colour map — the same look as the ArrayMe
   VRAM **320 MB** (textures 260) inside the 450 MB terrain line. **S4 PASS** on the reference Mac; re-measure with real
   terrain materials (M2) and on minimum spec.
 - Still open: the sim heights are regenerated each session (2.8 s) even when Terrain3D loads from cache — cache the
+- *Closed (M2-02):* the sim world is cached too — `WorldCache` writes `user://worlds/<seed>/sim.world` (versioned codec,
+  keyed by generator version and content hash); a cached session loads it in under 3 s instead of regenerating (≈ 17 s).
   sim heightfield beside it when world generation lands (M2, 10).
 
 ## Revisit if

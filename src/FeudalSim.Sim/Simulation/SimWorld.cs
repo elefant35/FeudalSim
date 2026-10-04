@@ -68,6 +68,19 @@ public sealed class SimWorld
     /// <summary>10 §10 personal map knowledge (M2-01c-ii). Saved and hashed.</summary>
     public World.KnowledgeStore Knowledge { get; } = new();
 
+    /// <summary>The generated region this game is played in, if any (M2-02; the graybox camp has none). Saved; hashed by fingerprint.</summary>
+    public World.WorldMap? Map { get; private set; }
+
+    /// <summary>Changes to the generated resource nodes (20 §6.6). Saved and hashed.</summary>
+    public World.NodeDeltaStore NodeDeltas { get; } = new();
+
+    /// <summary>Attaches the generated region (once, before the first step or on load).</summary>
+    public void AttachMap(World.WorldMap map)
+    {
+        if (Map is not null && Map.Fingerprint != map.Fingerprint) { throw new InvalidOperationException("A different world is already attached."); }
+        Map = map;
+    }
+
     /// <summary>Open haggles with the player (15 §5).</summary>
     public Economy.NegotiationStore Negotiations { get; } = new();
 

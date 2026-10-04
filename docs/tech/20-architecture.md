@@ -1136,6 +1136,13 @@ public interface ISaveMigration
 | M3–M7 | Best effort between consecutive milestones. Breaking changes are called out in the commit footer `BREAKING-SAVE:`. |
 | M8+ (Early Access) | **Every release loads every earlier EA save.** CI loads a save corpus (small scenario saves in `tests/save-corpus/`; large ones in nightly artifacts). |
 
+*The generated region in saves (M2-02):* a world played on a generated map carries it in the save's `world` table — the
+heightfield, coast distances and the byte grids (`WorldMap.Encode`, versioned, ≈ 11 MB at 8 km), the landing, POIs
+and deposits — plus the node deltas. **Hash decision:** the grids are immutable after attach, so the state hash takes the map's
+fingerprint (an XxHash64 of the grids computed once) instead of hashing them every step; node deltas are hashed normally.
+`AttachMap` refuses a different world. Hosting's `WorldCache` keeps `<dir>/<seed>/sim.world` keyed by generator version,
+content hash and spec, so sessions skip regeneration (the client uses `user://worlds`).
+
 *Content handles in saves (M2-09):* inventories, injuries and worn clothing store content handles (indices in ordinal
 id order), so adding an item or flaw shifts the handles after it. Saves are dev artifacts until M3, so this is fine
 for now. A content-id → handle remap on load (save the id table with the image, remap in `ISaveMigration`) is needed

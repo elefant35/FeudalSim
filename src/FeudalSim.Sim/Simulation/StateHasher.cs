@@ -58,6 +58,14 @@ public static class StateHasher
         world.Inventory.HashInto(h);
         world.Processes.HashInto(h);
         world.Knowledge.HashInto(h);
+        if (world.Map is { } map)
+        {
+            Span<byte> fp = stackalloc byte[8];
+            BitConverter.TryWriteBytes(fp, map.Fingerprint);   // the grids are immutable: hashed once at attach (M2-02)
+            h.Append(fp);
+        }
+
+        world.NodeDeltas.HashInto(h);
         world.Negotiations.HashInto(h);
         world.Relationships.HashInto(h);
         world.Memories.HashInto(h);

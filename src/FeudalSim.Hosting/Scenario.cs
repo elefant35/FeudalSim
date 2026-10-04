@@ -49,6 +49,9 @@ public sealed record ScenarioDef
     /// <summary>What the player carries at the start (item id → count), e.g. a knapping kit (M2-11b).</summary>
     public Dictionary<string, int>? PlayerItems { get; init; }
 
+    /// <summary>A generated region to play in (M2-02): its world spec and seed (default: the scenario seed). Cached on disk.</summary>
+    public WorldDef? World { get; init; }
+
     /// <summary>
     /// Optional tier mix for headless scale runs (S6): how many settlers, from the end of the roster, are pinned to LOD2
     /// and LOD3 with logged <c>SetLodTier</c> commands (the rest stay LOD1). Settlements and the relevance set that assign
@@ -113,6 +116,7 @@ public sealed record ScenarioDef
     {
         var utility = string.Equals(Ai, "utility", StringComparison.OrdinalIgnoreCase);
         var world = new SimWorld(Seed, StartGameMs(), DayLengthMinutes) { Content = content, Jobs = jobs };
+        if (World is { } region) { world.AttachMap(WorldCache.GetOrGenerate(content, region.Spec, region.Seed ?? Seed, jobs: jobs)); }   // M2-02
         if (utility)
         {
             world.Camp = (Camp ?? new CampDef()).ToRecord(content);
@@ -223,6 +227,13 @@ public sealed record CampDef
             WoodsX = P("woods").X, WoodsZ = P("woods").Z, ForageX = P("forage_ground").X, ForageZ = P("forage_ground").Z,
         };
     }
+}
+
+/// <summary>Scenario YAML <c>world:</c> — the generated region (10 §3).</summary>
+public sealed record WorldDef
+{
+    public string Spec { get; init; } = "worldspec.farstrand_default";
+    public ulong? Seed { get; init; }
 }
 
 /// <summary>11 §13 shelter values (scenario YAML <c>camp.shelter</c>).</summary>

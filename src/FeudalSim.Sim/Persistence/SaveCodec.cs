@@ -62,6 +62,7 @@ public static class SaveCodec
     public const string InventoryTable = "inventory";
     public const string ProcessesTable = "processes";
     public const string KnowledgeTable = "knowledge";
+    public const string WorldTable = "world";
     public const string ConfrontationsTable = "confrontations";
     public const string FavorsTable = "favors";
     public const string HoldingsTable = "holdings";
@@ -72,6 +73,17 @@ public static class SaveCodec
         var coin = store.Export();
         var chunk = new TableChunk { Table = HoldingsTable, RowCount = coin.Length };
         chunk.Columns.Add(new ColumnBlock { Name = "coin", LayoutVersion = 1, ElementSize = Marshal.SizeOf<Economy.Holdings.CoinRow>(), Data = MemoryMarshal.AsBytes(coin.AsSpan()).ToArray() });
+        return chunk;
+    }
+
+    private static TableChunk WorldChunk(SimWorld world)
+    {
+        var (chunks, indices, states) = world.NodeDeltas.Export();
+        var chunk = new TableChunk { Table = WorldTable, RowCount = chunks.Length };
+        if (world.Map is { } map) { chunk.Columns.Add(new ColumnBlock { Name = "map", LayoutVersion = World.WorldMap.CodecVersion, ElementSize = 0, Data = map.Encode() }); }
+        chunk.Columns.Add(new ColumnBlock { Name = "delta_chunks", LayoutVersion = 1, ElementSize = 4, Data = MemoryMarshal.AsBytes(chunks.AsSpan()).ToArray() });
+        chunk.Columns.Add(new ColumnBlock { Name = "delta_indices", LayoutVersion = 1, ElementSize = 4, Data = MemoryMarshal.AsBytes(indices.AsSpan()).ToArray() });
+        chunk.Columns.Add(new ColumnBlock { Name = "delta_states", LayoutVersion = 1, ElementSize = 1, Data = states });
         return chunk;
     }
 
@@ -272,7 +284,7 @@ public static class SaveCodec
                 LastCommandSeq = world.LastCommandSeq,
             },
             IdCounters = counters,
-            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories), ClaimsChunk(world.Claims), BeliefsChunk(world.Beliefs), RenownChunk(world.Reputation), DecisionsChunk(world.Decisions), AiChunk(world), ConversationsChunk(world.Conversations), PlayerChunk(world.Player), ConfrontationsChunk(world.Confrontations), FavorsChunk(world.Favors), HoldingsChunk(world.Holdings), NegotiationsChunk(world.Negotiations), WeatherChunk(world.WeatherRef), InjuriesChunk(world.Injuries), InventoryChunk(world.Inventory), ProcessesChunk(world.Processes), KnowledgeChunk(world.Knowledge)],
+            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories), ClaimsChunk(world.Claims), BeliefsChunk(world.Beliefs), RenownChunk(world.Reputation), DecisionsChunk(world.Decisions), AiChunk(world), ConversationsChunk(world.Conversations), PlayerChunk(world.Player), ConfrontationsChunk(world.Confrontations), FavorsChunk(world.Favors), HoldingsChunk(world.Holdings), NegotiationsChunk(world.Negotiations), WeatherChunk(world.WeatherRef), InjuriesChunk(world.Injuries), InventoryChunk(world.Inventory), ProcessesChunk(world.Processes), KnowledgeChunk(world.Knowledge), WorldChunk(world)],
         };
     }
 
@@ -446,6 +458,16 @@ public static class SaveCodec
         {
             if (coinCol.ElementSize == Marshal.SizeOf<Economy.Holdings.CoinRow>()) { world.Holdings.Import(MemoryMarshal.Cast<byte, Economy.Holdings.CoinRow>(coinCol.Data).ToArray()); }
             else { notes.Add("Holdings table has an unknown layout; coin reset."); }
+        }
+
+        if (image.Tables.FirstOrDefault(t => t.Table == WorldTable) is { } wt)
+        {
+            if (wt.Columns.FirstOrDefault(c => c.Name == "map") is { } mapCol) { world.AttachMap(World.WorldMap.Decode(mapCol.Data)); }
+            if (wt.Columns.FirstOrDefault(c => c.Name == "delta_chunks") is { } dc && wt.Columns.FirstOrDefault(c => c.Name == "delta_indices") is { } di
+                && wt.Columns.FirstOrDefault(c => c.Name == "delta_states") is { } ds)
+            {
+                world.NodeDeltas.Import(MemoryMarshal.Cast<byte, int>(dc.Data).ToArray(), MemoryMarshal.Cast<byte, int>(di.Data).ToArray(), ds.Data);
+            }
         }
 
         if (image.Tables.FirstOrDefault(t => t.Table == KnowledgeTable) is { } know
