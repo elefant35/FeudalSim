@@ -46,6 +46,9 @@ public sealed record ScenarioDef
 
     public string PlayerName { get; init; } = "Tam";
 
+    /// <summary>What the player carries at the start (item id → count), e.g. a knapping kit (M2-11b).</summary>
+    public Dictionary<string, int>? PlayerItems { get; init; }
+
     /// <summary>
     /// Optional tier mix for headless scale runs (S6): how many settlers, from the end of the roster, are pinned to LOD2
     /// and LOD3 with logged <c>SetLodTier</c> commands (the rest stay LOD1). Settlements and the relevance set that assign
@@ -138,6 +141,11 @@ public sealed record ScenarioDef
         {
             world.Enqueue(new CommandEnvelope(++seq, 0, CommandSource.Scenario, new SpawnPerson(PlayerName, px, pz, IsPlayer: true)));
             world.Enqueue(new CommandEnvelope(++seq, 0, CommandSource.Scenario, new PlayerMoved(px, pz, 0f)));
+            var playerId = Sim.Core.EntityId.Make(Sim.Core.EntityKind.Person, (ulong)(Settlers + 1));   // spawned after the settlers
+            foreach (var (item, qty) in (PlayerItems ?? []).OrderBy(kv => kv.Key, StringComparer.Ordinal))
+            {
+                world.Enqueue(new CommandEnvelope(++seq, 0, CommandSource.Scenario, new SetHoldings(playerId, item, qty, 0)));
+            }
         }
         if (Tiers is { } mix)
         {

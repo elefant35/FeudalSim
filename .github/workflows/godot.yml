@@ -91,6 +91,13 @@ jobs:
           grep -q "CAMP AUTOTEST PASS" camp.log
           if grep -E '^(ERROR|WARNING|SCRIPT ERROR)' -A3 camp.log; then echo "Godot reported errors or warnings"; exit 1; fi
 
+      - name: "Knapping bench autotest (M2-11b: [K], four stages through WorkStage, a knife or flakes)"
+        run: |
+          "$GODOT" --headless --max-fps 60 --path game -- --autotest-knap 2>&1 | tee knap.log
+          grep -E "KNAP AUTOTEST FAIL|Unhandled|Exception|WorkStage:|StartProcess:" knap.log | sed 's/^/::error title=knap autotest::/' || true
+          grep -q "KNAP AUTOTEST PASS" knap.log
+          if grep -E '^(ERROR|WARNING|SCRIPT ERROR)' -A3 knap.log; then echo "Godot reported errors or warnings"; exit 1; fi
+
       - name: Terrain3D check (loads on the pinned Godot; heights match the sim heightfield)
         run: |
           "$GODOT" --headless --path game res://scenes/dev/TerrainSpike.tscn -- --terrain3d --check 2>&1 | tee terrain.log

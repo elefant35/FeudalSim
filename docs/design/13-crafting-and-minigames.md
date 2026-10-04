@@ -639,6 +639,16 @@ tier − 1, and mentor hints are voiced (§14.4).
 | Esc | Step away (WIP saved per §4.2) | Same |
 | Controller (M7) | Right stick cursor, triggers = analog force/pressure, A commit, B step away, bumpers tools | Standard third-person |
 
+*Implemented (M2-11b), knapping only:*
+- **Bench:** `game/scripts/UI/KnapView.cs` is opened with [K] in play mode.
+- **Controls:** choose — click a nodule, then its rim. Rough and thin — the mouse sets the point, Q/E the angle, and
+  you hold to charge and release. Pressure — hold and trace. Esc auto-resolves the stage.
+- **Contract:** it calls the sim's own seeded primitives, maps the raw score through the shipped curve and sends m
+  with the real seconds played. The labor time-lapse runs the world at 8× (≈ 2 s per stage).
+- **Feedback:** a result line per stage (outcome, PS, m) and a result card (Q, grade, flaws).
+- **Not yet:** information tiers (the strike notch and force mark are shown to everyone for now), audio cues and
+  personal bests.
+
 ### 7.4 Feedback conventions
 
 - **Audio first:** each primitive has a "good" and "bad" signature (clean ring vs dull thud of a

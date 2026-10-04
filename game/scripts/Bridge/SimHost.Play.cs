@@ -55,6 +55,7 @@ public partial class SimHost
         }
 
         InitDialogue();
+        InitKnapping();
 
         _panel = new Label { Position = new Vector2(12, 300), Size = new Vector2(760, 220), AutowrapMode = TextServer.AutowrapMode.WordSmart };
         _panel.AddThemeColorOverride("font_color", new Color(1, 0.95f, 0.8f));
@@ -112,7 +113,8 @@ public partial class SimHost
     {
         // The player: input (or the camp autotest) → position; reported once per sim step when it moved.
         var input = Vector2.Zero;
-        if (!_autotestCamp && _dialogue?.Conversation is null)
+        UpdateKnapAutotest();
+        if (!_autotestCamp && _dialogue?.Conversation is null && !Knapping)
         {
             if (Input.IsKeyPressed(Key.W) || Input.IsKeyPressed(Key.Up)) { input.Y -= 1; }
             if (Input.IsKeyPressed(Key.S) || Input.IsKeyPressed(Key.Down)) { input.Y += 1; }
@@ -188,7 +190,7 @@ public partial class SimHost
         _camera.LookAt(new Vector3(_player.X, 1.2f, _player.Y));
 
         // Conversation entry; the dialogue panel (M1-19) takes over while one is open.
-        _panel!.Text = _dialogue?.Conversation is null && nearest != 0 ? $"[E] talk to {_names.GetValueOrDefault(nearest, "them")}   ·   [P] people" : "";
+        _panel!.Text = _dialogue?.Conversation is null && nearest != 0 && !Knapping ? $"[E] talk to {_names.GetValueOrDefault(nearest, "them")}   ·   [P] people" : "";
         UpdateDialogue(delta);
         if (_autotestCamp) { CampAutotest(delta); }
     }

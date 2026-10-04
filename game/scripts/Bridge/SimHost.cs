@@ -117,11 +117,14 @@ public partial class SimHost : Node3D
         _scenarioId = scenario.Id;
         _jobs = new JobRunner(1);
         _autotestDialogue = args.Contains("--autotest-dialogue");
+        _autotestKnap = args.Contains("--autotest-knap");
+        _openKnap = args.Contains("--open-knap");
         _autotestCamp = _autotestDialogue || args.Contains("--autotest-camp");
+        var templateOnly = _autotestCamp || _autotestKnap;   // autotests never call a model (unless --live)
         FeudalSim.AI.AiConfig? config = null;
         if (scenario.Player is not null && !_autotest)   // a player can overhear talk: live AI if the key is set, else templates
         {
-            config = _autotestCamp && !args.Contains("--live") ? new FeudalSim.AI.AiConfig { LlmMode = "template" }   // the camp autotest never calls a model (unless --live)
+            config = templateOnly && !args.Contains("--live") ? new FeudalSim.AI.AiConfig { LlmMode = "template" }   // the camp autotest never calls a model (unless --live)
                 : FeudalSim.AI.AiConfig.Load(FeudalSim.AI.AiConfig.FindEnvFile(repo));
             _aiStack = FeudalSim.AI.AiStack.Create(config);
             _gateway = _aiStack.CreateGateway();
@@ -278,7 +281,7 @@ public partial class SimHost : Node3D
         var minute = snapshot.GameMs / Sim.Time.SimClock.MsPerGameMinute;
         UpdateSun(snapshot.Weather, minute);
         _overlay.Text = $"FeudalSim · {_scenarioId} · {date} · {snapshot.Weather.Sky} {Sim.Climate.Weather.AirTempC(snapshot.Weather, minute):F0} °C · wind {snapshot.Weather.WindMs:F0} m/s · step {snapshot.Step} · {_stepsPerSecond:F1} steps/s · ×{_timeScale} · {_runner.Mode}\n" +
-                        $"{snapshot.Count - (snapshot.IsPlayer.AsSpan(0, snapshot.Count).Contains(true) ? 1 : 0)} settlers · [Space] pause · [1][2][4][8] speed · {(_play ? "WASD walk · Shift jog · Ctrl sprint · [E] talk · [Esc] leave · [T] take" : "WASD/arrows pan")} · wheel zoom" +
+                        $"{snapshot.Count - (snapshot.IsPlayer.AsSpan(0, snapshot.Count).Contains(true) ? 1 : 0)} settlers · [Space] pause · [1][2][4][8] speed · {(_play ? "WASD walk · Shift jog · Ctrl sprint · [K] knap · [E] talk · [Esc] leave · [T] take" : "WASD/arrows pan")} · wheel zoom" +
                         (_aiStatus.Length > 0 ? $" · {_aiStatus}" : "");
         if (_play && snapshot.PlayerStaminaMax > 0f)
         {
@@ -347,6 +350,7 @@ public partial class SimHost : Node3D
         while (_runner!.Events.TryPop(out var e))
         {
             if (_play && e.Payload is Sim.Events.TradeOffered or Sim.Events.TradeSettled or Sim.Events.NegotiationEnded) { OnTradeEvent(e.Payload); continue; }
+            if (_play && OnKnapEvent(e.Payload)) { continue; }
             if (e.Payload is not Sim.Events.AiResultApplied r || string.IsNullOrWhiteSpace(r.Text)) { continue; }
             if (r.UsedFallback || !r.Text.TrimStart().StartsWith('['))
             {
@@ -481,8 +485,10 @@ public partial class SimHost : Node3D
             case Key.Key2: SetSpeed(2); break;
             case Key.Key4: SetSpeed(4); break;
             case Key.Key8: SetSpeed(8); break;
-            case Key.E when _play: TryTalk(); break;
+            case Key.E when _play && !Knapping: TryTalk(); break;
+            case Key.Escape when _play && Knapping: _knap!.Escape(); break;
             case Key.Escape when _play: Leave(); break;
+            case Key.K when _play: TryKnap(); break;
             case Key.P when _play: TogglePeople(); break;
             case Key.T when _play: TrySteal(); break;
         }

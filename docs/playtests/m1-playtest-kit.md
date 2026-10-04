@@ -12,7 +12,7 @@ For the owner (M1-24). Criteria: 22 §17.2 #4 and #11, 22 §15.4 rubric, 30 §5 
 
 ## Controls
 
-WASD walk · Shift jog · Ctrl sprint (uses stamina) · wheel zoom · **[E]** talk to the settler in front of you · type and **Enter** to speak ·
+WASD walk · Shift jog · Ctrl sprint (uses stamina) · **[K]** knap a flint knife (M2) · wheel zoom · **[E]** talk to the settler in front of you · type and **Enter** to speak ·
 quick-intent buttons (Ask, Request ▾, Trade, Compliment, Apologize, Insult, Threaten, Leave) · **Esc** leave ·
 **[P]** people you've met · Space pause · 1/2/4/8 time speed.
 Consequential lines (insults, threats, promises, deals) wait 1.5 s: **Backspace** unsays them.

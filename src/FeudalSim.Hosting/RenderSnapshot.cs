@@ -44,6 +44,20 @@ public sealed class RenderSnapshot
 
     public float PlayerMoveMult = 1f, PlayerHealth = 100f, PlayerBlood = 100f;
 
+    /// <summary>The player's person id (none if no player).</summary>
+    public Sim.Core.EntityId PlayerId;
+
+    /// <summary>The world seed (the client plays seeded minigames with the sim's own code, 13 §7.1).</summary>
+    public ulong WorldSeed;
+
+    /// <summary>The player's open process (13 §4; 0 if none): its stage, state, when its labor ends, and the stage's feel (13 §7.2).</summary>
+    public ulong PlayerProcess;
+
+    public int ProcessRecipe = -1, ProcessStage;
+    public byte ProcessState;
+    public long ProcessBusyUntilMin;
+    public float StageGrip = 0.5f, StageDex = 5f;
+
     public void CopyFrom(SimWorld world)
     {
         Step = world.Clock.Step;
@@ -79,6 +93,8 @@ public sealed class RenderSnapshot
 
         CampActive = world.Camp.Active != 0;
         Weather = world.Weather;
+        WorldSeed = world.WorldSeed;
+        PlayerId = world.PlayerId;
         if (world.PlayerRow is var pr and >= 0)
         {
             ref readonly var n = ref p.Needs[pr];
@@ -88,6 +104,20 @@ public sealed class RenderSnapshot
             ref readonly var v = ref p.Vitals[pr];
             (PlayerVital, PlayerHealth, PlayerBlood) = ((byte)v.State, v.Health, v.Blood);
             PlayerMoveMult = Sim.Health.HealthRules.MoveSpeedMult(world.Injuries.Of(p.Ids[pr]), v.Blood);
+            PlayerProcess = 0;
+            foreach (var proc in world.Processes.Open)
+            {
+                if (proc.Worker != p.Ids[pr]) { continue; }
+                var recipe = world.Content.Recipes[proc.Recipe];
+                (PlayerProcess, ProcessRecipe, ProcessStage, ProcessState, ProcessBusyUntilMin) = (proc.Id, proc.Recipe, proc.Stage, (byte)proc.State, proc.BusyUntilMin);
+                var skill = world.Content.SkillHandle(recipe.Skill);
+                var stageD = recipe.Difficulty + (proc.Stage < recipe.Stages.Count ? recipe.Stages[proc.Stage].DOffset : 0) + (proc.Masterwork ? 15 : 0);
+                var (_, tier, toolQ) = recipe.Tools.Count == 0 ? (0UL, Sim.Skills.ToolTier.Iron, 50) : Sim.Crafting.Processes.BestTool(world, proc.Worker, recipe.Tools[0].Tag);
+                var e = Sim.Skills.Skills.Effective(world, new Sim.Skills.CheckRequest(pr, skill, stageD, tier == Sim.Skills.ToolTier.None ? Sim.Skills.ToolTier.Iron : tier, Math.Max(0, toolQ), HasLight: true));
+                var feel = Sim.Crafting.Minigames.Feel.For(e, stageD, Sim.Skills.Skills.Attribute(world, pr, "dex"));
+                (StageGrip, StageDex) = (feel.Grip, feel.Dex);
+                break;
+            }
             PlayerStaminaMax = Sim.Survival.StaminaRules.Max(Sim.Skills.Skills.Attribute(world, pr, "end"), athletics >= 0 ? p.SkillLevels(pr)[athletics] : 0f, n.Energy, n.Satiety);
         }
         (Food, Firewood, FireFuelMin) = (world.Camp.Food, world.Camp.Firewood, world.Camp.FireFuelMin);

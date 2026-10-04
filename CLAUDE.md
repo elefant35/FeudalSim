@@ -84,9 +84,10 @@ dotnet run -c Release --project src/FeudalSim.Headless -- bench --scenario conte
 dotnet run -c Release --project src/FeudalSim.Headless -- minigame [--check]   # 13 §13.3 knapping calibration curves (writes content/minigames/knapping.yaml)
 dotnet run --project src/FeudalSim.Headless -- weather [--seed N --years 3000]   # 10 §6.3 chain: shares vs the table (±3 points), beach temperatures
 dotnet build game/FeudalSim.Game.csproj                                  # the Godot client (also builds Hosting/Sim)
-$GODOT --path game                                                       # the M1 camp (m1_view), play mode: WASD walk · Shift jog · Ctrl sprint · [E] talk · [Esc] leave · Space pause · 1/2/4/8 speed; `-- --view` overhead
+$GODOT --path game                                                       # the M1 camp (m1_view), play mode: WASD walk · Shift jog · Ctrl sprint · [K] knap · [E] talk · [Esc] leave · Space pause · 1/2/4/8 speed; `-- --view` overhead
 $GODOT --path game -- --scenario m1_overheard                            # any content/scenarios/<name>.yaml; `-- --shot out.png 30` saves a screenshot and quits
 $GODOT --headless --path game -- --autotest                              # Boot smoke: movement, pause, time scale (exit 0/1)
+$GODOT --headless --path game -- --autotest-knap                         # the knapping bench end to end (M2-11b); `-- --open-knap` just opens it
 $GODOT --headless --path game -- --autotest-camp                         # M1-18 play mode: bodies, walk to a settler, [E] talk, [Esc] leave (exit 0/1)
 $GODOT --headless --path game -- --autotest-dialogue                     # M1-19 dialogue UI on top: echo, unsay, quick intent, People page (CI; add --live for the model)
 python3 tools/audio/build_m1.py                                          # M1-21 placeholder audio: barks + dialogue UI sounds → check → manifest + mappings
