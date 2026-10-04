@@ -1,0 +1,321 @@
+[
+  {
+    "id": "asset.camp_p1.drying_rack",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp_later/camp_later.py",
+      "params": {
+        "item": "drying_rack",
+        "seed": 501
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/buildings/drying_rack.glb"
+    ],
+    "budget_class": "workstation",
+    "measured": {
+      "tris_lod0": 472,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 drying_rack; own-work palette geometry."
+  },
+  {
+    "id": "asset.camp_p1.knapping_stone",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp_later/camp_later.py",
+      "params": {
+        "item": "knapping_stone",
+        "seed": 501
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/buildings/knapping_stone.glb"
+    ],
+    "budget_class": "workstation",
+    "measured": {
+      "tris_lod0": 300,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 knapping_stone; own-work palette geometry."
+  },
+  {
+    "id": "asset.camp_p1.storage_pit",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp_later/camp_later.py",
+      "params": {
+        "item": "storage_pit",
+        "seed": 501
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/buildings/storage_pit.glb"
+    ],
+    "budget_class": "workstation",
+    "measured": {
+      "tris_lod0": 1116,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 storage_pit; own-work palette geometry."
+  },
+  {
+    "id": "asset.camp_p1.latrine",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp_later/camp_later.py",
+      "params": {
+        "item": "latrine",
+        "seed": 501
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/buildings/latrine.glb"
+    ],
+    "budget_class": "building_small",
+    "measured": {
+      "tris_lod0": 600,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 latrine; own-work palette geometry."
+  },
+  {
+    "id": "asset.camp_p1.hut",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp_later/camp_later.py",
+      "params": {
+        "item": "hut",
+        "seed": 501
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/buildings/hut.glb"
+    ],
+    "budget_class": "building_small",
+    "measured": {
+      "tris_lod0": 1238,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 hut; own-work palette geometry."
+  },
+  {
+    "id": "asset.camp_p1.sailcloth_shelter_stage1",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp_later/camp_later.py",
+      "params": {
+        "item": "sailcloth_shelter_stage1",
+        "seed": 501
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/buildings/sailcloth_shelter_stage1.glb"
+    ],
+    "budget_class": "building_small",
+    "measured": {
+      "tris_lod0": 748,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Construction stage: frame"
+  },
+  {
+    "id": "asset.camp_p1.sailcloth_shelter_stage2",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp_later/camp_later.py",
+      "params": {
+        "item": "sailcloth_shelter_stage2",
+        "seed": 501
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/buildings/sailcloth_shelter_stage2.glb"
+    ],
+    "budget_class": "building_small",
+    "measured": {
+      "tris_lod0": 768,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Construction stage: half covered"
+  },
+  {
+    "id": "asset.camp_p1.lean_to_stage1",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp_later/camp_later.py",
+      "params": {
+        "item": "lean_to_stage1",
+        "seed": 501
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/buildings/lean_to_stage1.glb"
+    ],
+    "budget_class": "building_small",
+    "measured": {
+      "tris_lod0": 636,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Construction stage: frame"
+  },
+  {
+    "id": "asset.camp_p1.lean_to_stage2",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp_later/camp_later.py",
+      "params": {
+        "item": "lean_to_stage2",
+        "seed": 501
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/buildings/lean_to_stage2.glb"
+    ],
+    "budget_class": "building_small",
+    "measured": {
+      "tris_lod0": 886,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Construction stage: half covered"
+  },
+  {
+    "id": "asset.camp_p1.hut_stage1",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp_later/camp_later.py",
+      "params": {
+        "item": "hut_stage1",
+        "seed": 501
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/buildings/hut_stage1.glb"
+    ],
+    "budget_class": "building_small",
+    "measured": {
+      "tris_lod0": 732,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Construction stage: frame"
+  },
+  {
+    "id": "asset.camp_p1.hut_stage2",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp_later/camp_later.py",
+      "params": {
+        "item": "hut_stage2",
+        "seed": 501
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/buildings/hut_stage2.glb"
+    ],
+    "budget_class": "building_small",
+    "measured": {
+      "tris_lod0": 985,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Construction stage: half covered"
+  }
+]

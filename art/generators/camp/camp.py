@@ -64,8 +64,9 @@ def generate(params):
     z0=h;z1=.86 if sail else .25
     verts=[(x0,y0,z0),(x1*.45,y0,z0+(z1-z0)*.45-.09),(x1,y0,z1),
            (x0,y1,z0),(x1*.45,y1,z0+(z1-z0)*.45-.09),(x1,y1,z1)] if sail else [(-w/2,y0,h),(0,y0,h*.6),(w/2,y0,.25),(-w/2,y1,h),(0,y1,h*.6),(w/2,y1,.25)]
-    # both surfaces: intentional two-sided cloth/brush thickness.
-    faces=[(0,1,4,3),(1,2,5,4),(3,4,1,0),(4,5,2,1)]
+    # Palette is double-sided; one geometric surface avoids coplanar faces.
+    faces=[(0,1,4,3),(1,2,5,4)]
+    if sail and side<0:faces=[tuple(reversed(f)) for f in faces]
     colour=('linen' if k%4 else 'wool_grey') if sail else ('straw' if k%3 else 'bark')
     parts.append(mesh('roof_panel',verts,faces,colour,wind=lambda p:(h-p.z)/h*.7))
   if not sail:
