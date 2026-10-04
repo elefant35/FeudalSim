@@ -59,12 +59,13 @@ public sealed class WorldGenCommand : Command<WorldGenSettings>
                 Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"   water: lakes {hy.Lakes.Count} ({string.Join(", ", hy.Lakes.Select(l => $"{l.AreaHa:F1} ha"))}) · river outlets {outlets.Count} (km²: {string.Join(", ", outlets.Take(8).Select(a => a.ToString("F1", CultureInfo.InvariantCulture)))}) · fords {hy.Fords.Count} · springs {hy.Springs.Count}"));
             }
             Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
-                $"seed {seed}: {(w.Valid ? "VALID" : "INVALID")} attempt {w.Attempt} · {w.Archetype} · land {w.LandAreaKm2:F1} km² · islets {w.Islets} · peak {w.PeakM:F0} m · above 800 m {w.AreaAbove800Km2:F2} km² · {ms:F0} ms total · rock {string.Join(" ", Enum.GetNames<Lithology>().Skip(1).Select((name, j) => $"{name[..3].ToLowerInvariant()} {100.0 * lith[j + 1] / landCells:F0}%"))}{(w.Valid ? "" : " · " + string.Join("; ", w.Failures))}"));
+                $"seed {seed}: {(w.Valid ? "VALID" : "INVALID")} attempt {w.Attempt} · {w.Archetype} · land {w.LandAreaKm2:F1} km² · islets {w.Islets} · peak {w.PeakM:F0} m · above 800 m {w.AreaAbove800Km2:F2} km² · {ms:F0} ms total · rock {string.Join(" ", Enum.GetNames<Lithology>().Skip(1).Select((name, j) => $"{name[..3].ToLowerInvariant()} {100.0 * lith[j + 1] / landCells:F0}%"))}{(w.Biomes is { } bio ? " · biomes " + string.Join(" ", bio.Shares.Select(kv => $"{Biomes.Keys[(int)kv.Key]} {kv.Value:P0}")) + $" · breadbasket {bio.BreadbasketHa:F0} ha" : "")}{(w.Valid ? "" : " · " + string.Join("; ", w.Failures))}"));
             if (k == 0 && settings.Png is { } png)
             {
                 File.WriteAllBytes(png, WorldPreview.Png(w.Grid));
                 File.WriteAllBytes(Path.ChangeExtension(png, ".lithology.png"), WorldPreview.LithologyPng(w.Grid));
-                Console.WriteLine($"worldgen: wrote {png} (+ .lithology.png)");
+                File.WriteAllBytes(Path.ChangeExtension(png, ".biomes.png"), WorldPreview.BiomePng(w.Grid));
+                Console.WriteLine($"worldgen: wrote {png} (+ .lithology.png, .biomes.png)");
             }
         }
 

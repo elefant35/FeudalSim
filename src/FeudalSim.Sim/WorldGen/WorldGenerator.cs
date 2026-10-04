@@ -24,6 +24,15 @@ public sealed class WorldGrid(int size, float cellM)
     /// <summary>Stage 5–6 water class per cell (<see cref="WaterClass"/>).</summary>
     public byte[] Water { get; } = new byte[size * size];
 
+    // Stages 7–8 (M2-01b-i): slope (degrees), biome, soil, fertility (×255), wind exposure and rain shadow (×100), climate flags.
+    public byte[] Slope { get; } = new byte[size * size];
+    public byte[] Biome { get; } = new byte[size * size];
+    public byte[] Soil { get; } = new byte[size * size];
+    public byte[] Fertility { get; } = new byte[size * size];
+    public byte[] Exposure { get; } = new byte[size * size];
+    public byte[] RainShadow { get; } = new byte[size * size];
+    public byte[] ClimateFlags { get; } = new byte[size * size];
+
     public float X(int col) => (col * CellM) - ((Size - 1) * CellM / 2f);
 
     public float Z(int row) => (row * CellM) - ((Size - 1) * CellM / 2f);
@@ -36,6 +45,8 @@ public sealed record WorldGenResult(ulong Seed, int Attempt, ulong AttemptSeed, 
     public Hydrology.Result? Water { get; init; }
 
     public Coast.Result? Coast { get; init; }
+
+    public Biomes.Result? Biomes { get; init; }
 
     public bool Valid => Failures.Count == 0;
 
@@ -123,11 +134,15 @@ public static class WorldGenerator
         for (var i = 0; i < grid.Height.Length; i++) { if (grid.Land[i] == 1 && grid.Height[i] > eroded) { eroded = grid.Height[i]; } }
         var renorm = eroded > 0f ? peakTarget / eroded : 1f;   // erosion wears the peak down: keep the drawn target
         for (var i = 0; i < grid.Height.Length; i++) { if (grid.Land[i] == 1) { grid.Height[i] = MathF.Max(0.5f, grid.Height[i] * renorm); } }
+        Hypsometry(grid, peakTarget, new Rng(SplitMix64.Mix(s, (ulong)RngStream.WorldGen, Salt.WorldGenRelief, 3, 0)));
         Lithologies.Assign(grid, SplitMix64.Mix(s, (ulong)RngStream.WorldGen, Salt.WorldGenLithology, 0, 0), jobs);
 
         // Stage 5 — hydrology (serial: priority flood and accumulation are ordered).
         var water = Hydrology.Run(grid, SplitMix64.Mix(s, (ulong)RngStream.WorldGen, Salt.WorldGenHydrology, 0, 0));
         var coast = Coast.Run(grid, water, spec, SplitMix64.Mix(s, (ulong)RngStream.WorldGen, Salt.WorldGenCoast, 0, 0));
+
+        // Stages 7–8 — climate fields, soils and biomes (M2-01b-i).
+        var biomes = Biomes.Run(grid, water, coast, SplitMix64.Mix(s, (ulong)RngStream.WorldGen, Salt.WorldGenBiomes, 0, 0));
 
         // Validation (10 §3.11): W1 land area and islets, W5 peak.
         var land = 0;
@@ -162,7 +177,41 @@ public static class WorldGenerator
         }
 
         if (water.Springs.Count < 6) { failures.Add($"W3 springs {water.Springs.Count}"); }
-        return new WorldGenResult(seed, attempt, s, spec.Id, archetype, rotation, mirrored, grid, landKm2, peak, above800 * cellKm2, islets, failures) { Water = water, Coast = coast };
+
+        // W4: every biome present and inside its share band.
+        foreach (var (key, band) in spec.BiomeShare ?? new Dictionary<string, IReadOnlyList<float>>())
+        {
+            var b = (Biome)Array.IndexOf(Biomes.Keys, key);
+            var share = biomes.Shares.GetValueOrDefault(b);
+            if (b == Biome.None || band.Count != 2 || share < band[0] || share > band[1]) { failures.Add($"W4 {key} {share:P1}"); }
+        }
+
+        return new WorldGenResult(seed, attempt, s, spec.Id, archetype, rotation, mirrored, grid, landKm2, peak, above800 * cellKm2, islets, failures) { Water = water, Coast = coast, Biomes = biomes };
+    }
+
+    /// <summary>
+    /// M2-01b-i: the island's hypsometry, which 10 §3.7's biome thresholds (180 / 450 m) and §3.1's share bands imply
+    /// together — about 80–85 % of land below 180 m, 6–8 % above 450 m, ≥ 0.2 km² above 800 m. A monotone quantile remap
+    /// of land heights (rank → height through anchors jittered per seed inside those ranges; ties by index): flow order,
+    /// depressions and the drawn peak all survive. Runs after erosion, before every slope- or height-dependent stage.
+    /// </summary>
+    internal static void Hypsometry(WorldGrid g, float peak, Rng rng)
+    {
+        var land = new List<int>();
+        for (var i = 0; i < g.Height.Length; i++) { if (g.Land[i] == 1) { land.Add(i); } }
+        if (land.Count < 10) { return; }
+        land.Sort((a, b) => g.Height[a] != g.Height[b] ? g.Height[a].CompareTo(g.Height[b]) : a.CompareTo(b));
+        var q180 = rng.Uniform(0.78f, 0.86f);
+        var q450 = rng.Uniform(0.93f, 0.96f);   // steep cells 300–450 m are highland too (§3.7 order 4)
+        var q800 = rng.Uniform(0.985f, 0.992f);
+        for (var k = 0; k < land.Count; k++)
+        {
+            var t = k / (float)(land.Count - 1);
+            g.Height[land[k]] = t < q180 ? 0.5f + (179.5f * MathF.Pow(t / q180, 1.6f))   // a coastal plain: more low land than high
+                : t < q450 ? 180f + (270f * (t - q180) / (q450 - q180))
+                : t < q800 ? 450f + (350f * (t - q450) / (q800 - q450))
+                : 800f + ((peak - 800f) * (t - q800) / (1f - q800));
+        }
     }
 
     private static ReliefArchetype PickArchetype(WorldSpecDef spec, float u)

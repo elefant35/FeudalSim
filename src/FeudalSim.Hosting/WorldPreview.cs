@@ -59,6 +59,28 @@ public static class WorldPreview
         return Encode(w, w, rgb);
     }
 
+    /// <summary>10 §4 biomes (M2-01b-i): sea, coast, meadow, broadleaf, pine, wetland, river valley, hills & moor, highland; water on top.</summary>
+    public static byte[] BiomePng(WorldGrid g, int maxSide = 1024)
+    {
+        var step = Math.Max(1, (int)Math.Ceiling(g.Size / (double)maxSide));
+        var w = (g.Size + step - 1) / step;
+        var rgb = new byte[w * w * 3];
+        (byte, byte, byte)[] colors = [(40, 90, 150), (235, 220, 160), (190, 210, 110), (60, 125, 55), (40, 85, 60), (110, 140, 120), (150, 185, 80), (150, 120, 120), (215, 215, 215)];
+        for (var r = 0; r < w; r++)
+        {
+            for (var c = 0; c < w; c++)
+            {
+                var i = (Math.Min(g.Size - 1, r * step) * g.Size) + Math.Min(g.Size - 1, c * step);
+                var water = (WaterClass)g.Water[i] is WaterClass.River or WaterClass.Lake or WaterClass.Stream;
+                var (cr, cg, cb) = g.Land[i] == 0 ? colors[0] : water ? ((byte)50, (byte)110, (byte)190) : colors[Math.Min(g.Biome[i], (byte)(colors.Length - 1))];
+                var o = ((r * w) + c) * 3;
+                (rgb[o], rgb[o + 1], rgb[o + 2]) = (cr, cg, cb);
+            }
+        }
+
+        return Encode(w, w, rgb);
+    }
+
     private static (float R, float G, float B) Tint(float h, bool land)
     {
         if (!land) { var d = Math.Clamp(-h / 40f, 0f, 1f); return (40 - (20 * d), 110 - (50 * d), 170 - (40 * d)); }
