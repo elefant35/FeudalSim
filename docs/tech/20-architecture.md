@@ -48,7 +48,7 @@ implementation time. C# snippets are sketches of shape, not final code.
 
 | # | Decision | Section |
 |---|----------|---------|
-| D1 | `FeudalSim.Sim` is a pure C# `net8.0` library with no engine, IO or network dependencies. It talks to the world **only through messages**: commands in; snapshots, domain events and AI requests out. | [§2](#2-architecture-overview) |
+| D1 | `FeudalSim.Sim` is a pure C# `net10.0` library with no engine, IO or network dependencies. It talks to the world **only through messages**: commands in; snapshots, domain events and AI requests out. | [§2](#2-architecture-overview) |
 | D2 | The sim runs on a **dedicated thread at a fixed 100 ms step** (10 Hz). The renderer interpolates from triple-buffered snapshots; it never reads live sim state. | [§2.3](#23-threading-model), [§5](#5-time-clocks--ticks) |
 | D3 | **Two clocks:** a monotonic `Step` index (covers fine and macro steps) and a game clock in game-milliseconds. Canonical timestamps stay **integer game-minutes** (canon §14). | [§5](#5-time-clocks--ticks) |
 | D4 | **Embodiment boundary:** the sim owns intent, state and action *timelines*; Godot realizes LOD0 motion and reports body state back **as logged commands**; headless swaps in `SimKinematics`. Only position/velocity/flags cross the boundary. | [§3](#3-the-embodiment-boundary-lod0--headless-sim) |
@@ -427,7 +427,7 @@ contract survives that change: `GodotEmbodiment` would simply stop reporting NPC
 ```text
 FeudalSim/
 ├── FeudalSim.sln
-├── global.json                  # pins .NET SDK 10.0.401 (rollForward: latestFeature) + MTP test runner; projects target net8.0 (ADR-0010)
+├── global.json                  # pins .NET SDK 10.0.401 (rollForward: latestFeature) + MTP test runner; projects target net10.0 (ADR-0010)
 ├── Directory.Build.props        # LangVersion, Nullable, TreatWarningsAsErrors, analyzers (all projects)
 ├── Directory.Packages.props     # central package versions
 ├── .editorconfig
@@ -491,7 +491,7 @@ flowchart BT
 
 | Project | Type | Refs | Allowed third-party packages |
 |---------|------|------|------------------------------|
-| `FeudalSim.Sim` | class lib, net8.0 | — | MessagePack (+ source generator), Microsoft.Extensions.Logging.Abstractions, System.IO.Hashing. **Nothing else without an ADR.** |
+| `FeudalSim.Sim` | class lib, net10.0 | — | MessagePack (+ source generator), Microsoft.Extensions.Logging.Abstractions, System.IO.Hashing. **Nothing else without an ADR.** |
 | `FeudalSim.Content` | class lib | Sim | YamlDotNet, JsonSchema.Net (+ .Generation) |
 | `FeudalSim.AI` | class lib | Sim (port DTOs only) | BCL HTTP/JSON; optional Microsoft.Extensions.AI ([22](22-llm-integration.md) decides); **optional, M7 evaluation:** Microsoft.ML.OnnxRuntime for an in-process Laya decider (native binaries per RID, incl. osx-arm64 — needs an ADR) |
 | `FeudalSim.Hosting` | class lib | Sim, Content, AI | Microsoft.Extensions.Logging, ZLogger |
@@ -1409,7 +1409,7 @@ ADR picks sidecar, in-process or neither.
 
 - **Pin one Godot 4.x .NET stable release at M0** (the latest stable at the time), recorded in
   `game/GODOT_VERSION` and the ADR-0001 follow-up. Verify:
-  - it targets `net8.0`;
+  - it targets `net10.0` (ADR-0010; was `net8.0` through M0);
   - the Metal renderer works on Apple Silicon;
   - the built-in Jolt module is available;
   - the `Godot.NET.Sdk` NuGet package lets `dotnet build game/FeudalSim.Game.csproj` run in CI without
@@ -1690,7 +1690,7 @@ reviews every re-bless. AI assistants MUST NOT re-bless unless explicitly asked.
 
 | Area | Convention |
 |------|------------|
-| Build | `Directory.Build.props`: `net8.0`, `LangVersion 12`, `<Nullable>enable</Nullable>`, `ImplicitUsings`, `TreatWarningsAsErrors`, `AnalysisLevel latest-recommended`, `EnforceCodeStyleInBuild`, `Deterministic`, `ContinuousIntegrationBuild` on CI. Central Package Management + `packages.lock.json`. |
+| Build | `Directory.Build.props`: `net10.0`, `LangVersion 12`, `<Nullable>enable</Nullable>`, `ImplicitUsings`, `TreatWarningsAsErrors`, `AnalysisLevel latest-recommended`, `EnforceCodeStyleInBuild`, `Deterministic`, `ContinuousIntegrationBuild` on CI. Central Package Management + `packages.lock.json`. |
 | Style | `.editorconfig`: file-scoped namespaces, `_camelCase` private fields, PascalCase members, one public type per file, files ≲ 400 lines, `sealed` by default, `readonly struct` for components |
 | Sim code shape | `sealed class XSystem : ISimSystem { void Run(in StepContext ctx); }`. Design formulas live in **static pure functions** (`static class CraftQuality`) with a `// Design: ../../docs/design/13-…md#…` link. |
 | Hot paths (`FeudalSim.Sim.Systems.*`, client per-frame code) | No LINQ, no capturing lambdas, no boxing (no `params object[]`, no interface calls on structs), no string formatting, no `foreach` over interfaces. Use `Span<T>`, `ArrayPool<T>`, pooled lists. Enforced by allocation tests and FS003. |
@@ -1819,7 +1819,7 @@ tests are green in CI.
 | Determinism drift (hash-order iteration, parallel merges, ISA/libm differences) | H | H | Banned APIs + FS analyzers, threads-1-vs-N tests, per-RID goldens, hourly checksums, bisect tooling | Any golden flake is a P0 |
 | LOD reconciliation bugs (snap pops, lost actions, NPCs in walls) | M | H | Single authority per datum; only pose crosses the boundary; snap metric; property tests; overlays | > 5 open boundary bugs at M3 → DotRecast ADR (§3.9) |
 | Combat feels laggy at 10 Hz resolution | M | M | Client-side prediction for player actions; `StepMs` can drop to 50 | M2 combat playtest |
-| **.NET 8 end of support on 2026-11-10**, with Godot TFM coupling | H | M | Keep `net8.0` for M0 (installed SDK, Godot compatibility); ADR to move to **.NET 10 LTS** once the pinned Godot supports it; avoid APIs that block the move | Before M1 ends |
+| ~~**.NET 8 end of support on 2026-11-10**, with Godot TFM coupling~~ | — | — | **Resolved 2026-10-04:** all projects target `net10.0` (ADR-0010 step 3); exported builds still to verify at M2 | Done |
 | Save format churn | H | M | Column-tolerant tables, layout fingerprints, migration chain, save corpus | M3 onward |
 | Thread contention on 6-core minimum spec | M | M | Worker count capped at cores − 3; the single-thread budget fits on its own | M5 perf pass |
 | Interlude speed and rehydration plausibility | M | H | dt-parameterized LOD3 systems; rehydration property tests ([21](21-npc-ai.md)) | M4 |

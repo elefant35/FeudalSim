@@ -1,7 +1,7 @@
 <Project>
   <!-- Applies to every C# project under the repo root (game/ overrides what it needs). -->
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <LangVersion>12</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>

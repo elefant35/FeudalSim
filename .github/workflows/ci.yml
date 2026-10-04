@@ -29,7 +29,6 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json   # SDK 10 (ADR-0010)
-          dotnet-version: 8.0.x            # projects target net8.0 (Godot 4.7.2), so the .NET 8 runtime runs tests and tools
 
       - name: Restore
         run: dotnet restore FeudalSim.sln

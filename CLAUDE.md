@@ -57,8 +57,8 @@ in `docs/` is the basis for all development.
 ## Commands
 
 Run from the repo root. `global.json` pins the .NET **10** SDK (10.0.401) and opts `dotnet test` into
-Microsoft.Testing.Platform; every project still **targets net8.0** (Godot 4.7.2), so the .NET 8 runtime
-must be installed too (ADR-0010). Godot: `/Applications/Godot_mono.app/Contents/MacOS/Godot` (4.7.2 .NET).
+Microsoft.Testing.Platform; every project **targets net10.0** (ADR-0010 step 3: Godot 4.7.2 runs it), so only the
+.NET 10 SDK is needed. Godot: `/Applications/Godot_mono.app/Contents/MacOS/Godot` (4.7.2 .NET).
 
 ```bash
 dotnet build                                   # 0 warnings required (TreatWarningsAsErrors)

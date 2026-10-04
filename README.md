@@ -33,7 +33,7 @@ No code yet — milestone **M0 (Foundations)** is next; see the
 
 ```
 /docs        Design, technical and production plans; ADRs in docs/adr/
-/src         Pure C# (.NET 8) projects: simulation core, content, AI gateway, headless runner, tests
+/src         Pure C# (.NET 10) projects: simulation core, content, AI gateway, headless runner, tests
 /game        Godot 4 (.NET) client project
 /content     Data-driven game content (YAML), validated in CI
 /tools       Scripts and developer tools
@@ -41,7 +41,7 @@ No code yet — milestone **M0 (Foundations)** is next; see the
 
 ## Prerequisites (from M0 onward)
 
-- .NET 8 SDK
+- .NET 10 SDK (10.0.401, pinned in global.json)
 - Godot 4.x **.NET** edition (exact version pinned at M0)
 - An OpenRouter API key in `.env` as `OPENROUTER_KEY` (optional — the game has an LLM-free "template mode")
 

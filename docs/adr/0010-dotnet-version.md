@@ -1,6 +1,6 @@
 # ADR-0010 — .NET version: net8.0 now, .NET 10 SDK next, net10 runtime when Godot allows
 
-> **Status:** Accepted · step 2 done 2026-10-04 · **Date:** 2026-10-03 · **Related:** [canon §4](../01-canon.md#4-core-product--technology-decisions), [ADR-0001](0001-engine-godot-dotnet.md)
+> **Status:** Accepted · step 2 done 2026-10-04 · **step 3 done 2026-10-04** · **Date:** 2026-10-03 · **Related:** [canon §4](../01-canon.md#4-core-product--technology-decisions), [ADR-0001](0001-engine-godot-dotnet.md)
 
 ## Context
 
@@ -40,6 +40,17 @@
   headless Godot checks pass; CI green on ubuntu + macOS and `godot.yml` at 2b7c10f (runs 37165483972,
   37165483955). `JsonSchema.Net.Generation` stays dropped (our generator is smaller and
   deterministic).
+
+## Step 3 — done 2026-10-04 (M1-25)
+
+- Spike in a scratch worktree: `Directory.Build.props` and `game/FeudalSim.Game.csproj` → `net10.0`, Godot 4.7.2
+  (`Godot.NET.Sdk/4.7.2`, GodotSharp built for net8.0 runs forward on .NET 10). The game's runtimeconfig names
+  `Microsoft.NETCore.App 10.0.0`; Godot hosts it without changes.
+- Evidence: Release build 0 warnings; 246/246 tests; smoke run hash **22e904d95294ad74** and `m1_camp` hash
+  **ad3e70f63d9ab6ca** — identical to the net8.0 build (determinism scope holds across the runtime move); Godot boot
+  autotest, `--autotest-dialogue` and `embodiment_check.sh` all PASS with no errors or warnings.
+- Applied on main the same day: every project targets `net10.0`; CI installs only the .NET 10 SDK.
+- Not yet verified: exported builds (export templates, self-contained .NET 10 runtime) — check at the first export (M2).
 
 ## Revisit if
 
