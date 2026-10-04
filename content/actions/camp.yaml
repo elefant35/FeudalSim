@@ -70,7 +70,7 @@
   schedule_block: work
   utility_keys: [work]
   facet_k: { diligence: 0.25 }
-  stock_pressure: { stock: food, comfortable: 60000 }   # settlers know the ship's stores are finite
+  stock_pressure: { stock: food, comfortable: 40000 }   # ≈ 17 days for 24: settlers keep a buffer, not a hoard
 - id: action.tend_fire
   name: Tend the fire
   class: p3

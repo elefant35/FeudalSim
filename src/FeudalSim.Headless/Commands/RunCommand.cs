@@ -167,11 +167,11 @@ public sealed class RunCommand : Command<RunSettings>
 
     private static void WriteCsv(string path, IReadOnlyList<DayMetrics> days)
     {
-        var sb = new StringBuilder("day,date,step,people,satiety_mean,hydration_mean,energy_mean,mean_dist_home_m,events,state_hash,mood_mean,social_mean,comfort_mean,purpose_mean,status_mean\n");
+        var sb = new StringBuilder("day,date,step,people,satiety_mean,hydration_mean,energy_mean,mean_dist_home_m,events,state_hash,mood_mean,social_mean,comfort_mean,purpose_mean,status_mean,idle_rate,low_need_share,breaking_share,divergence,food,firewood,fire_share\n");
         foreach (var d in days)
         {
             sb.Append(CultureInfo.InvariantCulture,
-                $"{d.Day},{d.Date},{d.Step},{d.People},{d.SatietyMean:F3},{d.HydrationMean:F3},{d.EnergyMean:F3},{d.MeanDistanceFromHomeM:F3},{d.Events},{d.StateHash:x16},{d.MoodMean:F2},{d.SocialMean:F2},{d.ComfortMean:F2},{d.PurposeMean:F2},{d.StatusMean:F2}\n");
+                $"{d.Day},{d.Date},{d.Step},{d.People},{d.SatietyMean:F3},{d.HydrationMean:F3},{d.EnergyMean:F3},{d.MeanDistanceFromHomeM:F3},{d.Events},{d.StateHash:x16},{d.MoodMean:F2},{d.SocialMean:F2},{d.ComfortMean:F2},{d.PurposeMean:F2},{d.StatusMean:F2},{d.Camp?.IdleRate:F3},{d.Camp?.LowNeedShare:F4},{d.Camp?.BreakingShare:F3},{d.Camp?.Divergence:F3},{d.Camp?.Food:F0},{d.Camp?.Firewood:F1},{d.Camp?.FireShare:F2}\n");
         }
 
         File.WriteAllText(path, sb.ToString());

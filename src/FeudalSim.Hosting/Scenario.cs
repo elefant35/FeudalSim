@@ -117,9 +117,14 @@ public sealed record CampDef
 /// <summary>One row of <c>metrics_daily.csv</c>.</summary>
 public sealed record DayMetrics(int Day, string Date, long Step, int People, double SatietyMean, double HydrationMean,
     double EnergyMean, double MeanDistanceFromHomeM, int Events, ulong StateHash,
-    double MoodMean = 0, double SocialMean = 0, double ComfortMean = 0, double PurposeMean = 0, double StatusMean = 0);
+    double MoodMean = 0, double SocialMean = 0, double ComfortMean = 0, double PurposeMean = 0, double StatusMean = 0,
+    CampDay? Camp = null);
 
-public sealed record RunResult(long Steps, ulong FinalHash, IReadOnlyList<DayMetrics> Days, double WallSeconds);
+public sealed record RunResult(long Steps, ulong FinalHash, IReadOnlyList<DayMetrics> Days, double WallSeconds, CampSummary? Camp = null);
+
+/// <summary>21 §19 camp metrics over a whole run (means of the daily values; task failure over all activities).</summary>
+public sealed record CampSummary(double IdleRate, double LowNeedShare, double MoodMean, double BreakingShare, double Divergence, double TaskFailure,
+    double FinalFood, double FireShare);
 
 /// <summary>Runs a scenario at max speed, collecting daily metrics (20 §13).</summary>
 public static class ScenarioRunner
@@ -132,22 +137,31 @@ public static class ScenarioRunner
         var days = new List<DayMetrics>();
         var clock = System.Diagnostics.Stopwatch.StartNew();
         var events = 0;
+        var camp = world.Camp.Active != 0 ? new CampMetrics(content) : null;
         for (var day = 1; day <= scenario.Days; day++)
         {
             for (var s = 0; s < stepsPerDay; s++)
             {
                 var output = world.Step();
+                camp?.Sample(world);
                 LogOpenedDecisions(world, output);
                 events += output.Events.Count;
                 if (inputLog is not null) { foreach (var c in output.AppliedCommands) { inputLog.Append(c); } }
                 if (eventLog is not null) { foreach (var e in output.Events) { Sim.Persistence.LogCodec.WriteEvent(eventLog, e); } }
             }
 
-            days.Add(Measure(world, day, events));
+            days.Add(Measure(world, day, events) with { Camp = camp?.EndDay(world) });
             events = 0;
         }
 
-        return new RunResult(world.Clock.Step, StateHasher.Hash(world), days, clock.Elapsed.TotalSeconds);
+        CampSummary? summary = null;
+        if (camp is { Days.Count: > 0 } cm)
+        {
+            summary = new CampSummary(cm.Days.Average(d => d.IdleRate), cm.Days.Average(d => d.LowNeedShare), cm.Days.Average(d => d.MoodMean),
+                cm.Days.Average(d => d.BreakingShare), cm.Days.Average(d => d.Divergence), CampMetrics.TaskFailure(world), world.Camp.Food, cm.Days.Average(d => d.FireShare));
+        }
+
+        return new RunResult(world.Clock.Step, StateHasher.Hash(world), days, clock.Elapsed.TotalSeconds, summary);
     }
 
     /// <summary>

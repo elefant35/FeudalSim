@@ -53,6 +53,9 @@ public sealed class SimWorld
     /// <summary>Hash the state after every Nth step (0 = never). Hashing is read-only.</summary>
     public int HashEveryNSteps { get; set; }
 
+    /// <summary>Registered systems (configuration, in registration order) — for metrics and tooling.</summary>
+    public IReadOnlyList<ISimSystem> Systems => _systems;
+
     public SimWorld AddSystem(ISimSystem system)
     {
         _systems.Add(system);

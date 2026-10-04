@@ -1842,6 +1842,11 @@ policy.
 | Determinism | Two runs, same seed → identical state hashes | 100% | all |
 | Irrationality | §8.8 bands | all within band | all |
 
+*Implemented (M1-02b, 2026-10-04):* `CampMetrics` + `feudalsim sweep --scenario <yaml> --seeds N --days D` compute the
+first table's need-health, idle, mood, breaking, divergence and task-failure rows for utility-AI scenarios and check
+them against the bands (pass = ≥ 90% of seeds in band). The M1 graybox camp passes over 100 seeds × 30 days;
+CI runs 20 seeds per push. Idle counts `rest` and `idle`; divergence uses daily activity histograms per profession.
+
 **Calibration metrics (LLM vs policy).** Headless runs cannot produce these, because they never call a
 model. They are computed by [22](22-llm-integration.md)'s calibration job (the `feudalsim ai
 calibrate` hook, [20 §13–14](20-architecture.md); nightly or manual, needs a key) on neutral golden

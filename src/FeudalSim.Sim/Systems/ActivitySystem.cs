@@ -27,6 +27,12 @@ public sealed class ActivitySystem : ISimSystem
     private float[][] _traitUtility = [];   // [action][trait] multiplier from the action's utility keys
     private float[] _traitTau = [];
 
+    /// <summary>Metrics (21 §19 task failure): activities started, and those that failed because a requirement ran
+    /// out mid-task (e.g. the stores emptied during a meal). Interruptions by a more urgent need are not failures. Not state.</summary>
+    public long Started { get; private set; }
+
+    public long Abandoned { get; private set; }
+
     public string Name => "Activity";
     public SimPhase Phase => SimPhase.Decide;
 
@@ -104,6 +110,7 @@ public sealed class ActivitySystem : ISimSystem
             return;
         }
 
+        Started++;
         var def = _actions[choice];
         var (tx, tz) = def.Place == PlaceKind.Home ? (people.Wander[i].HomeX, people.Wander[i].HomeZ) : world.Camp.Place(def.Place);
         var spread = (people.Ids[i].Value * 2654435761UL) % 628 / 100f;   // stand around the spot, not on it
@@ -150,7 +157,7 @@ public sealed class ActivitySystem : ISimSystem
         Span<float> c = stackalloc float[2];
         var nc = 0;
         c[nc++] = Math.Clamp(1f - (0.004f * dist), 0.3f, 1f);
-        if (def.StockPressure is { } sp) { c[nc++] = Math.Clamp(1f - (world.Camp.Stock(sp.Stock) / sp.Comfortable), 0.35f, 1f); }
+        if (def.StockPressure is { } sp) { c[nc++] = Math.Clamp(1f - (world.Camp.Stock(sp.Stock) / sp.Comfortable), 0.20f, 1f); }
         var cProduct = 1f;
         for (var j = 0; j < nc; j++) { cProduct *= c[j] + ((1f - c[j]) * (1f - (1f / nc)) * c[j]); }
 
@@ -259,7 +266,13 @@ public sealed class ActivitySystem : ISimSystem
             foreach (var (need, level) in until) { finished &= Need(n, need) >= level; }
         }
 
-        if (def.Requires is { } req) { foreach (var (stock, min) in req) { finished |= world.Camp.Stock(stock) < min; } }
+        if (def.Requires is { } req)
+        {
+            foreach (var (stock, min) in req)
+            {
+                if (world.Camp.Stock(stock) < min) { finished = true; Abandoned++; }
+            }
+        }
         if (finished) { act.EndGameMs = ctx.GameMs; }
     }
 

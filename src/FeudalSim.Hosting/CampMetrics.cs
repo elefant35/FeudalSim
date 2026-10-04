@@ -1,0 +1,119 @@
+using FeudalSim.Sim;
+using FeudalSim.Sim.Content;
+using FeudalSim.Sim.Systems;
+using FeudalSim.Sim.World;
+
+namespace FeudalSim.Hosting;
+
+/// <summary>One game day of 21 §19 camp metrics (headless, policy-only).</summary>
+public sealed record CampDay(
+    double IdleRate, double LowNeedShare, double MoodMean, double BreakingShare, double Divergence,
+    double Food, double Firewood, double FireShare);
+
+/// <summary>
+/// Samples a utility-AI world once per game minute and summarizes each game day per 21 §19: idle rate (share of awake
+/// time resting or idling), need health (agent-hours with any physical need &lt; 15), mean smoothed mood, share of
+/// agent-days in the breaking band (&lt; −60), behavior divergence (mean pairwise normalized L1 distance between
+/// same-profession agents' daily activity histograms), plus camp stocks and how much of the day the fire burned.
+/// Read-only: never changes the world.
+/// </summary>
+public sealed class CampMetrics
+{
+    private readonly int _actions;
+    private readonly int _idle, _rest, _sleep;
+    private long _lastMinute = -1;
+    private int _minutes, _awake, _idleMinutes, _lowNeed, _agentMinutes, _fireMinutes;
+    private double _moodSum;
+    private int _moodN;
+    private float[][] _hist = [];
+    private double[] _dayMood = [];
+
+    public CampMetrics(ContentDatabase content)
+    {
+        _actions = content.Actions.Count;
+        int H(string id) => ContentDatabase.HandleOf(content.Actions, id, a => a.Id);
+        (_idle, _rest, _sleep) = (H("action.idle"), H("action.rest"), H("action.sleep"));
+    }
+
+    public List<CampDay> Days { get; } = [];
+
+    public void Sample(SimWorld world)
+    {
+        var minute = world.Clock.GameMs / 60_000;
+        if (minute == _lastMinute || world.Camp.Active == 0) { return; }
+        _lastMinute = minute;
+        var p = world.People;
+        if (_hist.Length != p.Count)
+        {
+            _hist = [.. Enumerable.Range(0, p.Count).Select(_ => new float[_actions + 1])];
+            _dayMood = new double[p.Count];
+        }
+
+        _minutes++;
+        if (world.Camp.FireFuelMin > 0f) { _fireMinutes++; }
+        for (var i = 0; i < p.Count; i++)
+        {
+            var a = p.Activity[i].Action;
+            _hist[i][a < 0 ? _actions : a]++;
+            _agentMinutes++;
+            var n = p.Needs[i];
+            if (n.Satiety < 15f || n.Hydration < 15f || n.Energy < 15f) { _lowNeed++; }
+            if (a != _sleep)
+            {
+                _awake++;
+                if (a == _idle || a == _rest) { _idleMinutes++; }
+            }
+
+            _dayMood[i] += p.Mood[i].Smoothed;
+            _moodSum += p.Mood[i].Smoothed;
+            _moodN++;
+        }
+    }
+
+    /// <summary>Closes the current game day (call at each day boundary).</summary>
+    public CampDay EndDay(SimWorld world)
+    {
+        var p = world.People;
+        var breaking = 0;
+        for (var i = 0; i < _dayMood.Length; i++) { if (_minutes > 0 && _dayMood[i] / _minutes < -60) { breaking++; } }
+        var day = new CampDay(
+            _awake == 0 ? 0 : _idleMinutes / (double)_awake,
+            _agentMinutes == 0 ? 0 : _lowNeed / (double)_agentMinutes,
+            _moodN == 0 ? 0 : _moodSum / _moodN,
+            _dayMood.Length == 0 ? 0 : breaking / (double)_dayMood.Length,
+            Divergence(p),
+            world.Camp.Food, world.Camp.Firewood,
+            _minutes == 0 ? 0 : _fireMinutes / (double)_minutes);
+        Days.Add(day);
+        (_minutes, _awake, _idleMinutes, _lowNeed, _agentMinutes, _fireMinutes, _moodSum, _moodN) = (0, 0, 0, 0, 0, 0, 0, 0);
+        foreach (var h in _hist) { Array.Clear(h); }
+        Array.Clear(_dayMood);
+        return day;
+    }
+
+    private double Divergence(PersonTable p)
+    {
+        if (_hist.Length < 2) { return 0; }
+        var total = 0.0;
+        var pairs = 0;
+        for (var a = 0; a < _hist.Length; a++)
+        {
+            for (var b = a + 1; b < _hist.Length; b++)
+            {
+                if (p.Personality[a].Profession != p.Personality[b].Profession) { continue; }   // same role only
+                float sa = _hist[a].Sum(), sb = _hist[b].Sum();
+                if (sa == 0 || sb == 0) { continue; }
+                var l1 = 0.0;
+                for (var k = 0; k < _hist[a].Length; k++) { l1 += Math.Abs((_hist[a][k] / sa) - (_hist[b][k] / sb)); }
+                total += l1 / 2;   // normalized to 0–1
+                pairs++;
+            }
+        }
+
+        return pairs == 0 ? 0 : total / pairs;
+    }
+
+    /// <summary>21 §19 task failure for the run (activities failed / started).</summary>
+    public static double TaskFailure(SimWorld world)
+        => world.Systems.OfType<ActivitySystem>().FirstOrDefault() is { Started: > 0 } a ? a.Abandoned / (double)a.Started : 0;
+}

@@ -138,3 +138,28 @@ public sealed class UtilityAiTests
         return dir?.FullName ?? throw new DirectoryNotFoundException("repo root");
     }
 }
+
+/// <summary>M1-02b: the 21 §19 camp metrics, on a few seeds (the full 100-seed sweep runs via `feudalsim sweep` and CI).</summary>
+public sealed class CampMetricsTests
+{
+    [Fact]
+    public void ThreeSeeds_TenDays_MetricsInTheirBands()
+    {
+        var root = new DirectoryInfo(AppContext.BaseDirectory);
+        while (!File.Exists(Path.Combine(root.FullName, "FeudalSim.sln"))) { root = root.Parent!; }
+        var content = ContentCompiler.Compile(Path.Combine(root.FullName, "content")).Database!;
+        var camp = ScenarioDef.Load(Path.Combine(root.FullName, "content", "scenarios", "m1_camp.yaml")) with { Days = 10 };
+        foreach (var seed in new ulong[] { 1, 2, 3 })
+        {
+            var run = ScenarioRunner.Run(camp with { Seed = seed }, content, threads: 1);
+            var s = run.Camp.ShouldNotBeNull();
+            s.LowNeedShare.ShouldBeLessThan(0.03);
+            s.MoodMean.ShouldBeInRange(-10, 30);
+            s.BreakingShare.ShouldBeLessThan(0.05);
+            s.Divergence.ShouldBeGreaterThanOrEqualTo(0.15);
+            s.TaskFailure.ShouldBeLessThan(0.05);
+            s.IdleRate.ShouldBeInRange(0.05, 0.35);   // band 0.10–0.25 holds for ≥ 90% of seeds; a single seed may sit just outside
+            run.Days.ShouldAllBe(d => d.Camp != null);
+        }
+    }
+}
