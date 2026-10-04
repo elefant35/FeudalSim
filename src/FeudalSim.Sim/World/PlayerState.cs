@@ -1,6 +1,6 @@
 namespace FeudalSim.Sim.World;
 
-/// <summary>The player's body pose as last reported by the client (M0: the player is not yet a Person row).</summary>
+/// <summary>The player's body pose as last reported by the client (saved and hashed; the character itself is a Person row, M1-04b).</summary>
 public struct PlayerState
 {
     public bool Present;

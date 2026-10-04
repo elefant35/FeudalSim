@@ -18,6 +18,9 @@ public enum CommandSource : byte { Player, Embodiment, Ai, Settings, Scenario, D
 [Union(6, typeof(Decisions.DecisionMade))]
 [Union(7, typeof(HoldAiRequests))]
 [Union(8, typeof(SetLodTier))]
+[Union(9, typeof(StartConversation))]
+[Union(10, typeof(EndConversation))]
+[Union(11, typeof(PlayerUtteranceClassified))]
 public abstract record StateCommand;
 
 /// <summary>Changes the real-minutes-per-game-day setting (canon §6). Logged; applies at the next step.</summary>
@@ -28,7 +31,7 @@ public sealed record SetDayLength([property: Key(0)] int Minutes) : StateCommand
 /// Scenario/dev command: create a person at a home position (metres, X east, −Z north). The sim generates their
 /// personality, attributes and skills from the world seed and their id (M1-01). Optional: culture and profession ids
 /// (default <c>culture.varrow</c>; a drawn homeland trade) and age in years (0 = drawn adult age). Keys 3–5 were added
-/// in M1; logs written before them read as the defaults.
+/// in M1; logs written before them read as the defaults. Key 6 (M1-04b) spawns the player's own character: at most one.
 /// </summary>
 [MessagePackObject]
 public sealed record SpawnPerson(
@@ -37,7 +40,8 @@ public sealed record SpawnPerson(
     [property: Key(2)] float Z,
     [property: Key(3)] string? Culture = null,
     [property: Key(4)] string? Profession = null,
-    [property: Key(5)] int AgeYears = 0) : StateCommand;
+    [property: Key(5)] int AgeYears = 0,
+    [property: Key(6)] bool IsPlayer = false) : StateCommand;
 
 /// <summary>
 /// While held, new AI requests resolve at once with their template instead of going out (logged, so replays match).
@@ -53,6 +57,29 @@ public sealed record HoldAiRequests([property: Key(0)] bool Hold) : StateCommand
 /// </summary>
 [MessagePackObject]
 public sealed record SetLodTier([property: Key(0)] Core.EntityId Person, [property: Key(1)] World.LodTier Tier) : StateCommand;
+
+/// <summary>The player starts talking to an NPC within 6 m (22 §4.11). The NPC is held in <c>action.converse</c> until it ends.</summary>
+[MessagePackObject]
+public sealed record StartConversation([property: Key(0)] Core.EntityId Npc) : StateCommand;
+
+/// <summary>The player ends a conversation (walks off, says goodbye).</summary>
+[MessagePackObject]
+public sealed record EndConversation([property: Key(0)] ulong Conversation) : StateCommand;
+
+/// <summary>
+/// One player turn, after sanitizing and classification by the gateway (22 §4.4–4.6): the classified act (catalog v2
+/// id), its probability, the injection probability (≥ 0.3 → this turn's DPs go to the policy) and the sanitized text.
+/// The M1-04b form; extraction records and full probabilities are appended as keys in M1-11. Applying it advances the
+/// turn and opens the NPC's decision points for that turn.
+/// </summary>
+[MessagePackObject]
+public sealed record PlayerUtteranceClassified(
+    [property: Key(0)] ulong Conversation,
+    [property: Key(1)] int TurnIndex,
+    [property: Key(2)] string Act,
+    [property: Key(3)] float ActP,
+    [property: Key(4)] float Injection,
+    [property: Key(5)] string Text) : StateCommand;
 
 /// <summary>The player's body position as reported by the client each step (the player is always embodied).</summary>
 [MessagePackObject]

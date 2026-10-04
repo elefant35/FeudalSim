@@ -1,5 +1,12 @@
 namespace FeudalSim.Sim.World;
 
+/// <summary>Bits of <see cref="PersonCore.Flags"/>.</summary>
+public static class PersonFlags
+{
+    /// <summary>The player's own character: a person like any other (parity), but chosen for by the human, never by the AI (21 §16).</summary>
+    public const uint Player = 1;
+}
+
 /// <summary>Identity and life facts (rules owned by 16). Names live in a parallel column.</summary>
 public struct PersonCore
 {
@@ -84,6 +91,9 @@ public struct Mood
 public struct ActivityState
 {
     public const byte Asleep = 1, Interacting = 2, Purposeful = 4;
+
+    /// <summary>In a conversation (21 §14.4: <c>action.converse</c> holds the NPC) and waiting on its own decision points (§14.6).</summary>
+    public const byte Conversing = 8, Deliberating = 16;
 
     public short Action;
     public byte Phase;   // 0 travelling to the place, 1 performing

@@ -127,3 +127,17 @@
   activity: heavy
   requires: { threat: 1 }
   schedule_block: any
+- id: action.converse
+  name: Talk with someone
+  class: p3
+  weight_need: social
+  place: here
+  duration_min: 30
+  activity: rest
+  need_per_hour: { social: 40 }
+  social: true
+  schedule_block: social
+  facet_k: { sociability: 0.30 }
+  chosen_by_system: true
+  # 21 §14.4: a conversation with the player holds the NPC here (LOD0) until it ends; the scorer never picks it, but its
+  # score is the "stay" side of the end_conversation propensity.

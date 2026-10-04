@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://feudalsim.dev/schemas/dp.schema.json",
+  "title": "DecisionDef",
+  "description": "A list of dp definitions (generated from FeudalSim.Sim.Content.DecisionDef; do not edit).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^dp(\\.[a-z0-9_]\u002B)\u002B$"
+      },
+      "owner": {
+        "type": "string",
+        "minLength": 1
+      },
+      "options": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "family": {
+              "type": "string",
+              "minLength": 1
+            },
+            "stakes": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high",
+                "critical"
+              ]
+            },
+            "base_weight": {
+              "type": "number"
+            },
+            "utility_key": {
+              "type": "string",
+              "minLength": 1
+            },
+            "facet_k": {
+              "type": "object"
+            },
+            "value_tags": {
+              "type": "object"
+            },
+            "outlet": {
+              "type": "string",
+              "minLength": 1
+            },
+            "need": {
+              "type": "string",
+              "minLength": 1
+            },
+            "direction": {
+              "type": "integer"
+            },
+            "favors_player": {
+              "type": "boolean"
+            },
+            "gloss": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "id",
+            "family",
+            "stakes",
+            "gloss"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "description": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [
+      "id",
+      "owner",
+      "options"
+    ],
+    "additionalProperties": false
+  }
+}

@@ -196,6 +196,12 @@ public partial class SimHost : Node3D
         Embody(snapshot, (float)delta);
         for (var i = 0; i < snapshot.Count; i++)
         {
+            if (snapshot.IsPlayer[i])
+            {
+                mm.SetInstanceTransform(i, new Transform3D(Basis.Identity.Scaled(Vector3.Zero), Vector3.Zero));   // the "you" marker stands in
+                continue;
+            }
+
             var basis = new Basis(Vector3.Up, -snapshot.Yaw[i]);
             var at = _bodies.TryGetValue(snapshot.Ids[i], out var body) ? body : new Vector2(snapshot.X[i], snapshot.Z[i]);
             mm.SetInstanceTransform(i, new Transform3D(basis, new Vector3(at.X, 0.85f, at.Y)));
@@ -219,7 +225,7 @@ public partial class SimHost : Node3D
 
         var date = Sim.Time.GameDate.FromGameMs(snapshot.GameMs);
         _overlay.Text = $"FeudalSim · {_scenarioId} · {date} · step {snapshot.Step} · {_stepsPerSecond:F1} steps/s · ×{_timeScale} · {_runner.Mode}\n" +
-                        $"{snapshot.Count} settlers · [Space] pause · [1][2][4][8] speed · WASD/arrows pan · wheel zoom" +
+                        $"{snapshot.Count - (snapshot.IsPlayer.AsSpan(0, snapshot.Count).Contains(true) ? 1 : 0)} settlers · [Space] pause · [1][2][4][8] speed · WASD/arrows pan · wheel zoom" +
                         (_aiStatus.Length > 0 ? $" · {_aiStatus}" : "");
         if (snapshot.CampActive)
         {
@@ -256,7 +262,7 @@ public partial class SimHost : Node3D
         var live = new HashSet<ulong>();
         for (var i = 0; i < snap.Count; i++)
         {
-            if (snap.Tier[i] != 0) { continue; }
+            if (snap.Tier[i] != 0 || snap.IsPlayer[i]) { continue; }
             var id = snap.Ids[i];
             live.Add(id);
             var pos = _bodies.TryGetValue(id, out var p) ? p : new Vector2(snap.X[i], snap.Z[i]);

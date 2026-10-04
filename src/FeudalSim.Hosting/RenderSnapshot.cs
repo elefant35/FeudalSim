@@ -20,6 +20,10 @@ public sealed class RenderSnapshot
     /// <summary>Current action handle per settler (−1 none); M1 camp view colours by it.</summary>
     public short[] Action = new short[64];
 
+    /// <summary>The player's own character (not drawn as a settler); activity flags (conversing, deliberating…).</summary>
+    public bool[] IsPlayer = new bool[64];
+    public byte[] ActivityFlags = new byte[64];
+
     /// <summary>Camp stocks (M1 graybox camp): food in Satiety points, firewood bundles, minutes of fire left.</summary>
     public float Food, Firewood, FireFuelMin;
     public bool CampActive;
@@ -35,6 +39,8 @@ public sealed class RenderSnapshot
             Ids = new ulong[size]; X = new float[size]; Z = new float[size]; Yaw = new float[size];
             Tier = new byte[size]; TargetX = new float[size]; TargetZ = new float[size]; HasTarget = new bool[size];
             Action = new short[size];
+            IsPlayer = new bool[size];
+            ActivityFlags = new byte[size];
         }
 
         Count = p.Count;
@@ -49,6 +55,8 @@ public sealed class RenderSnapshot
             TargetZ[i] = p.Wander[i].TargetZ;
             HasTarget[i] = p.Wander[i].HasTarget;
             Action[i] = p.Activity[i].Action;
+            IsPlayer[i] = world.IsPlayer(i);
+            ActivityFlags[i] = p.Activity[i].Flags;
         }
 
         CampActive = world.Camp.Active != 0;

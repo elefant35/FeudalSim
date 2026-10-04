@@ -42,7 +42,8 @@
           "shelter",
           "woods",
           "forage_ground",
-          "home"
+          "home",
+          "here"
         ]
       },
       "duration_min": {
@@ -113,6 +114,9 @@
       },
       "facet_k": {
         "type": "object"
+      },
+      "chosen_by_system": {
+        "type": "boolean"
       },
       "stock_pressure": {
         "type": "object",

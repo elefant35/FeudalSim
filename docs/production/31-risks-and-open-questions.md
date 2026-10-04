@@ -135,7 +135,7 @@ marked **[Resolved — canon v0.2]** in place.
 | [18 Conflict & warfare](../design/18-conflict-and-warfare.md#open-questions) | 8 (1 resolved) |
 | [19 Player experience](../design/19-player-experience.md#open-questions) | 7 (1 resolved) |
 | [20 Architecture](../tech/20-architecture.md#open-questions) | 17 (2 resolved) |
-| [21 NPC AI](../tech/21-npc-ai.md#open-questions) | 7 (1 resolved) |
+| [21 NPC AI](../tech/21-npc-ai.md#open-questions) | 13 (1 resolved) |
 | [22 LLM integration](../tech/22-llm-integration.md#open-questions) | 10 (1 resolved) |
 | [30 Roadmap](30-roadmap.md#10-open-questions) | 3 |
 | [32 Art & audio production](32-art-and-audio-production.md#19-open-questions) | 5 |

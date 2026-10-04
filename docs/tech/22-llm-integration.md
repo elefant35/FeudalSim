@@ -913,6 +913,13 @@ events. `MenuOption` carries the fields above except `SayFacts` (M1, with decisi
 rebuilt menu and runs the DP watchdog. Until M1's decision-first route exists, a DP whose `MaxDecider`
 is `Llm` is answered by the fast decider, then "policy, now".
 
+*M1-04b:* menus are content — `content/decisions/*.yaml` (kind `dp`: per option the family, stakes, facet / trait
+utility / value / emotion / need terms, `favors_player`, and a gloss with `{param}` slots). Owners decide which options
+are generated and eligible and supply source strengths; the DRE and §7.8 do the rest. `PlayerUtteranceClassified` exists
+in a first form (conversation, turn, act, act probability, injection probability, sanitized text); the extraction
+record and full probabilities are appended in M1-11. Each turn currently opens the initiative DP; response DPs arrive
+with their owners (M1-08 escalation, M1-09 social, M1-10 trade).
+
 **Stakes** (canon §13.1) set the guard floor and the risk tier:
 
 | Stakes | Typical options | Floor | Tier | Extra check |

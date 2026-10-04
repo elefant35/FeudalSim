@@ -40,7 +40,6 @@ public sealed class InteractionSystem : ISimSystem
     // The claim voiced in this interaction and the listener's choice (for overheard rendering); −1 if none.
     private int _voiced = -1, _voicedBy = -1;
     private ToldOption _voicedOption;
-    private long _overheardRequest = -1;
 
     /// <summary>Overheard talk is rendered within this distance of the player (22 §9.2: LOD0 within 15 m).</summary>
     public const float EarshotM = 15f;
@@ -85,7 +84,7 @@ public sealed class InteractionSystem : ISimSystem
         for (var i = 0; i < people.Count; i++)
         {
             ref readonly var act = ref people.Activity[i];
-            if (act.Action < 0 || act.Has(ActivityState.Asleep) || !SocialSystem.Local(people, i)) { continue; }   // walking counts: speaking range below
+            if (act.Action < 0 || act.Has(ActivityState.Asleep) || act.Has(ActivityState.Conversing) || !SocialSystem.Local(people, i)) { continue; }   // walking counts: speaking range below
             ref readonly var p = ref people.Personality[i];
             ref readonly var e = ref people.Emotions[i];
             var budget = 2f + (p.Sociability / 16f) + (people.Needs[i].Social < 40f ? 1f : 0f) - (e.Grief / 30f);
@@ -101,7 +100,7 @@ public sealed class InteractionSystem : ISimSystem
             for (var j = 0; j < people.Count; j++)
             {
                 ref readonly var b = ref people.Activity[j];
-                if (j == i || b.Action < 0 || b.Has(ActivityState.Asleep) || !SocialSystem.Local(people, j) || !InRange(world, i, j)) { continue; }
+                if (j == i || b.Action < 0 || b.Has(ActivityState.Asleep) || b.Has(ActivityState.Conversing) || !SocialSystem.Local(people, j) || !InRange(world, i, j)) { continue; }
                 if (InteractionsToday(world, i, j) >= 4) { continue; }
                 partners[n++] = j;
             }
@@ -421,10 +420,10 @@ public sealed class InteractionSystem : ISimSystem
         }
 
         world.Emit(Salience.Trace, a, new InteractionResolved(a, b, KindNames[(int)kind], success));
-        if (world.Player.Present && (_overheardRequest < 0 || !world.IsAiPending(_overheardRequest)) && (Near(world, i) || Near(world, j)))
+        if (world.Player.Present && !world.IsAiPending(Ai.AiTaskKind.Overheard) && (Near(world, i) || Near(world, j)))
         {
             // The facts' "a" is whoever voiced the claim (the responder, when only the share-back carried news).
-            _overheardRequest = _voiced >= 0 && _voicedBy == j
+            _ = _voiced >= 0 && _voicedBy == j
                 ? Overheard.Request(world, j, i, KindNames[(int)kind], success, _voiced, _voicedOption)
                 : Overheard.Request(world, i, j, KindNames[(int)kind], success, _voiced, _voicedOption);
         }

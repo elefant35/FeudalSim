@@ -52,6 +52,9 @@ public sealed class SimWorld
     /// <summary>Relationships (16 §4): opinion, trust, familiarity, fear, tags.</summary>
     public Social.RelationshipStore Relationships { get; }
 
+    /// <summary>Conversations with the player (21 §14.4, 22 §4.11).</summary>
+    public Dialogue.ConversationStore Conversations { get; } = new();
+
     /// <summary>The M1 graybox camp: places and shared stocks (inactive in M0 scenarios).</summary>
     public CampRecord Camp;
 
@@ -60,6 +63,21 @@ public sealed class SimWorld
 
     /// <summary>The player's last reported pose (set by logged <see cref="PlayerMoved"/> commands).</summary>
     public PlayerState Player;
+
+    /// <summary>The player's own Person row, if spawned (<see cref="PersonFlags.Player"/>); derived from the flag on load.</summary>
+    public EntityId PlayerId { get; private set; }
+
+    /// <summary>Row of the player's character, or −1.</summary>
+    public int PlayerRow => PlayerId.IsNone ? -1 : People.IndexOf(PlayerId);
+
+    /// <summary>True for the player's character: AI, psychology and NPC↔NPC systems skip it (21 §16).</summary>
+    public bool IsPlayer(int row) => (People.Core[row].Flags & PersonFlags.Player) != 0;
+
+    internal void RestorePlayerId()
+    {
+        PlayerId = EntityId.None;
+        for (var i = 0; i < People.Count; i++) { if (IsPlayer(i)) { PlayerId = People.Ids[i]; } }
+    }
 
     /// <summary>Set by <see cref="HoldAiRequests"/> while a save waits; not saved (a restored world is never holding).</summary>
     public bool AiHeld { get; private set; }
@@ -203,6 +221,12 @@ public sealed class SimWorld
                     break;
                 }
 
+                if (c.IsPlayer && !PlayerId.IsNone)
+                {
+                    Reject(command, "The player's character already exists.");
+                    break;
+                }
+
                 var id = Ids.Next(EntityKind.Person);
                 var newRow = People.Add(id, c.Name, new PersonCore { BirthGameMinute = Clock.GameMinute },
                     new Transform { X = c.X, Z = c.Z }, Needs.Full);
@@ -212,6 +236,14 @@ public sealed class SimWorld
                     profession < 0 ? Personality.None : (ushort)profession, c.AgeYears);
                 People.Core[newRow].BirthGameMinute = Clock.GameMinute - (age * GameDate.MinutesPerYear);
                 People.Lod[newRow].LastUpdateGameMs = Clock.GameMs - Clock.GameMsPerStep;   // first update integrates one step
+                if (c.IsPlayer)
+                {
+                    People.Core[newRow].Flags |= PersonFlags.Player;
+                    People.Lod[newRow].Tier = LodTier.Lod0;   // the player is always embodied
+                    People.Lod[newRow].Embodied = true;
+                    PlayerId = id;
+                }
+
                 Emit(Salience.Minor, id, new PersonSpawned(id, c.Name));
                 break;
 
@@ -233,6 +265,18 @@ public sealed class SimWorld
                 break;
             }
 
+            case StartConversation c:
+                Dialogue.ConversationSystem.Start(this, command, c);
+                break;
+
+            case EndConversation c:
+                Dialogue.ConversationSystem.EndByPlayer(this, command, c);
+                break;
+
+            case PlayerUtteranceClassified c:
+                Dialogue.ConversationSystem.Utterance(this, command, c);
+                break;
+
             case HoldAiRequests c:
                 AiHeld = c.Hold;
                 break;
@@ -240,6 +284,12 @@ public sealed class SimWorld
             case PlayerMoved c:
                 if (!float.IsFinite(c.X) || !float.IsFinite(c.Z)) { Reject(command, "Invalid player pose."); break; }
                 Player = new PlayerState { Present = true, X = c.X, Z = c.Z, Yaw = c.Yaw };
+                if (PlayerRow is var pr and >= 0)
+                {
+                    ref var pt = ref People.Transforms[pr];
+                    (pt.X, pt.Z, pt.Yaw) = (c.X, c.Z, c.Yaw);
+                }
+
                 break;
 
             case EmbodimentReport c:
@@ -338,6 +388,13 @@ public sealed class SimWorld
     }
 
     public bool IsAiPending(long requestId) => _aiPending.ContainsKey(requestId);
+
+    /// <summary>True if a request of this kind is in flight (state: survives save/load, unlike a system's memory of an id).</summary>
+    public bool IsAiPending(AiTaskKind kind)
+    {
+        foreach (var r in _aiPending.Values) { if (r.Kind == kind) { return true; } }
+        return false;
+    }
 
     private void SweepAiDeadlines(long step)
     {

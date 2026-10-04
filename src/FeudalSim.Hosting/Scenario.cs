@@ -38,8 +38,13 @@ public sealed record ScenarioDef
     /// <summary>The graybox camp for <c>ai: utility</c> (places in metres; stocks; sleep bedding; schedule id).</summary>
     public CampDef? Camp { get; init; }
 
-    /// <summary>Optional player position <c>[x, z]</c> (metres), sent as a logged <c>PlayerMoved</c>: headless runs can overhear talk (22 §9.2).</summary>
+    /// <summary>
+    /// Optional player position <c>[x, z]</c> (metres): spawns the player's own character (a Person row flagged as the
+    /// player, M1-04b) and sends a logged <c>PlayerMoved</c>, so headless runs can overhear and hold conversations.
+    /// </summary>
     public float[]? Player { get; init; }
+
+    public string PlayerName { get; init; } = "Tam";
 
     /// <summary>
     /// Optional tier mix for headless scale runs (S6): how many settlers, from the end of the roster, are pinned to LOD2
@@ -83,7 +88,14 @@ public sealed record ScenarioDef
     {
         var utility = string.Equals(Ai, "utility", StringComparison.OrdinalIgnoreCase);
         var world = new SimWorld(Seed, StartGameMs(), DayLengthMinutes) { Content = content, Jobs = jobs }
-            .AddSystem(new LodSystem())
+            .AddSystem(new LodSystem());
+        if (utility)
+        {
+            world.AddSystem(new Sim.Dialogue.ConversationSystem());   // Sense, after LOD: holds conversing NPCs before the AI decides
+            world.Decisions.Register(new Sim.Dialogue.InitiativeOwner());
+        }
+
+        world
             .AddSystem(utility ? new ActivitySystem() : new WanderSystem())
             .AddSystem(new NeedsDecaySystem())
             .AddSystem(new PsychologySystem());
@@ -109,7 +121,11 @@ public sealed record ScenarioDef
         }
 
         var seq = (long)Settlers;
-        if (Player is [var px, var pz]) { world.Enqueue(new CommandEnvelope(++seq, 0, CommandSource.Scenario, new PlayerMoved(px, pz, 0f))); }
+        if (Player is [var px, var pz])
+        {
+            world.Enqueue(new CommandEnvelope(++seq, 0, CommandSource.Scenario, new SpawnPerson(PlayerName, px, pz, IsPlayer: true)));
+            world.Enqueue(new CommandEnvelope(++seq, 0, CommandSource.Scenario, new PlayerMoved(px, pz, 0f)));
+        }
         if (Tiers is { } mix)
         {
             // Spawns apply in step 1, so the tier pins go in with them (same step, later Seq): ids are 1..Settlers in order.

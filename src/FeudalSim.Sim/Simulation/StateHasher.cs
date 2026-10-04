@@ -38,10 +38,12 @@ public static class StateHasher
         h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<Mood>)people.Mood));
         h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<ActivityState>)people.Activity));
         h.Append(MemoryMarshal.AsBytes(new ReadOnlySpan<CampRecord>(in world.Camp)));
+        h.Append(MemoryMarshal.AsBytes(new ReadOnlySpan<PlayerState>(in world.Player)));
         h.Append(people.SkillLevelsAll);
         h.Append(people.SkillAptitudeAll);
         world.Decisions.HashInto(h);
         world.HashAiInto(h);
+        world.Conversations.HashInto(h);
         world.Relationships.HashInto(h);
         world.Memories.HashInto(h);
         world.Claims.HashInto(h);

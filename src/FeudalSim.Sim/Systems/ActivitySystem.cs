@@ -66,9 +66,11 @@ public sealed class ActivitySystem : ISimSystem
         }
 
         var due = world.Due;
+        var playerRow = world.PlayerRow;
         for (var k = 0; k < due.Count; k++)
         {
             var i = due.Rows[k];
+            if (i == playerRow) { continue; }   // the human chooses (21 §16)
             ref var act = ref people.Activity[i];
             switch (people.Lod[i].Tier)
             {
@@ -83,6 +85,12 @@ public sealed class ActivitySystem : ISimSystem
                     break;
 
                 default:
+                    if (act.Has(ActivityState.Conversing))
+                    {
+                        Perform(ctx, world, i, socialCount, due.Dt(k), coarse: false);   // held by the conversation (21 §14.4)
+                        break;
+                    }
+
                     var decide = act.Action < 0 || ctx.GameMs >= act.EndGameMs || ctx.GameMs >= act.NextDecideGameMs || CriticalElsewhere(people.Needs[i], act);
                     if (decide) { Decide(ctx, world, i, block); }
                     Perform(ctx, world, i, socialCount, due.Dt(k), coarse: false);
@@ -157,6 +165,39 @@ public sealed class ActivitySystem : ISimSystem
         };
     }
 
+    /// <summary>
+    /// 21 §14.4 stay utility for a conversing person: the best other action's score over the score of staying in
+    /// <c>action.converse</c> (with momentum). Read-only. 1 when the content has no converse action.
+    /// </summary>
+    public float StayRatio(SimWorld world, int row)
+    {
+        var (best, stay, _) = StayScores(world, row);
+        return stay <= 0f ? 10f : best / stay;
+    }
+
+    /// <summary>The handle of the best action other than conversing (the NPC's reason to leave), or −1.</summary>
+    public int BestAlternative(SimWorld world, int row) => StayScores(world, row).Best;
+
+    private (float BestScore, float Stay, int Best) StayScores(SimWorld world, int row)
+    {
+        Cache(world.Content, world.Camp.Schedule);
+        var converse = Array.FindIndex(_actions, a => a.Id == "action.converse");
+        if (converse < 0) { return (1f, 1f, -1); }
+        var block = BlockAt(GameMinuteOfDay(world.Clock.GameMs));
+        var stay = Score(world, row, converse, block, converse, out var stayClass, out _);
+        float best = 0f;
+        var bestK = -1;
+        for (var k = 0; k < _actions.Length; k++)
+        {
+            if (k == converse) { continue; }
+            var s = Score(world, row, k, block, converse, out var cls, out _);
+            if (cls < stayClass) { s *= 4f; }   // a more urgent class (a critical need) dominates staying
+            if (s > best) { (best, bestK) = (s, k); }
+        }
+
+        return (best, stay, bestK);
+    }
+
     private readonly record struct Factors(float W, float C, float PV, float E, float S, float M);
 
     private void RecordTrace(int rows, int i, long gameMs, float tau, short chosen, bool kept, Span<float> score, Span<int> cls, Span<Factors> f)
@@ -193,6 +234,7 @@ public sealed class ActivitySystem : ISimSystem
         ref readonly var e = ref people.Emotions[i];
         ref readonly var t = ref people.Transforms[i];
         cls = (int)def.Class;
+        if (def.ChosenBySystem && k != current) { return 0f; }   // e.g. converse: started by a conversation, never by the scorer
 
         // Availability and satiation are hard gates.
         if (def.Requires is { } req) { foreach (var (stock, min) in req) { if (world.Camp.Stock(stock) < min) { return 0f; } } }
@@ -297,7 +339,7 @@ public sealed class ActivitySystem : ISimSystem
             {
                 var rate = perHour;
                 if (need == "energy" && def.Activity == ActivityLevel.Sleep) { rate *= world.Camp.Bedding; }
-                if (def.Social && socialCount < 2) { rate *= 0.25f; }   // nobody else to talk to
+                if (def.Social && socialCount < 2 && !act.Has(ActivityState.Conversing)) { rate *= 0.25f; }   // nobody else to talk to
                 var gain = MathF.Min(rate * dtH, 100f - Need(n, need));
                 if (def.Consumes is { } cons && gain > 0f)
                 {

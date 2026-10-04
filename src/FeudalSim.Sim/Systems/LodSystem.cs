@@ -24,10 +24,12 @@ public sealed class LodSystem : ISimSystem
         var p = world.People;
         var lod = p.Lod;
         var embodied = 0;
-        for (var i = 0; i < p.Count; i++) { if (lod[i].Tier == LodTier.Lod0) { embodied++; } }
+        var playerRow = world.PlayerRow;
+        for (var i = 0; i < p.Count; i++) { if (lod[i].Tier == LodTier.Lod0 && i != playerRow) { embodied++; } }
 
         for (var i = 0; i < p.Count; i++)
         {
+            if (i == playerRow) { continue; }   // always LOD0, embodied by the client
             ref var l = ref lod[i];
             if (!player.Present)
             {

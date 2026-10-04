@@ -18,6 +18,9 @@ public enum Salience : byte { Trace, Minor, Notable, Major, Historic }
 [Union(9, typeof(IntegrityMismatch))]
 [Union(10, typeof(InteractionResolved))]
 [Union(11, typeof(GossipExchanged))]
+[Union(12, typeof(ConversationStarted))]
+[Union(13, typeof(ConversationEnded))]
+[Union(14, typeof(InitiativeTaken))]
 public abstract record DomainEvent;
 
 [MessagePackObject]
@@ -94,3 +97,19 @@ public sealed record GossipExchanged(
     [property: Key(3)] int Root,
     [property: Key(4)] bool Mutated,
     [property: Key(5)] Social.ToldOption Option) : DomainEvent;
+
+/// <summary>A conversation with the player opened (21 §14.4, 22 §4.11).</summary>
+[MessagePackObject]
+public sealed record ConversationStarted([property: Key(0)] ulong Conversation, [property: Key(1)] EntityId Npc, [property: Key(2)] EntityId Player) : DomainEvent;
+
+/// <summary>A conversation ended: <c>player</c>, <c>npc</c> (end_conversation), <c>left</c> (out of range), <c>p0</c> (interrupt), <c>asleep</c>.</summary>
+[MessagePackObject]
+public sealed record ConversationEnded([property: Key(0)] ulong Conversation, [property: Key(1)] EntityId Npc, [property: Key(2)] string Reason) : DomainEvent;
+
+/// <summary>The NPC acted on its own initiative in a conversation (21 §14.5): an offer the player may answer, or a telling.</summary>
+[MessagePackObject]
+public sealed record InitiativeTaken(
+    [property: Key(0)] ulong Conversation,
+    [property: Key(1)] EntityId Npc,
+    [property: Key(2)] string Option,
+    [property: Key(3)] Decisions.OptionParam[] Params) : DomainEvent;

@@ -33,7 +33,7 @@ public sealed class PsychologySystem(float comfortTarget = PsychologySystem.Land
         for (var k = 0; k < due.Count; k++)
         {
             var i = due.Rows[k];
-            if (people.Lod[i].Tier == LodTier.Lod3) { continue; }   // Lod3System
+            if (people.Lod[i].Tier == LodTier.Lod3 || world.IsPlayer(i)) { continue; }   // Lod3System; the player has no psych needs (canon §10.5)
             if (due.Dt(k) != lastDt)
             {
                 lastDt = due.Dt(k);

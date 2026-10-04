@@ -138,7 +138,7 @@ public enum PriorityClass { P0, P1, P2, P3, P4 }
 public enum ActivityLevel : byte { Sleep, Rest, Light, Moderate, Heavy }
 
 /// <summary>Where an action happens in the M1 graybox camp; <c>Home</c> is the person's own spot.</summary>
-public enum PlaceKind { Fire, Water, Stores, Shelter, Woods, ForageGround, Home }
+public enum PlaceKind { Fire, Water, Stores, Shelter, Woods, ForageGround, Home, Here }
 
 public sealed record ConsumeSpec
 {
@@ -184,6 +184,9 @@ public sealed record ActionDef
     public string ScheduleBlock { get; init; } = "any";
     public IReadOnlyList<string>? UtilityKeys { get; init; }
     public IReadOnlyDictionary<string, float>? FacetK { get; init; }
+
+    /// <summary>Started by a system (a conversation holds the NPC in <c>action.converse</c>, 21 §14.4), never by the scorer.</summary>
+    public bool ChosenBySystem { get; init; }
     public StockPressureSpec? StockPressure { get; init; }
 }
 
@@ -200,6 +203,59 @@ public sealed record ScheduleDef
     public required string Id { get; init; }
     public required string Name { get; init; }
     public required IReadOnlyList<ScheduleBlockDef> Blocks { get; init; }
+}
+
+/// <summary>
+/// The fixed menu of one decision-point kind (canon §13.1, 22 §6.1): each option's family, stakes and the character terms
+/// the propensity layer (21 §7.8) applies. Owning systems decide which options are generated, eligible and how strongly
+/// motivated (sources); the numbers that shape them live here.
+/// </summary>
+public sealed record DecisionDef
+{
+    public required string Id { get; init; }
+
+    /// <summary>The owning system (e.g. <c>21.initiative</c>, <c>16.escalation</c>, <c>15.trade</c>).</summary>
+    public required string Owner { get; init; }
+
+    public required IReadOnlyList<DecisionOptionDef> Options { get; init; }
+    public string? Description { get; init; }
+}
+
+public sealed record DecisionOptionDef
+{
+    public required string Id { get; init; }
+
+    /// <summary>Calibration bucket (22 §6): rapport, request, trade, escalation, belief, disclosure, promise, intervention, stance…</summary>
+    public required string Family { get; init; }
+
+    public required Decisions.Stakes Stakes { get; init; }
+
+    /// <summary>Base weight before source strength and character terms.</summary>
+    public float BaseWeight { get; init; } = 1f;
+
+    /// <summary>Trait utility group (21 §4.3 <c>U[x]</c>), e.g. help, confront, chat, gather.</summary>
+    public string? UtilityKey { get; init; }
+
+    /// <summary>Facet multiplier <c>1 + k·z</c>: facet name → k (one entry).</summary>
+    public IReadOnlyDictionary<string, float>? FacetK { get; init; }
+
+    /// <summary>Signed value tags −1…+1 (21 §4.2).</summary>
+    public IReadOnlyDictionary<string, float>? ValueTags { get; init; }
+
+    /// <summary>Emotion the option is an outlet for (hijack fold-in, 21 §8.3).</summary>
+    public string? Outlet { get; init; }
+
+    /// <summary>Need the option serves (N = 1 + 0.5·u).</summary>
+    public string? Need { get; init; }
+
+    /// <summary>+1 favors the counterpart, −1 hostile, 0 neutral (21 §7.8 R term).</summary>
+    public int Direction { get; init; }
+
+    /// <summary>Counts against the long-shot budget when chosen at p &lt; 0.20 (canon §13.1).</summary>
+    public bool FavorsPlayer { get; init; }
+
+    /// <summary>Plain-English gloss for prompts; <c>{param}</c> slots are filled from the option's fixed parameters.</summary>
+    public required string Gloss { get; init; }
 }
 
 public enum OpinionStacking { Add, Saturate, Refresh, Once }
@@ -386,8 +442,9 @@ public sealed class ContentDatabase
         IReadOnlyList<TraitDef>? traits = null, IReadOnlyList<CultureDef>? cultures = null, IReadOnlyList<ProfessionDef>? professions = null,
         IReadOnlyList<ActionDef>? actions = null, IReadOnlyList<ScheduleDef>? schedules = null,
         IReadOnlyList<OpinionModifierDef>? opinionModifiers = null, IReadOnlyList<ClaimPredicateDef>? claimPredicates = null,
-        IReadOnlyList<OverheardLineDef>? overheardLines = null)
+        IReadOnlyList<OverheardLineDef>? overheardLines = null, IReadOnlyList<DecisionDef>? decisions = null)
     {
+        Decisions = decisions ?? [];
         OverheardLines = overheardLines ?? [];
         ClaimPredicates = claimPredicates ?? [];
         OpinionModifiers = opinionModifiers ?? [];
@@ -431,6 +488,11 @@ public sealed class ContentDatabase
     public IReadOnlyList<ClaimPredicateDef> ClaimPredicates { get; }
 
     public int ClaimHandle(string id) => HandleOf(ClaimPredicates, id, c => c.Id);
+
+    /// <summary>Decision-point menus in id order (<c>dp.*</c>).</summary>
+    public IReadOnlyList<DecisionDef> Decisions { get; }
+
+    public DecisionDef? Decision(string id) => HandleOf(Decisions, id, d => d.Id) is var h and >= 0 ? Decisions[h] : null;
 
     /// <summary>Overheard-talk template subtitles in id order.</summary>
     public IReadOnlyList<OverheardLineDef> OverheardLines { get; }

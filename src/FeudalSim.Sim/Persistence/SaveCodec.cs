@@ -55,6 +55,25 @@ public static class SaveCodec
         return chunk;
     }
 
+    public const string ConversationsTable = "conversations";
+    public const string PlayerTable = "player";
+
+    private static TableChunk PlayerChunk(in PlayerState player)
+    {
+        var chunk = new TableChunk { Table = PlayerTable, RowCount = 1 };
+        chunk.Columns.Add(new ColumnBlock { Name = "pose", LayoutVersion = 1, ElementSize = Marshal.SizeOf<PlayerState>(), Data = MemoryMarshal.AsBytes(new ReadOnlySpan<PlayerState>(in player)).ToArray() });
+        return chunk;
+    }
+
+    private static TableChunk ConversationsChunk(Dialogue.ConversationStore store)
+    {
+        var (open, lastId) = store.Export();
+        var chunk = new TableChunk { Table = ConversationsTable, RowCount = open.Length };
+        chunk.Columns.Add(new ColumnBlock { Name = "open", LayoutVersion = 1, ElementSize = 0, Data = MessagePackSerializer.Serialize(open) });
+        chunk.Columns.Add(new ColumnBlock { Name = "last_id", LayoutVersion = 1, ElementSize = 8, Data = BitConverter.GetBytes(lastId) });
+        return chunk;
+    }
+
     private static TableChunk RenownChunk(Social.ReputationStore store)
     {
         var rows = store.Export();
@@ -156,7 +175,7 @@ public static class SaveCodec
                 LastCommandSeq = world.LastCommandSeq,
             },
             IdCounters = counters,
-            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories), ClaimsChunk(world.Claims), BeliefsChunk(world.Beliefs), RenownChunk(world.Reputation), DecisionsChunk(world.Decisions), AiChunk(world)],
+            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories), ClaimsChunk(world.Claims), BeliefsChunk(world.Beliefs), RenownChunk(world.Reputation), DecisionsChunk(world.Decisions), AiChunk(world), ConversationsChunk(world.Conversations), PlayerChunk(world.Player)],
         };
     }
 
@@ -274,6 +293,22 @@ public static class SaveCodec
             else { notes.Add("AI table has an unknown layout; pending AI requests dropped."); }
         }
 
+        if (image.Tables.FirstOrDefault(t => t.Table == ConversationsTable) is { } convs)
+        {
+            if (convs.Columns.FirstOrDefault(c => c.Name == "open") is { LayoutVersion: 1 } open && convs.Columns.FirstOrDefault(c => c.Name == "last_id") is { Data.Length: 8 } last)
+            {
+                world.Conversations.Import(MessagePackSerializer.Deserialize<Dialogue.Conversation[]>(open.Data), BitConverter.ToUInt64(last.Data, 0));
+            }
+            else { notes.Add("Conversations table has an unknown layout; conversations dropped."); }
+        }
+
+        if (image.Tables.FirstOrDefault(t => t.Table == PlayerTable)?.Columns.FirstOrDefault(c => c.Name == "pose") is { } pose)
+        {
+            if (pose.ElementSize == Marshal.SizeOf<PlayerState>() && pose.Data.Length == pose.ElementSize) { world.Player = MemoryMarshal.Read<PlayerState>(pose.Data); }
+            else { notes.Add("Player table has an unknown layout; the player's pose is reset."); }
+        }
+
+        world.RestorePlayerId();
         warnings = notes;
         return world;
     }

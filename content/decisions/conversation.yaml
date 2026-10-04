@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=../schemas/dp.schema.json
+# Decision-point menus for conversations with the player (canon §13.1, 22 §6.1). Owners decide which options are
+# generated and eligible and how strongly motivated they are (sources); these entries hold each option's family,
+# stakes and character terms for the 21 §7.8 propensity layer. Glosses fill {slots} from the option's fixed parameters.
+- id: dp.conv_initiative
+  owner: 21.initiative
+  description: >-
+    21 §14.5 — what the NPC does on its own initiative this turn, beside its answer: at most 3 initiative options plus
+    `none` (just answer) and `end_conversation`. Sources available in M1: needs (ask_favor), emotions (challenge),
+    beliefs (accuse, warn, share_gossip) and the evening gathering (invite). Trade, obligations, courtship and guards
+    arrive with their systems (15, 16 obligations, 16 §11, 17).
+  options:
+    - id: none
+      family: initiative
+      stakes: low
+      gloss: just answer; no proposal of your own this turn
+    - id: end_conversation
+      family: initiative
+      stakes: low
+      gloss: end the conversation politely ({reason})
+    - id: ask_favor
+      family: request
+      stakes: low
+      utility_key: ask
+      facet_k: { sociability: 0.2 }
+      value_tags: { status: -0.3 }
+      need: energy
+      gloss: ask {player} to lend a hand with {task} for about an hour
+    - id: challenge
+      family: escalation
+      stakes: medium
+      utility_key: confront
+      facet_k: { volatility: 0.3 }
+      value_tags: { honor: 0.6 }
+      outlet: anger
+      direction: -1
+      gloss: challenge {player} to settle it with a wrestling bout at the fire
+    - id: accuse
+      family: belief
+      stakes: high
+      utility_key: confront
+      facet_k: { volatility: 0.2 }
+      value_tags: { fairness: 0.5 }
+      outlet: anger
+      direction: -1
+      gloss: accuse {player} to their face of what you believe they did ({claim})
+    - id: warn
+      family: belief
+      stakes: low
+      utility_key: help
+      facet_k: { warmth: 0.3 }
+      value_tags: { loyalty: 0.5 }
+      direction: 1
+      gloss: warn {player} about what is being said of them ({claim})
+    - id: share_gossip
+      family: disclosure
+      stakes: low
+      utility_key: gossip
+      facet_k: { sociability: 0.3 }
+      need: social
+      gloss: share the news that {claim}
+    - id: invite
+      family: rapport
+      stakes: low
+      utility_key: gather
+      facet_k: { sociability: 0.3 }
+      need: social
+      direction: 1
+      gloss: invite {player} to sit at the fire this evening

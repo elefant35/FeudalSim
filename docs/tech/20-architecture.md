@@ -742,6 +742,11 @@ Dense columns are blittable structs; sizes are estimates.
 | `Equipment` | 10 slots × `ItemRef` | 80 | [13](../design/13-crafting-and-minigames.md) / [18](../design/18-conflict-and-warfare.md) |
 | `Purse` | coin in farthings (`long`, canon §11) | 8 | [15](../design/15-economy-and-trade.md) |
 
+*The player (M1-04b):* the player's own character is a row in this table like everyone else (parity), flagged in
+`PersonCore.Flags` (`PersonFlags.Player`; scenario `player:` spawns it with `SpawnPerson{IsPlayer}`). It is always
+LOD0 and embodied; the utility AI, psychological needs (canon §10.5) and NPC↔NPC interactions skip it; relationships,
+memories, beliefs and decision-point counterparts key on its id. Its pose (`PlayerState`) is saved and hashed.
+
 Total dense data is about **0.6 KB per person**. Variable-size data lives in sparse stores:
 
 ### 6.5 Sparse and relational stores

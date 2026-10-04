@@ -53,6 +53,7 @@ public sealed class CampMetrics
         if (world.Camp.FireFuelMin > 0f) { _fireMinutes++; }
         for (var i = 0; i < p.Count; i++)
         {
+            if (world.IsPlayer(i)) { continue; }   // settlers only: the player's character is not on the AI
             var a = p.Activity[i].Action;
             _hist[i][a < 0 ? _actions : a]++;
             _agentMinutes++;
@@ -75,12 +76,19 @@ public sealed class CampMetrics
     {
         var p = world.People;
         var breaking = 0;
-        for (var i = 0; i < _dayMood.Length; i++) { if (_minutes > 0 && _dayMood[i] / _minutes < -60) { breaking++; } }
+        var settlers = 0;
+        for (var i = 0; i < _dayMood.Length; i++)
+        {
+            if (i < p.Count && world.IsPlayer(i)) { continue; }
+            settlers++;
+            if (_minutes > 0 && _dayMood[i] / _minutes < -60) { breaking++; }
+        }
+
         var day = new CampDay(
             _awake == 0 ? 0 : _idleMinutes / (double)_awake,
             _agentMinutes == 0 ? 0 : _lowNeed / (double)_agentMinutes,
             _moodN == 0 ? 0 : _moodSum / _moodN,
-            _dayMood.Length == 0 ? 0 : breaking / (double)_dayMood.Length,
+            settlers == 0 ? 0 : breaking / (double)settlers,
             Divergence(p),
             world.Camp.Food, world.Camp.Firewood,
             _minutes == 0 ? 0 : _fireMinutes / (double)_minutes,

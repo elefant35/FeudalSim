@@ -1529,11 +1529,28 @@ the owning system's menu builder sets fixed parameters and eligibility; §7.8 co
 rules (`flirt` and every courtship option require both people to be aged 16 or older — canon §13.5 #9
 forbids any romantic content involving anyone under 16) and the NPC's own hard rules (§7.8).
 
+*Implemented (M1-04b, `Sim/Dialogue`):* `InitiativeOwner` builds this menu each NPC turn from the option data in
+`content/decisions/conversation.yaml` (family, stakes, facet/trait/value/emotion/need terms per option). Sources in
+M1: **ask_favor** (the NPC was at a task and is tiring: W = 0.5 + 2·(100 − Energy)/100), **challenge** (Anger at the
+player ≥ 50: W = 1 + 4·(Anger − 50)/50; an insult with Honor ≥ 60: 1.5), **accuse** (a held negative claim about the
+player, c ≥ 0.7, not yet said: W = 1 + 2·c·J), **warn** (a held negative claim about something done to the player,
+c ≥ 0.5, Opinion ≥ 20: 1.5), **share_gossip** (a tellable claim and Gossip or Sociability ≥ 65: 1 + Tell) and
+**invite** (Social < 60 between noon and the 19:00 gathering: 0.5 + 2·u). `propose_trade`, `demand_payment`,
+`remind_promise`, `flirt` and `call_guards` wait for their systems (15, 16 obligations, 16 §11, 17). Each option is
+its own family with mass W/θ_init, so §7.8 applies the character terms and spreads by T; `end_conversation` takes
+p_end and the rest share 1 − p_end. Offers (ask_favor, challenge, invite) become the conversation's pending offer,
+answered by the player's next act.
+
 **Pacing**, so NPCs propose without badgering: one initiative act per NPC turn at most (structurally,
 one DP); after an act, the same option is not offered for the next 3 NPC turns; if the player
 declines, the NPC may re-ask at most once per conversation, at `0.5^(n−1)` of its weight (canon §13.4
 applied to the asker). A proposal only **offers**: what the player does with it is the player's own
 act (§16).
+
+*Implemented (M1-04b):* `action.converse` (schedule block `social`, Sociability k 0.3; `chosen_by_system`, so the
+scorer never picks it) holds the NPC; its §7.2 score with momentum is the "stay" side of `p_end`. **Finding:** mid-shift
+a settler's work outscores talking by ~1.35–1.6×, so p_end is 0.6–0.9 per turn and chats end within one or two turns;
+at the evening fire p_end is < 0.2. That is the formula working as written; whether it feels right is open question 13.
 
 ### 14.6 Deadlines, and the NPC while a decision is pending
 
@@ -1980,6 +1997,12 @@ so the policy's propensities are the right expectation for the model's choice ra
     one family vocabulary (proposal 16 below).
 12. **Initiative frequency.** `θ_init = 2.0`, answer-first weighting and the 3-turn cooldown are
     guesses; tune in M1 playtests between "NPCs feel alive" and "NPCs badger me".
+
+13. **Stay utility during work (M1-04b finding):** `p_end = logistic(10·(best alternative / score(converse) − 1.3))`
+    makes settlers end a mid-shift chat within one or two turns (p_end 0.6–0.9), while evening talk at the fire is
+    stable (< 0.2). Is that the intended feel, or should score(converse) include the partner (opinion, familiarity,
+    the player's standing) or a courtesy floor for the first turns? **Applied default (reversible):** the formula as
+    written, with `converse` in the `social` schedule block. Decide after the M1 playtest.
 
 ## Proposed canon additions
 
