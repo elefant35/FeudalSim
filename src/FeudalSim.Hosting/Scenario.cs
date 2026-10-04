@@ -89,7 +89,7 @@ public sealed record ScenarioDef
         world.Decisions.Register(new Sim.Social.BeingToldOwner());
         world.Decisions.Register(new Sim.Economy.TradeOwner());
         return world.AddSystem(new SkillSystem()).AddSystem(new ActivitySystem()).AddSystem(new StaminaSystem()).AddSystem(new ExposureSystem()).AddSystem(new HealthSystem()).AddSystem(new NeedsDecaySystem()).AddSystem(new PsychologySystem())
-            .AddSystem(new Lod3System()).AddSystem(new SocialSystem()).AddSystem(new InteractionSystem()).AddSystem(new ProcessSystem());
+            .AddSystem(new Lod3System()).AddSystem(new SocialSystem()).AddSystem(new InteractionSystem()).AddSystem(new ProcessSystem()).AddSystem(new RegrowthSystem());
     }
 
     public static ScenarioDef Load(string path)

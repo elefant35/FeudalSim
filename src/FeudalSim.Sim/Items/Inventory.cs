@@ -5,13 +5,17 @@ using FeudalSim.Sim.Core;
 
 namespace FeudalSim.Sim.Items;
 
-/// <summary>20 §6.5 inventory slot: a commodity stack (Instance 0, Qty, mean Q) or one unique item (Qty 1, Instance id).</summary>
+/// <summary>20 §6.5 inventory slot: a commodity stack (Instance 0, Qty, mean Q) or one unique item (Qty 1, Instance id).
+/// <c>Label</c> is what its holders believe it is (11 §8.2; −1 = what it truly is).</summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public struct Slot
 {
     public ulong Instance;
-    public int Item, Qty;
+    public int Item, Qty, Label;
     public byte Q, Reserved0, Reserved1, Reserved2;
+
+    /// <summary>The item as its holders see it.</summary>
+    public readonly int Seen => Label >= 0 ? Label : Item;
 }
 
 /// <summary>13 §5 item instance: quality, flaws (a mask over flaw handles), durability and provenance (13 §5.9).</summary>
@@ -56,6 +60,28 @@ public sealed class InventoryStore
         return n;
     }
 
+    /// <summary>How many of an item the container holds as its holders see it (labels, 11 §8.2).</summary>
+    public int CountSeen(EntityId container, int seen)
+    {
+        if (!_byContainer.TryGetValue(container.Value, out var list)) { return 0; }
+        var n = 0;
+        foreach (var s in list) { if (s.Seen == seen) { n += s.Qty; } }
+        return n;
+    }
+
+    /// <summary>Relabels the commodity stacks of <paramref name="item"/> labelled <paramref name="label"/> (−1 = true); merges back if needed.</summary>
+    public int Relabel(EntityId container, int item, int label, int newLabel)
+    {
+        var at = Find(container.Value, item, 0, label);
+        if (at < 0) { return 0; }
+        var list = _byContainer[container.Value];
+        var s = list[at];
+        list.RemoveAt(at);
+        if (list.Count == 0) { _byContainer.Remove(container.Value); }
+        Add(container, item, s.Qty, s.Q, newLabel);
+        return s.Qty;
+    }
+
     /// <summary>The commodity stack's mean Q, or −1 if there is none.</summary>
     public int StackQ(EntityId container, int item)
     {
@@ -72,12 +98,14 @@ public sealed class InventoryStore
         return (float)kg;
     }
 
-    /// <summary>Adds a commodity quantity at quality <paramref name="q"/> (a faucet: gathering, harvest, salvage, scenarios).</summary>
-    public void Add(EntityId container, int item, int qty, int q = 50)
+    /// <summary>Adds a commodity quantity at quality <paramref name="q"/> (a faucet: gathering, harvest, salvage, scenarios),
+    /// believed to be <paramref name="label"/> (−1: known for what it is). Stacks merge only with the same label.</summary>
+    public void Add(EntityId container, int item, int qty, int q = 50, int label = -1)
     {
         if (qty <= 0) { return; }
+        if (label == item) { label = -1; }
         var list = ListFor(container.Value);
-        var at = Find(container.Value, item, 0);
+        var at = Find(container.Value, item, 0, label);
         if (at >= 0)
         {
             var s = list[at];
@@ -87,7 +115,7 @@ public sealed class InventoryStore
             return;
         }
 
-        Insert(list, new Slot { Item = item, Qty = qty, Q = (byte)Math.Clamp(q, 0, 100) });
+        Insert(list, new Slot { Item = item, Qty = qty, Q = (byte)Math.Clamp(q, 0, 100), Label = label });
     }
 
     /// <summary>13 §5.9: merging stacks averages Q by quantity (rounded half away from zero — never banker's rounding).</summary>
@@ -103,7 +131,7 @@ public sealed class InventoryStore
             MaxDurability = maxDurability, Condition = maxDurability,
         };
         _instances[id] = inst;
-        Insert(ListFor(container.Value), new Slot { Item = item, Qty = 1, Instance = id, Q = inst.Q });
+        Insert(ListFor(container.Value), new Slot { Item = item, Qty = 1, Instance = id, Q = inst.Q, Label = -1 });
         return id;
     }
 
@@ -127,15 +155,14 @@ public sealed class InventoryStore
     private void Take(ulong from, int item, int qty, ulong? to)
     {
         var list = _byContainer[from];
-        var stack = Find(from, item, 0);
-        if (stack >= 0)
+        for (var stack = Find(from, item, 0); stack >= 0 && qty > 0; stack = Find(from, item, 0))   // stacks first, any label
         {
             var s = list[stack];
             var n = Math.Min(qty, s.Qty);
             s.Qty -= n;
             qty -= n;
             if (s.Qty == 0) { list.RemoveAt(stack); } else { list[stack] = s; }
-            if (to is { } dest) { Add(new EntityId(dest), item, n, s.Q); }
+            if (to is { } dest) { Add(new EntityId(dest), item, n, s.Q, s.Label); }
         }
 
         while (qty > 0)
@@ -170,17 +197,23 @@ public sealed class InventoryStore
         return list;
     }
 
-    private int Find(ulong container, int item, ulong instance)
+    /// <summary>The slot of (item, instance); with <paramref name="label"/> given, only that label (−1 = true); else any label.</summary>
+    private int Find(ulong container, int item, ulong instance, int? label = null)
     {
         if (!_byContainer.TryGetValue(container, out var list)) { return -1; }
-        for (var k = 0; k < list.Count; k++) { if (list[k].Item == item && list[k].Instance == instance) { return k; } }
+        for (var k = 0; k < list.Count; k++)
+        {
+            if (list[k].Item == item && list[k].Instance == instance && (label is null || list[k].Label == label)) { return k; }
+        }
+
         return -1;
     }
 
     private static void Insert(List<Slot> list, Slot slot)
     {
         var at = 0;
-        while (at < list.Count && (list[at].Item < slot.Item || (list[at].Item == slot.Item && list[at].Instance < slot.Instance))) { at++; }
+        while (at < list.Count && (list[at].Item < slot.Item || (list[at].Item == slot.Item && (list[at].Instance < slot.Instance
+            || (list[at].Instance == slot.Instance && list[at].Label < slot.Label))))) { at++; }
         list.Insert(at, slot);
     }
 

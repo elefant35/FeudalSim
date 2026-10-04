@@ -1152,6 +1152,12 @@ hazelnuts 1–3 kg/h (autumn), mushrooms, spring greens, roots, medicinal and dy
 fibers (nettle, lime bast), resin, bird eggs (spring), seaweed, wild honey (smoke `hold_band`,
 stings).
 
+*Implemented (M2-13):*
+- **Forage command:** a gathering trip to one plant or bush node (in season, within 3 m) yields the node type's
+  `forage` produce (21 node types carry one) and leaves the node harvested until Spring 1 (`RegrowthSystem`).
+- **Look-alikes:** these and second chances are 11 §8.2's (see there).
+- **Not yet:** the `inspect` minigame, cut-vs-uproot regrowth and yields by the hour.
+
 ### 9.6 Woodcutting
 
 **Woodcutting** · T0–T3 · **M2** felling, limbing, splitting → M3 riving, hewing, bark → M4

@@ -191,6 +191,7 @@ public static class ContentCompiler
         minigames.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         nodes.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         foreach (var nd in nodes.Where(nd => nd.Confusable is { } c && !nodes.Any(x => x.Id == c))) { errors.Add(new("nodes", 0, 0, $"{nd.Id}: unknown confusable {nd.Confusable}.")); }
+        foreach (var nd in nodes.Where(nd => nd.Forage is { } f && !items.Any(i => i.Id == f.Item))) { errors.Add(new("nodes", 0, 0, $"{nd.Id}: unknown forage item {nd.Forage!.Item}.")); }
         if (nodes.Count > 65535) { errors.Add(new("nodes", 0, 0, "At most 65,535 node types.")); }
         if (flaws.Count > 64) { errors.Add(new("flaws", 0, 0, "At most 64 flaws (an instance holds them as a bit mask).")); return new Result(null, errors, files); }
         var hash = Hash(skills, items, needs, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs, worldSpecs, flaws, recipeDefs, nodes);   // minigame curves are presentation calibration: not in the sim hash

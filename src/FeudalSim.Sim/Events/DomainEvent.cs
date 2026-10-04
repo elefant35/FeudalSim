@@ -44,6 +44,8 @@ public enum Salience : byte { Trace, Minor, Notable, Major, Historic }
 [Union(35, typeof(ProcessCompleted))]
 [Union(36, typeof(ProcessRuined))]
 [Union(37, typeof(ToolBroke))]
+[Union(38, typeof(Foraged))]
+[Union(39, typeof(ItemInspected))]
 public abstract record DomainEvent;
 
 [MessagePackObject]
@@ -230,3 +232,11 @@ public sealed record ProcessRuined([property: Key(0)] ulong Process, [property: 
 /// <summary>13 §4.5: a tool's condition reached zero.</summary>
 [MessagePackObject]
 public sealed record ToolBroke([property: Key(0)] EntityId Holder, [property: Key(1)] int Item, [property: Key(2)] ulong Instance) : DomainEvent;
+
+/// <summary>13 §9.5: a gathering trip. <c>Item</c> is what was truly picked, <c>Seen</c> what the gatherer believes (11 §8.2).</summary>
+[MessagePackObject]
+public sealed record Foraged([property: Key(0)] EntityId Worker, [property: Key(1)] int Chunk, [property: Key(2)] int Index, [property: Key(3)] int Item, [property: Key(4)] int Seen, [property: Key(5)] int Qty) : DomainEvent;
+
+/// <summary>11 §8.2: an inspection of stacks held under one label; <c>Corrected</c> units were relabelled to what they are.</summary>
+[MessagePackObject]
+public sealed record ItemInspected([property: Key(0)] EntityId Inspector, [property: Key(1)] EntityId Container, [property: Key(2)] int Seen, [property: Key(3)] int Corrected) : DomainEvent;

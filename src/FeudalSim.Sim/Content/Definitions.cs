@@ -86,6 +86,9 @@ public sealed record NodeDef
 
     public float ConfusableRisk { get; init; }
 
+    /// <summary>What one gathering trip yields (13 §9.5; M2-13).</summary>
+    public RecipeOutput? Forage { get; init; }
+
     public string? Notes { get; init; }
 }
 

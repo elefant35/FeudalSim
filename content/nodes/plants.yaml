@@ -1,32 +1,32 @@
 # yaml-language-server: $schema=../schemas/node.schema.json
 # 10 §7.3 herbs and toxic plants, §7.4 wild foods (patches per hectare, proposed). Confusable = 11's foraging-ID
 # lookalike with the doc's risk (proposed 0.15 where the doc names a pairing without a number).
-- { id: node.yarrow,        name: Yarrow,          kind: patch, density: { meadow: 6, coast_dunes: 3 }, seasons: [spring, summer, autumn] }
-- { id: node.plantain,      name: Plantain,        kind: patch, density: { meadow: 8 }, seasons: [spring, summer, autumn], notes: "Also grows on trampled paths" }
-- { id: node.comfrey,       name: Comfrey,         kind: patch, density: { river_valley: 4, wetland: 2 }, seasons: [spring, summer], confusable: node.foxglove, confusable_risk: 0.15 }
-- { id: node.ramsons,       name: Ramsons,         kind: patch, density: { broadleaf: 5 }, seasons: [spring], confusable: node.lily_of_the_valley, confusable_risk: 0.15 }
+- { id: node.yarrow,        name: Yarrow,          kind: patch, density: { meadow: 6, coast_dunes: 3 }, seasons: [spring, summer, autumn], forage: { item: item.yarrow, qty: 1 } }
+- { id: node.plantain,      name: Plantain,        kind: patch, density: { meadow: 8 }, seasons: [spring, summer, autumn], notes: "Also grows on trampled paths", forage: { item: item.plantain, qty: 1 } }
+- { id: node.comfrey,       name: Comfrey,         kind: patch, density: { river_valley: 4, wetland: 2 }, seasons: [spring, summer], confusable: node.foxglove, confusable_risk: 0.15, forage: { item: item.comfrey, qty: 1 } }
+- { id: node.ramsons,       name: Ramsons,         kind: patch, density: { broadleaf: 5 }, seasons: [spring], confusable: node.lily_of_the_valley, confusable_risk: 0.15, forage: { item: item.ramsons, qty: 2 } }
 - { id: node.feverfew,      name: Feverfew,        kind: patch, density: { meadow: 2, coast_dunes: 2 }, seasons: [summer] }
 - { id: node.meadowsweet,   name: Meadowsweet,     kind: patch, density: { wetland: 6, river_valley: 4 }, seasons: [summer] }
 - { id: node.wild_thyme,    name: Wild thyme,      kind: patch, density: { hills_moor: 5, coast_dunes: 3 }, seasons: [summer] }
-- { id: node.sphagnum,      name: Sphagnum moss,   kind: patch, density: { wetland: 20, hills_moor: 3 } }
-- { id: node.valerian,      name: Valerian,        kind: patch, density: { wetland: 3, river_valley: 3 }, seasons: [summer, autumn], confusable: node.water_hemlock, confusable_risk: 0.20 }
+- { id: node.sphagnum,      name: Sphagnum moss,   kind: patch, density: { wetland: 20, hills_moor: 3 }, forage: { item: item.sphagnum, qty: 2 } }
+- { id: node.valerian,      name: Valerian,        kind: patch, density: { wetland: 3, river_valley: 3 }, seasons: [summer, autumn], confusable: node.water_hemlock, confusable_risk: 0.20, forage: { item: item.valerian, qty: 1 } }
 - { id: node.water_mint,    name: Water mint,      kind: patch, density: { wetland: 5 }, seasons: [summer] }
-- { id: node.nettle,        name: Nettle,          kind: patch, density: { broadleaf: 4, river_valley: 6 }, seasons: [spring, summer] }
-- { id: node.sorrel,        name: Sorrel,          kind: patch, density: { meadow: 5 }, seasons: [spring] }
-- { id: node.wild_carrot,   name: Wild carrot,     kind: patch, density: { meadow: 4 }, seasons: [summer, autumn], confusable: node.hemlock, confusable_risk: 0.15 }
-- { id: node.hemlock,       name: Hemlock,         kind: patch, density: { meadow: 1.5 }, toxic: true, seasons: [summer, autumn] }
-- { id: node.water_hemlock, name: Water hemlock,   kind: patch, density: { wetland: 1.5 }, toxic: true, seasons: [summer], notes: "The deadliest (10 §7.3)" }
-- { id: node.foxglove,      name: Foxglove,        kind: patch, density: { broadleaf: 2 }, edge_only: true, toxic: true, seasons: [summer], notes: "Medicinal only at Healing ≥ 60" }
-- { id: node.lily_of_the_valley, name: Lily of the valley, kind: patch, density: { broadleaf: 1.5 }, toxic: true, seasons: [spring] }
-- { id: node.deadly_nightshade, name: Deadly nightshade, kind: patch, density: { broadleaf: 1, meadow: 0.5 }, edge_only: true, toxic: true, seasons: [summer, autumn] }
-- { id: node.field_mushroom, name: Field mushroom, kind: patch, density: { meadow: 3 }, seasons: [autumn], confusable: node.death_cap, confusable_risk: 0.15 }
-- { id: node.death_cap,     name: Death cap,       kind: patch, density: { broadleaf: 1 }, toxic: true, seasons: [autumn] }
+- { id: node.nettle,        name: Nettle,          kind: patch, density: { broadleaf: 4, river_valley: 6 }, seasons: [spring, summer], forage: { item: item.nettles, qty: 2 } }
+- { id: node.sorrel,        name: Sorrel,          kind: patch, density: { meadow: 5 }, seasons: [spring], forage: { item: item.sorrel, qty: 1 } }
+- { id: node.wild_carrot,   name: Wild carrot,     kind: patch, density: { meadow: 4 }, seasons: [summer, autumn], confusable: node.hemlock, confusable_risk: 0.15, forage: { item: item.wild_carrot, qty: 2 } }
+- { id: node.hemlock,       name: Hemlock,         kind: patch, density: { meadow: 1.5 }, toxic: true, seasons: [summer, autumn], forage: { item: item.hemlock, qty: 2 } }
+- { id: node.water_hemlock, name: Water hemlock,   kind: patch, density: { wetland: 1.5 }, toxic: true, seasons: [summer], notes: "The deadliest (10 §7.3)", forage: { item: item.water_hemlock, qty: 2 } }
+- { id: node.foxglove,      name: Foxglove,        kind: patch, density: { broadleaf: 2 }, edge_only: true, toxic: true, seasons: [summer], notes: "Medicinal only at Healing ≥ 60", forage: { item: item.foxglove, qty: 1 } }
+- { id: node.lily_of_the_valley, name: Lily of the valley, kind: patch, density: { broadleaf: 1.5 }, toxic: true, seasons: [spring], forage: { item: item.lily_of_the_valley, qty: 1 } }
+- { id: node.deadly_nightshade, name: Deadly nightshade, kind: patch, density: { broadleaf: 1, meadow: 0.5 }, edge_only: true, toxic: true, seasons: [summer, autumn], forage: { item: item.nightshade_berries, qty: 1 } }
+- { id: node.field_mushroom, name: Field mushroom, kind: patch, density: { meadow: 3 }, seasons: [autumn], confusable: node.death_cap, confusable_risk: 0.15, forage: { item: item.field_mushroom, qty: 2 } }
+- { id: node.death_cap,     name: Death cap,       kind: patch, density: { broadleaf: 1 }, toxic: true, seasons: [autumn], forage: { item: item.death_cap, qty: 2 } }
 - { id: node.fly_agaric,    name: Fly agaric,      kind: patch, density: { pine: 1, broadleaf: 0.5 }, toxic: true, seasons: [autumn], notes: "Hallucinogen" }
 - { id: node.wild_oats,     name: Wild oats,       kind: patch, density: { meadow: 6 }, seasons: [summer], notes: "Crop ancestor (oats)" }
-- { id: node.sea_beet,      name: Sea beet,        kind: patch, density: { coast_dunes: 5 }, seasons: [spring, summer, autumn] }
+- { id: node.sea_beet,      name: Sea beet,        kind: patch, density: { coast_dunes: 5 }, seasons: [spring, summer, autumn], forage: { item: item.sea_beet, qty: 2 } }
 - { id: node.wild_cabbage,  name: Wild cabbage,    kind: patch, density: { coast_dunes: 3 }, seasons: [spring, summer, autumn, winter] }
 - { id: node.wild_pea,      name: Wild pea,        kind: patch, density: { meadow: 3 }, seasons: [summer] }
 - { id: node.wild_flax,     name: Wild flax,       kind: patch, density: { meadow: 3 }, seasons: [summer] }
 - { id: node.wild_hops,     name: Wild hops,       kind: patch, density: { river_valley: 2 }, edge_only: true, seasons: [autumn] }
-- { id: node.wild_strawberry, name: Wild strawberry, kind: patch, density: { broadleaf: 4, meadow: 2 }, edge_only: true, seasons: [summer] }
+- { id: node.wild_strawberry, name: Wild strawberry, kind: patch, density: { broadleaf: 4, meadow: 2 }, edge_only: true, seasons: [summer], forage: { item: item.wild_strawberries, qty: 1 } }
 - { id: node.reeds,         name: Reeds,           kind: patch, density: { wetland: 80, river_valley: 6 }, notes: "Cut in winter (10 §5.1)" }

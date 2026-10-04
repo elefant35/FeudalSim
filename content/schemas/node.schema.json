@@ -61,6 +61,22 @@
       "confusable_risk": {
         "type": "number"
       },
+      "forage": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "string",
+            "minLength": 1
+          },
+          "qty": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "item"
+        ],
+        "additionalProperties": false
+      },
       "notes": {
         "type": "string",
         "minLength": 1

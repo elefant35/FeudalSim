@@ -184,6 +184,12 @@ public sealed class NodeDeltaStore
         if (state == 0) { _deltas.Remove((chunk, index)); } else { _deltas[(chunk, index)] = state; }
     }
 
+    /// <summary>Clears every delta in a state (spring regrowth of picked plants, 10 §7.4).</summary>
+    public void ClearState(byte state)
+    {
+        foreach (var key in _deltas.Where(kv => kv.Value == state).Select(kv => kv.Key).ToList()) { _deltas.Remove(key); }
+    }
+
     /// <summary>Applies the deltas to a freshly generated chunk.</summary>
     public void Apply(int chunk, List<ResourceNode> nodes)
     {

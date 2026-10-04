@@ -46,6 +46,7 @@ public static class Salt
     public const uint CraftStage = 30;
     public const uint Minigame = 31;
     public const uint WorkAccident = 36;
+    public const uint ForageId = 37;
 }
 
 /// <summary>SplitMix64 finalizer-based mixing (Steele, Lea &amp; Flood 2014).</summary>

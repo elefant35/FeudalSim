@@ -594,6 +594,19 @@ someone about once per 50 trips that pass through look-alike country. An expert 
 Knowledge that "the white-flowered carrot by the stream is death" spreads as a **belief** and
 lowers everyone's risk ([12](12-skills-and-professions.md) §8.2: local lore is belief, not know-how).
 
+*Implemented (M2-13), `Crafting/Foraging.cs`:*
+- **Labels:** inventory slots carry a label (what the holders believe it is), and stacks with different labels
+  never merge.
+- **The ID check:** a trip to an edible patch with its look-alike within 30 m, or a trip to the toxic plant itself,
+  rolls `p_correct` as above. The lore and true-belief terms are 0 until 12 §8 and 16 provide them. A failure stores
+  the toxin under the edible's label.
+- **Second chances:** `InspectItem` re-checks a container's stacks under one label with the inspector's own skill.
+- **Not yet:** eating, cooking and the toxins' course are M2-07 and M2-14.
+
+**Finding (Q11):** without lore and true beliefs, a novice is a coin toss (p_correct clamps at 0.5), so about 50 % of
+look-alike trips bring home poison. That is far from the "once per 50 trips" above. That figure needs `wild_food_lore`
+(+0.1), a true belief (+0.15), some skill and the cook's re-check, all of which arrive later.
+
 ---
 
 ## 9. Temperature & exposure
@@ -1496,6 +1509,9 @@ diagnosis, or how much food a ration holds.
    bleeds? (M2-06a; 31 D41.)
 10. **Q10: the cleaning anchor (§5.3).** Boiled water at q 0.7 plus honey gives c 0.204 by the formula, not the
     example's 0.12. Change the example (≈ 19% infected over ten slots) or the formula (e.g. ×(1 − q))? (M2-06b; 31 D42.)
+11. **Q11: foraging ID before lore exists (§8.2).** With no lore know-how and no shared beliefs yet, novices misidentify
+    about half of look-alike trips. Should the M2 camp start with homeland `wild_food_lore` for the forager-cook roles
+    (the manifest, 10 §15), or should the clamp floor be higher until lore exists? (M2-13; 31 D45.)
 
 ## Proposed canon additions
 

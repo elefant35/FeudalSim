@@ -34,6 +34,8 @@ public enum CommandSource : byte { Player, Embodiment, Ai, Settings, Scenario, D
 [Union(22, typeof(WorkStage))]
 [Union(23, typeof(ResumeProcess))]
 [Union(24, typeof(StartBatch))]
+[Union(25, typeof(Forage))]
+[Union(26, typeof(InspectItem))]
 public abstract record StateCommand;
 
 /// <summary>Changes the real-minutes-per-game-day setting (canon §6). Logged; applies at the next step.</summary>
@@ -140,6 +142,14 @@ public sealed record ResumeProcess([property: Key(0)] ulong Process) : StateComm
 /// <summary>13 §12 Batch: n items resolved as NPC draws, from the worker's own carry.</summary>
 [MessagePackObject]
 public sealed record StartBatch([property: Key(0)] Core.EntityId Worker, [property: Key(1)] string Recipe, [property: Key(2)] int Count) : StateCommand;
+
+/// <summary>13 §9.5: a gathering trip to one plant or bush node (chunk, index in the chunk's generated list).</summary>
+[MessagePackObject]
+public sealed record Forage([property: Key(0)] Core.EntityId Worker, [property: Key(1)] int Chunk, [property: Key(2)] int Index) : StateCommand;
+
+/// <summary>11 §8.2 second chances: <c>Inspector</c> looks over what <c>Container</c> holds as <c>Item</c> (the label).</summary>
+[MessagePackObject]
+public sealed record InspectItem([property: Key(0)] Core.EntityId Inspector, [property: Key(1)] Core.EntityId Container, [property: Key(2)] string Item) : StateCommand;
 
 /// <summary>Scenario/dev: sets a person's holding of one item (−1 for none) and their coin (farthings). M1 has no other source of goods.</summary>
 [MessagePackObject]
