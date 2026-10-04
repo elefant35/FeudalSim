@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../schemas/asset.schema.json
+# Character assets (docs/production/32-art-and-audio-production.md §7, §14). No entry, no merge.
+- id: asset.char.humanoid_a
+  kind: model
+  status: review                  # only the owner sets approved — this is a performance stand-in, not a look
+  milestone: M1
+  source:
+    type: generator
+    generator: art/generators/humanoid/humanoid.py
+    params: { variant: a, segments: 10 }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/characters/humanoid_a.glb]
+  budget_class: character
+  measured: { tris_lod0: 3648, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: M1-S1 crowd-render stand-in — blockout body on a 17-bone skeleton with keyframed walk and idle cycles (in place). Rebuild with tools/art/export.py; replaced by the 32 §7 modular characters from M2.

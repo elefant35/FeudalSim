@@ -59,6 +59,9 @@ def paint(obj, swatch, faces=None):
 
 
 def triangles(obj):
+    """Triangles of a mesh object (0 for armatures and empties)."""
+    if obj.type != "MESH":
+        return 0
     return sum(len(p.vertices) - 2 for p in obj.data.polygons)
 
 

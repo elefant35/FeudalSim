@@ -13,7 +13,9 @@ path, budget_class = fsart.args()[:2]
 budget = fsart.BUDGETS[budget_class]
 fsart.reset()
 bpy.ops.import_scene.gltf(filepath=path)
-meshes = sorted((o for o in bpy.context.scene.objects if o.type == "MESH"), key=lambda o: o.name)
+# Skinned assets: the glTF importer adds a display shape for bones (not part of the asset).
+bone_shapes = {pb.custom_shape.name for o in bpy.context.scene.objects if o.type == "ARMATURE" for pb in o.pose.bones if pb.custom_shape}
+meshes = sorted((o for o in bpy.context.scene.objects if o.type == "MESH" and o.name not in bone_shapes), key=lambda o: o.name)
 problems = []
 lods = {}
 for o in meshes:
