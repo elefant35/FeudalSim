@@ -30,7 +30,7 @@ answer.
 | Install listed prerequisites with Homebrew (`git-lfs`, `ffmpeg`, `gh`; optional `sox`, `fluidsynth`) | **not yet** (nothing pending) | Owner installed git-lfs 3.8.0, ffmpeg 9.0.2 and the .NET 10 SDK (2026-10-03/04). `gh` remains optional. Commands are in 20 §20 step 1 and 32 §2 |
 | Install the pinned Godot 4.x .NET editor | **done by the owner** — 4.7.2 .NET (2026-10-04) | Engine upgrades or plugin downloads (e.g. Terrain3D) still need approval; the skill proposes the exact version first |
 | Push to `origin/main` after a work item passes verification | **yes — proposed default, owner to confirm or change** | Never force-push |
-| LLM spend from `OPENROUTER_KEY` during development | **yes, ≤ $2 per session** — owner approved using the key (2026-10-03); the $2 cap is a proposed default | Prefer replay/template mode in tests |
+| LLM spend from `OPENROUTER_KEY` during development | **yes — ≈ $50 total for development (owner, 2026-10-04; soft, "plenty of wiggle room")**; spend tokens freely when it helps; keep a running tally below | The owner cares more about the **shipped game's running cost** (≤ $0.05 per typical play-hour, canon §13.5.6) than dev spend. Benches carry a `--max-usd` ceiling. **Dev spend so far: ≈ $0.06** (M0 ≈ $0.001; S2 bench $0.054) |
 | Download resources needed for development (plugins such as Terrain3D, libraries, tools, CC0/permissive assets) | **yes — standing approval (owner, 2026-10-04)** | The license must be acceptable and recorded (32 §14, `ASSET_LICENSES.md`); pin versions and checksums; prefer official sources |
 | Commit generated binary assets (requires Git LFS installed) | **yes** — Git LFS installed 2026-10-03 | — |
 | Approve art "looks" (manifest status → `approved`) | **owner only** | Claude may set `review`, never `approved` |
@@ -51,7 +51,7 @@ the M1 spikes. Items are sized ≈ ½–2 days; split them (`M1-12a`…) when th
 
 | ID | Item | Status | Evidence |
 |----|------|--------|----------|
-| M1-S2 | **Dialogue latency & cost** — model bake-off; TTFT p50 < 1.0 s, first words ≤ 1.2 s (Tier A); cost per play-hour; pin fast providers (M0 saw 3.9–9.6 s variance on qwen3-14b) | [ ] | |
+| M1-S2 | **Dialogue latency & cost** — model bake-off; TTFT p50 < 1.0 s, first words ≤ 1.2 s (Tier A); cost per play-hour; pin fast providers | [x] | **PASS** — [docs/spikes/s2-dialogue-latency.md](../spikes/s2-dialogue-latency.md). `ai bench-dialogue`: 6 models × {default, latency} × 20 streamed decision-first turns (1,846-token 22 §7 prompt), 240 turns, $0.054. Default **qwen3-14b + `provider.sort=latency`**: TTFT p50/p95 **286/649 ms**, CHOICE line 449/709 ms, first words **628/965 ms**, 100% valid headers, 0/40 wrong prices; **$0.030 typical / $0.078 heavy per hour** ($0.032 / $0.083 normalized to 2,290 tokens). Routing now default (`LLM_PROVIDER_SORT=latency`; pings 655–1,142 ms vs M0's 3.9–9.6 s). Found: 22 §4.8's `"\n\n"` stop emptied every Qwen3 reply (fixed in 22); qwen3.6 fast but 22% wrong prices; qwen3.8-flash blocked by the account's data policy. `DialogueBenchTests` 5/5 |
 | M1-S3 | **Fast-decider bake-off** — `qwen/qwen3.5-9b`, `qwen/qwen3-30b-a3b-instruct-2507`, Laya zero-shot, Jev if access; p50/p95 latency (quick-choice DPs need ≤ 500 ms; M0 measured ~650–840 ms), ECE, cost, injection susceptibility | [ ] | |
 | M1-S6 | **Sim scale** — 1,500 agents across LOD tiers within 20 §19 budgets; 1 game year headless ≤ 60 s at LOD2; 21's 300–500 agents × 1 year | [ ] | |
 | M1-S1 | **Crowd render** — 150 animated low-poly characters at 60 fps (recommended spec), 300 in battle mode ≥ 30 fps | [ ] | |
@@ -213,6 +213,8 @@ Items found while working that belong to a later milestone or need triage.
 | 2026-10-03 | ~~**Install the .NET 10 SDK, update `global.json`, unpin the Roslyn-4.11 workarounds**~~ — **done 2026-10-04** (SDK 10.0.401 arrived with the Godot cask; ADR-0010 step 2) | M0 | M0-02, M0-07 |
 | 2026-10-04 | **Parallel, chunked world-gen heightfield** (8 km takes 15.7 s single-threaded; ≤ 60 s budget, cached per seed) and the **typed Terrain3D facade** with import/caching under `user://worlds/<seed>/` | M1 (S4) / M2 → **scheduled: M1-S4** | M0-12, ADR-0009 |
 | 2026-10-04 | Ship Terrain3D's MIT notice in builds (Godot export filters drop `LICENSE.txt`) | M8 | ADR-0009 |
+| 2026-10-04 | **Choice skew vs inclinations:** in S2 qwen3-14b picked `counter_step_1` ("quite possible") 35/40 times over `accept_at_price` ("likely") — measure against the policy in M1-16's golden scenarios; prompt/inclination wording may need tuning | M1 → **M1-16** | S2 |
+| 2026-10-04 | **Speech must carry the option's price:** S2 saw wrong or omitted prices in 22–43% of lines from some models (none from qwen3-14b). Tier A streams trades < 48f before verification — add a cheap deterministic price-word check on the SAY text (22 §4.9) | M1 → **M1-12 / M1-13** | S2 |
 | 2026-10-04 | ADR-0010 step 3: spike a `net10.0` game project on Godot 4.7.x, or wait for a Godot release whose GodotSharp targets net10 — .NET 8 support ends 2026-11-10 | M1 → **scheduled: M1-25** |  ADR-0010 |
 
 ---
@@ -223,6 +225,7 @@ Newest first. One entry per session or work item: date, what changed, evidence, 
 
 | Date | Work | Evidence | Next |
 |------|------|----------|------|
+| 2026-10-04 | M1-S2 dialogue latency & cost: **PASS**; latency routing made the default; 22 §4.8 stop-sequence bug fixed | docs/spikes/s2-dialogue-latency.md; 240 turns, $0.054 | M1-S3 fast-decider bake-off |
 | 2026-10-04 | **M0 gate 2 passed — M0 complete.** All 7 exit criteria re-run after M0-16–18; S4 moved to M1; M1 breakdown generated (6 spikes + 25 items) | CI + godot green at 7f4756e; gate evidence in the exit-criteria table | M1: start with M1-S2 / M1-S3 (latency, fast decider) and M1-01…03 (person model, DP propensities) |
 | 2026-10-04 | M0-18: circuit breaker, AI_GATEWAY_MODE recorder, gateway DP routing (fast decider / policy, now) | 81 tests; live DP decided by the fast decider and replayed to ff6b7420c63dd0c1 | M0 gate (all items now [x] or [-]) |
 | 2026-10-04 | M0-16 + M0-17: decision points in the sim (records, DRE, guards, policy decider, watchdog, integrity verification); M0-19 dropped (owner: `.env`) | 74 tests; mutation checks; dp-ping run + replay hash ea25ca3b19f19ee9 | M0-18 (breaker + recorder + gateway DP routing) |

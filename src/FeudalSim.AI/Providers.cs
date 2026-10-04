@@ -28,12 +28,16 @@ public sealed class OpenAiCompatibleChatProvider : IChatProvider
     private readonly HttpClient _http;
     private readonly string _baseUrl;
     private readonly Secret _key;
+    private readonly string? _providerSort;
 
-    public OpenAiCompatibleChatProvider(HttpClient http, string baseUrl, Secret key)
+    /// <param name="providerSort">OpenRouter routing (<c>provider.sort</c>: latency · throughput · price); null = OpenRouter's default.
+    /// S2 measured latency routing at TTFT p50 286 ms vs 469 ms default for the dialogue model.</param>
+    public OpenAiCompatibleChatProvider(HttpClient http, string baseUrl, Secret key, string? providerSort = null)
     {
         _http = http;
         _baseUrl = baseUrl.TrimEnd('/');
         _key = key;
+        _providerSort = string.IsNullOrWhiteSpace(providerSort) || providerSort == "default" ? null : providerSort;
     }
 
     internal HttpClient Http => _http;
@@ -92,7 +96,12 @@ public sealed class OpenAiCompatibleChatProvider : IChatProvider
             ["stream"] = stream,
             ["reasoning"] = new JsonObject { ["enabled"] = false },
         };
-        extra?.Invoke(payload);
+        if (_providerSort is not null && _baseUrl.Contains("openrouter", StringComparison.OrdinalIgnoreCase))
+        {
+            payload["provider"] = new JsonObject { ["sort"] = _providerSort };
+        }
+
+        extra?.Invoke(payload);   // may replace "provider" (the fast decider needs require_parameters)
         var message = new HttpRequestMessage(HttpMethod.Post, $"{_baseUrl}/chat/completions")
         {
             Content = new StringContent(payload.ToJsonString(), Encoding.UTF8, "application/json"),

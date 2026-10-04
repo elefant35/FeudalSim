@@ -28,7 +28,7 @@ public sealed class AiStack : IDisposable
 
         // Replay never sends a request, but the provider still builds an Authorization header.
         var chatKey = config.ChatKey.IsSet ? config.ChatKey : new Secret("replay-without-key");
-        var chat = new OpenAiCompatibleChatProvider(http, config.ChatBaseUrl, chatKey);
+        var chat = new OpenAiCompatibleChatProvider(http, config.ChatBaseUrl, chatKey, config.ChatProviderSort);
         IDecider decider = config.DeciderProvider switch
         {
             "heuristic" => new HeuristicDecider(),

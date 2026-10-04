@@ -18,6 +18,7 @@ public static class Program
                 ai.SetDescription("Check the AI gateway (OpenRouter key from .env; never printed).");
                 ai.AddCommand<AiPingCommand>("ping").WithDescription("One chat completion from LLM_DIALOGUE_MODEL.");
                 ai.AddCommand<AiDecideCommand>("decide").WithDescription("One fast-decider choice question (normalized option probabilities).");
+                ai.AddCommand<AiBenchDialogueCommand>("bench-dialogue").WithDescription("Spike S2: stream decision-first dialogue turns per model; latency percentiles and cost per play-hour.");
             });
             config.AddBranch("log", log =>
             {

@@ -310,6 +310,13 @@ Cloud ids and prices (per million tokens, input / output) as **listed on OpenRou
 | **Chronicle** | = dialogue model (`LLM_CHRONICLE_MODEL` empty) | `qwen/qwen3-32b` · `qwen/qwen3.5-35b-a3b` | Resident model, batched during the skip | Resident model | Template chronicle |
 | **Fast decider** | `openrouter-llm` with `qwen/qwen3.5-9b` — $0.10 / $0.15, logprobs verified | `qwen/qwen3-30b-a3b-instruct-2507` (429 on first try) · Laya zero-shot · Jev if access (TypeSafe API) — §17.2 bake-off. Not usable: `qwen/qwen3-8b` (no logprobs). `qwen/qwen3-14b` (fully peaked): classification argmax only, never quick-choice DPs | **Laya** in-process (ONNX, CPU or GPU) once fine-tuned (§14.6); else the resident model via the same technique | Laya or resident model | Laya on CPU, or heuristic |
 
+**S2 result (2026-10-04, [spike](../spikes/s2-dialogue-latency.md)):** `qwen/qwen3-14b` stays the dialogue
+default, routed with OpenRouter `provider.sort = latency` (`LLM_PROVIDER_SORT`): TTFT p50/p95 286/649 ms, first
+words 628/965 ms, 100% valid headers, 0 wrong prices in 40 priced lines, ≈ $0.032 typical / $0.083 heavy hour at
+the 2,290-token budget. `qwen3.6-35b-a3b` is faster (TTFT 226 ms) but stated wrong prices in 22% of lines and
+exceeds the heavy-hour cap; `qwen3-30b-a3b-instruct-2507` invents coinage; `qwen3.8-flash` is unavailable under
+this account's OpenRouter data policy.
+
 Local sizes **(verify)**. Rationale: dialogue needs instruction-following, persona fidelity and
 sound judgment over a short menu under a ~2K-token context with short outputs — the 8–14B class is
 the quality knee; utility tasks are short, cacheable and tolerant. The fast decider needs
@@ -600,7 +607,9 @@ impossible; in the cloud the header is validated by the parser (a provider's JSO
 an `enum`, emitted in the order choice → rapport → say, is an equivalent transport where supported
 **(verify per provider)**). The dialogue model runs at P0 with temperature 0.7 (persona range
 0.6–0.85, higher for Volatile/Cheerful NPCs), top_p 0.9, frequency penalty 0.3 (if supported),
-`max_tokens` 140, stop sequences `["\n\n", "<player_said", "{player_name}:"]`. Where the provider
+`max_tokens` 140, stop sequences `["<player_said", "{player_name}:"]`. *(S2, 2026-10-04: `"\n\n"` was
+removed — Qwen3 replies in non-thinking mode can open with a blank line, which ended every turn after one
+token with an empty reply.)* Where the provider
 returns log-probabilities, the header's choice-token distribution is recorded for calibration
 analysis (§15) — it is never used to decide.
 
