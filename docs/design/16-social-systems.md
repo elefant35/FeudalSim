@@ -453,13 +453,25 @@ Shipmate Familiarity 25; Trust baseline `35 + 4.5 + 10 = 49.5`.
 | 10 | Before insult (decay) | +2.4, +9.1 | **22.5** |
 | 10 | Player mocks her cooking in front of 4 people (severity 3, public) | `insulted_me` −12 × 1.5 × 0.9 (Honor) × 1.02 (Vol) = **−16.5** | **5.9** |
 | 11 | Player apologizes → apology DP (§4.14): p(`accept_apology`) = 0.40 + 0.005·5.9 + 0.003·15 = 0.47, plus the words term for a plainly sincere apology (L 0.3, s 0.57, Persuasion 35): 0.15·0.57·0.675·0.3 ≈ 0.02 → **0.49**; the LLM accepts → remaining ×0.5 | insult −7.6 | 14.4 |
-| 20 | Decay | | **15.6** (12.1 had he not apologized) |
+| 20 | Decay | | **14.9** (11.4 had he not apologized) |
 
-The player is back to "acquaintance, slightly warm"; Familiarity is 72 by day 20, so a few more good
+*(Corrected 2026-10-04, M1-05: the earlier 15.6 / 12.1 kept a 0.75 `helped_my_work` residue that §4.2's rule — slots
+below 1 are dropped — removes. `RelationshipTests.TheMiraWorkedExample` checks every row.)* The player is back to
+"acquaintance, slightly warm"; Familiarity is 72 by day 20, so a few more good
 days make them friends. Each of these conversations also closed with a rapport DP (§4.15); the table
 assumes `stay_neutral` every time. Had the LLM picked `warm_to_speaker` on day 11 (Familiarity ≈ 55 →
 step 3; p ≈ 0.40 after an accepted apology), day 20 would read ≈ 16.7 instead of 15.6. Had Mira been Vengeful, the insult's half-life would be 16 d and the apology
 less likely.
+
+*Implemented (M1-05, 2026-10-04):* `FeudalSim.Sim.Social.RelationshipStore` (`world.Relationships`): directed edges in id
+order; one slot per modifier type merged exactly by stacking rule; personality scaling (§4.4: Volatility, Warmth,
+Paranoid, Honor/Family/Faith, Vengeful floors and κ, Warmth ≥ 70 forgiving κ); derived D3 homeland, D4 faith (creed
+from culture), D5 values alignment with familiarity-scaled perception noise; Trust baseline/evidence/ceiling/drift;
+Familiarity contact (+6/pair/day social cap), co-working after 2 h, co-residence in camps ≤ 60, decay after 4 days;
+event Fear; tags Acquaintance/Friend/Close friend/Enemy with hysteresis (Enemy uses a grave-harm proxy until memories,
+Rival waits for a competition source). Reads are pure; `DailyUpdate` applies decay, drift, cleanup and tags. The
+modifier catalog is `content/social/opinion_modifiers.yaml` (#1–39, #58–59). In the M1 camp, `SocialSystem` drives
+chats and shared meals as a stand-in until §5's interaction catalog (M1-06).
 
 ### 4.14 Apology, amends & reconciliation
 

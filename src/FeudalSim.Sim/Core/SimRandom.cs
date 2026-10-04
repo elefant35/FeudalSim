@@ -17,6 +17,9 @@ public static class Salt
     public const uint DecisionPolicyResample = 5;
     public const uint PersonGen = 6;
     public const uint AiDecide = 7;
+    public const uint Shipmates = 8;
+    public const uint Perception = 9;
+    public const uint ChatPartner = 10;
 }
 
 /// <summary>SplitMix64 finalizer-based mixing (Steele, Lea &amp; Flood 2014).</summary>

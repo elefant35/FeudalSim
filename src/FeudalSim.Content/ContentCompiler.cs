@@ -47,6 +47,7 @@ public static class ContentCompiler
         var professions = new List<(ProfessionDef Def, string Rel, Mark Mark)>();
         var actions = new List<ActionDef>();
         var actionMarks = new List<(ActionDef Def, string Rel, Mark Mark)>();
+        var opinionMods = new List<OpinionModifierDef>();
         var schedules = new List<ScheduleDef>();
         var repoRoot = Path.GetDirectoryName(Path.GetFullPath(contentRoot).TrimEnd(Path.DirectorySeparatorChar)) ?? contentRoot;
         var seen = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -55,9 +56,12 @@ public static class ContentCompiler
         foreach (var (folder, kind, type) in SchemaGenerator.Kinds)
         {
             var schema = Schemas[kind];
-            var dir = Path.Combine(contentRoot, folder);
+            // A kind owns a whole folder, or one named file in a shared folder ("social/opinion_modifiers.yaml").
+            var single = folder.EndsWith(".yaml", StringComparison.Ordinal);
+            var dir = Path.Combine(contentRoot, single ? Path.GetDirectoryName(folder)! : folder);
             if (!Directory.Exists(dir)) { continue; }
-            foreach (var file in Directory.GetFiles(dir, "*.yaml").OrderBy(f => f, StringComparer.Ordinal))
+            var candidates = single ? Directory.GetFiles(dir, Path.GetFileName(folder)) : Directory.GetFiles(dir, "*.yaml");
+            foreach (var file in candidates.OrderBy(f => f, StringComparer.Ordinal))
             {
                 files++;
                 var rel = Path.GetRelativePath(contentRoot, file).Replace('\\', '/');
@@ -92,6 +96,7 @@ public static class ContentCompiler
                         case ProfessionDef p: professions.Add((p, rel, mark)); break;
                         case ActionDef a: actionMarks.Add((a, rel, mark)); actions.Add(a); break;   // validated after skills load
                         case ScheduleDef d: ValidateSchedule(d, rel, mark, errors); schedules.Add(d); break;
+                        case OpinionModifierDef o: ValidateOpinionModifier(o, rel, mark, errors); opinionMods.Add(o); break;
                     }
                 }
             }
@@ -112,9 +117,10 @@ public static class ContentCompiler
         var cultureDefs = cultures.Select(c => c.Def).OrderBy(c => c.Id, StringComparer.Ordinal).ToList();
         var professionDefs = professions.Select(p => p.Def).OrderBy(p => p.Id, StringComparer.Ordinal).ToList();
         actions.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
+        opinionMods.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         schedules.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
-        var hash = Hash(skills, items, needs, traitDefs, cultureDefs, professionDefs, actions, schedules);
-        return new Result(new ContentDatabase(skills, items, needs, hash, assets, audio, traitDefs, cultureDefs, professionDefs, actions, schedules), errors, files);
+        var hash = Hash(skills, items, needs, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods);
+        return new Result(new ContentDatabase(skills, items, needs, hash, assets, audio, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods), errors, files);
     }
 
     private static IEnumerable<(JsonNode Node, Mark Mark)> ParseFile(string path, string rel, string kind, JsonSchema schema, List<ContentError> errors)
@@ -220,7 +226,7 @@ public static class ContentCompiler
 
     private static ulong Hash(IEnumerable<SkillDef> skills, IEnumerable<ItemDef> items, IEnumerable<NeedDef> needs,
         IEnumerable<TraitDef> traits, IEnumerable<CultureDef> cultures, IEnumerable<ProfessionDef> professions,
-        IEnumerable<ActionDef> actions, IEnumerable<ScheduleDef> schedules)
+        IEnumerable<ActionDef> actions, IEnumerable<ScheduleDef> schedules, IEnumerable<OpinionModifierDef> opinionMods)
     {
         var h = new XxHash64();
         foreach (var d in skills) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
@@ -233,6 +239,7 @@ public static class ContentCompiler
         foreach (var d in professions) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
         foreach (var d in actions) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
         foreach (var d in schedules) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
+        foreach (var d in opinionMods) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
         return h.GetCurrentHashAsUInt64();
     }
 
@@ -262,6 +269,15 @@ public static class ContentCompiler
         if (a.Skill is not null && skills.All(s => s.Id != a.Skill)) { errors.Add(new(rel, m.Line, m.Column, $"{a.Id}: unknown skill '{a.Skill}'.")); }
         if (a.DurationMin <= 0) { errors.Add(new(rel, m.Line, m.Column, $"{a.Id}: duration_min must be > 0.")); }
         if (a.StockPressure is { Comfortable: <= 0 }) { errors.Add(new(rel, m.Line, m.Column, $"{a.Id}: stock_pressure.comfortable must be > 0.")); }
+    }
+
+    private static void ValidateOpinionModifier(OpinionModifierDef o, string rel, Mark m, List<ContentError> errors)
+    {
+        if (o.HalfLifeDays <= 0) { errors.Add(new(rel, m.Line, m.Column, $"{o.Id}: half_life_days must be > 0.")); }
+        if (o.Cap is { } cap && Math.Sign(cap) != Math.Sign(o.Value)) { errors.Add(new(rel, m.Line, m.Column, $"{o.Id}: cap must have the sign of value.")); }
+        if (o.Stacking is OpinionStacking.Add or OpinionStacking.Saturate && o.Cap is null) { errors.Add(new(rel, m.Line, m.Column, $"{o.Id}: {o.Stacking} needs a cap.")); }
+        if (o.FloorFraction is < 0 or > 1) { errors.Add(new(rel, m.Line, m.Column, $"{o.Id}: floor_fraction must be 0–1.")); }
+        foreach (var k in o.ExtendsTo?.Keys ?? []) { if (k is not ("household" or "kin" or "spouse")) { errors.Add(new(rel, m.Line, m.Column, $"{o.Id}: extends_to '{k}' must be household, kin or spouse.")); } }
     }
 
     private static void ValidateSchedule(ScheduleDef d, string rel, Mark m, List<ContentError> errors)

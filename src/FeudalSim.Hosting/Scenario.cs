@@ -66,7 +66,11 @@ public sealed record ScenarioDef
             .AddSystem(utility ? new ActivitySystem() : new WanderSystem())
             .AddSystem(new NeedsDecaySystem())
             .AddSystem(new PsychologySystem());
-        if (utility) { world.Camp = (Camp ?? new CampDef()).ToRecord(content); }
+        if (utility)
+        {
+            world.Camp = (Camp ?? new CampDef()).ToRecord(content);
+            world.AddSystem(new SocialSystem());
+        }
         if (AiPingStep is { } at) { world.AddSystem(new AiPingSystem(at, AiPingDeadlineSteps)); }
         if (DecisionPingStep is { } dpAt)
         {

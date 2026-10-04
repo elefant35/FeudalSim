@@ -8,7 +8,7 @@ namespace FeudalSim.Hosting;
 /// <summary>One game day of 21 §19 camp metrics (headless, policy-only).</summary>
 public sealed record CampDay(
     double IdleRate, double LowNeedShare, double MoodMean, double BreakingShare, double Divergence,
-    double Food, double Firewood, double FireShare);
+    double Food, double Firewood, double FireShare, double FriendsPerPerson = 0, double EnemiesPerPerson = 0, double MeanOpinion = 0);
 
 /// <summary>
 /// Samples a utility-AI world once per game minute and summarizes each game day per 21 §19: idle rate (share of awake
@@ -83,7 +83,8 @@ public sealed class CampMetrics
             _dayMood.Length == 0 ? 0 : breaking / (double)_dayMood.Length,
             Divergence(p),
             world.Camp.Food, world.Camp.Firewood,
-            _minutes == 0 ? 0 : _fireMinutes / (double)_minutes);
+            _minutes == 0 ? 0 : _fireMinutes / (double)_minutes,
+            SocialCounts(world).Friends, SocialCounts(world).Enemies, SocialCounts(world).Opinion);
         Days.Add(day);
         (_minutes, _awake, _idleMinutes, _lowNeed, _agentMinutes, _fireMinutes, _moodSum, _moodN) = (0, 0, 0, 0, 0, 0, 0, 0);
         foreach (var h in _hist) { Array.Clear(h); }
@@ -111,6 +112,23 @@ public sealed class CampMetrics
         }
 
         return pairs == 0 ? 0 : total / pairs;
+    }
+
+    /// <summary>21 §19 social network: mean friends / enemies per person (tags), and mean opinion over edges. Read-only.</summary>
+    private static (double Friends, double Enemies, double Opinion) SocialCounts(SimWorld world)
+    {
+        var n = Math.Max(1, world.People.Count);
+        int friends = 0, enemies = 0, edges = 0;
+        double opinion = 0;
+        foreach (var ((holder, other), e) in world.Relationships.Edges)
+        {
+            if ((e.Tags & Sim.Social.RelTags.Friend) != 0) { friends++; }
+            if ((e.Tags & Sim.Social.RelTags.Enemy) != 0) { enemies++; }
+            opinion += world.Relationships.Opinion(new Sim.Core.EntityId(holder), new Sim.Core.EntityId(other));
+            edges++;
+        }
+
+        return (friends / (double)n, enemies / (double)n, edges == 0 ? 0 : opinion / edges);
     }
 
     /// <summary>21 §19 task failure for the run (activities failed / started).</summary>

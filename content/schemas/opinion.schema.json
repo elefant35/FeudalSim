@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://feudalsim.dev/schemas/opinion.schema.json",
+  "title": "OpinionModifierDef",
+  "description": "A list of opinion definitions (generated from FeudalSim.Sim.Content.OpinionModifierDef; do not edit).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^opinion(\\.[a-z0-9_]\u002B)\u002B$"
+      },
+      "number": {
+        "type": "integer"
+      },
+      "value": {
+        "type": "number"
+      },
+      "half_life_days": {
+        "type": "number"
+      },
+      "stacking": {
+        "type": "string",
+        "enum": [
+          "add",
+          "saturate",
+          "refresh",
+          "once"
+        ]
+      },
+      "cap": {
+        "type": "number"
+      },
+      "floor_fraction": {
+        "type": "number"
+      },
+      "extends_to": {
+        "type": "object"
+      },
+      "public_multiplier": {
+        "type": "number"
+      },
+      "scaling": {
+        "type": "string",
+        "enum": [
+          "none",
+          "honor",
+          "family_faith"
+        ]
+      },
+      "fear": {
+        "type": "number"
+      },
+      "notes": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [
+      "id",
+      "number",
+      "value",
+      "half_life_days",
+      "stacking"
+    ],
+    "additionalProperties": false
+  }
+}

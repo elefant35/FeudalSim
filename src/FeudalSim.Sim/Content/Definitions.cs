@@ -202,6 +202,36 @@ public sealed record ScheduleDef
     public required IReadOnlyList<ScheduleBlockDef> Blocks { get; init; }
 }
 
+public enum OpinionStacking { Add, Saturate, Refresh, Once }
+
+public enum OpinionScaling { None, Honor, FamilyFaith }
+
+/// <summary>An opinion modifier type (16 §4.5): one decaying slot per type per directed edge, merged exactly (§4.3).</summary>
+public sealed record OpinionModifierDef
+{
+    public required string Id { get; init; }
+    public required int Number { get; init; }
+
+    /// <summary>Pre-scaling value; triggering systems pass a multiplier for variable ones (importance, stakes, gift…).</summary>
+    public required float Value { get; init; }
+
+    public required float HalfLifeDays { get; init; }
+    public required OpinionStacking Stacking { get; init; }
+    public float? Cap { get; init; }
+    public float FloorFraction { get; init; }
+    public IReadOnlyDictionary<string, float>? ExtendsTo { get; init; }
+
+    /// <summary>× this when the act was public (≥ 3 witnesses) — status-relevant harms.</summary>
+    public float PublicMultiplier { get; init; } = 1f;
+
+    public OpinionScaling Scaling { get; init; }
+
+    /// <summary>Event fear added toward the actor (16 §4.10).</summary>
+    public float Fear { get; init; }
+
+    public string? Notes { get; init; }
+}
+
 public enum AssetKind { Model, Animation, Texture, Vfx, Ui, Sfx, Ambience, Music, Vocal }
 
 public enum AssetStatus { Placeholder, Draft, Review, Approved, Final }
@@ -305,8 +335,10 @@ public sealed class ContentDatabase
     public ContentDatabase(IReadOnlyList<SkillDef> skills, IReadOnlyList<ItemDef> items, IReadOnlyList<NeedDef> needs, ulong hash,
         IReadOnlyList<AssetDef>? assets = null, IReadOnlyList<AudioEventDef>? audio = null,
         IReadOnlyList<TraitDef>? traits = null, IReadOnlyList<CultureDef>? cultures = null, IReadOnlyList<ProfessionDef>? professions = null,
-        IReadOnlyList<ActionDef>? actions = null, IReadOnlyList<ScheduleDef>? schedules = null)
+        IReadOnlyList<ActionDef>? actions = null, IReadOnlyList<ScheduleDef>? schedules = null,
+        IReadOnlyList<OpinionModifierDef>? opinionModifiers = null)
     {
+        OpinionModifiers = opinionModifiers ?? [];
         Actions = actions ?? [];
         Schedules = schedules ?? [];
         Traits = traits ?? [];
@@ -339,6 +371,9 @@ public sealed class ContentDatabase
     public IReadOnlyList<ProfessionDef> Professions { get; }
     public IReadOnlyList<ActionDef> Actions { get; }
     public IReadOnlyList<ScheduleDef> Schedules { get; }
+    public IReadOnlyList<OpinionModifierDef> OpinionModifiers { get; }
+
+    public int OpinionModifierHandle(string id) => HandleOf(OpinionModifiers, id, o => o.Id);
 
     /// <summary>Handle of a definition id in a sorted list, or −1.</summary>
     public static int HandleOf<T>(IReadOnlyList<T> defs, string id, Func<T, string> idOf)

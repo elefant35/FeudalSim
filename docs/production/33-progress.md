@@ -73,7 +73,7 @@ the M1 spikes. Items are sized ≈ ½–2 days; split them (`M1-12a`…) when th
 
 | ID | Item | Status | Evidence |
 |----|------|--------|----------|
-| M1-05 | Opinion (modifiers #1–35, #38–39, D1–D5, D9), Trust, Familiarity, Fear; tags through Enemy/Rival | [ ] | |
+| M1-05 | Opinion (modifiers #1–35, #38–39, D1–D5, D9), Trust, Familiarity, Fear; tags through Enemy/Rival | [x] | `Sim/Social/Relationships.cs` (`world.Relationships`) + `content/social/opinion_modifiers.yaml` (41: #1–39, #58–59) + `SocialSystem` (camp chats, shared meals, co-work, co-residence, daily update); saved (relationships table) and hashed. **`RelationshipTests` 6:** the 16 §4.13 Mira example row by row (5.3, 10.6 → 26.9; day 10 22.5; insult −16.5 → 5.9; apology → 14.4; day 20 14.9 — **16's 15.6 corrected**: it kept a sub-1 slot its own §4.2 rule drops), stacking (saturate → cap, add cap, once, permanent floor −10, fear decay), trust asymmetry + honesty ceiling, familiarity ≈ 52 after 15 daily-acquaintance days (16 §4.9 check), Friend after 2 days, camp deterministic (mean opinion 12.6, best pair 24.2, familiarity 39.6 by day 12, 0 enemies). 117 tests; sweep still all in band (13.7 s for 20×30). **Not yet:** D1/D2 (kin graph), D9 (reputation → M1-07), Rival (needs competition), Enemy via memories (M1-06); no friendships in 12 days because chat partners are uniform — 16 §5.3 partner selection + positive interactions arrive with M1-06 |
 | M1-06 | NPC↔NPC interactions Chat/Gossip/Joke/Praise/Comfort/Request/Argue/Insult/Apologize/Warn (policy); memory + compaction | [ ] | |
 | M1-07 | Claims, beliefs and rumors with mutation; reputation axes (no Lawfulness effects yet); LLM rendering of overheard talk (policy decides) | [ ] | |
 | M1-08 | Escalation ladder through rung 5 with a **stubbed brawl** hand-off; provocation-response and bystander DPs (the owner's "insult → shove → brawl" and "bystander steps in" examples) | [ ] | |
@@ -231,6 +231,7 @@ Newest first. One entry per session or work item: date, what changed, evidence, 
 
 | Date | Work | Evidence | Next |
 |------|------|----------|------|
+| 2026-10-04 | **M1-05** social core: relationships store, modifier catalog, trust, familiarity, fear, tags | RelationshipTests 6 (Mira example; 16 §4.13 corrected); 117 tests | M1-06 interactions + memory |
 | 2026-10-04 | **M1-03** DP propensity layer + DecisionTrace inspector (`why`) | PropensityTests 5 reproduce 21 §7.8/§8.3 numbers; 111 tests | M1-05 social core (opinion, trust, familiarity) |
 | 2026-10-04 | **M1-02b** camp metrics + `feudalsim sweep`; tuned into 21 §19 bands (100 seeds × 30 days) | sweep: all in band ≥ 90% of seeds; 105 tests | M1-03 DP propensities (21 §7.8) |
 | 2026-10-04 | **M1-02a** utility AI v1 on the graybox camp (10 actions, scoring, schedule, camp stocks) | UtilityAiTests 6; 104 tests; m1_camp 8 days deterministic, mood +9…+14 | M1-02b metrics + tuning |

@@ -14,6 +14,18 @@ public static class SaveCodec
     public const string PeopleTable = "people";
     public const string CampTable = "camp";
 
+    public const string RelationshipsTable = "relationships";
+
+    private static TableChunk RelationshipsChunk(Social.RelationshipStore store)
+    {
+        var (edges, mods) = store.Export();
+        var chunk = new TableChunk { Table = RelationshipsTable, RowCount = edges.Length };
+        chunk.Columns.Add(new ColumnBlock { Name = "edges", LayoutVersion = 1, ElementSize = Marshal.SizeOf<Social.RelationshipStore.EdgeRecord>(), Data = MemoryMarshal.AsBytes(edges.AsSpan()).ToArray() });
+        chunk.Columns.Add(new ColumnBlock { Name = "mods", LayoutVersion = 1, ElementSize = Marshal.SizeOf<Social.ModSlot>(), Data = MemoryMarshal.AsBytes(mods.AsSpan()).ToArray() });
+        chunk.Columns.Add(new ColumnBlock { Name = "meta", LayoutVersion = 1, ElementSize = 1, Data = [store.ShipmatesSeeded ? (byte)1 : (byte)0] });
+        return chunk;
+    }
+
     private static TableChunk CampChunk(in CampRecord camp)
     {
         var chunk = new TableChunk { Table = CampTable, RowCount = 1 };
@@ -82,7 +94,7 @@ public static class SaveCodec
                 LastCommandSeq = world.LastCommandSeq,
             },
             IdCounters = counters,
-            Tables = [people, CampChunk(world.Camp)],
+            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships)],
         };
     }
 
@@ -135,6 +147,22 @@ public static class SaveCodec
             && block.ElementSize == Marshal.SizeOf<CampRecord>() && block.Data.Length == block.ElementSize)
         {
             world.Camp = MemoryMarshal.Read<CampRecord>(block.Data);
+        }
+
+        if (image.Tables.FirstOrDefault(t => t.Table == RelationshipsTable) is { } rel)
+        {
+            var edges = rel.Columns.FirstOrDefault(c => c.Name == "edges");
+            var mods = rel.Columns.FirstOrDefault(c => c.Name == "mods");
+            var meta = rel.Columns.FirstOrDefault(c => c.Name == "meta");
+            if (edges is { ElementSize: var es } && es == Marshal.SizeOf<Social.RelationshipStore.EdgeRecord>() && mods is { ElementSize: var ms } && ms == Marshal.SizeOf<Social.ModSlot>())
+            {
+                world.Relationships.Import(MemoryMarshal.Cast<byte, Social.RelationshipStore.EdgeRecord>(edges.Data).ToArray(),
+                    MemoryMarshal.Cast<byte, Social.ModSlot>(mods.Data).ToArray(), meta?.Data is [1]);
+            }
+            else
+            {
+                notes.Add("Relationships table has an unknown layout; relationships reset.");
+            }
         }
 
         warnings = notes;

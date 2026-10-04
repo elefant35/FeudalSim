@@ -28,12 +28,16 @@ public sealed class SimWorld
         WorldSeed = worldSeed;
         Clock = new SimClock(startGameMs, dayLengthMinutes);
         Decisions = new DecisionRulesEngine(this);
+        Relationships = new Social.RelationshipStore(this);
     }
 
     public ulong WorldSeed { get; }
     public SimClock Clock { get; }
     public EntityIdAllocator Ids { get; } = new();
     public PersonTable People { get; } = new();
+
+    /// <summary>Relationships (16 §4): opinion, trust, familiarity, fear, tags.</summary>
+    public Social.RelationshipStore Relationships { get; }
 
     /// <summary>The M1 graybox camp: places and shared stocks (inactive in M0 scenarios).</summary>
     public CampRecord Camp;
