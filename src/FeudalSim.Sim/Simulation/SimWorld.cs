@@ -52,6 +52,12 @@ public sealed class SimWorld
     /// <summary>Relationships (16 §4): opinion, trust, familiarity, fear, tags.</summary>
     public Social.RelationshipStore Relationships { get; }
 
+    /// <summary>Coin and goods (M1 prototype of 15's purses and inventories).</summary>
+    public Economy.Holdings Holdings { get; } = new();
+
+    /// <summary>Open haggles with the player (15 §5).</summary>
+    public Economy.NegotiationStore Negotiations { get; } = new();
+
     /// <summary>Favors people agreed to do (16 §5.4), carried out by the utility AI.</summary>
     public Social.FavorStore Favors { get; } = new();
 
@@ -270,6 +276,31 @@ public sealed class SimWorld
 
                 break;
             }
+
+            case SetHoldings c:
+            {
+                var row = People.IndexOf(c.Person);
+                var item = c.Item.Length == 0 ? -1 : FeudalSim.Sim.Content.ContentDatabase.HandleOf(Content.Items, c.Item, i => i.Id);
+                if (row < 0 || (c.Item.Length > 0 && item < 0) || c.Qty < 0 || c.CoinF < 0) { Reject(command, "Invalid holdings."); break; }
+                Holdings.Set(c.Person, item, c.Qty, c.CoinF);
+                break;
+            }
+
+            case TradeOpen c:
+                Economy.TradeOwner.Open(this, command, c);
+                break;
+
+            case TradeOffer c:
+                Economy.TradeOwner.Offer(this, command, c);
+                break;
+
+            case TradeAccept c:
+                Economy.TradeOwner.AcceptNpcOffer(this, command, c);
+                break;
+
+            case TradeWalkAway c:
+                Economy.TradeOwner.WalkAway(this, command, c);
+                break;
 
             case StartConversation c:
                 Dialogue.ConversationSystem.Start(this, command, c);

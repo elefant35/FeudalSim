@@ -21,6 +21,11 @@ public enum CommandSource : byte { Player, Embodiment, Ai, Settings, Scenario, D
 [Union(9, typeof(StartConversation))]
 [Union(10, typeof(EndConversation))]
 [Union(11, typeof(PlayerUtteranceClassified))]
+[Union(12, typeof(SetHoldings))]
+[Union(13, typeof(TradeOpen))]
+[Union(14, typeof(TradeOffer))]
+[Union(15, typeof(TradeAccept))]
+[Union(16, typeof(TradeWalkAway))]
 public abstract record StateCommand;
 
 /// <summary>Changes the real-minutes-per-game-day setting (canon §6). Logged; applies at the next step.</summary>
@@ -96,6 +101,29 @@ public sealed record PlayerUtteranceClassified(
     [property: Key(15)] Core.EntityId ClaimSubject = default,
     [property: Key(16)] Core.EntityId ClaimObject = default,
     [property: Key(17)] bool ClaimFirstHand = false) : StateCommand;
+
+/// <summary>Scenario/dev: sets a person's holding of one item (−1 for none) and their coin (farthings). M1 has no other source of goods.</summary>
+[MessagePackObject]
+public sealed record SetHoldings([property: Key(0)] Core.EntityId Person, [property: Key(1)] string Item, [property: Key(2)] int Qty, [property: Key(3)] long CoinF) : StateCommand;
+
+/// <summary>The trade UI opens a haggle with the NPC the player is talking to (15 §5): buying from them, or pitching to them.</summary>
+[MessagePackObject]
+public sealed record TradeOpen([property: Key(0)] Core.EntityId Npc, [property: Key(1)] string Item, [property: Key(2)] int Qty, [property: Key(3)] bool PlayerSells) : StateCommand;
+
+/// <summary>
+/// The player's offer in farthings — a bid when buying, an ask when selling — with optional structured arguments
+/// (quality_flaw, competitor_price, hardship, relationship, future_business, flattery, bulk_deal; at most 2) and their
+/// quality W 0–1 from the fast decider (0 = template mode, W 0.5). Numbers come from the extractor or the UI, never a model.
+/// </summary>
+[MessagePackObject]
+public sealed record TradeOffer([property: Key(0)] ulong Negotiation, [property: Key(1)] long PriceF, [property: Key(2)] string[]? Arguments = null, [property: Key(3)] float Quality = 0f) : StateCommand;
+
+/// <summary>The player takes the NPC's standing offer.</summary>
+[MessagePackObject]
+public sealed record TradeAccept([property: Key(0)] ulong Negotiation) : StateCommand;
+
+[MessagePackObject]
+public sealed record TradeWalkAway([property: Key(0)] ulong Negotiation) : StateCommand;
 
 /// <summary>The player's body position as reported by the client each step (the player is always embodied).</summary>
 [MessagePackObject]

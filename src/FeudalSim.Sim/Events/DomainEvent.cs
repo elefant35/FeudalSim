@@ -27,6 +27,9 @@ public enum Salience : byte { Trace, Minor, Notable, Major, Historic }
 [Union(18, typeof(RequestAnswered))]
 [Union(19, typeof(FavorDone))]
 [Union(20, typeof(LieCaught))]
+[Union(21, typeof(TradeOffered))]
+[Union(22, typeof(TradeSettled))]
+[Union(23, typeof(NegotiationEnded))]
 public abstract record DomainEvent;
 
 [MessagePackObject]
@@ -145,3 +148,14 @@ public sealed record FavorDone([property: Key(0)] EntityId Doer, [property: Key(
 /// <summary>A listener caught a lie (16 §5.2): <c>lied_to_me</c>, trust lost; no being-told DP.</summary>
 [MessagePackObject]
 public sealed record LieCaught([property: Key(0)] EntityId Listener, [property: Key(1)] EntityId Liar, [property: Key(2)] int Claim) : DomainEvent;
+
+/// <summary>The NPC's standing offer in a haggle (15 §5): the opening ask, a counter, or the same offer after a refuse.</summary>
+[MessagePackObject]
+public sealed record TradeOffered([property: Key(0)] ulong Negotiation, [property: Key(1)] EntityId Npc, [property: Key(2)] long PriceF, [property: Key(3)] string Move) : DomainEvent;
+
+/// <summary>A deal settled: goods and coin moved at the agreed price.</summary>
+[MessagePackObject]
+public sealed record TradeSettled([property: Key(0)] ulong Negotiation, [property: Key(1)] EntityId Seller, [property: Key(2)] EntityId Buyer, [property: Key(3)] int Item, [property: Key(4)] int Qty, [property: Key(5)] long PriceF) : DomainEvent;
+
+[MessagePackObject]
+public sealed record NegotiationEnded([property: Key(0)] ulong Negotiation, [property: Key(1)] EntityId Npc, [property: Key(2)] string Reason) : DomainEvent;

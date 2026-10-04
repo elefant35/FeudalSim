@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=../schemas/dp.schema.json
+# 15 §5.6 negotiation menus. The trade system fixes every price (the concession steps of the menu width) and computes the
+# base propensities from §5.3–5.4's numbers; a decider only picks among them. {price} is the option's price in words.
+- id: dp.trade_sell
+  owner: 15.trade
+  description: The NPC is selling and answers the player's bid. Proposals (other item, bundle, credit) arrive with stock lists and debts (M3–M4).
+  options:
+    - { id: accept_offer,   family: accept,  stakes: low, favors_player: true, gloss: "sell the {item} to {player} for {price}" }
+    - { id: counter_step_0, family: counter, stakes: low, gloss: "counter: {price} for the {item}" }
+    - { id: counter_step_1, family: counter, stakes: low, gloss: "counter: {price} for the {item}" }
+    - { id: counter_step_2, family: counter, stakes: low, gloss: "counter: {price} for the {item}" }
+    - { id: counter_step_3, family: counter, stakes: low, gloss: "counter: {price} for the {item}" }
+    - { id: refuse,         family: refuse,  stakes: low, gloss: "refuse; stand on your price of {price}" }
+    - { id: walk_away,      family: end,     stakes: low, gloss: "end the haggling; you won't sell" }
+- id: dp.trade_buy
+  owner: 15.trade
+  description: The NPC is being pitched and answers the player's ask (canon's "talking someone into buying something").
+  options:
+    - { id: buy_at_ask,     family: accept,  stakes: low, favors_player: true, gloss: "buy the {item} from {player} for {price}" }
+    - { id: counter_step_0, family: counter, stakes: low, gloss: "offer {price} for the {item} instead" }
+    - { id: counter_step_1, family: counter, stakes: low, gloss: "offer {price} for the {item} instead" }
+    - { id: counter_step_2, family: counter, stakes: low, gloss: "offer {price} for the {item} instead" }
+    - { id: counter_step_3, family: counter, stakes: low, gloss: "offer {price} for the {item} instead" }
+    - { id: refuse,         family: refuse,  stakes: low, gloss: "refuse; stand on your offer of {price}" }
+    - { id: walk_away,      family: end,     stakes: low, gloss: "not interested; end it" }

@@ -87,7 +87,7 @@ the M1 spikes. Items are sized ≈ ½–2 days; split them (`M1-12a`…) when th
 
 | ID | Item | Status | Evidence |
 |----|------|--------|----------|
-| M1-10 | Haggle prototype: §5 values and curves, §5.6 trade DP owner (menus, propensities, guards, concession steps from `Margin = C_sys·s·(0.5+0.5·K_skill)`), stub trade execution moving goods and coin at the menu price | [ ] | |
+| M1-10 | Haggle prototype: §5 values and curves, §5.6 trade DP owner (menus, propensities, guards, concession steps from `Margin = C_sys·s·(0.5+0.5·K_skill)`), stub trade execution moving goods and coin at the menu price | [x] | `Sim/Economy/Haggle.cs` (§5.2 RV/Asp/margins/social factor, §5.3 K/β/curve, §5.4 τ and lowball, §5.5 S_n, §5.6 Σσ and the seller/buyer menus with step prices and propensities), `Sim/Economy/Trade.cs` (`Holdings`, `Negotiation` store, `TradeOwner`, commands `SetHoldings` / `TradeOpen` / `TradeOffer` / `TradeAccept` / `TradeWalkAway`, settlement moving goods and coin). Content `dp.trade_sell`, `dp.trade_buy`; modifiers #60 `lowballed_me`, #61 `false_argument`. **`TradeTests` 7:** Aldric S 0.29, Margin 2.8 %, Σσ 0.37 and +0.27, lowball Anger +18.47 / Opinion −8; round 0 prices 99/98/97/96 with p 0.10/0.53/0.18/0.004, refuse 0.17, walk 0.02; rounds 1–3 (whim 0.03, ratchet, 91/90/90 at 0.58/0.20, 82/82/81 at 0.16/0.52/0.10, accept 0.98); example B (0.07/0.51/0.22, expected step ≈ Σσ); **talking an NPC into buying an iron axe** → LLM picks buy_at_ask → settled at 45f (gloss "11 pennies and 1 farthing"), coin 40→85 / 200→155, the axe moves; buying with the policy at the deadline (template mode) and counters never rise; lowballs are acts (anger, lowballed_me, K −2) and a second ends the haggle. 194 tests |
 
 ### Dialogue pipeline & AI (22)
 
@@ -251,6 +251,7 @@ Newest first. One entry per session or work item: date, what changed, evidence, 
 
 | Date | Work | Evidence | Next |
 |------|------|----------|------|
+| 2026-10-04 | **M1-10** haggle prototype (15 §5): math reproduces examples A/B; trade DP; settlement moves goods and coin | TradeTests 7; 194 tests | M1-11 sanitize + input limits + act classification |
 | 2026-10-04 | **M1-09b** request (favors carried out) + being told (lie test) | RequestAndToldTests 5; 187 tests; sweep in band | M1-10 haggle prototype |
 | 2026-10-04 | **M1-09a** rapport + apology DPs, words budget, menu width | SocialDpTests 9; 182 tests; sweep in band | M1-09b request + being told |
 | 2026-10-04 | **M1-08** escalation ladder through rung 5, response + bystander DPs, placeholder brawl; NPC insults on the ladder | EscalationTests 10 (16 §9.3 numbers); 173 tests; sweep in band | M1-09 social DP owners (rapport, apology, request, being told) |

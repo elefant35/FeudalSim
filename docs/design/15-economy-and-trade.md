@@ -684,6 +684,18 @@ Commerce at 100; a lie hardens it by up to half a margin.
 business · Flatter · Offer more quantity* — which skip Step 2, set `W = 0.5`, and run Steps 3–6
 identically; the policy decides. Free text is a richer path to the same menu, never a different one.
 
+*Implemented (M1-10, prototype):* `Sim/Economy/Haggle.cs` holds §5.2–5.6's math and reproduces worked examples A and
+B (S 0.29, Margin 2.8 %, Σσ 0.37 → 0.64, round prices 99/98/97/96 → 91/90/90 → 82/82/81, propensities, the whim, the
+ratchet, round 3's 0.98; `TradeTests`). `Sim/Economy/Trade.cs`: `Holdings` (coin and goods per person, saved), the
+`Negotiation` store (saved), `TradeOwner` (`trade.respond`; content `dp.trade_sell` / `dp.trade_buy`) and commands that
+stand in for the trade UI — `TradeOpen` (in a conversation; valuation, curve and patience fixed), `TradeOffer` (the
+player's bid or ask with up to two structured arguments and W; words → Σσ, backfires as `false_argument`, §5.4 lowballs
+as acts with `lowballed_me`, K −2, a second insult ends it), `TradeAccept`, `TradeWalkAway`. A pick settles at the
+option's price and moves goods and coin; `fair_trade` both ways, `generous_deal` for a cheap buy. **Prototype limits:**
+ItemValue = base value (local prices §2–4 and quality: M3–M4); PV from a keyed appraisal error σ = 0.03 + 0.25·(1 −
+Commerce/100); no cost floors, competitor-price beliefs, trade history or flaws (those arguments score +0.5 or the
+judge's −1); no proposals (other item, bundle, credit, barter), no call-back DP, no NPC↔NPC trade (§5.10: M3).
+
 ### 5.7 Pseudocode
 
 Shown with the NPC selling; when the NPC buys, the roles mirror.

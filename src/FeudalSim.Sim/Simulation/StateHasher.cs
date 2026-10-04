@@ -46,6 +46,8 @@ public static class StateHasher
         world.Conversations.HashInto(h);
         world.Confrontations.HashInto(h);
         world.Favors.HashInto(h);
+        world.Holdings.HashInto(h);
+        world.Negotiations.HashInto(h);
         world.Relationships.HashInto(h);
         world.Memories.HashInto(h);
         world.Claims.HashInto(h);

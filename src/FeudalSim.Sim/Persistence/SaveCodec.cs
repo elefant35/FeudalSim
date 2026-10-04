@@ -59,6 +59,26 @@ public static class SaveCodec
     public const string PlayerTable = "player";
     public const string ConfrontationsTable = "confrontations";
     public const string FavorsTable = "favors";
+    public const string HoldingsTable = "holdings";
+    public const string NegotiationsTable = "negotiations";
+
+    private static TableChunk HoldingsChunk(Economy.Holdings store)
+    {
+        var (coin, goods) = store.Export();
+        var chunk = new TableChunk { Table = HoldingsTable, RowCount = coin.Length + goods.Length };
+        chunk.Columns.Add(new ColumnBlock { Name = "coin", LayoutVersion = 1, ElementSize = Marshal.SizeOf<Economy.Holdings.CoinRow>(), Data = MemoryMarshal.AsBytes(coin.AsSpan()).ToArray() });
+        chunk.Columns.Add(new ColumnBlock { Name = "goods", LayoutVersion = 1, ElementSize = Marshal.SizeOf<Economy.Holdings.GoodsRow>(), Data = MemoryMarshal.AsBytes(goods.AsSpan()).ToArray() });
+        return chunk;
+    }
+
+    private static TableChunk NegotiationsChunk(Economy.NegotiationStore store)
+    {
+        var (open, lastId) = store.Export();
+        var chunk = new TableChunk { Table = NegotiationsTable, RowCount = open.Length };
+        chunk.Columns.Add(new ColumnBlock { Name = "open", LayoutVersion = 1, ElementSize = 0, Data = MessagePackSerializer.Serialize(open) });
+        chunk.Columns.Add(new ColumnBlock { Name = "last_id", LayoutVersion = 1, ElementSize = 8, Data = BitConverter.GetBytes(lastId) });
+        return chunk;
+    }
 
     private static TableChunk FavorsChunk(Social.FavorStore store)
     {
@@ -195,7 +215,7 @@ public static class SaveCodec
                 LastCommandSeq = world.LastCommandSeq,
             },
             IdCounters = counters,
-            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories), ClaimsChunk(world.Claims), BeliefsChunk(world.Beliefs), RenownChunk(world.Reputation), DecisionsChunk(world.Decisions), AiChunk(world), ConversationsChunk(world.Conversations), PlayerChunk(world.Player), ConfrontationsChunk(world.Confrontations), FavorsChunk(world.Favors)],
+            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories), ClaimsChunk(world.Claims), BeliefsChunk(world.Beliefs), RenownChunk(world.Reputation), DecisionsChunk(world.Decisions), AiChunk(world), ConversationsChunk(world.Conversations), PlayerChunk(world.Player), ConfrontationsChunk(world.Confrontations), FavorsChunk(world.Favors), HoldingsChunk(world.Holdings), NegotiationsChunk(world.Negotiations)],
         };
     }
 
@@ -344,6 +364,25 @@ public static class SaveCodec
                 world.Favors.Import(MessagePackSerializer.Deserialize<Social.Favor[]>(open.Data), BitConverter.ToUInt64(last.Data, 0));
             }
             else { notes.Add("Favors table has an unknown layout; favors dropped."); }
+        }
+
+        if (image.Tables.FirstOrDefault(t => t.Table == HoldingsTable) is { } hold
+            && hold.Columns.FirstOrDefault(c => c.Name == "coin") is { } coinCol && hold.Columns.FirstOrDefault(c => c.Name == "goods") is { } goodsCol)
+        {
+            if (coinCol.ElementSize == Marshal.SizeOf<Economy.Holdings.CoinRow>() && goodsCol.ElementSize == Marshal.SizeOf<Economy.Holdings.GoodsRow>())
+            {
+                world.Holdings.Import(MemoryMarshal.Cast<byte, Economy.Holdings.CoinRow>(coinCol.Data).ToArray(), MemoryMarshal.Cast<byte, Economy.Holdings.GoodsRow>(goodsCol.Data).ToArray());
+            }
+            else { notes.Add("Holdings table has an unknown layout; holdings reset."); }
+        }
+
+        if (image.Tables.FirstOrDefault(t => t.Table == NegotiationsTable) is { } negs)
+        {
+            if (negs.Columns.FirstOrDefault(c => c.Name == "open") is { LayoutVersion: 1 } open && negs.Columns.FirstOrDefault(c => c.Name == "last_id") is { Data.Length: 8 } last)
+            {
+                world.Negotiations.Import(MessagePackSerializer.Deserialize<Economy.Negotiation[]>(open.Data), BitConverter.ToUInt64(last.Data, 0));
+            }
+            else { notes.Add("Negotiations table has an unknown layout; haggles dropped."); }
         }
 
         world.RestorePlayerId();
