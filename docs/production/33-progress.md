@@ -88,13 +88,13 @@ Verified only by running the command or test and pasting the result into **Evide
 
 | Criterion | Status | Evidence |
 |-----------|--------|----------|
-| `dotnet build` and `dotnet test` green in CI on every push | [ ] | |
-| Headless runner: 1 game year, 24 agents, same seed → byte-identical event logs | [ ] | |
-| Godot client shows a capsule moving by sim commands; pause and time scale work | [ ] | |
-| A command-line call reaches OpenRouter and the response is recorded into the event log | [ ] | |
-| Content validation fails CI on malformed YAML | [ ] | |
-| All 15 steps of 20 §20 pass, including replay of a recorded client session | [ ] | |
-| ADRs 0005–0010 written and accepted | [ ] | |
+| `dotnet build` and `dotnet test` green in CI on every push | [x] | CI (ubuntu + macOS) green on main since eb61a11 (run 37162967313); runs on every push and PR |
+| Headless runner: 1 game year, 24 agents, same seed → byte-identical event logs | [x] | `run --days 32 --write-events` twice (separate processes): 576,000 steps each; `events.fslog` SHA-256 b692b44d…a45a6f both; `inputs.fslog` c8aa7c24…254c78 both; final hash 3d3de5abbf9f5d09 both |
+| Godot client shows a capsule moving by sim commands; pause and time scale work | [!] | Needs Godot (Blockers). Sim side ready: SimRunner pause/time scale tested (M0-09) |
+| A command-line call reaches OpenRouter and the response is recorded into the event log | [x] | `run --scenario content/scenarios/m0_ai_ping.yaml --realtime --seconds 25` → `log inputs … --filter AiResult`: "seq 25 @step 29 [Ai] AiResultCommand { Outcome = Ok, Text = Good morrow, friend…, ProviderTag = openrouter, LatencyMs = 813 }"; events log shows AiResultApplied without fallback |
+| Content validation fails CI on malformed YAML | [x] | CI runs `content validate`, which exits 1 on any error; the broken fixture fails with `items/bad.yaml:10:17` (M0-07). Schema and license freshness are also checked in CI |
+| All 15 steps of 20 §20 pass, including replay of a recorded client session | [!] | 10 of 15 done; steps 1, 11, 12, 13 (and godot.yml in 14, the terrain ADR in 15) need Godot. Headless replay of a recorded runner session already passes (M0-10 test) |
+| ADRs 0005–0010 written and accepted | [~] | 0005–0008, 0010 accepted; 0009 (terrain) proposed until the M0-12 spike |
 
 ---
 
@@ -127,5 +127,6 @@ Newest first. One entry per session or work item: date, what changed, evidence, 
 
 | Date | Work | Evidence | Next |
 |------|------|----------|------|
+| 2026-10-03 | M0 session 1: M0-02…10, M0-A2/A3/A5, M0-AU2 done; M0-14/15, M0-A4, M0-AU3 partial; 4 of 7 exit criteria verified. 57 tests; CI green; live OpenRouter round trip logged. Stopped: everything left needs Godot (or ffmpeg) | commits 86d7f0d…cbe376f | Owner: install Godot 4.7.2 .NET (`brew install --cask godot-mono`) and fix ffmpeg (Blockers); then `/advance-plan` resumes at M0-01 → M0-11 |
 | 2026-10-03 | M0-A1: owner installed Git LFS; verified tracking and hooks | `git lfs track`, `git check-attr` | M0-01 (Godot .NET, ffmpeg, gh) |
 | 2026-10-03 | Planning complete: 25 docs, canon v0.3 (decision points), art & audio production plan, `/advance-plan` skill, session goals | commits on `main` | Start M0-01 |
