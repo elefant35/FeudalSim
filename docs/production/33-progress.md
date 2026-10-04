@@ -88,7 +88,7 @@ Verified only by running the command or test and pasting the result into **Evide
 
 | Criterion | Status | Evidence |
 |-----------|--------|----------|
-| `dotnet build` and `dotnet test` green in CI on every push | [x] | CI (ubuntu + macOS) green on main since eb61a11 (run 37162967313); runs on every push and PR |
+| `dotnet build` and `dotnet test` green in CI on every push | [x] | CI (ubuntu + macOS) runs on every push and PR; green at eb61a11, 1bb2c52, e72004d (latest completed code run); later pushes listed in the session log |
 | Headless runner: 1 game year, 24 agents, same seed → byte-identical event logs | [x] | `run --days 32 --write-events` twice (separate processes): 576,000 steps each; `events.fslog` SHA-256 b692b44d…a45a6f both; `inputs.fslog` c8aa7c24…254c78 both; final hash 3d3de5abbf9f5d09 both |
 | Godot client shows a capsule moving by sim commands; pause and time scale work | [!] | Needs Godot (Blockers). Sim side ready: SimRunner pause/time scale tested (M0-09) |
 | A command-line call reaches OpenRouter and the response is recorded into the event log | [x] | `run --scenario content/scenarios/m0_ai_ping.yaml --realtime --seconds 25` → `log inputs … --filter AiResult`: "seq 25 @step 29 [Ai] AiResultCommand { Outcome = Ok, Text = Good morrow, friend…, ProviderTag = openrouter, LatencyMs = 813 }"; events log shows AiResultApplied without fallback |
@@ -118,6 +118,7 @@ Items found while working that belong to a later milestone or need triage.
 | 2026-10-03 | Dialogue latency varied 3.9–9.6 s for qwen/qwen3-14b on OpenRouter (provider routing); S2 must pin fast providers or pick another model | M1 (S2) | M0-10 |
 | 2026-10-03 | Persist pending AI requests and the AI request counter in saves | M1 | M0-10 |
 | 2026-10-03 | Full 20 §9.4 snapshot layout (header + TOC + per-chunk hashes) | M3 | M0-06 |
+| 2026-10-03 | **Install the .NET 10 SDK, update `global.json`, unpin the Roslyn-4.11 workarounds** (BannedApiAnalyzers 3.3.4; JsonSchema.Net.Generation dropped) — ADR-0010 step 2; .NET 8 support ends 2026-11-10 | M0/M1 (owner install) | M0-02, M0-07 |
 
 ---
 

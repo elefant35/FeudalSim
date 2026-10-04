@@ -548,9 +548,11 @@ All versions *(verify at M0)*.
 | `GameMinute` | `long` = `GameMs / 60_000` | **The canonical timestamp** ([canon §14](../01-canon.md#14-scales-units--conventions)), used in every component, event, memory and save field. |
 | Embodied time | ms | The physical time of bodies: walking speeds, swing durations. Equals real time at 1× time scale. |
 
-A **fine step** advances embodied time by `StepMs = 100`, and game time by `StepMs × Ratio`, where
-`Ratio = 1440 / DayLengthMinutes` (game minutes per real minute). At the canonical 30-minute day,
-`Ratio = 48`, so a step is 4,800 game-ms (4.8 game-seconds), 12.5 steps make a game minute, and
+A **fine step** advances embodied time by `StepMs = 100`, and game time by
+**`GameMsPerStep = 144,000 / DayLengthMinutes`**, computed directly in integer arithmetic. (This equals
+`StepMs × Ratio` with `Ratio = 1440 / DayLengthMinutes` game minutes per real minute, but the ratio is
+fractional for 25- and 50-minute days — 57.6 and 28.8 — so it is display-only; M0-04 found and fixed
+this.) At the canonical 30-minute day a step is 4,800 game-ms (4.8 game-seconds), 12.5 steps make a game minute, and
 18,000 steps make a game day.
 
 **Day-length setting** (canon §6: 20–60 real minutes). Game-ms per step must be an integer, so
