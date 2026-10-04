@@ -98,7 +98,9 @@ public partial class SimHost
             _camera.Fov = 70;
         }
 
-        _playerBody!.Visible = !_firstPerson;   // the head-hidden body view arrives with the modular character (M2-FP4)
+        // FP4: in first person you see your own body (arms, chest, feet) with the head parts hidden; the stand-in hides entirely.
+        _playerBody!.Visible = _playerKitBody || !_firstPerson;
+        foreach (var part in _playerHeads) { part.Visible = !_firstPerson; }
         if (_crosshair is not null) { _crosshair.Visible = _firstPerson && !UiOpen; }
     }
 
@@ -111,7 +113,7 @@ public partial class SimHost
         var bestAngle = Mathf.DegToRad(LookConeDeg);
         foreach (var (id, p) in _people)
         {
-            if (p.Body.Rotation.X != 0) { continue; }   // lying down: asleep, down or dead
+            if (_lying.Contains(id)) { continue; }   // lying down: asleep, down or dead
             var flat = new Vector2(p.Body.Position.X, p.Body.Position.Z).DistanceTo(_player);
             if (flat > ReachM + 0.5f) { continue; }
             var chest = p.Body.Position + new Vector3(0, 1.3f, 0);

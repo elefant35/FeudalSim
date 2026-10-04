@@ -15,7 +15,12 @@ namespace FeudalSim.Game.World;
 /// </summary>
 public sealed class Island
 {
-    public const string TerrainVersion = "fp1-3";
+    public const string TerrainVersion = "fp4-1";
+
+    /// <summary>The art agent's Terrain3D layers (art brief P0.3), in texture-slot order.</summary>
+    public static readonly string[] Layers = ["sand", "shingle", "grass", "grass_rough", "forest_floor", "heather_moor", "mud", "rock"];
+    private const int LSand = 0, LGrass = 2, LGrassRough = 3, LForest = 4, LHeather = 5, LMud = 6, LRock = 7;
+    private bool _layered;
     public const float Spacing = 2f;
 
     private readonly float[] _h;
@@ -54,13 +59,15 @@ public sealed class Island
         var cached = false;
         if (Terrain3DFacade.Available)
         {
-            island.Terrain = Terrain3DFacade.Create(parent, Spacing, 1024, camera, DetailAssets());
+            var layered = LayerAssets();
+            island._layered = layered is not null;
+            island.Terrain = Terrain3DFacade.Create(parent, Spacing, 1024, camera, layered ?? DetailAssets());
             var key = $"{TerrainVersion} {map.Fingerprint:x16}";
             var keyFile = Terrain3DFacade.CacheDir(map.Seed) + "/island.key";
             cached = Godot.FileAccess.FileExists(keyFile) && Godot.FileAccess.GetFileAsString(keyFile) == key && island.Terrain.TryLoadCache(map.Seed);
             if (!cached)
             {
-                island.Terrain.Import(island.HeightImage(), island.ColorImage(), island._half);
+                island.Terrain.Import(island.HeightImage(), island.ColorImage(), island._half, island._layered ? island.ControlImage() : null);
                 island.Terrain.SaveCache(map.Seed);
                 using var f = Godot.FileAccess.Open(keyFile, Godot.FileAccess.ModeFlags.Write);
                 f.StoreString(key);
@@ -73,7 +80,7 @@ public sealed class Island
 
         var terrainMs = sw.Elapsed.TotalMilliseconds;
         parent.AddChild(Sea());
-        if (map.Landing is { } l) { parent.AddChild(Wreck(l, island)); }
+        if (map.Landing is { } l && !CampDressing.Wreck(parent, island, l, map.Pois)) { parent.AddChild(Wreck(l, island)); }   // the art wreck (FP4), else the graybox
         island.Report = $"island: seed {map.Seed} · {n}² @ {Spacing} m · upsample {upMs:F0} ms · terrain {(cached ? "cache" : "import")} {terrainMs:F0} ms";
         GD.Print("SimHost: " + island.Report);
         return island;
@@ -129,12 +136,102 @@ public sealed class Island
                 if (h < 0.4f) { c = WetSand; }
                 if (slope > 0.45f) { c = c.Lerp(Rock, Math.Clamp((slope - 0.45f) / 0.25f, 0f, 1f)); }
                 var mottle = 1f + (0.06f * (Noise(x / 9f, z / 9f) - 0.5f) * 2f);
+                if (_layered) { c = new Color(0.97f, 0.97f, 0.97f).Lerp(c, 0.12f); }   // the painted layers carry the colour; the map only tints
                 c = new Color(c.R * mottle, c.G * mottle, c.B * mottle);
                 var o = ((z * img) + x) * 4;
                 (bytes[o], bytes[o + 1], bytes[o + 2], bytes[o + 3]) = ((byte)c.R8, (byte)c.G8, (byte)c.B8, 128);   // A = roughness modifier (neutral)
             }
         });
         return Image.CreateFromData(img, img, false, Image.Format.Rgba8, bytes);
+    }
+
+    /// <summary>
+    /// M2-FP4: the eight painted layers as Terrain3D texture assets (albedo+height and normal+roughness, loaded as plain
+    /// RGBA8 images with mipmaps so every layer shares one format). Null if any file is missing.
+    /// </summary>
+    private static GodotObject? LayerAssets()
+    {
+        var assets = ClassDB.Instantiate("Terrain3DAssets").AsGodotObject();
+        for (var k = 0; k < Layers.Length; k++)
+        {
+            var albedo = $"res://assets/terrain/{Layers[k]}_albedo_height.png";
+            var normal = $"res://assets/terrain/{Layers[k]}_normal_rough.png";
+            if (!Godot.FileAccess.FileExists(albedo) || !Godot.FileAccess.FileExists(normal)) { return null; }
+            ImageTexture Load(string path)
+            {
+                var img = Image.LoadFromFile(ProjectSettings.GlobalizePath(path));
+                img.Convert(Image.Format.Rgba8);
+                img.GenerateMipmaps();
+                return ImageTexture.CreateFromImage(img);
+            }
+
+            var texture = ClassDB.Instantiate("Terrain3DTextureAsset").AsGodotObject();
+            texture.Set("name", Layers[k]);
+            texture.Set("albedo_texture", Load(albedo));
+            texture.Set("normal_texture", Load(normal));
+            texture.Set("uv_scale", 0.5f);   // one tile per 2 m of ground
+            assets.Call("set_texture", k, texture);
+        }
+
+        return assets;
+    }
+
+    /// <summary>
+    /// The control map (Terrain3D's packed uint: base layer bits 27–31, overlay 22–26, blend 14–21). Base and overlay are the
+    /// two strongest biome layers among the four surrounding 8 m cells (bilinear weights) so biomes fade into each other;
+    /// the strand is sand, streams mud, and steep ground blends to rock.
+    /// </summary>
+    private Image ControlImage()
+    {
+        var img = _n - 1;
+        var bytes = new byte[img * img * 4];
+        var g = Map.Grid;
+        var per = g.CellM / Spacing;
+        Parallel.For(0, img, z =>
+        {
+            var w = new float[Layers.Length];   // one per row (the local function below captures it)
+            for (var x = 0; x < img; x++)
+            {
+                var i = (z * _n) + x;
+                var h = _h[i];
+                var dx = _h[i + 1] - _h[i];
+                var dz = _h[i + _n] - _h[i];
+                var slope = MathF.Sqrt((dx * dx) + (dz * dz)) / Spacing;
+                float gx = x / per, gz = z / per;
+                int c0 = Math.Min((int)gx, g.Size - 2), r0 = Math.Min((int)gz, g.Size - 2);
+                float ox = gx - c0, oz = gz - r0;
+                Array.Clear(w);
+                void Add(int c, int r, float weight)
+                {
+                    var k = (r * g.Size) + c;
+                    var layer = (WaterClass)g.Water[k] is WaterClass.Stream or WaterClass.River ? LMud
+                        : g.Land[k] == 0 ? LSand
+                        : (Biome)g.Biome[k] switch
+                        {
+                            Biome.CoastDunes => LGrassRough, Biome.Meadow or Biome.RiverValley => LGrass, Biome.Broadleaf or Biome.Pine => LForest,
+                            Biome.Wetland => LMud, Biome.HillsMoor => LHeather, Biome.Highland => LRock, _ => LGrass,
+                        };
+                    w[layer] += weight;
+                }
+
+                Add(c0, r0, (1 - ox) * (1 - oz));
+                Add(c0 + 1, r0, ox * (1 - oz));
+                Add(c0, r0 + 1, (1 - ox) * oz);
+                Add(c0 + 1, r0 + 1, ox * oz);
+                var k0 = (r0 * g.Size) + c0;
+                var coast = (g.CoastDistM[k0] * (1 - ox) * (1 - oz)) + (g.CoastDistM[k0 + 1] * ox * (1 - oz)) + (g.CoastDistM[k0 + g.Size] * (1 - ox) * oz) + (g.CoastDistM[k0 + g.Size + 1] * ox * oz);
+                if (h < 1.6f && coast < 40f) { w[LSand] += 2f * Math.Clamp((1.6f - h) / 0.8f, 0f, 1f); }
+                if (h < 0.4f) { w[LSand] += 4f; }
+                if (slope > 0.45f) { w[LRock] += 2f * Math.Clamp((slope - 0.45f) / 0.25f, 0f, 1f); }
+                int b1 = 0, b2 = -1;
+                for (var k = 1; k < w.Length; k++) { if (w[k] > w[b1]) { b1 = k; } }
+                for (var k = 0; k < w.Length; k++) { if (k != b1 && (b2 < 0 || w[k] > w[b2])) { b2 = k; } }
+                var blend = w[b2] <= 0f ? 0 : (int)MathF.Round(255f * w[b2] / (w[b1] + w[b2]));
+                var bits = ((uint)b1 << 27) | ((uint)Math.Max(0, b2) << 22) | ((uint)blend << 14);
+                System.Buffers.Binary.BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(((z * img) + x) * 4, 4), bits);
+            }
+        });
+        return Image.CreateFromData(img, img, false, Image.Format.Rf, bytes);
     }
 
     /// <summary>Smooth value noise in [0, 1] from an integer hash (presentation only; no RNG state).</summary>
@@ -188,11 +285,7 @@ public sealed class Island
         Name = "Sea",
         Mesh = new PlaneMesh { Size = new Vector2(24_000, 24_000) },
         CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
-        MaterialOverride = new StandardMaterial3D
-        {
-            AlbedoColor = new Color(0.16f, 0.30f, 0.36f, 0.82f), Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
-            Roughness = 0.12f, Metallic = 0.1f, MetallicSpecular = 0.7f,
-        },
+        MaterialOverride = new ShaderMaterial { Shader = GD.Load<Shader>("res://shaders/sea.gdshader") },
     };
 
     /// <summary>A graybox stand-in for the *Wending Star* (art brief P0.8): two hull halves heeled over on the reef, a broken mast.</summary>

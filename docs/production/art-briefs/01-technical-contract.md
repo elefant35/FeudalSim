@@ -9,7 +9,7 @@ Follow this exactly and the game loads your files with no code changes. Anything
 |------|-------|
 | Units | 1 Blender unit = **1 metre** |
 | Up | Blender **Z-up**; the glTF exporter converts to Godot's Y-up (use the repo exporter, §7) |
-| Forward | Characters, animals and directional props face **Blender −Y** (arrives as +Z in Godot) |
+| Forward | Characters, animals and directional props face **Blender −Y** (the game turns them; verified in Godot 4.7.2 on the M2 settlers, 2026-10-04) |
 | Origin | Base centre, on the ground plane (z = 0). Handheld items: origin at the **grip**, blade/head pointing Blender +Z |
 | Human scale | Adults 1.60–1.85 m (use 1.72 m for the base male, 1.62 m for the base female); doors 2.0 m; hand tools 0.2–0.9 m |
 | Apply | Apply all transforms (scale 1, rotation 0) before export |
@@ -235,7 +235,9 @@ as needed). Format (validated against `content/schemas/asset.schema.json`; run
 2. `check.py` passes for its budget class (or the gap is explained in STATUS.md).
 3. You looked at the preview and the silhouette; for character work, also the first-person check (§6.4).
 4. Manifest entry with `status: review` and `measured` filled in; `content validate` passes.
-5. A line in `STATUS.md`.
+5. **Regenerate the licence file in the same commit:** `dotnet run --project src/FeudalSim.Headless -- content licenses`
+   (CI's `ContentPipelineTests` fails when `ASSET_LICENSES.md` doesn't match the committed manifests).
+6. A line in `STATUS.md`.
 
 ## 12. Git
 

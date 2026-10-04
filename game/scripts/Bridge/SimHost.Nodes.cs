@@ -19,6 +19,7 @@ public partial class SimHost
     private int _fellRecipe = -1;
     private (ulong Process, int Stage) _lastWorked;
     private Vector2 _coverAt = new(float.NaN, float.NaN);
+    private int _windSecond = -1;
 
     private void InitNodes()
     {
@@ -56,6 +57,7 @@ public partial class SimHost
         }
 
         AutoWork(snap);
+        if ((int)_clock != _windSecond) { _windSecond = (int)_clock; World.NodeDressing.SetWind(snap.Weather.WindMs); }
     }
 
     private void RequestStates()

@@ -109,7 +109,14 @@ public static class ContentCompiler
                         case AssetDef a: ValidateAsset(a, rel, mark, repoRoot, errors); assets.Add(a); break;
                         case AudioEventDef e: ValidateAudio(e, rel, mark, repoRoot, errors); audio.Add(e); break;
                         case TraitDef t: traits.Add((t, rel, mark)); break;
-                        case CultureDef c: cultures.Add((c, rel, mark)); break;
+                        case CultureDef c:
+                            foreach (var f in c.FemaleNames ?? [])
+                            {
+                                if (c.GivenNames?.Contains(f) != true) { errors.Add(new(rel, mark.Line, mark.Column, $"{c.Id}: female name '{f}' is not in given_names.")); }
+                            }
+
+                            cultures.Add((c, rel, mark));
+                            break;
                         case ProfessionDef p: professions.Add((p, rel, mark)); break;
                         case ActionDef a: actionMarks.Add((a, rel, mark)); actions.Add(a); break;   // validated after skills load
                         case ScheduleDef d: ValidateSchedule(d, rel, mark, errors); schedules.Add(d); break;

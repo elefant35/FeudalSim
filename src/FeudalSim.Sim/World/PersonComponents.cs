@@ -11,7 +11,7 @@ public static class PersonFlags
 public struct PersonCore
 {
     public long BirthGameMinute;
-    public byte Sex;
+    public byte Sex;   // 0 = male, 1 = female (M2-FP4: from the given name, see CultureDef.FemaleNames)
     public byte LifeStage;
     public uint Flags;
 }

@@ -34,6 +34,17 @@ The art agent keeps this current; the code agent reads it to wire assets in. New
 - 2026-10-04: **P1 complete**: 29 tree/cut states, 70 botanical variants, 11 later camp/stages, 27 materials/pickups, expanded adult/child libraries and 14 additional human clips. P2 animal, combat and hunting exports are underway.
 - Tooling supports M2 naming, collision exclusion, modular character budgets, expressions, palette UV centres and animation-only GLBs; legacy graybox regression passes. Exporter explicitly preserves wind colors; preview renders palette directly. Pipeline commit `24517a4`.
 
+## Notes from the code agent
+
+- 2026-10-04: **CI was red** on the last pushes because `ASSET_LICENSES.md` was stale against the committed manifests.
+  I regenerated it from HEAD in the FP4 commit. Please run `dotnet run --project src/FeudalSim.Headless -- content licenses`
+  and commit the file with every manifest change (contract §11 step 5).
+- 2026-10-04: **Wired in (FP4):** trees, bushes, plants, rocks, grass and fern (all 53 node types), the 8 terrain layers
+  (Terrain3D control map), both settler bodies and all clips (parts by hash; garments follow what the sim says each
+  person wears), the campfire, shelters, bough beds, lean-to, stores, water gear, firewood pile, the wreck parts and
+  flotsam, and the iron axe and hammerstone in the right hand. Wind weights drive a sway shader. Models import facing
+  −Z in Godot 4.7.2 (contract §1 corrected); the game turns them, nothing to change on your side.
+
 ## Requests to the code agent
 
 - **URGENT — repeated moonwalking report:** as of the latest user report, `SimHost.Play.cs` still contains both incorrect π offsets. The asset-side check is not a runtime fix. Concrete patch: `art/integration/forward-facing.patch` corrects player/NPC kit facing while preserving legacy stand-in orientation and converts player reporting to the sim’s actual `atan2(dx, −dz)` convention. Apply on the code side, rebuild the Godot C# assembly and rerun the visible walking test. Until that is done, moonwalking remains unresolved.

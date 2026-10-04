@@ -42,6 +42,8 @@ public partial class SimHost
         _settlers.Visible = false;   // the capsule multimesh is the overhead view's
         foreach (var label in GetChildren().OfType<Label3D>()) { (label.PixelSize, label.Position, label.FontSize) = (0.004f, label.Position with { Y = label.Position.Y - 1.0f }, 48); }   // place names, sized for eye level
         _characterScene = GD.Load<PackedScene>(CharacterModel);
+        _kit = CharacterKit.Load();   // M2-FP4: the modular settlers when the art is in
+        if (_kit is not null) { GD.Print($"SimHost: character kit — 2 bodies, {_kit.Clips} clips"); }
         (_playerBody, _playerAnim) = Spawn();
         if (_island is null) { AddChild(new MeshInstance3D { Mesh = new PlaneMesh { Size = new Vector2(240, 240) }, Position = new Vector3(10, -0.01f, -6), MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.36f, 0.45f, 0.28f) } }); }
         AddChild(_sun = new DirectionalLight3D { RotationDegrees = new Vector3(-55, 35, 0), ShadowEnabled = true, LightEnergy = 1.0f });
@@ -74,13 +76,39 @@ public partial class SimHost
         _namesPending = _runner!.Invoke(w =>
         {
             var names = new Dictionary<ulong, string>();
-            for (var i = 0; i < w.People.Count; i++) { names[w.People.Ids[i].Value] = w.People.Names[i]; }
-            return names;
-        }).ContinueWith(t => { if (t.IsCompletedSuccessfully) { _names = t.Result; } }, TaskScheduler.Default);
+            var sexes = new Dictionary<ulong, byte>();
+            var worn = new Dictionary<ulong, string[]>();
+            for (var i = 0; i < w.People.Count; i++)
+            {
+                var id = w.People.Ids[i].Value;
+                (names[id], sexes[id]) = (w.People.Names[i], w.People.Core[i].Sex);
+                var wears = new List<string>();
+                for (var slot = 0; slot < Sim.World.Worn.SlotCount; slot++) { if (w.People.Worn[i].Slot(slot) is var item and >= 0) { wears.Add(w.Content.Items[item].Id); } }
+                worn[id] = [.. wears];
+            }
+
+            return (names, sexes, worn);
+        }).ContinueWith(t => { if (t.IsCompletedSuccessfully) { (_names, _sexes, _worn) = t.Result; } }, TaskScheduler.Default);
     }
 
-    private (Node3D Body, AnimationPlayer? Anim) Spawn()
+    private CharacterKit? _kit;
+    private Dictionary<ulong, byte> _sexes = [];
+    private Dictionary<ulong, string[]> _worn = [];
+    private readonly HashSet<ulong> _lying = [];
+    private List<MeshInstance3D> _playerHeads = [];
+    private bool _playerKitBody;
+
+    /// <summary>A body: the modular settler for a person whose sex the sim has told us (FP4), else the legacy stand-in.</summary>
+    private (Node3D Body, AnimationPlayer? Anim) Spawn(ulong id = 0)
     {
+        if (_kit is not null && id != 0 && _sexes.TryGetValue(id, out var sex))
+        {
+            var (kitBody, kitAnim, heads) = _kit.Spawn(sex, id, _worn.GetValueOrDefault(id, []));
+            AddChild(kitBody);
+            if (id == _playerId) { _playerHeads = heads; }
+            return (kitBody, kitAnim);
+        }
+
         var body = _characterScene!.Instantiate<Node3D>();
         AddChild(body);
         var anim = Find(body);
@@ -98,6 +126,43 @@ public partial class SimHost
             foreach (var c in n.GetChildren()) { if (Find(c) is { } f) { return f; } }
             return null;
         }
+    }
+
+    private ulong _playerId;
+    private string? _held;
+    private Node3D? _heldNode;
+
+    /// <summary>FP4: a tool in the player's right hand (the art's <c>RightHandProp</c> socket) while they work with it.</summary>
+    private void Hold(string? item)
+    {
+        if (item == _held || !_playerKitBody) { return; }
+        _held = item;
+        _heldNode?.QueueFree();
+        _heldNode = null;
+        if (item is null || !ResourceLoader.Exists($"res://assets/props/{item}.glb") || FindSkeleton(_playerBody!) is not { } skeleton) { return; }
+        var socket = new BoneAttachment3D { BoneName = "RightHandProp" };
+        skeleton.AddChild(socket);
+        var tool = GD.Load<PackedScene>($"res://assets/props/{item}.glb").Instantiate<Node3D>();
+        World.CampDressing.DropVertexColour(tool);
+        socket.AddChild(tool);
+        _heldNode = socket;
+
+        static Skeleton3D? FindSkeleton(Node n)
+        {
+            if (n is Skeleton3D s) { return s; }
+            foreach (var c in n.GetChildren()) { if (FindSkeleton(c) is { } f) { return f; } }
+            return null;
+        }
+    }
+
+    /// <summary>Plays a clip (cross-fading) if the body has it; the legacy stand-in only has walk and idle.</summary>
+    private static void PlayClip(AnimationPlayer? anim, string clip, float speed)
+    {
+        if (anim is null) { return; }
+        if (!anim.HasAnimation(clip)) { clip = clip is "walk" or "jog" or "sprint" && anim.HasAnimation("walk") ? "walk" : "idle"; }
+        if (!anim.HasAnimation(clip)) { return; }
+        if (anim.CurrentAnimation != clip) { anim.Play(clip, 0.25); }
+        anim.SpeedScale = Math.Clamp(speed, 0.4f, 2.5f);
     }
 
     private static void Animate(AnimationPlayer? anim, bool moving, float speedScale)
@@ -150,10 +215,24 @@ public partial class SimHost
             if ((_island is null || _island.HeightAt(next.X, next.Y) > -1.2f) && !(_nodes?.Blocked(next.X, next.Y) ?? false)) { _player = next; }   // wade, but not out to sea (swimming is M2-08); trunks and boulders are solid
         }
 
+        // FP4: once the sim has said who the player is, the legacy stand-in gives way to the player's own settler body.
+        _playerId = snap.PlayerId.Value;
+        if (_kit is not null && !_playerKitBody && _sexes.ContainsKey(_playerId))
+        {
+            _playerBody!.QueueFree();
+            (_playerBody, _playerAnim) = Spawn(_playerId);
+            _playerKitBody = true;
+        }
+
         _playerBody!.Position = new Vector3(_player.X, Ground(_player.X, _player.Y), _player.Y);
-        if (moved) { _playerBody.Rotation = new Vector3(0, Mathf.Atan2(input.X, input.Y), 0); }
-        else if (_firstPerson) { _playerBody.Rotation = new Vector3(0, _yaw + Mathf.Pi, 0); }
-        Animate(_playerAnim, moved, speed / WalkSpeed);
+        const float faceOffset = Mathf.Pi;   // imported models face −Z (Godot's forward), as the sim's yaw assumes
+        if (moved) { _playerBody.Rotation = new Vector3(0, Mathf.Atan2(input.X, input.Y) + faceOffset, 0); }
+        else { _playerBody.Rotation = new Vector3(0, _yaw + Mathf.Pi + faceOffset, 0); }   // standing: face where you look
+        var working = snap.PlayerProcess != 0 && snap.ProcessState == (byte)Sim.Crafting.ProcessState.Active && snap.GameMs / Sim.Time.SimClock.MsPerGameMinute < snap.ProcessBusyUntilMin;
+        var (playerClip, playerSpeed) = moved ? CharacterKit.ClipFor(null, false, speed, _playerId)
+            : Knapping ? ("knap_loop", 1f) : working && snap.ProcessRecipe == _fellRecipe ? ("chop_loop", 1f) : CharacterKit.ClipFor(null, false, 0f, _playerId);
+        PlayClip(_playerAnim, playerClip, playerSpeed);
+        Hold(Knapping ? "hammerstone" : working && snap.ProcessRecipe == _fellRecipe ? "iron_axe" : null);
         if (snap.Step != _lastPlayerStep && _runner!.Mode != RunMode.Paused && _player != _lastReportedPlayer)
         {
             _runner.Submit(CommandSource.Embodiment, new PlayerMoved(_player.X, _player.Y, _playerBody.Rotation.Y, moved ? gait : (byte)0));
@@ -173,8 +252,9 @@ public partial class SimHost
             seen.Add(id);
             if (!_people.TryGetValue(id, out var p))
             {
-                var (body, anim) = Spawn();
-                var label = new Label3D { Position = new Vector3(0, 2.1f, 0), Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, FontSize = 40, OutlineSize = 10, PixelSize = 0.01f };
+                if (_kit is not null && !_sexes.ContainsKey(id)) { continue; }   // wait for the sim to say who they are
+                var (body, anim) = Spawn(id);
+                var label = new Label3D { Position = new Vector3(0, 2.05f, 0), Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, FontSize = 36, OutlineSize = 8, PixelSize = 0.0045f };
                 body.AddChild(label);
                 p = (body, anim, label, new Vector2(snap.X[i], snap.Z[i]));
             }
@@ -183,16 +263,20 @@ public partial class SimHost
             var step = at - p.Last;
             var asleep = (snap.ActivityFlags[i] & Sim.World.ActivityState.Asleep) != 0 || snap.Vital[i] >= (byte)Sim.Health.VitalState.Downed;   // lying down: asleep, down or dead
             var walking = !asleep && delta > 0 && step.Length() / delta > 0.3f;
-            p.Body.Position = new Vector3(at.X, Ground(at.X, at.Y) + (asleep ? 0.15f : 0), at.Y);
-            p.Body.Rotation = asleep ? new Vector3(-Mathf.Pi / 2, 0, 0) : new Vector3(0, walking ? Mathf.Atan2(step.X, step.Y) : -snap.Yaw[i], 0);
-            Animate(p.Anim, walking, Math.Clamp(step.Length() / Math.Max(delta, 1e-3f) / WalkSpeed, 0.6f, 2.5f));
             var action = snap.Action[i];
+            var kitBody = _kit is not null;
+            if (asleep) { _lying.Add(id); } else { _lying.Remove(id); }
+            p.Body.Position = new Vector3(at.X, Ground(at.X, at.Y) + (asleep && !kitBody ? 0.15f : 0), at.Y);
+            p.Body.Rotation = asleep && !kitBody ? new Vector3(-Mathf.Pi / 2, 0, 0) : new Vector3(0, walking ? Mathf.Atan2(step.X, step.Y) + Mathf.Pi : -snap.Yaw[i], 0);   // models face −Z
+            var mps = walking ? step.Length() / Math.Max(delta, 1e-3f) / (float)Math.Max(Engine.TimeScale, 0.01) : 0f;
+            var (clip, clipSpeed) = CharacterKit.ClipFor(action >= 0 ? _content!.Actions[action].Id : null, asleep, mps, id);
+            PlayClip(p.Anim, clip, clipSpeed);
             var doing = action >= 0 && ActivityLook.TryGetValue(_content!.Actions[action].Id, out var look) ? look.Label : "";
             var d = at.DistanceTo(_player);
             var vitalText = (Sim.Health.VitalState)snap.Vital[i] switch { Sim.Health.VitalState.Dead => "dead", Sim.Health.VitalState.Dying => "dying", Sim.Health.VitalState.Downed or Sim.Health.VitalState.Recovering => "down", _ => "" };
             if (vitalText.Length > 0) { doing = vitalText; }
             p.Label.Text = $"{_names.GetValueOrDefault(id, "…")}{(doing.Length > 0 ? $"\n{doing}" : "")}";
-            p.Label.Visible = d < 25f;
+            p.Label.Visible = d < (_island is null ? 25f : 14f);
             if (!asleep && d < nearestD) { (nearest, nearestD) = (id, d); }
             _people[id] = (p.Body, p.Anim, p.Label, at);
         }
@@ -313,7 +397,7 @@ public partial class SimHost
         {
             case 0 when _campT > 2 && _names.Count > 0:
                 Expect("a body per settler", _people.Count, _names.Count - 1, 0);
-                _campTarget = _people.Where(kv => kv.Value.Body.Rotation.X == 0 && new Vector2(kv.Value.Body.Position.X, kv.Value.Body.Position.Z).DistanceTo(_player) > 8f).OrderBy(kv => new Vector2(kv.Value.Body.Position.X, kv.Value.Body.Position.Z).DistanceTo(_player)).Select(kv => kv.Key).FirstOrDefault();
+                _campTarget = _people.Where(kv => !_lying.Contains(kv.Key) && new Vector2(kv.Value.Body.Position.X, kv.Value.Body.Position.Z).DistanceTo(_player) > 8f).OrderBy(kv => new Vector2(kv.Value.Body.Position.X, kv.Value.Body.Position.Z).DistanceTo(_player)).Select(kv => kv.Key).FirstOrDefault();
                 Expect("an awake settler to talk to", _campTarget != 0 ? 1 : 0, 1, 0);
                 (_campPhase, _campMark) = (1, _campT);
                 break;

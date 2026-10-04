@@ -49,8 +49,8 @@ public sealed class Terrain3DFacade
     /// Imports a square height map (and colour map) whose corner is at (-half, -half). The image must cover whole
     /// regions and the corner must sit on the region grid (import_images snaps slices to the region containing them).
     /// </summary>
-    public void Import(Image heights, Image? colors, float halfExtentM)
-        => _data.Call("import_images", new Godot.Collections.Array { heights, default, colors ?? default(Variant) }, new Vector3(-halfExtentM, 0, -halfExtentM), 0f, 1f);
+    public void Import(Image heights, Image? colors, float halfExtentM, Image? control = null)
+        => _data.Call("import_images", new Godot.Collections.Array { heights, control ?? default(Variant), colors ?? default(Variant) }, new Vector3(-halfExtentM, 0, -halfExtentM), 0f, 1f);
 
     /// <summary>Height through the plugin (≈ 1 µs a call via Variant marshalling): setup checks only.</summary>
     public float HeightAt(Vector3 at) => _data.Call("get_height", at).AsSingle();

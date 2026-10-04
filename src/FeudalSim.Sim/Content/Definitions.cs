@@ -380,6 +380,12 @@ public sealed record CultureDef
     public IReadOnlyList<string>? GivenNames { get; init; }
 
     public IReadOnlyList<string>? FamilyNames { get; init; }
+
+    /// <summary>
+    /// M2-FP4: the given names that are women's names (a subset of <see cref="GivenNames"/>; the rest are men's). A
+    /// person's sex follows the given name they were drawn or given, so names and bodies agree (canon §10 person model).
+    /// </summary>
+    public IReadOnlyList<string>? FemaleNames { get; init; }
 }
 
 /// <summary>A profession (12 §10): the skills a homeland trade turns into (12 §8.5).</summary>

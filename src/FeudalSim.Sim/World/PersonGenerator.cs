@@ -193,6 +193,14 @@ public static class PersonGenerator
 
     private static float Z(byte facet) => (facet - 50f) / 15f;
 
+    /// <summary>Sex from a full name's given name (1 = female if it is in the culture's <c>female_names</c>; else 0).</summary>
+    public static byte SexOf(Content.ContentDatabase content, int culture, string name)
+    {
+        var given = name.Split(' ', 2)[0];
+        var def = culture >= 0 && culture < content.Cultures.Count ? content.Cultures[culture] : null;
+        return def?.FemaleNames is { } female && female.Contains(given) ? (byte)1 : (byte)0;
+    }
+
     /// <summary>
     /// M1-30: a name for an unnamed spawn — given + family name from the culture's lists, keyed on the world seed and the
     /// person's id (deterministic, order-independent of anything else); a full name already in use is redrawn (≤ 32 tries),

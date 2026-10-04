@@ -79,7 +79,7 @@ public sealed class NodeDressing
         {
             var path = $"res://assets/flora/plants/{name}_{v}.glb";
             if (!ResourceLoader.Exists(path)) { break; }
-            models.Add(FromScene(GD.Load<PackedScene>(path), false));
+            models.Add(FromScene(GD.Load<PackedScene>(path), false, true));
         }
 
         return [.. models];
@@ -101,14 +101,14 @@ public sealed class NodeDressing
         {
             var path = $"{Folder(def.Kind)}{name}_{v}.glb";
             if (!ResourceLoader.Exists(path)) { break; }
-            models.Add(FromScene(GD.Load<PackedScene>(path), def.Kind is NodeKind.Tree or NodeKind.Rock or NodeKind.Bush));
+            models.Add(FromScene(GD.Load<PackedScene>(path), def.Kind is NodeKind.Tree or NodeKind.Rock or NodeKind.Bush, def.Kind != NodeKind.Rock));
         }
 
         return [.. models];
     }
 
     /// <summary>The visible meshes of a .glb with their transforms relative to its root; collision objects are skipped.</summary>
-    private static Model FromScene(PackedScene scene, bool shadows)
+    private static Model FromScene(PackedScene scene, bool shadows, bool sway)
     {
         var root = scene.Instantiate<Node3D>();
         var parts = new List<(Mesh, Transform3D)>();
@@ -116,7 +116,7 @@ public sealed class NodeDressing
         {
             if (n is CollisionObject3D || n.Name.ToString().Contains("-col", StringComparison.Ordinal)) { return; }
             var t = n is Node3D n3 ? parent * n3.Transform : parent;
-            if (n is MeshInstance3D mi && mi.Mesh is { } mesh && mi.Visible) { parts.Add((Fixed(mesh), t)); }
+            if (n is MeshInstance3D mi && mi.Mesh is { } mesh && mi.Visible) { parts.Add((Fixed(mesh, sway), t)); }
             foreach (var c in n.GetChildren()) { Walk(c, t); }
         }
 
@@ -126,14 +126,23 @@ public sealed class NodeDressing
     }
 
     /// <summary>
-    /// Art request (STATUS.md): COLOR_0.R is a wind weight, not albedo — drop vertex-colour albedo from imported
-    /// materials (the wind shader reads it in M2-FP4).
+    /// Art request (STATUS.md): COLOR_0.R is a wind weight, not albedo. Foliage gets the wind shader (which reads it);
+    /// everything else just drops vertex-colour albedo.
     /// </summary>
-    private static Mesh Fixed(Mesh mesh)
+    private static Mesh Fixed(Mesh mesh, bool sway)
     {
         for (var s = 0; s < mesh.GetSurfaceCount(); s++)
         {
-            if (mesh.SurfaceGetMaterial(s) is StandardMaterial3D { VertexColorUseAsAlbedo: true } m)
+            if (mesh.SurfaceGetMaterial(s) is not StandardMaterial3D m) { continue; }
+            if (sway)
+            {
+                var wind = new ShaderMaterial { Shader = WindShader };
+                wind.SetShaderParameter("albedo_tex", m.AlbedoTexture);
+                wind.SetShaderParameter("albedo_color", m.AlbedoColor);
+                mesh.SurfaceSetMaterial(s, wind);
+                WindMaterials.Add(wind);
+            }
+            else if (m.VertexColorUseAsAlbedo)
             {
                 var copy = (StandardMaterial3D)m.Duplicate();
                 copy.VertexColorUseAsAlbedo = false;
@@ -142,6 +151,16 @@ public sealed class NodeDressing
         }
 
         return mesh;
+    }
+
+    private static readonly Shader WindShader = GD.Load<Shader>("res://shaders/foliage_wind.gdshader");
+    private static readonly List<ShaderMaterial> WindMaterials = [];
+
+    /// <summary>Sets the sway from the sim's wind (m/s): calm 0.03 m, a gale ≈ 0.25 m at the tips.</summary>
+    public static void SetWind(float windMs)
+    {
+        var strength = Math.Clamp(0.03f + (windMs * 0.012f), 0.03f, 0.25f);
+        foreach (var m in WindMaterials) { m.SetShaderParameter("strength", strength); }
     }
 
     private static StandardMaterial3D Mat(string hex) => new() { AlbedoColor = new Color(hex), Roughness = 0.95f };

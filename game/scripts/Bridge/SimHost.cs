@@ -171,7 +171,9 @@ public partial class SimHost : Node3D
             InstanceCount = 0,
         };
         GD.Print($"SimHost: started {scenario.Id} (seed {scenario.Seed}, {scenario.Settlers} settlers); content {compiled.Database!.Hash:x16}");
-        if (scenario.Camp is not null) { PlaceMarkers(_campRecord); }
+        var dressed = _island is not null && scenario.Camp is not null && !args.Contains("--view") ? World.CampDressing.Build(this, _island, _campRecord, scenario.Settlers) : 0;
+        if (dressed > 0) { GD.Print($"SimHost: camp dressed with {dressed} models"); }
+        else if (scenario.Camp is not null) { PlaceMarkers(_campRecord); }   // markers for the flat camp and the overhead view
         if (scenario.PlayerStart(anchor) is [var px, var pz])
         {
             if (!_autotest && !args.Contains("--view")) { InitPlay(new Vector2(px, pz), config, compiled.Database!); }
