@@ -20,7 +20,7 @@ public static class SaveCodec
     {
         var (edges, mods) = store.Export();
         var chunk = new TableChunk { Table = RelationshipsTable, RowCount = edges.Length };
-        chunk.Columns.Add(new ColumnBlock { Name = "edges", LayoutVersion = 2, ElementSize = Marshal.SizeOf<Social.RelationshipStore.EdgeRecord>(), Data = MemoryMarshal.AsBytes(edges.AsSpan()).ToArray() });
+        chunk.Columns.Add(new ColumnBlock { Name = "edges", LayoutVersion = 3, ElementSize = Marshal.SizeOf<Social.RelationshipStore.EdgeRecord>(), Data = MemoryMarshal.AsBytes(edges.AsSpan()).ToArray() });
         chunk.Columns.Add(new ColumnBlock { Name = "mods", LayoutVersion = 1, ElementSize = Marshal.SizeOf<Social.ModSlot>(), Data = MemoryMarshal.AsBytes(mods.AsSpan()).ToArray() });
         chunk.Columns.Add(new ColumnBlock { Name = "meta", LayoutVersion = 1, ElementSize = 1, Data = [store.ShipmatesSeeded ? (byte)1 : (byte)0] });
         return chunk;
@@ -58,6 +58,16 @@ public static class SaveCodec
     public const string ConversationsTable = "conversations";
     public const string PlayerTable = "player";
     public const string ConfrontationsTable = "confrontations";
+    public const string FavorsTable = "favors";
+
+    private static TableChunk FavorsChunk(Social.FavorStore store)
+    {
+        var (open, lastId) = store.Export();
+        var chunk = new TableChunk { Table = FavorsTable, RowCount = open.Length };
+        chunk.Columns.Add(new ColumnBlock { Name = "open", LayoutVersion = 1, ElementSize = 0, Data = MessagePackSerializer.Serialize(open) });
+        chunk.Columns.Add(new ColumnBlock { Name = "last_id", LayoutVersion = 1, ElementSize = 8, Data = BitConverter.GetBytes(lastId) });
+        return chunk;
+    }
 
     private static TableChunk ConfrontationsChunk(Social.ConfrontationStore store)
     {
@@ -185,7 +195,7 @@ public static class SaveCodec
                 LastCommandSeq = world.LastCommandSeq,
             },
             IdCounters = counters,
-            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories), ClaimsChunk(world.Claims), BeliefsChunk(world.Beliefs), RenownChunk(world.Reputation), DecisionsChunk(world.Decisions), AiChunk(world), ConversationsChunk(world.Conversations), PlayerChunk(world.Player), ConfrontationsChunk(world.Confrontations)],
+            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories), ClaimsChunk(world.Claims), BeliefsChunk(world.Beliefs), RenownChunk(world.Reputation), DecisionsChunk(world.Decisions), AiChunk(world), ConversationsChunk(world.Conversations), PlayerChunk(world.Player), ConfrontationsChunk(world.Confrontations), FavorsChunk(world.Favors)],
         };
     }
 
@@ -325,6 +335,15 @@ public static class SaveCodec
                 world.Confrontations.Import(MessagePackSerializer.Deserialize<Social.Confrontation[]>(open.Data), BitConverter.ToUInt64(last.Data, 0));
             }
             else { notes.Add("Confrontations table has an unknown layout; quarrels dropped."); }
+        }
+
+        if (image.Tables.FirstOrDefault(t => t.Table == FavorsTable) is { } favors)
+        {
+            if (favors.Columns.FirstOrDefault(c => c.Name == "open") is { LayoutVersion: 1 } open && favors.Columns.FirstOrDefault(c => c.Name == "last_id") is { Data.Length: 8 } last)
+            {
+                world.Favors.Import(MessagePackSerializer.Deserialize<Social.Favor[]>(open.Data), BitConverter.ToUInt64(last.Data, 0));
+            }
+            else { notes.Add("Favors table has an unknown layout; favors dropped."); }
         }
 
         world.RestorePlayerId();

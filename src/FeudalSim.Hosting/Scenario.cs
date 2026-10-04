@@ -77,6 +77,8 @@ public sealed record ScenarioDef
         world.Decisions.Register(new Sim.Social.BystanderOwner());
         world.Decisions.Register(new Sim.Social.RapportOwner());
         world.Decisions.Register(new Sim.Social.ApologyOwner());
+        world.Decisions.Register(new Sim.Social.RequestOwner());
+        world.Decisions.Register(new Sim.Social.BeingToldOwner());
         return world.AddSystem(new ActivitySystem()).AddSystem(new NeedsDecaySystem()).AddSystem(new PsychologySystem())
             .AddSystem(new Lod3System()).AddSystem(new SocialSystem()).AddSystem(new InteractionSystem());
     }

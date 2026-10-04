@@ -25,6 +25,10 @@ public sealed class RelationshipEdge
     public RelTags Tags;
     public float SocialContactToday, WorkHoursToday;
 
+    /// <summary>Requests the other made of this holder today (canon §13.4 repetition: acceptance × 0.5^(n−1)).</summary>
+    public int AsksToday;
+    public long AsksDay = -1;
+
     /// <summary>Positive Opinion from words today (canon §13.4 budget: +10 per pair per game day).</summary>
     public float WordsToday;
     public long WordsDay = -1;
@@ -225,6 +229,19 @@ public sealed class RelationshipStore
 
     /// <summary>Canon §13.4: words add at most +10 Opinion per speaker → listener pair per game day.</summary>
     public const float WordsBudgetPerDay = 10f;
+
+    /// <summary>Requests the asker made of the holder today, counting the one in hand (n in canon §13.4's 0.5^(n−1)).</summary>
+    public int AsksToday(EntityId holder, EntityId asker)
+        => _edges.TryGetValue((holder.Value, asker.Value), out var e) && e.AsksDay == _world.Clock.GameMinute / 1440 ? e.AsksToday : 0;
+
+    /// <summary>Counts one more request from the asker today; returns n.</summary>
+    public int CountAsk(EntityId holder, EntityId asker)
+    {
+        var e = GetOrCreate(holder, asker);
+        var day = _world.Clock.GameMinute / 1440;
+        if (e.AsksDay != day) { (e.AsksDay, e.AsksToday) = (day, 0); }
+        return ++e.AsksToday;
+    }
 
     /// <summary>What is left of the holder's words budget toward the actor today (0–10).</summary>
     public float WordsBudgetLeft(EntityId holder, EntityId actor)
@@ -473,7 +490,7 @@ public sealed class RelationshipStore
             F(h, e.Trust); F(h, e.Trust0); F(h, e.Familiarity); F(h, e.PeakFamiliarity); F(h, e.FearEvent);
             L(h, e.FearTimeMin); L(h, e.LastContactMin); L(h, e.FriendSinceMin); L(h, e.EnemyCalmSinceMin); L(h, (long)e.Tags);
             F(h, e.SocialContactToday); L(h, e.SocialContactDay); F(h, e.WorkHoursToday); L(h, e.WorkDay); L(h, e.InteractionDay); L(h, e.InteractionsToday);
-            F(h, e.WordsToday); L(h, e.WordsDay);
+            F(h, e.WordsToday); L(h, e.WordsDay); L(h, e.AsksToday); L(h, e.AsksDay);
             foreach (var s in e.Mods) { L(h, s.Modifier); F(h, s.Value); F(h, s.Floor); L(h, s.TimeMin); L(h, s.Count); }
         }
     }
@@ -501,6 +518,8 @@ public sealed class RelationshipStore
         public int InteractionsToday;
         public float WordsToday;
         public long WordsDay;
+        public int AsksToday;
+        public long AsksDay;
         public ushort Tags;
         public int ModStart, ModCount;
     }
@@ -517,7 +536,7 @@ public sealed class RelationshipStore
                 FearEvent = e.FearEvent, SocialContactToday = e.SocialContactToday, FearTimeMin = e.FearTimeMin, LastContactMin = e.LastContactMin,
                 FriendSinceMin = e.FriendSinceMin, EnemyCalmSinceMin = e.EnemyCalmSinceMin, SocialContactDay = e.SocialContactDay,
                 WorkHoursToday = e.WorkHoursToday, WorkDay = e.WorkDay, InteractionDay = e.InteractionDay, InteractionsToday = e.InteractionsToday,
-                WordsToday = e.WordsToday, WordsDay = e.WordsDay, Tags = (ushort)e.Tags, ModStart = mods.Count, ModCount = e.Mods.Count,
+                WordsToday = e.WordsToday, WordsDay = e.WordsDay, AsksToday = e.AsksToday, AsksDay = e.AsksDay, Tags = (ushort)e.Tags, ModStart = mods.Count, ModCount = e.Mods.Count,
             });
             mods.AddRange(e.Mods);
         }
@@ -536,7 +555,7 @@ public sealed class RelationshipStore
                 SocialContactToday = r.SocialContactToday, FearTimeMin = r.FearTimeMin, LastContactMin = r.LastContactMin,
                 FriendSinceMin = r.FriendSinceMin, EnemyCalmSinceMin = r.EnemyCalmSinceMin, SocialContactDay = r.SocialContactDay, Tags = (RelTags)r.Tags,
                 WorkHoursToday = r.WorkHoursToday, WorkDay = r.WorkDay, InteractionDay = r.InteractionDay, InteractionsToday = r.InteractionsToday,
-                WordsToday = r.WordsToday, WordsDay = r.WordsDay,
+                WordsToday = r.WordsToday, WordsDay = r.WordsDay, AsksToday = r.AsksToday, AsksDay = r.AsksDay,
             };
             for (var k = 0; k < r.ModCount; k++) { e.Mods.Add(mods[r.ModStart + k]); }
             _edges.Add((r.Holder, r.Other), e);

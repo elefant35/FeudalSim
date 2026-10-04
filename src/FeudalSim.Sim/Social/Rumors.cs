@@ -270,8 +270,19 @@ public static class Rumors
     /// <summary>The listener hears a claim and the policy draws the being-told option (16 §7.10).</summary>
     public static ToldOption Hear(SimWorld world, int listener, int teller, int claimId, float cS, int hop, ref Rng rng)
     {
+        var masses = HearMasses(world, listener, teller, claimId, cS, hop, 0f, 0f);
+        var x = rng.NextFloat01();
+        var option = x < masses.Doubt ? ToldOption.Doubt
+            : x < masses.Doubt + masses.Believe ? ToldOption.Believe
+            : x < masses.Doubt + masses.Believe + masses.Repeat ? ToldOption.Repeat : ToldOption.KeepQuiet;
+        ApplyTold(world, listener, teller, claimId, cS, hop, option);
+        return option;
+    }
+
+    /// <summary>The being-told base propensities for this listener, teller and claim (16 §7.10), with the words term G·Margin.</summary>
+    public static ToldMasses HearMasses(SimWorld world, int listener, int teller, int claimId, float cS, int hop, float g, float margin)
+    {
         var people = world.People;
-        var now = world.Clock.GameMinute;
         var h = H(world.Content);
         ref readonly var claim = ref world.Claims[claimId];
         var existing = world.Beliefs.Get(people.Ids[listener], claimId);
@@ -283,23 +294,24 @@ public static class Rumors
         ref readonly var pl = ref people.Personality[listener];
         var loyalAboutOwn = def.Valence == ClaimValence.Negative && pl.Values.Loyalty >= 60
             && world.Relationships.TryGet(people.Ids[listener], subject, out var e) && (e.Tags & RelTags.CloseFriend) != 0;
-        var masses = BeingToldMasses(Credibility(world, listener, teller, claim, hop), 0f, 0f,
-            PShare(world, listener, world.Content.ClaimPredicates[claim.Predicate].Juiciness), jEff, pl.HasTrait(h.Discreet), (claim.Qualifiers & ClaimQualifiers.Secret) != 0, loyalAboutOwn,   // P_share of this fresh news (nov = 1)
+        return BeingToldMasses(Credibility(world, listener, teller, claim, hop), g, margin,
+            PShare(world, listener, def.Juiciness), jEff, pl.HasTrait(h.Discreet), (claim.Qualifiers & ClaimQualifiers.Secret) != 0, loyalAboutOwn,   // P_share of this fresh news (nov = 1)
             canRepeat: cAfter >= BeliefStore.Hold, canKeepQuiet: cAfter >= BeliefStore.Hold);
+    }
 
-        var x = rng.NextFloat01();
-        var option = x < masses.Doubt ? ToldOption.Doubt
-            : x < masses.Doubt + masses.Believe ? ToldOption.Believe
-            : x < masses.Doubt + masses.Believe + masses.Repeat ? ToldOption.Repeat : ToldOption.KeepQuiet;
-        if (option == ToldOption.Doubt) { return option; }
-
+    /// <summary>Enacts a being-told option: believe / repeat / keep_quiet update the belief by cS (§7.2); doubt changes nothing.</summary>
+    public static void ApplyTold(SimWorld world, int listener, int teller, int claimId, float cS, int hop, ToldOption option)
+    {
+        if (option == ToldOption.Doubt) { return; }
+        var people = world.People;
+        var now = world.Clock.GameMinute;
+        var existing = world.Beliefs.Get(people.Ids[listener], claimId);
         var b = existing ?? world.Beliefs.GetOrCreate(people.Ids[listener], claimId, now);
         Update(b, cS, supports: true);
         world.Beliefs.Touch();
         if (existing is null) { (b.Source, b.Hop) = (people.Ids[teller].Value, (byte)Math.Min(255, hop)); }
         if (option == ToldOption.Repeat) { (b.EagerUntilMin, b.NovSinceMin) = (now + (2 * 1440), now); }
         if (option == ToldOption.KeepQuiet) { b.QuietUntilMin = now + (8 * 1440); }
-        return option;
     }
 
     // ---- 16 §7.6 distortion ---------------------------------------------------------------------------------

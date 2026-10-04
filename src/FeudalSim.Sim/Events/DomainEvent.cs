@@ -24,6 +24,9 @@ public enum Salience : byte { Trace, Minor, Notable, Major, Historic }
 [Union(15, typeof(ConfrontationEscalated))]
 [Union(16, typeof(FightResolved))]
 [Union(17, typeof(BystanderIntervened))]
+[Union(18, typeof(RequestAnswered))]
+[Union(19, typeof(FavorDone))]
+[Union(20, typeof(LieCaught))]
 public abstract record DomainEvent;
 
 [MessagePackObject]
@@ -130,3 +133,15 @@ public sealed record FightResolved([property: Key(0)] ulong Fight, [property: Ke
 /// <summary>A bystander stepped into a quarrel (16 §9.4): both parties' next pressure falls by <c>Calm</c>.</summary>
 [MessagePackObject]
 public sealed record BystanderIntervened([property: Key(0)] ulong Confrontation, [property: Key(1)] EntityId Who, [property: Key(2)] float Calm) : DomainEvent;
+
+/// <summary>A request DP resolved (16 §5.4): the helper's answer about a task and hours.</summary>
+[MessagePackObject]
+public sealed record RequestAnswered([property: Key(0)] EntityId Helper, [property: Key(1)] EntityId Asker, [property: Key(2)] string Answer, [property: Key(3)] short Task, [property: Key(4)] float Hours) : DomainEvent;
+
+/// <summary>An agreed favor was carried out.</summary>
+[MessagePackObject]
+public sealed record FavorDone([property: Key(0)] EntityId Doer, [property: Key(1)] EntityId For, [property: Key(2)] short Task) : DomainEvent;
+
+/// <summary>A listener caught a lie (16 §5.2): <c>lied_to_me</c>, trust lost; no being-told DP.</summary>
+[MessagePackObject]
+public sealed record LieCaught([property: Key(0)] EntityId Listener, [property: Key(1)] EntityId Liar, [property: Key(2)] int Claim) : DomainEvent;

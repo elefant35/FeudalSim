@@ -19,3 +19,22 @@
     - { id: accept_apology,  family: accept, stakes: low, favors_player: true, gloss: "accept {player}'s apology" }
     - { id: demand_amends,   family: counter, stakes: low, gloss: "demand that {player} make it right first" }
     - { id: refuse_apology,  family: refuse, stakes: low, gloss: "refuse {player}'s apology" }
+- id: dp.request
+  owner: 16.request
+  description: >-
+    16 §5.4 — a favor asked in conversation: help at a camp task for some hours (M1). The yes propensity is Willingness with
+    22 §6.3's menu width; repeats the same day halve it. Accepted favors are carried out by the utility AI as obligations.
+  options:
+    - { id: accept_request,        family: accept, stakes: low, favors_player: true, gloss: "agree to help {player} with {task} for {hours} hour(s)" }
+    - { id: accept_with_condition, family: accept, stakes: low, favors_player: true, gloss: "help with {task} if {player} returns the favor with equal hours" }
+    - { id: defer,                 family: counter, stakes: low, gloss: "promise to help with {task} tomorrow, not now" }
+    - { id: refuse_request,        family: refuse, stakes: low, gloss: "refuse to help {player} with {task}" }
+- id: dp.told
+  owner: 16.told
+  description: >-
+    16 §7.10 — being told a claim by the player. A detected lie (the §5.2 lie test) is an act and opens no DP.
+  options:
+    - { id: believe,    family: believe, stakes: low, favors_player: true, gloss: "believe {player}: {claim}" }
+    - { id: doubt,      family: doubt,   stakes: low, gloss: "doubt what {player} says ({claim})" }
+    - { id: repeat,     family: believe, stakes: low, favors_player: true, gloss: "believe it and pass it on: {claim}" }
+    - { id: keep_quiet, family: believe, stakes: low, gloss: "believe it but keep it to yourself: {claim}" }

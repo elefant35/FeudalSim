@@ -52,6 +52,9 @@ public sealed class SimWorld
     /// <summary>Relationships (16 §4): opinion, trust, familiarity, fear, tags.</summary>
     public Social.RelationshipStore Relationships { get; }
 
+    /// <summary>Favors people agreed to do (16 §5.4), carried out by the utility AI.</summary>
+    public Social.FavorStore Favors { get; } = new();
+
     /// <summary>Open quarrels on the escalation ladder (16 §9).</summary>
     public Social.ConfrontationStore Confrontations { get; } = new();
 

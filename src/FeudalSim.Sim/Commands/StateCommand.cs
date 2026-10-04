@@ -70,7 +70,9 @@ public sealed record EndConversation([property: Key(0)] ulong Conversation) : St
 /// One player turn, after sanitizing and classification by the gateway (22 §4.4–4.6): the classified act (catalog v2
 /// id), its probability, the injection probability (≥ 0.3 → this turn's DPs go to the policy) and the sanitized text;
 /// then the severity of a provocation (1–5), the score questions behind L_words (persuasiveness 1–7, hostility and
-/// politeness 1–5, the appeal, apology sincerity 1–5; 0 or "" = not classified, the neutral signal, 22 §6.3).
+/// politeness 1–5, the appeal, apology sincerity 1–5; 0 or "" = not classified, the neutral signal, 22 §6.3); for a
+/// request, the task (an action id) and hours (22 §4.5 extraction); for a told claim, its predicate, subject, object and
+/// whether the player claims to have seen it (cS 0.9, else hearsay 0.7; 16 §7.10).
 /// The M1-04b form; extraction records and full probabilities are appended as keys in M1-11. Applying it advances the
 /// turn and opens the NPC's decision points for that turn.
 /// </summary>
@@ -87,7 +89,13 @@ public sealed record PlayerUtteranceClassified(
     [property: Key(8)] float Hostility = 0f,
     [property: Key(9)] float Politeness = 0f,
     [property: Key(10)] string Appeal = "",
-    [property: Key(11)] float Sincerity = 0f) : StateCommand;
+    [property: Key(11)] float Sincerity = 0f,
+    [property: Key(12)] string RequestTask = "",
+    [property: Key(13)] float RequestHours = 0f,
+    [property: Key(14)] string ClaimPredicate = "",
+    [property: Key(15)] Core.EntityId ClaimSubject = default,
+    [property: Key(16)] Core.EntityId ClaimObject = default,
+    [property: Key(17)] bool ClaimFirstHand = false) : StateCommand;
 
 /// <summary>The player's body position as reported by the client each step (the player is always embodied).</summary>
 [MessagePackObject]

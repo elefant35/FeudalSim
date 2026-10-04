@@ -642,6 +642,15 @@ in B's reply); between NPCs the policy samples the same menu:
 `accept_request` and `accept_with_condition` favor the player: picked at `p < 0.20` they spend the
 pair's long-shot budget.
 
+*Implemented (M1-09b):* `RequestOwner` (`request.respond`, content `dp.request`). M1 favors are help at a camp task for
+some hours (the task and hours come from 22's extraction; default: what the NPC was doing, 1 h). The yes propensity is
+22 §6.3's expectation `Yes(A, Margin, L)` over the policy's steps, with A = the formula above without its words term
+(kin waits for §11), × 0.5^(n−1) for the n-th ask of the day (counted per pair on the edge, any request — not yet per
+"same thing"); the second ask adds Anger +3, the third `rude_to_me`. Accepted favors go to a saved `FavorStore` and the
+utility AI treats an active favor's task as an obligation (it wins over routine unless a need is critical) until the
+hours are worked (`FavorDone`); `defer` starts it at the next day's work block; conditional favors record the asker's
+return obligation (not enforced until obligations exist, §4.8). NPC↔NPC requests keep the M1-06 policy roll.
+
 ### 5.5 Player interactions use the same machinery
 
 The player's free-text lines are classified by 22 into a dialogue act (chat, praise, joke, insult,
@@ -982,6 +991,13 @@ propagation targets still hold (§22). `believe` and `repeat` favor the player (
 when the player asked for discretion): picked at `p < 0.20` they spend the pair's long-shot budget.
 What the listener later retells still mutates only by §7.6's deterministic rules — no model ever
 alters a claim.
+
+*Implemented (M1-09b):* `BeingToldOwner` (`belief.respond`, content `dp.told`) for claims the player tells: the claim is
+interned (blurred, truth from observed events), the §5.2 lie test runs (a false claim the teller doesn't hold at ≥ 0.6;
+detection `clamp(0.1 + 0.02·Perception + F/400 + 0.5·[contradicts a belief ≥ 0.6], 0, 0.9)` with Perception the 1–10
+attribute and a contradiction = a held claim with the same predicate and object but another subject; `s_consistency`
+joins with the fast decider in M1-11); a caught lie is `lied_to_me` and Trust l 15 with no DP. Otherwise the menu is
+16's masses with G·Margin (`Rumors.HearMasses`, shared with the NPC path; `ApplyTold` enacts the pick).
 
 *Implemented (M1-07a, 2026-10-04):* `content/social/claim_predicates.yaml` (§7.3: 32 predicates with J, axes, valence,
 ladder, accusation/moral flags; schema `claim.schema.json`). `Sim/Social/Claims.cs`: interned claims (`world.Claims`,

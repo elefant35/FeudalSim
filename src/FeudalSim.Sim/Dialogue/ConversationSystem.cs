@@ -218,6 +218,48 @@ public sealed class ConversationSystem : ISimSystem
                 decider, DecisionRulesEngine.ConversationDeadlineSteps));
         }
 
+        if (npc >= 0 && player >= 0 && u.Act == "request")
+        {
+            // 16 §5.4: n-th ask today → acceptance × 0.5^(n−1), Anger +3 from the second, rude_to_me from the third.
+            var me = world.People.Ids[npc];
+            var n = world.Relationships.CountAsk(me, conv.Player);
+            if (n >= 2)
+            {
+                ref var e = ref world.People.Emotions[npc];
+                (e.Anger, e.AngerTarget) = (MathF.Min(100f, e.Anger + 3f), conv.Player);
+            }
+
+            if (n >= 3) { world.Relationships.ApplyModifier(me, conv.Player, "opinion.rude_to_me"); }
+            var task = (short)ContentDatabase.HandleOf(world.Content.Actions, u.RequestTask, d => d.Id);
+            if (task < 0) { task = conv.PrevAction >= 0 ? conv.PrevAction : (short)ContentDatabase.HandleOf(world.Content.Actions, "action.gather_food", d => d.Id); }
+            var hours = u.RequestHours > 0f ? Math.Clamp(u.RequestHours, 0.25f, 8f) : 1f;
+            Track(world, conv, world.Decisions.Open(Social.RequestOwner.Id, new DpContext(Social.RequestOwner.Kind, conv.Npc, conv.Player, Social.RequestOwner.Pack(task, hours, lWords)),
+                decider, DecisionRulesEngine.ConversationDeadlineSteps));
+        }
+
+        if (npc >= 0 && player >= 0 && u.Act == "tell" && world.Content.ClaimHandle(u.ClaimPredicate) is var predicate and >= 0 && !u.ClaimSubject.IsNone)
+        {
+            // 16 §7.10: the claim is fixed first and checked against ground truth; a detected lie is an act, not a DP.
+            var claim = world.Claims.Intern(new Social.Claim
+            {
+                Predicate = (ushort)predicate, Subject = u.ClaimSubject.Value, Object = u.ClaimObject.Value, Magnitude = 1f, TimeMin = -1,
+                DerivedFrom = -1, Qualifiers = Social.ClaimQualifiers.Blurred,
+            });
+            var (lie, caught) = Social.BeingToldOwner.LieTest(world, npc, player, claim);
+            if (lie && caught)
+            {
+                var me = world.People.Ids[npc];
+                world.Relationships.ApplyModifier(me, conv.Player, "opinion.lied_to_me");
+                world.Relationships.TrustEvidence(me, conv.Player, -15f);
+                world.Emit(Salience.Minor, me, new LieCaught(me, conv.Player, claim));
+            }
+            else
+            {
+                Track(world, conv, world.Decisions.Open(Social.BeingToldOwner.Id, new DpContext(Social.BeingToldOwner.Kind, conv.Npc, conv.Player, Social.BeingToldOwner.Pack(claim, u.ClaimFirstHand, lWords)),
+                    decider, DecisionRulesEngine.ConversationDeadlineSteps));
+            }
+        }
+
         // 16 §4.15: a rapport DP after every 8 player turns (the close brings the last; at most 3 in all).
         if (conv.Turn % Social.RapportOwner.EveryTurns == 0 && conv.RapportCount < Social.RapportOwner.MaxPerConversation - 1)
         {

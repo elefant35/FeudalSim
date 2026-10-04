@@ -92,8 +92,9 @@ public sealed class ActivitySystem : ISimSystem
                     }
 
                     var decide = act.Action < 0 || ctx.GameMs >= act.EndGameMs || ctx.GameMs >= act.NextDecideGameMs || CriticalElsewhere(people.Needs[i], act);
-                    if (decide) { Decide(ctx, world, i, block); }
+                    if (decide && !DoFavor(ctx, world, i)) { Decide(ctx, world, i, block); }
                     Perform(ctx, world, i, socialCount, due.Dt(k), coarse: false);
+                    if (world.Favors.Count > 0) { CountFavor(world, i, due.Dt(k)); }
                     break;
             }
         }
@@ -152,6 +153,40 @@ public sealed class ActivitySystem : ISimSystem
             return;
         }
 
+        Start(ctx, world, i, choice, score[choice]);
+    }
+
+    /// <summary>
+    /// An agreed favor (16 §5.4) is an obligation: while one has started, its task wins over routine (P2) unless a need is
+    /// critical or the task can't be done. True if the favor's task is (now) the activity.
+    /// </summary>
+    private bool DoFavor(in StepContext ctx, SimWorld world, int i)
+    {
+        if (world.Favors.Count == 0 || world.Favors.ActiveFor(world.People.Ids[i], ctx.GameMinute) is not { } favor) { return false; }
+        ref readonly var n = ref world.People.Needs[i];
+        if (n.Satiety < 20f || n.Hydration < 20f || n.Energy < 12f || favor.Task < 0 || favor.Task >= _actions.Length) { return false; }
+        var def = _actions[favor.Task];
+        if (def.Requires is { } req) { foreach (var (stock, min) in req) { if (world.Camp.Stock(stock) < min) { return false; } } }
+        ref var act = ref world.People.Activity[i];
+        if (act.Action == favor.Task && ctx.GameMs < act.EndGameMs) { act.NextDecideGameMs = ctx.GameMs + ReconsiderGameMs; return true; }
+        Start(ctx, world, i, favor.Task, 1f);
+        return true;
+    }
+
+    private static void CountFavor(SimWorld world, int i, long dtMs)
+    {
+        ref readonly var act = ref world.People.Activity[i];
+        if (act.Phase != 1 || world.Favors.ActiveFor(world.People.Ids[i], world.Clock.GameMinute) is not { } favor || favor.Task != act.Action) { return; }
+        favor.RemainingMin -= dtMs / 60_000f;
+        if (favor.RemainingMin > 0f) { return; }
+        world.Favors.Remove(favor.Id);
+        world.Emit(Events.Salience.Minor, favor.Doer, new Events.FavorDone(favor.Doer, favor.For, favor.Task));
+    }
+
+    private void Start(in StepContext ctx, SimWorld world, int i, int choice, float score)
+    {
+        var people = world.People;
+        ref var act = ref people.Activity[i];
         Started++;
         var def = _actions[choice];
         var (tx, tz) = def.Place == PlaceKind.Home ? (people.Wander[i].HomeX, people.Wander[i].HomeZ) : world.Camp.Place(def.Place);
@@ -161,7 +196,7 @@ public sealed class ActivitySystem : ISimSystem
             Action = (short)choice, Phase = 0, Level = ActivityLevel.Light,
             Flags = (byte)((def.Activity == ActivityLevel.Sleep ? ActivityState.Asleep : 0) | (def.Social ? ActivityState.Interacting : 0) | (def.Purposeful ? ActivityState.Purposeful : 0)),
             StartedGameMs = ctx.GameMs, EndGameMs = long.MaxValue, NextDecideGameMs = ctx.GameMs + ReconsiderGameMs,
-            Score = score[choice], TargetX = tx + (1.5f * SimMath.Cos(spread)), TargetZ = tz + (1.5f * SimMath.Sin(spread)),
+            Score = score, TargetX = tx + (1.5f * SimMath.Cos(spread)), TargetZ = tz + (1.5f * SimMath.Sin(spread)),
         };
     }
 
