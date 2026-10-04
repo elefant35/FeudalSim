@@ -18,6 +18,8 @@ public partial class SimHost
     private bool _statesDirty;
     private int _fellRecipe = -1;
     private (ulong Process, int Stage) _lastWorked;
+    private Vector2? _fellingAt;
+    private double _lastAwayNote = -100;
     private Vector2 _coverAt = new(float.NaN, float.NaN);
     private int _windSecond = -1;
 
@@ -131,6 +133,7 @@ public partial class SimHost
         if (def.Kind == NodeKind.Tree && n.State == 0 && n.Size >= 1)
         {
             _runner.Submit(CommandSource.Player, new StartProcess(player, "recipe.fell_tree", SiteChunk: chunk, SiteIndex: index));
+            _fellingAt = new Vector2(n.At.X, n.At.Z);
             Say($"You set about felling the {t.Name}.");
         }
         else if (def.Forage is not null && n.State == 0)
@@ -148,6 +151,12 @@ public partial class SimHost
         if (snap.PlayerProcess == 0 || snap.ProcessRecipe != _fellRecipe || snap.ProcessState != (byte)Sim.Crafting.ProcessState.Active) { return; }
         if (snap.GameMs / Sim.Time.SimClock.MsPerGameMinute < snap.ProcessBusyUntilMin) { return; }
         if (_lastWorked == (snap.PlayerProcess, snap.ProcessStage)) { return; }
+        if (_fellingAt is { } site && site.DistanceTo(_player) > 4.5f)   // the sim's 4 m reach (13 §4): walk away and the work waits
+        {
+            if (_clock - _lastAwayNote > 6) { _lastAwayNote = _clock; Say("The tree waits — go back to it to keep felling."); }
+            return;
+        }
+
         _lastWorked = (snap.PlayerProcess, snap.ProcessStage);
         GD.Print($"SimHost: work stage {snap.ProcessStage} of process {snap.PlayerProcess}");
         _runner!.Submit(CommandSource.Player, new WorkStage(snap.PlayerProcess, float.NaN));

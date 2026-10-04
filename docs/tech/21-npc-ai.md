@@ -425,6 +425,12 @@ fitting): Drunkard (Grief ≥ 60 for ≥ 4 days with ale access: 3%/day), Coward
 death: 15%), Paranoid (victim of ≥ 2 crimes in a year: 20%), Pious (survives near-death while
 praying: 10%). Each change is an event for the Chronicle.
 
+*Sex at generation (M2-FP4, 2026-10-04; a default taken on the owner's behalf):* a generated person's sex follows the
+given name drawn for them. Each culture lists which of its `given_names` are women's names (`female_names`, a validated
+subset); the rest are men's. Name draws are unchanged, so existing seeds keep their people. The client picks the body
+from it. A fuller model (a sex draw first, then a name from that sex's list, as the M2-22 manifest may want) can replace
+this without touching saves, since `PersonCore.Sex` is already saved.
+
 ### 4.5 Inheritance (children)
 
 - **Facets:** `child = 50 + h·((pA + pB)/2 − 50) + N(0, 15·√(1 − h²/2))`, heritability

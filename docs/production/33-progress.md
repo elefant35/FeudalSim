@@ -18,38 +18,22 @@ Previous: **M1 — Talking Camp — complete except owner items, 2026-10-04** (t
 table below). Open for the owner: **M1-24 playtest** (kit ready) and **31 D37** (cloud latency targets, 22 §17.2 #1).
 Before that: **M0 — Foundations — complete 2026-10-04** (gate passed at 7f4756e).
 
-## Morning summary (Goal F session, 2026-10-04) — stopped early: CI gate needs your call
+## Summary for the owner (2026-10-04, afternoon)
 
-- **Why I stopped:** CI's camp-sweep step checks "friends per person in band for ≥ 90 % of seeds" on 20 seeds. Over
-  **300 seeds** the gate holds in **87 %** at 5d89e25 (before today's last item) and **84 %** with M2-07a — it has been
-  below 90 % in expectation since M2-26a; the 91 % / 95 % readings were 100- and 20-seed samples. Any change to the
-  draws re-rolls CI's 20 seeds (P(pass) ≈ 0.5); M2-07a's sample lands at 80 %, so **`ci` will be red on abf8a26**
-  (the steps after the sweep — social, completability — pass locally, output in the M2-07a row). I didn't touch the
-  band, the 90 % threshold or the seed count (rule b). The only in-doc levers (16 Q22: argue weight, ε, a stronger
-  walk-away) are yours: the argue weight already carries a ×0.15 calibration and sits at 2 % of the mix against
-  16 §5.6's 4 %, so lowering it trades one doc target for another. **Your call (31 D46):** accept a lower share for
-  the 30-day camp, judge the gate at 300 seeds, pick a D36 lever (M2-26b), or wait for help/comfort/rapport sources.
-- **Done (M1):** every item except the playtest; see the M1 exit-criteria table (all PASS except #1 latency and the
-  owner-run feel criteria).
-- **Done (M2 so far):** world generation (terrain, biomes, hypsometry, nodes and deposits, landing/wreck/flotsam,
-  knowledge tiles and travel, the region in the sim with cache/save/node deltas); weather and day/night; skills & XP;
-  survival — exposure and clothing, stamina, injuries/health/death, infection and treatment, and now **conditions**
-  (the Flux, food poisoning and 7 toxins, contagion among roommates, the camp water's Flux exposure, dehydration and
-  starvation, with 11 §23's T-DEHY-01 and T-STARVE-01 no-food row passing as written); items, inventory and quality;
-  processes and the minigame contract; knapping (sim, calibration, client bench); woodcutting with accidents;
-  foraging with labels and look-alikes; escalation calibration (M2-26a). **372 tests**; build 0 warnings; content
-  validate and schemas check OK; determinism with 4 threads identical; social, completability, S6 bench PASS.
-- **Awaiting you (M2):** D46 friends gate (above) · M2-26b brawl rate (D36) · findings with reversible defaults
-  applied: D39–D45, 11 Q7–Q12, 13 Q11, 10 Q18 · flaw `hidden_difficulty` values (proposed).
-- **Awaiting you (M1):** M1-24 playtest ([kit](../playtests/m1-playtest-kit.md)) · 31 **D37** cloud latency targets ·
-  confirm/override **D33–D36** · asset looks (`asset.char.humanoid_a`, the 40 `asset.graybox.*`, the 26 M1 sounds,
-  all `status: review`).
-- **Watch:** `godot` failed once on 5d89e25 at the Boot smoke (×1 rate check); it passes locally (AUTOTEST PASS) and
-  passed on every earlier run — probably a shared-runner timing flake.
-- **Decisions taken on your behalf:** the "Owner decisions pending" table below (18 rows; all reversible).
-- **Spend:** ≈ $1.31 of the $15 session cap (dev total ≈ $1.39 of ≈ $50); no paid model calls since M1.
-- **Next step:** once D46 is decided, M2-07b (eating, food values, toxins when eaten, spoilage, rations), M2-07c
-  (water sources, boiling), M2-06c, M2-08, then M2-14 onward.
+- **First playable is ready:** `tools/play.sh` (guide and feedback sheet: [docs/playtests/m2-first-playable.md](../playtests/m2-first-playable.md)).
+  You walk the generated island in first person ([V] for third person) from the Landfall camp above the beach, with the
+  wreck on the reef, the art agent's trees, plants, rocks, ground layers, settlers, clothing, animations and camp, and
+  you can talk to settlers, fell trees, gather plants and knap. M2-FP1…FP5 in the table below.
+- **Friends gate fixed (D46, your direction):** a time-together source (16 §4.9a) — friends 1.35 per person, 99 % of 300
+  seeds in band. Idle-rate's 89 % at 300 seeds is pre-existing (D47, reported).
+- **Art agent:** P0 and most of P1 delivered (321 manifest entries, all `review`); its commits are pushed with mine.
+  `ASSET_LICENSES.md` must be regenerated with each manifest change (now in its contract).
+- **Awaiting you:** the first-playable playtest and art approvals · M1-24 playtest · D37 · confirm or override the
+  owner-decision rows (two new today: sex from the given name, first person with a third-person toggle) · M2-26b.
+- **Spend:** ≈ $1.31 of the $15 session cap; today's screenshots and autotests ran in template mode (two earlier
+  screenshots used the live model, a few cents).
+- **Next step:** M2-07b (eating, toxins in food, spoilage, rations), then the remaining M2 items, each batch ending with
+  a playable build.
 
 ---
 
@@ -373,11 +357,21 @@ record in 31 §2.
 | 2026-10-04 | Cloud latency targets unreachable with the logprob decider (M1-26) | Keep 22's targets; the 0.3 s take covers the first reaction; revisit with the single-call variant / Laya; **owner decides whether M1 closes on #1** | 31 D37, 22 Q18 |
 | 2026-10-04 | NPC↔NPC brawls ≈ 4–15× 18 §16's rate once arguments reach the ladder (M1-22) | Keep 16's formulas; calibrate in M2 (authority, mediation, §9.4 hard end, argue weight, ε) | 31 D36, 16 Q22 |
 | 2026-10-04 | 16 §5.4's conditional yes keeps ≈ ⅓ of the mass when the NPC hates the asker | Keep the formula; the refusal suite counts only the unconditional yes | 31 D35, 16 Q21, 22 Q17 |
+| 2026-10-04 | A generated person's sex follows their given name (`female_names` per culture; draws unchanged) (M2-FP4) | Applied | [21 §4.4 note](../tech/21-npc-ai.md) |
+| 2026-10-04 | Camera: first person by default **with** a third-person toggle [V] (you asked for first person; the toggle question went unanswered) | Applied; canon v0.3.2 | [canon](../01-canon.md) |
 | 2026-10-04 | The player's character is a Person row (parity), not a separate struct | `PersonFlags.Player`; AI/psych/NPC-talk skip it; relationships and DPs key on its id | 20 §6.4 note |
 
 ---
 
 ## Discovered work (not yet scheduled)
+
+- **World cache key (FP1):** `WorldCache` keys on the whole content hash, so any YAML edit regenerates the island (≈ 100 s
+  frozen window in the game). Key on the world spec + node content instead, and/or show a loading screen.
+- **Exported builds (M2-33):** the client loads terrain layers with `Image.LoadFromFile(GlobalizePath("res://…"))` and
+  checks `FileAccess.FileExists` on res paths; neither survives an exported .pck. Switch to imported textures with a
+  shared format before exporting.
+- **Felling and gathering (FP3):** felling has no minigame and gathering no animation; NPCs still work abstract
+  "woods"/"forage ground" places, not the nodes (M2-21).
 
 Items found while working that belong to a later milestone or need triage.
 
@@ -424,6 +418,12 @@ Newest first. One entry per session or work item: date, what changed, evidence, 
 
 | Date | Work | Evidence | Next |
 |------|------|----------|------|
+| 2026-10-04 | **M2-FP5** first playable: `tools/play.sh`, `--template`, play guide + feedback sheet | launcher verified end to end | owner playtest; M2-07b |
+| 2026-10-04 | **M2-FP4** art wired: settlers (worn garments, clips by activity), camp, wreck, terrain layers, wind and sea shaders; sex from given name | 4 Godot autotests PASS; screenshots | FP5 |
+| 2026-10-04 | **M2-FP3** nodes from the sim around the player; fell and gather by looking | island autotest fells an oak and gathers yarrow | FP4 |
+| 2026-10-04 | **M2-FP2** first person, mouse look, look-at interaction, [V] third person | camp + island autotests | FP3 |
+| 2026-10-04 | **M2-FP1** the island in the client (Terrain3D), camp anchored at the landing | island autotest; WorldMapTests +1 | FP2 |
+| 2026-10-04 | **M2-26c** time together (owner direction; D46 resolved) | sweep 300 × 30 friends 99 % | first playable |
 | 2026-10-04 | **M1-15** an hour of conversation replays identically (menus, decisions, state); live talk log replays to the same hash | SessionReplayTests; live f70e09b8… | M1-16 calibration & red-team harness |
 | 2026-10-04 | **M1-16** calibration & red-team harness + `ai calibrate`; leaning prompt v2.1: gap 9.9–10.0, lift +5.8–6.3 (carried to the gate), refusal 100%, pressure 0%, arguments +27, red-team 0 off-menu executions | CalibrationHarnessTests; live runs ≈ $0.80 | M1-17 template-mode completability in CI |
 | 2026-10-04 | **M1-17** template-mode completability: `complete --seeds 10` in CI (haggle, apology, report a deed, favor kept); claim extraction from free text; heuristic sharpened; headless LOD0 bodies | CompletabilityTests; 10/10 worlds | M1-S1 crowd render spike |
