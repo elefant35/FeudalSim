@@ -108,7 +108,13 @@ def main():
         hi = min(hi, 150)
     if not lo <= tris['0'] <= hi:
         problems.append(f"assembled LOD0 {tris['0']} triangles outside {lo}–{hi}")
-    materials = sorted({s.material.name for o in visible for s in o.material_slots if s.material})
+    # Blender splits a single glTF material into vertex-colour/no-colour import
+    # variants. Count exported material indices, as the shipping manifest does.
+    used_meshes = {n['mesh'] for n in document.get('nodes', []) if 'mesh' in n
+                   and not n.get('name', '').endswith(('-colonly', '-convcolonly'))}
+    used_materials = {p['material'] for index in used_meshes
+                      for p in document['meshes'][index]['primitives'] if 'material' in p}
+    materials = [document['materials'][index].get('name', str(index)) for index in sorted(used_materials)]
     if len(materials) > budget['materials']:
         problems.append(f'{len(materials)} materials exceeds {budget["materials"]}')
     swatches = list(fsart.SWATCH.values())

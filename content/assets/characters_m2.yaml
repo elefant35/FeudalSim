@@ -11,9 +11,9 @@
     tool: Blender 5.1.0 (headless)
   outputs: [game/assets/characters/body_male.glb]
   budget_class: character
-  measured: { tris_lod0: 3796, materials: 2 }
+  measured: { tris_lod0: 3796, materials: 1 }
   license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
-  notes: "1.72 m male base. P0 parts retained; P1 adds heads e/f (six adult heads total, one elder), hide jerkin, fur cloak, oiled cloak and sailcloth poncho. Ten expression targets on every head, six hair styles, three beards. Six homeland garment layers. Shoulder yokes cover sleeve roots; tunic hems blend with legs. Exact common 40-bone hierarchy including Root and two hand sockets. Full library7104tris; largest assembled choice3796includesoptionaljerkin and one outer cloak. Two shared-palette material variants reflect cloth wind data. Upper hood Headwear_wool_hood is first-person hideable; Cloth_wool_hood is the cape. Wind is COLOR_0.R, not a colour tint. All outfit, face, emotion, silhouette and FP work review sheets are in art/previews/settlers and art/previews/animations."
+  notes: "1.72 m male base. P0 parts retained; P1 adds heads e/f (six adult heads total, one elder), hide jerkin, fur cloak, oiled cloak and sailcloth poncho. Ten expression targets on every head, six hair styles, three beards. Six homeland garment layers. Shoulder yokes cover sleeve roots; tunic hems blend with legs. Exact common 40-bone hierarchy including Root and two hand sockets. Full library7104tris; largest assembled choice3796includesoptionaljerkin and one outer cloak. One exported palette material; Blender creates two import variants for meshes with and without cloth wind data. Upper hood Headwear_wool_hood is first-person hideable; Cloth_wool_hood is the cape. Wind is COLOR_0.R, not a colour tint. All outfit, face, emotion, silhouette and FP work review sheets are in art/previews/settlers and art/previews/animations."
 - id: asset.characters.body_female
   kind: model
   status: review
@@ -25,9 +25,9 @@
     tool: Blender 5.1.0 (headless)
   outputs: [game/assets/characters/body_female.glb]
   budget_class: character
-  measured: { tris_lod0: 3720, materials: 2 }
+  measured: { tris_lod0: 3720, materials: 1 }
   license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
-  notes: "1.62 m female base on the common scaled humanoid skeleton. P0 preserved; P1 adds two head variants (six total, one elder) and four outer clothing layers. Ten expressions per head, six hairstyles, ankle-length dress, six homeland garment layers. Full library6892tris; largest assembled outfit3720includesjerkin and one outer cloak. Shoulder yokes and leg-influenced garment hems. Exact40-bone hierarchy, two palette variants, cloth COLOR_0.R wind, first-person hideable upper hood. Complete P1 appearance review in art/previews/settlers."
+  notes: "1.62 m female base on the common scaled humanoid skeleton. P0 preserved; P1 adds two head variants (six total, one elder) and four outer clothing layers. Ten expressions per head, six hairstyles, ankle-length dress, six homeland garment layers. Full library6892tris; largest assembled outfit3720includesjerkin and one outer cloak. Shoulder yokes and leg-influenced garment hems. Exact40-bone hierarchy, one exported palette material, cloth COLOR_0.R wind, first-person hideable upper hood. Complete P1 appearance review in art/previews/settlers."
 - id: asset.characters.body_child
   kind: model
   status: review
@@ -39,6 +39,6 @@
     tool: Blender 5.1.0 (headless)
   outputs: [game/assets/characters/body_child.glb]
   budget_class: character
-  measured: { tris_lod0: 3704, materials: 2 }
+  measured: { tris_lod0: 3704, materials: 1 }
   license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
-  notes: "1.235 m child base, hood height1.254m, with larger cranium and shorter limbs. Same40-bone humanoid hierarchy and shared rotation profile; rest lengths and mesh coordinates use the documented child proportion map. Six young head alternatives, ten expressions each, six hairstyles, no beards. Includes all six homeland layers and four P1 outer layers. Full library6876tris; largest assembled outfit3704. Two palette variants; cloth wind COLOR_0.R. Child pose sheet reviews shared-action rotations and foot contact. Preview sheets in art/previews/settlers."
+  notes: "1.235 m child base, hood height1.254m, with larger cranium and shorter limbs. Same40-bone humanoid hierarchy and shared rotation profile; rest lengths and mesh coordinates use the documented child proportion map. Six young head alternatives, ten expressions each, six hairstyles, no beards. Includes all six homeland layers and four P1 outer layers. Full library6876tris; largest assembled outfit3704. One exported palette material; cloth wind COLOR_0.R. Child pose sheet reviews shared-action rotations and foot contact. Preview sheets in art/previews/settlers."

@@ -19,8 +19,7 @@
     "collision_objects": [],
     "height_m": 1.743,
     "materials": [
-      "palette",
-      "palette.001"
+      "palette"
     ],
     "ok": true,
     "problems": [],
@@ -48,8 +47,7 @@
     "collision_objects": [],
     "height_m": 1.642,
     "materials": [
-      "palette",
-      "palette.001"
+      "palette"
     ],
     "ok": true,
     "problems": [],
@@ -77,8 +75,7 @@
     "collision_objects": [],
     "height_m": 1.254,
     "materials": [
-      "palette",
-      "palette.001"
+      "palette"
     ],
     "ok": true,
     "problems": [],
