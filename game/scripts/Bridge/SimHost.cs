@@ -88,6 +88,8 @@ public partial class SimHost : Node3D
         var args = OS.GetCmdlineUserArgs();
         var shot = Array.IndexOf(args, "--shot");   // dev: `-- --shot out.png 20` saves a screenshot after 20 s and quits
         if (shot >= 0 && shot + 2 < args.Length) { (_shotPath, _shotAt) = (args[shot + 1], double.Parse(args[shot + 2], System.Globalization.CultureInfo.InvariantCulture)); }
+        var fps = Array.IndexOf(args, "--fps");   // dev: `-- --fps 60` logs frame-time percentiles over 60 s (after 3 s warm-up) and quits
+        if (fps >= 0 && fps + 1 < args.Length) { _fpsSeconds = double.Parse(args[fps + 1], System.Globalization.CultureInfo.InvariantCulture); }
         var at = Array.IndexOf(args, "--scenario");
         var name = at >= 0 && at + 1 < args.Length ? args[at + 1] : _autotest ? "m0_smoke" : "m1_view";
         var scenario = ScenarioDef.Load(System.IO.Path.Combine(repo, "content", "scenarios", name.EndsWith(".yaml", StringComparison.Ordinal) ? name : name + ".yaml"));
@@ -186,8 +188,27 @@ public partial class SimHost : Node3D
         GD.Print($"SimHost: audio {mapping.Id} → {mapping.Files[0]} (bus {mapping.Bus}, loop {mapping.Loop}, spatial {mapping.Spatial}), playing {_campfire.Playing || _campfire.Autoplay}");
     }
 
+    private double _fpsSeconds, _fpsElapsed;
+    private readonly List<double> _frameMs = new(8192);
+
+    /// <summary>`--fps N`: frame times after a 3 s warm-up, then p50/p95/p99/max and the share of frames slower than 60 fps.</summary>
+    private void SampleFrame(double delta)
+    {
+        _fpsElapsed += delta;
+        if (_fpsElapsed < 3.0) { return; }
+        _frameMs.Add(delta * 1000.0);
+        if (_fpsElapsed < 3.0 + _fpsSeconds) { return; }
+        _frameMs.Sort();
+        double Q(double q) => _frameMs[Math.Min(_frameMs.Count - 1, (int)Math.Ceiling(q * _frameMs.Count) - 1)];
+        var slow = _frameMs.Count(f => f > 1000.0 / 55.0) / (double)_frameMs.Count;
+        GD.Print(FormattableString.Invariant($"fps: {_frameMs.Count} frames in {_fpsSeconds:F0} s · mean {_frameMs.Count / _fpsSeconds:F1} fps · frame ms p50 {Q(0.5):F2} p95 {Q(0.95):F2} p99 {Q(0.99):F2} max {_frameMs[^1]:F1} · slower than 55 fps {slow:P2}"));
+        _fpsSeconds = 0;
+        GetTree().Quit(0);
+    }
+
     public override void _Process(double delta)
     {
+        if (_fpsSeconds > 0) { SampleFrame(delta); }
         if (_runner is null) { return; }
         var snapshot = _runner.Snapshots.ReadLatest();
         var mm = _settlers.Multimesh;

@@ -55,7 +55,7 @@ public sealed class SessionCommand : Command<SessionSettings>
         var scenario = ScenarioDef.Load(settings.Scenario);
         var config = AiCli.LoadConfig(Console.Out);
         if (config.TemplateMode) { Console.WriteLine("session: template mode — nothing to measure"); return 1; }
-        Console.WriteLine($"session: dialogue {config.DialogueModel} · decider {config.DeciderModel} · {settings.Turns} turns, {settings.PerNpc} per settler · cap ${settings.MaxUsd:F2}");
+        Console.WriteLine($"session: dialogue {config.DialogueModel} at {(config.ChatBaseUrl.Contains("127.0.0.1", StringComparison.Ordinal) || config.ChatBaseUrl.Contains("localhost", StringComparison.Ordinal) ? "local" : "cloud")} · decider {config.DeciderModel} · {settings.Turns} turns, {settings.PerNpc} per settler · cap ${settings.MaxUsd:F2}");
         using var jobs = new JobRunner(1);
         var world = scenario.CreateWorld(content, jobs);
         using var stack = AiStack.Create(config);
@@ -72,6 +72,8 @@ public sealed class SessionCommand : Command<SessionSettings>
         host.Surfaced += _ => gesture ??= clock.Elapsed.TotalMilliseconds - turnAt;
         host.Partial += p => { firstWords ??= clock.Elapsed.TotalMilliseconds - turnAt; if (p.Final) { final = clock.Elapsed.TotalMilliseconds - turnAt; } };
         host.Rendered += l => line = l;
+        var ttfts = new System.Collections.Concurrent.ConcurrentBag<double>();
+        host.FirstToken += ms => ttfts.Add(ms);
 
         Thread.Sleep(1_500);
         var rows = new List<(double Classify, double? Gesture, double? Words, double? Final, string Source, string Flags, string Act)>();
@@ -130,6 +132,7 @@ public sealed class SessionCommand : Command<SessionSettings>
         Console.WriteLine($"  decisions: {decided.Count} · {string.Join(", ", decided.GroupBy(d => $"{d.Decider}/{d.Guard}").Select(g => $"{g.Key} {g.Count()}"))}");
         Console.WriteLine("22 §12.4 latency (p50 / p95), cloud targets in brackets:");
         Console.WriteLine($"  classification             {Pct(rows.Select(r => (double?)r.Classify))}   [≤ 0.3 / ≤ 0.7 s]");
+        Console.WriteLine($"  LLM time to first token    {Pct(ttfts.Select(x => (double?)x))}   [cloud < 1.0 / < 2.0 s · local < 1.5 / < 3.0 s]");
         Console.WriteLine($"  decision gesture           {Pct(rows.Select(r => r.Gesture))}   [≤ 1.1 / ≤ 2.5 s]");
         Console.WriteLine($"  first words                {Pct(rows.Select(r => r.Words))}   [Tier A ≤ 1.2 / ≤ 3.0 s · Tier B ≤ 2.5 / ≤ 4.5 s]");
         Console.WriteLine($"  whole line                 {Pct(rows.Select(r => r.Final))}");

@@ -28,12 +28,15 @@ public sealed class DialogueReplyRouter(IChatProvider? chat, IDecider? verifier,
     public static readonly TimeSpan ResolutionWait = TimeSpan.FromSeconds(8);
 
     /// <summary>22 §3.5: live dialogue fails over when no token arrives within 3 s.</summary>
-    public static readonly TimeSpan TtftTimeout = TimeSpan.FromSeconds(3);
+    public static readonly TimeSpan TtftTimeout = TimeSpan.FromSeconds(3);   // default; config.TtftTimeoutMs overrides
 
     /// <summary>The TTFT target for the breaker's latency trigger (22 §17.2 #1: p50 &lt; 1.0 s).</summary>
     public const double TtftTargetMs = 1_000;
 
     /// <summary>The dialogue model's breaker: an open breaker sends the turn to the policy at once and a template speaks (22 §3.5).</summary>
+    /// <summary>Milliseconds from the start of the reply route to the decision-first stream's first token (TTFT, 22 §12.4).</summary>
+    public event Action<double>? FirstToken;
+
     public CircuitBreaker Breaker { get; } = new($"{chat?.Tag ?? "none"}:{config.DialogueModel}");
 
     private readonly ConcurrentDictionary<ulong, TaskCompletionSource<string>> _resolved = new();
@@ -85,7 +88,7 @@ public sealed class DialogueReplyRouter(IChatProvider? chat, IDecider? verifier,
         {
             var request = new ChatRequest(config.DialogueModel, PromptBuilder.DecisionFirst(b), MaxTokens: 140, Temperature: b.Facts.Temperature,
                 Stop: ["<player_said", $"{b.PlayerName}:"]);   // 22 §4.8 (not "\n\n": S2)
-            using var ttft = new CancellationTokenSource(TtftTimeout);
+            using var ttft = new CancellationTokenSource(config.TtftTimeoutMs > 0 ? TimeSpan.FromMilliseconds(config.TtftTimeoutMs) : TtftTimeout);   // LLM_TIMEOUT_TTFT_MS
             using var streamCut = CancellationTokenSource.CreateLinkedTokenSource(deadline.Token, ttft.Token);
             await foreach (var piece in chat.StreamAsync(request, streamCut.Token).ConfigureAwait(false))
             {
@@ -94,6 +97,7 @@ public sealed class DialogueReplyRouter(IChatProvider? chat, IDecider? verifier,
                     firstToken = started.Elapsed.TotalMilliseconds;
                     ttft.CancelAfter(Timeout.InfiniteTimeSpan);   // the first token came: no TTFT cut any more
                     Breaker.RecordLatency(firstToken, TtftTargetMs);
+                    FirstToken?.Invoke(firstToken);
                 }
 
                 buffer.Append(piece);

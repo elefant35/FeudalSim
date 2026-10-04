@@ -45,6 +45,7 @@ public sealed class DialogueHost
         _router.Decided += d => _submit(CommandSource.Ai, d);
         _router.Line += l => { _submit(CommandSource.Ai, l); Rendered?.Invoke(l); };
         _router.Partial += p => Partial?.Invoke(p);
+        _router.FirstToken += ms => FirstToken?.Invoke(ms);
         _router.Surfaced += s => Surfaced?.Invoke(s);
         _router.Spent += c => Spend(c);
         if (chat is OpenAiCompatibleChatProvider streamed) { streamed.StreamFinished += r => Spend(r.CostUsd); }
@@ -66,6 +67,9 @@ public sealed class DialogueHost
 
     /// <summary>Raised when a classified turn has been submitted (UI: the intent echo, 22 §4.1).</summary>
     public event Action<Classification>? Classified;
+
+    /// <summary>The dialogue model's time to first token for a turn (ms from the reply route's start).</summary>
+    public event Action<double>? FirstToken;
 
     /// <summary>The reply route's breaker (22 §12.5): Open means the dialogue model is not being asked.</summary>
     public CircuitBreaker.BreakerState ReplyBreaker => _router.Breaker.State;
