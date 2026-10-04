@@ -18,31 +18,38 @@ Previous: **M1 — Talking Camp — complete except owner items, 2026-10-04** (t
 table below). Open for the owner: **M1-24 playtest** (kit ready) and **31 D37** (cloud latency targets, 22 §17.2 #1).
 Before that: **M0 — Foundations — complete 2026-10-04** (gate passed at 7f4756e).
 
-## Morning summary (Goal F session, 2026-10-04)
+## Morning summary (Goal F session, 2026-10-04) — stopped early: CI gate needs your call
 
-- **Done:** M1 — every item except the playtest: decision points end to end (DRE, menus, owners for escalation,
-  bystanders, rapport, apology, requests, being told, trade, initiative), the decision-first reply route with Tier A/B,
-  verification, resilience and replay; calibration & red-team harness; template-mode completability in CI; the
-  headless social sim; cost/latency report; the graybox camp with the player, the dialogue UI, the graybox kit (40
-  assets), placeholder audio (26 sounds); spikes S1 (crowds), S4 (terrain streaming), S5 (local LLM), S6; .NET 10;
-  real settler names; placeholder theft. Evidence: the **M1 exit criteria** table below (all PASS except #1 latency
-  and the owner-run feel criteria). 251 tests; CI green (one unexplained ubuntu boot-smoke flake — now annotated).
-- **Done since (M2, in progress):** world generation stages 1–6 (W3 rivers on massif/twin islands open, D38);
-  skills & XP (M2-04); weather and day/night (M2-03); survival — exposure, clothing, wetness, hypothermia (M2-05a),
-  stamina and gait (M2-05b), injuries, blood, health, Downed/Dying/death with bodies (M2-06a), infection and the
-  treatment interface (M2-06b); items, inventory and 13's quality model with flaws (M2-09); escalation calibration
-  with 16 §9.4's hard end and mediation, which fixed CI's marginal friends gate and an old quarrel-expiry bug
-  (M2-26a). 323 tests; CI green through 4604d31 (later runs pending at the time of writing).
-- **Awaiting you (M2):** M2-26b brawl rate (31 D36: accept until 17's authority terms, recommended) · new findings
-  with reversible defaults applied: D39 Dry-summer persistence, D40 soaked-kit night anchor, D41 arterial anchor,
-  D42 wound-cleaning anchor (11 Q7–Q10) · 11 Q8 exposure modelling choices · flaw `hidden_difficulty` values (proposed).
-- **Awaiting you:** M1-24 playtest ([kit](../playtests/m1-playtest-kit.md), ready now) · 31 **D37** cloud latency
-  targets (may M1 close with #1 failing?) · confirm/override **D33–D36** (below) · asset looks:
-  `asset.char.humanoid_a`, the 40 `asset.graybox.*`, the 26 M1 sounds (all `status: review`).
+- **Why I stopped:** CI's camp-sweep step checks "friends per person in band for ≥ 90 % of seeds" on 20 seeds. Over
+  **300 seeds** the gate holds in **87 %** at 5d89e25 (before today's last item) and **84 %** with M2-07a — it has been
+  below 90 % in expectation since M2-26a; the 91 % / 95 % readings were 100- and 20-seed samples. Any change to the
+  draws re-rolls CI's 20 seeds (P(pass) ≈ 0.5); M2-07a's sample lands at 80 %, so **`ci` will be red on abf8a26**
+  (the steps after the sweep — social, completability — pass locally, output in the M2-07a row). I didn't touch the
+  band, the 90 % threshold or the seed count (rule b). The only in-doc levers (16 Q22: argue weight, ε, a stronger
+  walk-away) are yours: the argue weight already carries a ×0.15 calibration and sits at 2 % of the mix against
+  16 §5.6's 4 %, so lowering it trades one doc target for another. **Your call (31 D46):** accept a lower share for
+  the 30-day camp, judge the gate at 300 seeds, pick a D36 lever (M2-26b), or wait for help/comfort/rapport sources.
+- **Done (M1):** every item except the playtest; see the M1 exit-criteria table (all PASS except #1 latency and the
+  owner-run feel criteria).
+- **Done (M2 so far):** world generation (terrain, biomes, hypsometry, nodes and deposits, landing/wreck/flotsam,
+  knowledge tiles and travel, the region in the sim with cache/save/node deltas); weather and day/night; skills & XP;
+  survival — exposure and clothing, stamina, injuries/health/death, infection and treatment, and now **conditions**
+  (the Flux, food poisoning and 7 toxins, contagion among roommates, the camp water's Flux exposure, dehydration and
+  starvation, with 11 §23's T-DEHY-01 and T-STARVE-01 no-food row passing as written); items, inventory and quality;
+  processes and the minigame contract; knapping (sim, calibration, client bench); woodcutting with accidents;
+  foraging with labels and look-alikes; escalation calibration (M2-26a). **372 tests**; build 0 warnings; content
+  validate and schemas check OK; determinism with 4 threads identical; social, completability, S6 bench PASS.
+- **Awaiting you (M2):** D46 friends gate (above) · M2-26b brawl rate (D36) · findings with reversible defaults
+  applied: D39–D45, 11 Q7–Q12, 13 Q11, 10 Q18 · flaw `hidden_difficulty` values (proposed).
+- **Awaiting you (M1):** M1-24 playtest ([kit](../playtests/m1-playtest-kit.md)) · 31 **D37** cloud latency targets ·
+  confirm/override **D33–D36** · asset looks (`asset.char.humanoid_a`, the 40 `asset.graybox.*`, the 26 M1 sounds,
+  all `status: review`).
+- **Watch:** `godot` failed once on 5d89e25 at the Boot smoke (×1 rate check); it passes locally (AUTOTEST PASS) and
+  passed on every earlier run — probably a shared-runner timing flake.
 - **Decisions taken on your behalf:** the "Owner decisions pending" table below (18 rows; all reversible).
-- **Spend:** ≈ $1.31 of the $15 session cap (dev total ≈ $1.39 of ≈ $50); M2 work so far has made no paid model calls.
-- **Next step:** M2-10 the process model and minigame contract (13 §3–4, §7), then the crafts (M2-11…15), building
-  (M2-16), wildlife and hunting (M2-17/18), combat (M2-19/20) and M2-21's NPC AI.
+- **Spend:** ≈ $1.31 of the $15 session cap (dev total ≈ $1.39 of ≈ $50); no paid model calls since M1.
+- **Next step:** once D46 is decided, M2-07b (eating, food values, toxins when eaten, spoilage, rations), M2-07c
+  (water sources, boiling), M2-06c, M2-08, then M2-14 onward.
 
 ---
 
