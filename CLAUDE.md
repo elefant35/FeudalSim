@@ -87,6 +87,7 @@ $GODOT --path game -- --scenario m1_overheard                            # any c
 $GODOT --headless --path game -- --autotest                              # Boot smoke: movement, pause, time scale (exit 0/1)
 $GODOT --headless --path game -- --autotest-camp                         # M1-18 play mode: bodies, walk to a settler, [E] talk, [Esc] leave (exit 0/1)
 $GODOT --headless --path game -- --autotest-dialogue                     # M1-19 dialogue UI on top: echo, unsay, quick intent, People page (CI; add --live for the model)
+python3 tools/audio/build_m1.py                                          # M1-21 placeholder audio: barks + dialogue UI sounds → check → manifest + mappings
 python3 tools/art/build_kit.py [--previews]                              # M1-20 graybox kit: 40 assets → export → check → content/assets/graybox.yaml
 tools/godot/embodiment_check.sh                                          # LOD0 bodies + headless replay of the client session
 tools/godot/fetch_addons.sh                                              # pinned third-party addons (Terrain3D) → game/addons/ (SHA-256 checked)

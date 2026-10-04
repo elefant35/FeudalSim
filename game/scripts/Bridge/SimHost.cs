@@ -485,6 +485,8 @@ public partial class SimHost : Node3D
     private void QuitCleanly()
     {
         _campfire?.Stop();
+        _uiPlayer?.Stop();
+        _voicePlayer?.Stop();
         GetTree().CreateTimer(0.25, processAlways: true, ignoreTimeScale: true).Timeout += () => GetTree().Quit();
     }
 
@@ -496,6 +498,10 @@ public partial class SimHost : Node3D
         _jobs?.Dispose();
         _settlers.Multimesh = null;   // release the MultiMesh/CapsuleMesh before engine shutdown
         _settlers.MaterialOverride = null;
+        foreach (var player in new AudioStreamPlayer?[] { _uiPlayer }) { if (player is not null) { player.Stop(); player.Stream = null; } }
+        if (_voicePlayer is not null) { _voicePlayer.Stop(); _voicePlayer.Stream = null; }
+        foreach (var stream in _streams.Values) { stream.Dispose(); }
+        _streams.Clear();
         if (_campfire is not null)
         {
             _campfire.Stop();   // a live playback keeps the stream referenced past shutdown

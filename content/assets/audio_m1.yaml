@@ -1,0 +1,210 @@
+# yaml-language-server: $schema=../schemas/asset.schema.json
+# M1-21 placeholders (32 §16): synthesized by tools/audio/synth.py via tools/audio/build_m1.py. Real voice sessions from M2.
+- id: asset.vox.bark_affirm_01
+  kind: vocal
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: bark_affirm_low, seed: 11 }, tool: numpy }
+  outputs: [game/assets/audio/vox/vox_bark_affirm_01.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -12.8, duration_s: 0.42 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.vox.bark_affirm_02
+  kind: vocal
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: bark_affirm_high, seed: 12 }, tool: numpy }
+  outputs: [game/assets/audio/vox/vox_bark_affirm_02.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -10.8, duration_s: 0.42 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.vox.bark_negate_01
+  kind: vocal
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: bark_negate_low, seed: 11 }, tool: numpy }
+  outputs: [game/assets/audio/vox/vox_bark_negate_01.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -13.2, duration_s: 0.43 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.vox.bark_negate_02
+  kind: vocal
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: bark_negate_high, seed: 12 }, tool: numpy }
+  outputs: [game/assets/audio/vox/vox_bark_negate_02.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -11.4, duration_s: 0.43 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.vox.bark_consider_01
+  kind: vocal
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: bark_consider_low, seed: 11 }, tool: numpy }
+  outputs: [game/assets/audio/vox/vox_bark_consider_01.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -13.7, duration_s: 0.65 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.vox.bark_consider_02
+  kind: vocal
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: bark_consider_high, seed: 12 }, tool: numpy }
+  outputs: [game/assets/audio/vox/vox_bark_consider_02.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -11.3, duration_s: 0.65 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.vox.bark_question_01
+  kind: vocal
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: bark_question_low, seed: 11 }, tool: numpy }
+  outputs: [game/assets/audio/vox/vox_bark_question_01.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -12.9, duration_s: 0.32 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.vox.bark_question_02
+  kind: vocal
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: bark_question_high, seed: 12 }, tool: numpy }
+  outputs: [game/assets/audio/vox/vox_bark_question_02.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -12.1, duration_s: 0.32 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.vox.bark_scoff_01
+  kind: vocal
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: bark_scoff_low, seed: 11 }, tool: numpy }
+  outputs: [game/assets/audio/vox/vox_bark_scoff_01.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -14.7, duration_s: 0.2 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.vox.bark_scoff_02
+  kind: vocal
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: bark_scoff_high, seed: 12 }, tool: numpy }
+  outputs: [game/assets/audio/vox/vox_bark_scoff_02.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -12.9, duration_s: 0.2 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.vox.bark_laugh_01
+  kind: vocal
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: bark_laugh_low, seed: 11 }, tool: numpy }
+  outputs: [game/assets/audio/vox/vox_bark_laugh_01.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -16.5, duration_s: 0.68 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.vox.bark_laugh_02
+  kind: vocal
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: bark_laugh_high, seed: 12 }, tool: numpy }
+  outputs: [game/assets/audio/vox/vox_bark_laugh_02.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -15.9, duration_s: 0.68 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.vox.bark_sigh_01
+  kind: vocal
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: bark_sigh_low, seed: 11 }, tool: numpy }
+  outputs: [game/assets/audio/vox/vox_bark_sigh_01.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -16.5, duration_s: 0.9 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.vox.bark_sigh_02
+  kind: vocal
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: bark_sigh_high, seed: 12 }, tool: numpy }
+  outputs: [game/assets/audio/vox/vox_bark_sigh_02.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -15.4, duration_s: 0.9 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.vox.bark_grunt_01
+  kind: vocal
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: bark_grunt_low, seed: 11 }, tool: numpy }
+  outputs: [game/assets/audio/vox/vox_bark_grunt_01.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -14.1, duration_s: 0.2 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.vox.bark_grunt_02
+  kind: vocal
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: bark_grunt_high, seed: 12 }, tool: numpy }
+  outputs: [game/assets/audio/vox/vox_bark_grunt_02.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -13.2, duration_s: 0.2 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.vox.bark_surprise_01
+  kind: vocal
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: bark_surprise_low, seed: 11 }, tool: numpy }
+  outputs: [game/assets/audio/vox/vox_bark_surprise_01.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -14.3, duration_s: 0.25 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.vox.bark_surprise_02
+  kind: vocal
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: bark_surprise_high, seed: 12 }, tool: numpy }
+  outputs: [game/assets/audio/vox/vox_bark_surprise_02.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -13.2, duration_s: 0.25 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.vox.bark_warm_01
+  kind: vocal
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: bark_warm_low, seed: 11 }, tool: numpy }
+  outputs: [game/assets/audio/vox/vox_bark_warm_01.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -11.5, duration_s: 0.3 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.vox.bark_warm_02
+  kind: vocal
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: bark_warm_high, seed: 12 }, tool: numpy }
+  outputs: [game/assets/audio/vox/vox_bark_warm_02.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -8.5, duration_s: 0.3 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.ui.dialogue_open_01
+  kind: sfx
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: ui_open, seed: 3 }, tool: numpy }
+  outputs: [game/assets/audio/ui/ui_dialogue_open_01.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -10.7, duration_s: 0.22 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.ui.dialogue_close_01
+  kind: sfx
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: ui_close, seed: 3 }, tool: numpy }
+  outputs: [game/assets/audio/ui/ui_dialogue_close_01.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -17.2, duration_s: 0.2 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.ui.dialogue_confirm_01
+  kind: sfx
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: ui_confirm, seed: 3 }, tool: numpy }
+  outputs: [game/assets/audio/ui/ui_dialogue_confirm_01.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -9.7, duration_s: 0.31 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.ui.dialogue_unsay_01
+  kind: sfx
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: ui_unsay, seed: 3 }, tool: numpy }
+  outputs: [game/assets/audio/ui/ui_dialogue_unsay_01.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -13.0, duration_s: 0.18 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.ui.dialogue_glyph_01
+  kind: sfx
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: ui_glyph, seed: 3 }, tool: numpy }
+  outputs: [game/assets/audio/ui/ui_dialogue_glyph_01.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -11.6, duration_s: 0.5 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+- id: asset.ui.dialogue_error_01
+  kind: sfx
+  status: review
+  milestone: M1
+  source: { type: synthesized, generator: tools/audio/synth.py, params: { recipe: ui_error, seed: 3 }, tool: numpy }
+  outputs: [game/assets/audio/ui/ui_dialogue_error_01.wav]
+  measured: { peak_dbfs: -1.0, loudness_lufs: -14.0, duration_s: 0.25 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }

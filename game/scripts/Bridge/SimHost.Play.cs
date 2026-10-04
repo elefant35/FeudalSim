@@ -215,7 +215,7 @@ public partial class SimHost
                 SubmitText("Could you help me gather firewood for an hour?");
                 (_dialoguePhase, _campMark) = (1, _campT);
                 break;
-            case 1 when Logged($"[b]{npc}:[/b]") || t > 12:
+            case 1 when (Logged($"[b]{npc}:[/b]") && _outcomes.Count > 0) || t > 12:   // line and outcome travel on different threads
                 Expect("typed request echoed", Logged("read as: Request") ? 1 : 0, 1, 0);
                 Expect("NPC line streamed in", Logged($"[b]{npc}:[/b]") ? 1 : 0, 1, 0);
                 Expect("their choice surfaced (outcome)", _outcomes.Count, 1, null);
@@ -297,6 +297,8 @@ public partial class SimHost
                 foreach (var line in _autotestResults) { GD.Print(line); }
                 GD.Print($"SimHost: CAMP AUTOTEST {(_autotestFailed ? "FAIL" : "PASS")}");
                 _campfire?.Stop();
+                _uiPlayer?.Stop();
+                _voicePlayer?.Stop();
                 (_campPhase, _campMark) = (5, _campT);
                 break;
             case 5 when _campT - _campMark > 0.25:

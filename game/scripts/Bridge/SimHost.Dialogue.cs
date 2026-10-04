@@ -26,6 +26,47 @@ public partial class SimHost
         ["wide_eyes"] = "goes wide-eyed", ["baffled"] = "looks baffled", ["draws_weapon"] = "reaches for a weapon",
     };
 
+    /// <summary>M1-21: the vocal placeholder each gesture carries (32 §16); none for quiet gestures.</summary>
+    private static readonly Dictionary<string, string> GestureBark = new()
+    {
+        ["nods"] = "affirm", ["warm_smile"] = "warm", ["shakes_head"] = "negate", ["considers"] = "consider", ["raised_brow"] = "question",
+        ["baffled"] = "question", ["scowls"] = "scoff", ["cold_look"] = "scoff", ["crosses_arms"] = "scoff", ["laughs"] = "laugh",
+        ["turns_away"] = "sigh", ["looks_away"] = "sigh", ["shrugs"] = "sigh", ["squares_up"] = "grunt", ["shoves"] = "grunt",
+        ["swings"] = "grunt", ["draws_weapon"] = "grunt", ["points"] = "grunt", ["wide_eyes"] = "surprise",
+    };
+
+    private readonly Dictionary<string, AudioStream> _streams = [];
+    private AudioStreamPlayer? _uiPlayer;
+    private AudioStreamPlayer3D? _voicePlayer;
+
+    /// <summary>Plays a content audio event (content/audio/*.yaml): a random file of its bank, with its jitter.</summary>
+    private void PlayAudio(string id, Vector3? at = null)
+    {
+        if (_content?.Audio.FirstOrDefault(a => a.Id == id) is not { } mapping || mapping.Files.Count == 0) { return; }
+        var file = mapping.Files[(int)(GD.Randi() % (uint)mapping.Files.Count)];
+        if (!_streams.TryGetValue(file, out var stream))
+        {
+            stream = GD.Load<AudioStream>("res://" + file["game/".Length..]);
+            if (stream is null) { return; }
+            _streams[file] = stream;
+        }
+
+        var pitch = 1f + ((float)GD.RandRange(-1.0, 1.0) * mapping.PitchJitter);
+        var volume = (float)GD.RandRange(-1.0, 1.0) * mapping.VolumeJitterDb;
+        if (mapping.Spatial && at is { } pos && _voicePlayer is not null)
+        {
+            (_voicePlayer.Stream, _voicePlayer.Position, _voicePlayer.PitchScale, _voicePlayer.VolumeDb) = (stream, pos, pitch, volume);
+            _voicePlayer.Play();
+        }
+        else if (_uiPlayer is not null)
+        {
+            (_uiPlayer.Stream, _uiPlayer.PitchScale, _uiPlayer.VolumeDb) = (stream, pitch, volume - 6f);
+            _uiPlayer.Play();
+        }
+    }
+
+    private Vector3? SpeakerPosition() => _dialogue?.Conversation is { } c && _people.TryGetValue(c.Npc.Value, out var p) ? p.Body.Position + new Vector3(0, 1.6f, 0) : null;
+
     private static readonly string[] Fillers = ["Hm.", "(rubs the back of their neck)", "(a slow breath)", "Well…"];
     private readonly ConcurrentQueue<Action> _ui = new();
     private PanelContainer? _dlg;
@@ -54,6 +95,14 @@ public partial class SimHost
     private void InitDialogue()
     {
         if (_dialogue is null) { return; }
+        _uiPlayer = new AudioStreamPlayer();
+        _voicePlayer = new AudioStreamPlayer3D { UnitSize = 4f };
+        AddChild(_uiPlayer);
+        AddChild(_voicePlayer);
+        _dialogue.Surfaced += s => _ui.Enqueue(() =>
+        {
+            if (GestureBark.TryGetValue(s.GestureTag, out var bark)) { PlayAudio($"audio.bark.{bark}", SpeakerPosition()); }
+        });
         _dialogue.Surfaced += s => _ui.Enqueue(() => { _gestureShown = true; Note($"[i]{_dialogue.Conversation?.NpcName ?? "They"} {GestureWords.GetValueOrDefault(s.GestureTag, s.GestureTag.Replace('_', ' '))}.[/i]"); });
         _dialogue.Partial += p => _ui.Enqueue(() =>
         {
@@ -172,6 +221,7 @@ public partial class SimHost
     {
         if (_pending is not { } p) { return; }
         _pending = null;
+        PlayAudio("audio.ui.dialogue_confirm");
         Say(p);
     }
 
@@ -181,6 +231,7 @@ public partial class SimHost
         if (_pending is null) { return; }
         _pending = null;
         _log.Add("   ↳ [s]unsaid[/s]");
+        PlayAudio("audio.ui.dialogue_unsay");
     }
 
     private void Say(PendingTurn p)
@@ -192,7 +243,7 @@ public partial class SimHost
     private void OnOutcome(TurnOutcome o)
     {
         _outcomes.Add(o);
-        if (o.Glyph is { } g) { _glyph = g; }
+        if (o.Glyph is { } g) { _glyph = g; PlayAudio("audio.ui.dialogue_glyph"); }
         if (o.Stance is { } s && _dialogue?.Conversation is { } c) { _lastCue[c.Npc.Value] = s; }
         if (o.Proposal is { } terms && _proposal is not null) { (_proposal.Visible, _proposalText!.Text) = (true, $"{_dialogue?.Conversation?.NpcName ?? "They"} proposes: {terms}   "); }
         else if (o.Owner != Sim.Dialogue.InitiativeOwner.Id && _proposal is not null) { _proposal.Visible = false; }
@@ -214,7 +265,7 @@ public partial class SimHost
             return null;
         }).ContinueWith(t => _ui.Enqueue(() =>
         {
-            if (t.Result is not { } item) { Note("[i]They have nothing to trade yet.[/i]"); return; }
+            if (t.Result is not { } item) { Note("[i]They have nothing to trade yet.[/i]"); PlayAudio("audio.ui.dialogue_error"); return; }
             _runner!.Submit(CommandSource.Player, new TradeOpen(c.Npc, item, 1, PlayerSells: false));
             (_trade!.Visible, _negotiation, _npcOfferF, _myOfferF) = (true, 0, 0, 0);
             ShowTrade();
@@ -253,7 +304,7 @@ public partial class SimHost
         var conv = _dialogue?.Conversation;
         if (conv is null)
         {
-            if (_dlg.Visible) { (_dlg.Visible, _pending, _trade!.Visible, _proposal!.Visible) = (false, null, false, false); _dlgInput!.ReleaseFocus(); }
+            if (_dlg.Visible) { (_dlg.Visible, _pending, _trade!.Visible, _proposal!.Visible) = (false, null, false, false); _dlgInput!.ReleaseFocus(); PlayAudio("audio.ui.dialogue_close"); }
             return;
         }
 
@@ -262,6 +313,7 @@ public partial class SimHost
             (_dlg.Visible, _dlgConversation) = (true, conv.Id);
             _log.Clear();
             _log.Add($"[i]You approach {conv.NpcName}.[/i]");
+            PlayAudio("audio.ui.dialogue_open");
             _dlgInput!.GrabFocus();
         }
 
