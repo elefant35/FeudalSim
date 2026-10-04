@@ -65,12 +65,29 @@ public sealed class ActivitySystem : ISimSystem
             if (a.Phase == 1 && a.Has(ActivityState.Interacting)) { socialCount++; }
         }
 
-        for (var i = 0; i < people.Count; i++)
+        var due = world.Due;
+        for (var k = 0; k < due.Count; k++)
         {
+            var i = due.Rows[k];
             ref var act = ref people.Activity[i];
-            var due = act.Action < 0 || ctx.GameMs >= act.EndGameMs || ctx.GameMs >= act.NextDecideGameMs || CriticalElsewhere(people.Needs[i], act);
-            if (due) { Decide(ctx, world, i, block); }
-            Perform(ctx, world, i, socialCount);
+            switch (people.Lod[i].Tier)
+            {
+                case LodTier.Lod3:
+                    continue;   // Lod3System
+
+                case LodTier.Lod2:
+                    // 21 §15.5 hourly step: the past hour is spent on the current action (travel inside the camp takes
+                    // under a minute, so arrival is immediate), then the same scorer picks the next hour's action.
+                    Perform(ctx, world, i, socialCount, due.Dt(k), coarse: true);
+                    Decide(ctx, world, i, block);
+                    break;
+
+                default:
+                    var decide = act.Action < 0 || ctx.GameMs >= act.EndGameMs || ctx.GameMs >= act.NextDecideGameMs || CriticalElsewhere(people.Needs[i], act);
+                    if (decide) { Decide(ctx, world, i, block); }
+                    Perform(ctx, world, i, socialCount, due.Dt(k), coarse: false);
+                    break;
+            }
         }
 
         // The fire burns down whether or not anyone is there.
@@ -235,7 +252,7 @@ public sealed class ActivitySystem : ISimSystem
         return w * cProduct * pv * em * s * m;
     }
 
-    private void Perform(in StepContext ctx, SimWorld world, int i, int socialCount)
+    private void Perform(in StepContext ctx, SimWorld world, int i, int socialCount, long dtGameMs, bool coarse)
     {
         var people = world.People;
         ref var act = ref people.Activity[i];
@@ -250,7 +267,8 @@ public sealed class ActivitySystem : ISimSystem
             var dz = act.TargetZ - t.Z;
             var remaining = MathF.Sqrt((dx * dx) + (dz * dz));
             ref var w = ref people.Wander[i];
-            (w.TargetX, w.TargetZ, w.HasTarget) = (act.TargetX, act.TargetZ, true);   // LOD0 bodies walk here (ADR-0007)
+            (w.TargetX, w.TargetZ, w.HasTarget) = (act.TargetX, act.TargetZ, !coarse);   // LOD0 bodies walk here (ADR-0007)
+            if (coarse) { (t.X, t.Z, remaining) = (act.TargetX, act.TargetZ, 0f); }
             if (remaining > ArriveM)
             {
                 if (!embodied)
@@ -271,7 +289,7 @@ public sealed class ActivitySystem : ISimSystem
             act.EndGameMs = ctx.GameMs + (def.DurationMin * 60_000L);
         }
 
-        var dtH = ctx.DtGameHours;
+        var dtH = dtGameMs / (float)Time.SimClock.MsPerGameHour;
         ref var n = ref people.Needs[i];
         if (def.NeedPerHour is { } gains)
         {

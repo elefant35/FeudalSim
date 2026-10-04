@@ -413,6 +413,11 @@ that year. Wealth/Status-valuing people add `+0.1·(Wealth or Status value)·ric
 
 ### 4.12 Tags & transitions
 
+*Daily upkeep timing (S6):* familiarity decay, trust drift, slot cleanup and the tag checks run **once per game day
+per holder, in hour `hash(holder) mod 24`** rather than all at midnight, so 70k edges don't make one 80 ms step.
+Day-based rules (2 days as friends, 8 days calm) are unaffected. Crowds: co-working (§4.9) counts within teams of 12
+people per task, and Landfall shipmates are one ship's company up to 60 people (crews of 24 in larger test populations).
+
 | Tag | Mutual? | Enter | Exit (hysteresis) |
 |-----|---------|-------|-------------------|
 | Acquaintance | no | F ≥ 10 | F < 5 |
@@ -1047,6 +1052,9 @@ hashed, and it feeds `J_eff`. `Community(subject, axis)` gives Rep_C on demand. 
 60–100 for everyone by day 3. **Camp effect (100 seeds × 30 days):** friends rise to 0.31 per person, with a friend
 in 100 % of seeds (0.09 and 83 % before D9). This comes mostly from believed `helped` acts lifting Generosity
 impressions. All 21 §19 bands hold. The M1 rumor exit check now passes in 100 % of seeds.
+*S6 changes:* the first pass now runs at Landfall, right after the shipmates are seeded, so Renown is always
+nightly state (the O(people) live fallback in `J_eff` cost 93 % of a 1,500-person run). The nightly pass only visits
+pairs where `knows > 0` (familiarity or a held belief) and divides by `Σw − w_B`. Camp sweep and rumor check unchanged.
 
 ### 8.3 Effects
 

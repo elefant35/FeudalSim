@@ -30,7 +30,7 @@ answer.
 | Install listed prerequisites with Homebrew (`git-lfs`, `ffmpeg`, `gh`; optional `sox`, `fluidsynth`) | **not yet** (nothing pending) | Owner installed git-lfs 3.8.0, ffmpeg 9.0.2 and the .NET 10 SDK (2026-10-03/04). `gh` remains optional. Commands are in 20 §20 step 1 and 32 §2 |
 | Install the pinned Godot 4.x .NET editor | **done by the owner** — 4.7.2 .NET (2026-10-04) | Engine upgrades or plugin downloads (e.g. Terrain3D) still need approval; the skill proposes the exact version first |
 | Push to `origin/main` after a work item passes verification | **yes — proposed default, owner to confirm or change** | Never force-push |
-| LLM spend from `OPENROUTER_KEY` during development | **yes — ≈ $50 total for development (owner, 2026-10-04; soft, "plenty of wiggle room")**; spend tokens freely when it helps; keep a running tally below | The owner cares more about the **shipped game's running cost** (≤ $0.05 per typical play-hour, canon §13.5.6) than dev spend. Benches carry a `--max-usd` ceiling. **Dev spend so far: ≈ $0.077** (M0 ≈ $0.001; S2 $0.054; S3 $0.014; checks ≈ $0.007, incl. M1-07c live overheard runs) |
+| LLM spend from `OPENROUTER_KEY` during development | **yes — ≈ $50 total for development (owner, 2026-10-04; soft, "plenty of wiggle room")**; spend tokens freely when it helps; keep a running tally below | The owner cares more about the **shipped game's running cost** (≤ $0.05 per typical play-hour, canon §13.5.6) than dev spend. Benches carry a `--max-usd` ceiling. **Dev spend so far: ≈ $0.077** (M0 ≈ $0.001; S2 $0.054; S3 $0.014; checks ≈ $0.007, incl. M1-07c live overheard runs). **Goal F session (2026-10-04, cap $15): $0.000 so far** |
 | Download resources needed for development (plugins such as Terrain3D, libraries, tools, CC0/permissive assets) | **yes — standing approval (owner, 2026-10-04)** | The license must be acceptable and recorded (32 §14, `ASSET_LICENSES.md`); pin versions and checksums; prefer official sources |
 | Commit generated binary assets (requires Git LFS installed) | **yes** — Git LFS installed 2026-10-03 | — |
 | Approve art "looks" (manifest status → `approved`) | **owner only** | Claude may set `review`, never `approved` |
@@ -53,7 +53,7 @@ the M1 spikes. Items are sized ≈ ½–2 days; split them (`M1-12a`…) when th
 |----|------|--------|----------|
 | M1-S2 | **Dialogue latency & cost** — model bake-off; TTFT p50 < 1.0 s, first words ≤ 1.2 s (Tier A); cost per play-hour; pin fast providers | [x] | **PASS** — [docs/spikes/s2-dialogue-latency.md](../spikes/s2-dialogue-latency.md). `ai bench-dialogue`: 6 models × {default, latency} × 20 streamed decision-first turns (1,846-token 22 §7 prompt), 240 turns, $0.054. Default **qwen3-14b + `provider.sort=latency`**: TTFT p50/p95 **286/649 ms**, CHOICE line 449/709 ms, first words **628/965 ms**, 100% valid headers, 0/40 wrong prices; **$0.030 typical / $0.078 heavy per hour** ($0.032 / $0.083 normalized to 2,290 tokens). Routing now default (`LLM_PROVIDER_SORT=latency`; pings 655–1,142 ms vs M0's 3.9–9.6 s). Found: 22 §4.8's `"\n\n"` stop emptied every Qwen3 reply (fixed in 22); qwen3.6 fast but 22% wrong prices; qwen3.8-flash blocked by the account's data policy. `DialogueBenchTests` 5/5 |
 | M1-S3 | **Fast-decider bake-off** — `qwen/qwen3.5-9b`, `qwen/qwen3-30b-a3b-instruct-2507`, Laya zero-shot, Jev if access; p50/p95 latency, ECE, cost, injection susceptibility | [x] | **PASS** for `qwen3.5-9b` + latency routing — [docs/spikes/s3-fast-decider.md](../spikes/s3-fast-decider.md), **[ADR-0011](../adr/0011-fast-decider.md)** names it the M1–M3 default. Golden set v0 (103 lines, 20 acts, 10 injections): `act` **88.2%** (≥ 88%), ECE 0.068, injection recall 90% / FPR 2.2%, call p50/p95 **391/613 ms** (≤ 500 ms), Core pack 465 ms (7 parallel), $0.000023/question; **0 off-menu / guard bypasses** (labels only; sim re-guards). Default routing 620 ms (fails); Laya zero-shot 61 ms GPU / 248 ms CPU but 67.7%, ECE 0.225, FPR 21.5%; 30b-instruct HTTP 404 (no logprob endpoint); Jev untested. Also: 22 §5.3 prior blend + seeded draw implemented in the gateway (`BlendAndDraw`, was argmax). Spend $0.014 |
-| M1-S6 | **Sim scale** — 1,500 agents across LOD tiers within 20 §19 budgets; 1 game year headless ≤ 60 s at LOD2; 21's 300–500 agents × 1 year | [ ] | |
+| M1-S6 | **Sim scale** — 1,500 agents across LOD tiers within 20 §19 budgets; 1 game year headless ≤ 60 s at LOD2; 21's 300–500 agents × 1 year | [x] | **PASS** (M3 Pro, one core) — [docs/spikes/s6-sim-scale.md](../spikes/s6-sim-scale.md). Before: 1,500 people = 237 s per game day (quadratic Renown, gossip fallback, crowd scans). Now tiered: `TierSchedule` (per-row dt; LOD2 hourly at hash offsets, LOD3 daily/macro), LOD2 hourly action + interaction rolls (21 §15.5), `Lod3System` daily aggregate (21 §15.6, uncalibrated), `StepMacro`, `SetLodTier`, sliced relationship upkeep, sparse Renown, crowd caps; **`feudalsim bench`** (per-system, slowest step, per-agent by tier). `bench`: **LOD2 year 21.5 s** (≤ 60), **LOD3 year 1.69 s** (≤ 5), **mixed 200/1,000/300 step 0.051 / 0.179 / 20.7 ms** (≤ 8/16/40), **500 LOD1 year 86 s** (≤ 300); per-agent LOD1 0.3 µs · LOD2 hour 18.6 µs · LOD3 day 35 µs. Camp: metrics identical after the tier change; after slicing the sweep (100 × 30) is all in band (idle 94 %, friends 0.315, mood +10.2) and the rumor check holds (99 % of seeds). `LodTierTests` 4 (cadence, promotion gap, threads 1 vs 4 + save/load with mixed tiers, LOD3 macro days); 152 tests. Findings: 20 §19 per-agent vs year budgets disagree (20 Q17, 31 D33, applied default); min-spec unmeasured (R28) |
 | M1-S1 | **Crowd render** — 150 animated low-poly characters at 60 fps (recommended spec), 300 in battle mode ≥ 30 fps | [ ] | |
 | M1-S4 | **Terrain streaming 8,192 m** (carried from M0): typed Terrain3D facade, region streaming while walking/running the full map with no hitch > 50 ms, VRAM in budget; **parallel chunked heightfield generation** (8 km takes 15.7 s single-threaded) and world caching under `user://worlds/<seed>/` | [ ] | |
 | M1-S5 | **Local LLM early look** — 7–14B 4-bit beside the Godot client; p50 TTFT ≤ 1.5 s while holding 60 fps | [ ] | |
@@ -114,7 +114,7 @@ the M1 spikes. Items are sized ≈ ½–2 days; split them (`M1-12a`…) when th
 |----|------|--------|----------|
 | M1-22 | Headless social sim: 30 game days of the camp, no deadlocks; a public event's rumor reaches ≥ 80% within 3 days; ≥ 1 emergent dispute per 10 days | [ ] | |
 | M1-23 | Cost and latency report at verified prices: ≤ $0.05 per typical play-hour (22 §17.2 #1, #8) | [ ] | |
-| M1-24 | **Playtest** (owner-run: ≥ 5 people × ≥ 45 min; 22 §17.2 #11 rubric + 30's feel criteria) | [ ] | Needs the owner to recruit testers |
+| M1-24 | **Playtest** (owner-run: ≥ 5 people × ≥ 45 min; 22 §17.2 #11 rubric + 30's feel criteria) | [!] awaiting owner | Needs the owner to recruit ≥ 5 testers for ≥ 45 min each, once the dialogue UI (M1-19) and the camp scene (M1-18) are in; Claude prepares the rubric sheet and build |
 | M1-25 | ADR-0010 step 3: spike a `net10.0` game project on Godot 4.7.x (or adopt a Godot release whose GodotSharp targets net10) — .NET 8 support ends 2026-11-10 | [ ] | |
 
 ---
@@ -202,6 +202,17 @@ Verified only by running the command or test and pasting the result into **Evide
 
 ---
 
+## Owner decisions pending (taken on the owner's behalf)
+
+Reversible design defaults applied by unattended sessions (Goal F rule c). Confirm or override; each links to its
+record in 31 §2.
+
+| Date | Decision | Applied default | Where |
+|------|----------|-----------------|-------|
+| 2026-10-04 | 20 §19 per-agent sim budgets multiply out above the year targets (S6) | Year targets bind; per-agent rows read as worst single-update ceilings (averages ≤ 50 µs LOD2 hour, ≤ 100 µs LOD3 day) | 31 D33, 20 Q17 |
+
+---
+
 ## Discovered work (not yet scheduled)
 
 Items found while working that belong to a later milestone or need triage.
@@ -222,7 +233,10 @@ Items found while working that belong to a later milestone or need triage.
 | 2026-10-04 | **Quick choices are injectable** (S3: +0.33 mean, +0.98 max sway on 4 red-team pairs): red-team the whole turn (classifier → injection gate → DP) and measure quick-choice deadline expiries (p95 613 ms vs 0.5 s) | M1 → **M1-16** | S3 |
 | 2026-10-04 | **Grow the golden suite** beyond S3's 103 authored lines (owner review welcome); fix `accept_offer`/`trade_offer` and `command`/`request` glosses | M1 → **M1-11 / M1-16** | S3 |
 | 2026-10-04 | **Laya fine-tune path:** log decisions from M1 play/tests as training data; fine-tune + calibrate; re-run `laya_bench.py` (target ≥ 88%, ECE ≤ 0.08) | M7 (data from M1) | S3, ADR-0011 |
-| 2026-10-04 | **Psychology cost for S6:** ≈ 0.43 µs per person-step (exp/pow per emotion); fine for ~150 LOD0/1 agents in real time, but a 1,500-agent headless year needs LOD2/3 to update needs/emotions/mood at macro cadence (per game minute or hour) and cached per-person decay factors | M1 → **M1-S6** | M1-01b |
+| 2026-10-04 | ~~**Psychology cost for S6:** ≈ 0.43 µs per person-step; a 1,500-agent headless year needs LOD2/3 at macro cadence~~ — **done in S6** (LOD2 hourly, LOD3 daily; psychology 0.25 µs/step in the LOD2 year) | M1 → **M1-S6** | M1-01b |
+| 2026-10-04 | **LOD3 calibration + fidelity check** (21 §15.6: production ±10 %, deaths ±20 %, fights ±25 %, mood ±8, marriages ±30 % vs LOD1 from the same snapshot); `Lod3System` is an uncalibrated first cut | M4 (Interludes) | S6 |
+| 2026-10-04 | **Re-measure `bench` on minimum-spec hardware**; slice the nightly Renown pass, memory compaction and belief forgetting if the 40 ms max step is exceeded (R28) | M5 / M7 | S6 |
+| 2026-10-04 | **Cross-tier social contact** (LOD1 ↔ LOD2) and real tier membership (near region, relevance set, far settlements) replacing scenario `tiers:` pins | M2–M3 | S6 |
 | 2026-10-04 | ADR-0010 step 3: spike a `net10.0` game project on Godot 4.7.x, or wait for a Godot release whose GodotSharp targets net10 — .NET 8 support ends 2026-11-10 | M1 → **scheduled: M1-25** |  ADR-0010 |
 
 ---
@@ -233,6 +247,7 @@ Newest first. One entry per session or work item: date, what changed, evidence, 
 
 | Date | Work | Evidence | Next |
 |------|------|----------|------|
+| 2026-10-04 | **Goal F (overnight) — M1-S6 sim scale: PASS.** Tiered updates (LOD2 hourly, LOD3 daily/macro), sliced social upkeep, sparse Renown, crowd caps, `feudalsim bench`; M1-24 marked awaiting owner | bench: LOD2 year 21.5 s, LOD3 year 1.7 s, mixed max step 20.7 ms, 500 LOD1 year 86 s; 152 tests; sweep in band; rumor 99 % | M1-04 pending-DP persistence → M1-08/09/10 |
 | 2026-10-04 | **Owner decisions + viewable camp:** Q16 keep §7.2; Q17 trust ceiling base 50 → 80; Q15 friendship band 0.08–3 / person (sweep-enforced); R27 saves wait for AI requests (`HoldAiRequests` + `SaveWhenSettled`). The game window (`$GODOT --path game`) now boots `m1_view`: the M1 camp with place markers, settlers coloured by activity, stocks and activity counts, overheard talk as subtitles (live AI with the key), camera pan/zoom, ×8 speed, and simple client embodiment of LOD0 settlers (they froze near the player before). Autotest keeps the M0 smoke | 148 tests; Godot autotest PASS; embodiment check PASS; determinism ×3 at 4 threads; screenshot verified | M1-08 escalation ladder |
 | 2026-10-04 | **M1-07c** overheard talk: facts + template subtitle → utility model (speak-only, validated) → logged result; scenario player; utility model switched (qwen3-8b 404s) | OverheardRenderTests 8, OverheardTests 2, content 2; 147 tests; live run 4/6 rendered within 3 s | M1-08 escalation ladder |
 | 2026-10-04 | **M1-07b** reputation: R_full/R³ᵖ, D9 into opinion, trust ceiling, plausibility, nightly Renown | ReputationTests 6; 135 tests; sweep in band, friends 0.31 / person; rumor exit check 100 % of seeds | M1-07c overheard-talk rendering |

@@ -1,0 +1,16 @@
+# Spike S6 (30 §4): 1,500 people at LOD3 (daily aggregate, 21 §15.6) for one game year, macro-stepped by day (20 §5.4).
+# Pass: ≤ 5 s headless (20 §19).
+id: scenario.s6_lod3
+seed: 42
+start: Y0 Spring 1 05:30
+days: 32
+settlers: 1500
+ai: utility
+tiers: { lod3: 1500 }
+macro_step: day
+camp:
+  food: 2000000
+  firewood: 600
+  fire_fuel_min: 240
+  bedding: 0.85
+  schedule: schedule.landfall_communal

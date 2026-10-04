@@ -73,6 +73,12 @@ public sealed class SimWorld
     /// <summary>Hash the state after every Nth step (0 = never). Hashing is read-only.</summary>
     public int HashEveryNSteps { get; set; }
 
+    /// <summary>Who updates this step and over how much game time (LOD cadences, 20 §5.2). Rebuilt every step.</summary>
+    public TierSchedule Due { get; } = new();
+
+    /// <summary>Optional timing hook for benchmarks (Hosting implements it; the sim never reads a clock).</summary>
+    public ISystemObserver? Observer { get; set; }
+
     /// <summary>Registered systems (configuration, in registration order) — for metrics and tooling.</summary>
     public IReadOnlyList<ISimSystem> Systems => _systems;
 
@@ -107,11 +113,19 @@ public sealed class SimWorld
     public void Emit(Salience salience, EntityId primary, DomainEvent payload)
         => _events.Add(new EventEnvelope(++_eventSeq, Clock.Step, Clock.GameMinute, salience, primary, payload));
 
-    public StepOutput Step()
+    public StepOutput Step() => Step(0);
+
+    /// <summary>
+    /// One macro step of <paramref name="gameMs"/> (20 §5.4: skips advance 1 game hour or 1 game day per step). Every
+    /// due row integrates the whole interval, so macro steps are meant for LOD3 populations (skips, headless years).
+    /// </summary>
+    public StepOutput StepMacro(long gameMs) => Step(gameMs);
+
+    private StepOutput Step(long macroGameMs)
     {
         // Phase 0 — Begin.
         var previousDay = Clock.GameMs / SimClock.MsPerGameDay;
-        var dt = Clock.AdvanceFineStep();
+        var dt = macroGameMs > 0 ? Clock.AdvanceMacroStep(macroGameMs) : Clock.AdvanceFineStep();
         var ctx = new StepContext(WorldSeed, Clock.Step, Clock.GameMs, dt, SimClock.StepMs);
         var newDay = Clock.GameMs / SimClock.MsPerGameDay;
         if (newDay != previousDay)
@@ -127,9 +141,14 @@ public sealed class SimWorld
         // Phases 2–5 — systems.
         foreach (var phase in (ReadOnlySpan<SimPhase>)[SimPhase.Sense, SimPhase.Decide, SimPhase.Resolve, SimPhase.World])
         {
-            foreach (var system in _systems)
+            if (phase == SimPhase.Decide) { Due.Build(this, ctx.GameMs, ctx.DtGameMs); }   // after LOD changes
+            for (var s = 0; s < _systems.Count; s++)
             {
-                if (system.Phase == phase) { system.Run(ctx, this); }
+                var system = _systems[s];
+                if (system.Phase != phase) { continue; }
+                Observer?.Begin(s);
+                system.Run(ctx, this);
+                Observer?.End(s);
             }
         }
 
@@ -192,8 +211,27 @@ public sealed class SimWorld
                 var age = PersonGenerator.Generate(this, newRow, culture < 0 ? Personality.None : (ushort)culture,
                     profession < 0 ? Personality.None : (ushort)profession, c.AgeYears);
                 People.Core[newRow].BirthGameMinute = Clock.GameMinute - (age * GameDate.MinutesPerYear);
+                People.Lod[newRow].LastUpdateGameMs = Clock.GameMs - Clock.GameMsPerStep;   // first update integrates one step
                 Emit(Salience.Minor, id, new PersonSpawned(id, c.Name));
                 break;
+
+            case SetLodTier c:
+            {
+                var row = People.IndexOf(c.Person);
+                if (row < 0 || c.Tier is not (LodTier.Lod1 or LodTier.Lod2 or LodTier.Lod3) || People.Lod[row].Tier == LodTier.Lod0)
+                {
+                    Reject(command, $"Cannot set {c.Person} to {c.Tier}.");
+                    break;
+                }
+
+                if (People.Lod[row].Tier != c.Tier)
+                {
+                    Emit(Salience.Trace, c.Person, new LodChanged(c.Person, People.Lod[row].Tier, c.Tier));
+                    People.Lod[row].Tier = c.Tier;
+                }
+
+                break;
+            }
 
             case HoldAiRequests c:
                 AiHeld = c.Hold;

@@ -1,0 +1,15 @@
+# Spike S6 (30 §4): 1,500 people at LOD2 (hourly update, 21 §15.5) on the graybox camp for one game year (32 days).
+# Pass: ≤ 60 s headless (20 §19). Crews of 24 seed the relationship graph (16 §4.9; sparse beyond 60 people).
+id: scenario.s6_lod2
+seed: 42
+start: Y0 Spring 1 05:30
+days: 32
+settlers: 1500
+ai: utility
+tiers: { lod2: 1500 }
+camp:
+  food: 2000000
+  firewood: 600
+  fire_fuel_min: 240
+  bedding: 0.85
+  schedule: schedule.landfall_communal

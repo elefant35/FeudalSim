@@ -154,43 +154,85 @@ public sealed class ReputationStore
         var people = _world.People;
         var n = people.Count;
         if (n == 0) { return; }
-        Span<float> weights = n <= 256 ? stackalloc float[n] : new float[n];
-        Span<float> knows = n <= 64 ? stackalloc float[n * n] : new float[n * n];   // knows[m·n + b]
+
+        // knows(m, b) is sparse: non-zero only where m has an edge with familiarity to b or holds a belief about b. Built
+        // per holder m (ascending) as rows of a sparse matrix from the id-ordered edge map and m's beliefs.
+        if (_k.Length < n) { (_k, _held, _touched, _knowsStart) = (new float[n], new bool[n], new int[n], new int[n + 1]); }
+        if (_knowsStart.Length < n + 1) { _knowsStart = new int[n + 1]; }
+        var count = 0;
+        using var edges = _world.Relationships.Edges.GetEnumerator();
+        var more = edges.MoveNext();
         for (var m = 0; m < n; m++)
         {
-            weights[m] = 1f + (Renown(people.Ids[m]) / 50f);
-            for (var b = 0; b < n; b++)
+            _knowsStart[m] = count;
+            var id = people.Ids[m].Value;
+            var touched = 0;
+            while (more && edges.Current.Key.Holder < id) { more = edges.MoveNext(); }
+            while (more && edges.Current.Key.Holder == id)
             {
-                if (m == b) { continue; }
-                var k = _world.Relationships.Familiarity(people.Ids[m], people.Ids[b]) / 30f;
-                if (k < 1f && HoldsAbout(people.Ids[m], people.Ids[b])) { k += 0.5f; }
-                knows[(m * n) + b] = MathF.Min(1f, k);
+                var b = people.IndexOf(new EntityId(edges.Current.Key.Other));
+                var f = edges.Current.Value.Familiarity;
+                if (b >= 0 && b != m && f > 0f) { _k[b] = f / 30f; _touched[touched++] = b; }
+                more = edges.MoveNext();
+            }
+
+            foreach (var belief in _world.Beliefs.Span(people.Ids[m]))
+            {
+                if (belief.C < BeliefStore.Hold) { continue; }
+                var b = people.IndexOf(new EntityId(_world.Claims[belief.Claim].Subject));
+                if (b < 0 || b == m || _held[b]) { continue; }
+                _held[b] = true;
+                if (_k[b] == 0f) { _touched[touched++] = b; }
+            }
+
+            for (var t = 0; t < touched; t++)
+            {
+                var b = _touched[t];
+                var k = _k[b];
+                if (k < 1f && _held[b]) { k += 0.5f; }
+                if (_knowsCol.Length <= count) { Array.Resize(ref _knowsCol, Math.Max(64, _knowsCol.Length * 2)); Array.Resize(ref _knowsVal, _knowsCol.Length); }
+                (_knowsCol[count], _knowsVal[count]) = (b, MathF.Min(1f, k));
+                count++;
+                (_k[b], _held[b]) = (0f, false);
             }
         }
 
-        Span<float> next = n <= 256 ? stackalloc float[n] : new float[n];
+        _knowsStart[n] = count;
+        Span<float> weights = n <= 256 ? stackalloc float[n] : new float[n];
+        Span<float> num = n <= 256 ? stackalloc float[n] : new float[n];
+        for (var m = 0; m < n; m++) { weights[m] = 1f + (Renown(people.Ids[m]) / 50f); }
         for (var pass = 0; pass < (HasRenown ? 1 : 2); pass++)
         {
-            for (var b = 0; b < n; b++)
+            // Σ_m w_m·knows(m, b) over the sparse rows in ascending m; the denominator Σ_{m≠b} w_m = Σ w − w_b (O(n), S6).
+            num.Clear();
+            var sum = 0.0;
+            for (var m = 0; m < n; m++)
             {
-                float num = 0f, den = 0f;
-                for (var m = 0; m < n; m++)
-                {
-                    if (m == b) { continue; }
-                    num += weights[m] * knows[(m * n) + b];
-                    den += weights[m];
-                }
-
-                next[b] = den == 0f ? 0f : 100f * num / den;
+                sum += weights[m];
+                for (var e = _knowsStart[m]; e < _knowsStart[m + 1]; e++) { num[_knowsCol[e]] += weights[m] * _knowsVal[e]; }
             }
 
             for (var b = 0; b < n; b++)
             {
-                _renown[people.Ids[b].Value] = next[b];
-                weights[b] = 1f + (next[b] / 50f);
+                var den = (float)(sum - weights[b]);
+                num[b] = den <= 0f ? 0f : 100f * num[b] / den;
+            }
+
+            for (var b = 0; b < n; b++)
+            {
+                _renown[people.Ids[b].Value] = num[b];
+                weights[b] = 1f + (num[b] / 50f);
             }
         }
     }
+
+    // Scratch for Recompute (not state).
+    private float[] _k = [];
+    private bool[] _held = [];
+    private int[] _touched = [];
+    private int[] _knowsStart = [];
+    private int[] _knowsCol = [];
+    private float[] _knowsVal = [];
 
     private bool HoldsAbout(EntityId holder, EntityId subject)
     {

@@ -57,9 +57,15 @@ public sealed class InteractionSystem : ISimSystem
     {
         var people = world.People;
         if (world.Camp.Active == 0 || people.Count < 2) { return; }
+        Cache(world);
+        if (world.Due.Lod2Due > 0) { Lod2(ctx, world); }
         var prevQuarter = (ctx.GameMs - ctx.DtGameMs) / 60_000 / 15;
         var quarter = ctx.GameMs / 60_000 / 15;
-        if (quarter == prevQuarter) { return; }
+        if (quarter != prevQuarter) { QuarterHour(world, quarter); }
+    }
+
+    private void Cache(SimWorld world)
+    {
         if (!ReferenceEquals(_cachedFor, world.Content))
         {
             _cachedFor = world.Content;
@@ -68,13 +74,18 @@ public sealed class InteractionSystem : ISimSystem
             _gossip = world.Content.TraitHandle("trait.gossip");
             (_vengeful, _healing, _persuasion) = (world.Content.TraitHandle("trait.vengeful"), world.Content.SkillHandle("skill.healing"), world.Content.SkillHandle("skill.persuasion"));
         }
+    }
 
+    /// <summary>LOD0/1 people, every game quarter-hour (16 §5.1).</summary>
+    private void QuarterHour(SimWorld world, long quarter)
+    {
+        var people = world.People;
         Span<int> partners = stackalloc int[people.Count];
         Span<float> w = stackalloc float[people.Count];
         for (var i = 0; i < people.Count; i++)
         {
             ref readonly var act = ref people.Activity[i];
-            if (act.Action < 0 || act.Has(ActivityState.Asleep)) { continue; }   // walking counts: speaking range below
+            if (act.Action < 0 || act.Has(ActivityState.Asleep) || !SocialSystem.Local(people, i)) { continue; }   // walking counts: speaking range below
             ref readonly var p = ref people.Personality[i];
             ref readonly var e = ref people.Emotions[i];
             var budget = 2f + (p.Sociability / 16f) + (people.Needs[i].Social < 40f ? 1f : 0f) - (e.Grief / 30f);
@@ -90,15 +101,29 @@ public sealed class InteractionSystem : ISimSystem
             for (var j = 0; j < people.Count; j++)
             {
                 ref readonly var b = ref people.Activity[j];
-                if (j == i || b.Action < 0 || b.Has(ActivityState.Asleep) || !InRange(world, i, j)) { continue; }
+                if (j == i || b.Action < 0 || b.Has(ActivityState.Asleep) || !SocialSystem.Local(people, j) || !InRange(world, i, j)) { continue; }
                 if (InteractionsToday(world, i, j) >= 4) { continue; }
-                var f = world.Relationships.Familiarity(people.Ids[i], people.Ids[j]);
-                var op = world.Relationships.Opinion(people.Ids[i], people.Ids[j]);
-                var weight = (0.2f + (f / 100f)) * (1f + (MathF.Max(0f, op) / 50f)) * (InteractionsToday(world, i, j) == 0 ? 1.3f : 1f);
-                if (world.Relationships.Fear(people.Ids[i], people.Ids[j]) >= 30f || op <= -30f) { weight *= 0.2f; }
-                partners[n] = j;
-                w[n++] = weight;
-                total += weight;
+                partners[n++] = j;
+            }
+
+            // In a crowd only the people nearby are real options: past MaxCandidates, keep a keyed random subset (S6:
+            // 500 people at one fire made this O(people²) in weights). Camps never reach it, so their draws are unchanged.
+            if (n > MaxCandidates)
+            {
+                for (var c = 0; c < MaxCandidates; c++)
+                {
+                    var pick = c + rng.Range(0, n - c);
+                    (partners[c], partners[pick]) = (partners[pick], partners[c]);
+                }
+
+                partners[..MaxCandidates].Sort();
+                n = MaxCandidates;
+            }
+
+            for (var c = 0; c < n; c++)
+            {
+                w[c] = PartnerWeight(world, i, partners[c]);
+                total += w[c];
             }
 
             if (n == 0) { NoPartner++; continue; }
@@ -110,6 +135,108 @@ public sealed class InteractionSystem : ISimSystem
             if (kind is { } chosen) { Resolve(world, i, partner, chosen, ref rng); }
             else { NoKind++; }
         }
+    }
+
+    // LOD2 place index (not state): rows of awake LOD2 people performing at each place, rebuilt every 5 game minutes.
+    private int[] _placeRows = [];
+    private int[] _placeStart = [];
+    private long _placeIndexMinute = long.MinValue;
+    public const int Lod2Candidates = 8;
+
+    /// <summary>LOD0/1 partner candidates weighed per initiation (16 §5.3 over the people in range, capped for crowds).</summary>
+    public const int MaxCandidates = 32;
+
+    /// <summary>
+    /// 21 §15.5 LOD2 interaction rolls: when a person's hourly update is due, up to 2 rolls, each with chance
+    /// I/16 (half while working) — the LOD1 quarter-hour rate (I/32 × 4 quarters) over the hour, split in two — with a
+    /// partner among up to <see cref="Lod2Candidates"/> co-located LOD2 people (same task site), by 16 §5.3 weights.
+    /// Resolution is the same as LOD1. Cross-tier pairs (LOD1 with LOD2) wait for settlements (M2–M3).
+    /// </summary>
+    private void Lod2(in StepContext ctx, SimWorld world)
+    {
+        var people = world.People;
+        var due = world.Due;
+        var minute = ctx.GameMs / 60_000;
+        if (minute / 5 != _placeIndexMinute / 5) { BuildPlaceIndex(world); _placeIndexMinute = minute; }
+        var hour = (ulong)(ctx.GameMs / Time.SimClock.MsPerGameHour);
+        Span<int> partners = stackalloc int[Lod2Candidates];
+        Span<float> w = stackalloc float[Lod2Candidates];
+        for (var k = 0; k < due.Count; k++)
+        {
+            var i = due.Rows[k];
+            if (people.Lod[i].Tier != LodTier.Lod2) { continue; }
+            ref readonly var act = ref people.Activity[i];
+            if (act.Action < 0 || act.Phase != 1 || act.Has(ActivityState.Asleep)) { continue; }
+            var place = (int)world.Content.Actions[act.Action].Place;
+            if (place == (int)PlaceKind.Home || place + 1 >= _placeStart.Length) { continue; }
+            int from = _placeStart[place], count = _placeStart[place + 1] - from;
+            if (count < 2) { continue; }
+            ref readonly var p = ref people.Personality[i];
+            var budget = 2f + (p.Sociability / 16f) + (people.Needs[i].Social < 40f ? 1f : 0f) - (people.Emotions[i].Grief / 30f);
+            var chance = MathF.Max(0f, budget) / 16f * (act.Has(ActivityState.Purposeful) ? 0.5f : 1f);
+            var rng = new Rng(SplitMix64.Mix(world.WorldSeed, (ulong)RngStream.Social, people.Ids[i].Value, hour, Salt.InteractionLod2));
+            for (var roll = 0; roll < 2; roll++)
+            {
+                Eligible++;
+                if (!rng.Chance(chance)) { continue; }
+                Initiated++;
+                var n = 0;
+                var total = 0f;
+                var draws = Math.Min(Lod2Candidates, count - 1);
+                for (var d = 0; d < draws; d++)
+                {
+                    var j = _placeRows[from + rng.Range(0, count)];
+                    if (j == i || InteractionsToday(world, i, j) >= 4 || partners[..n].Contains(j)) { continue; }
+                    var weight = PartnerWeight(world, i, j);
+                    partners[n] = j;
+                    w[n++] = weight;
+                    total += weight;
+                }
+
+                if (n == 0) { NoPartner++; continue; }
+                var x = rng.NextFloat01() * total;
+                var partner = partners[n - 1];
+                for (var c = 0; c < n; c++) { x -= w[c]; if (x < 0f) { partner = partners[c]; break; } }
+                var kind = ChooseKind(world, i, partner, ref rng);
+                if (kind is { } chosen) { Resolve(world, i, partner, chosen, ref rng); }
+                else { NoKind++; }
+            }
+        }
+    }
+
+    private void BuildPlaceIndex(SimWorld world)
+    {
+        var people = world.People;
+        var places = Enum.GetValues<PlaceKind>().Length;
+        if (_placeStart.Length != places + 1) { _placeStart = new int[places + 1]; }
+        if (_placeRows.Length < people.Count) { _placeRows = new int[Math.Max(people.Count, _placeRows.Length * 2)]; }
+        Array.Clear(_placeStart);
+        Span<int> fill = stackalloc int[places];
+        for (var pass = 0; pass < 2; pass++)
+        {
+            for (var q = 0; q < places; q++) { fill[q] = _placeStart[q]; }
+            for (var i = 0; i < people.Count; i++)
+            {
+                ref readonly var a = ref people.Activity[i];
+                if (people.Lod[i].Tier != LodTier.Lod2 || a.Action < 0 || a.Phase != 1 || a.Has(ActivityState.Asleep)) { continue; }
+                var place = (int)world.Content.Actions[a.Action].Place;
+                if (pass == 0) { _placeStart[place + 1]++; }
+                else { _placeRows[fill[place]++] = i; }
+            }
+
+            if (pass == 0) { for (var q = 0; q < places; q++) { _placeStart[q + 1] += _placeStart[q]; } }
+        }
+    }
+
+    /// <summary>16 §5.3 partner weight: familiarity, liking, novelty today; feared or disliked people mostly avoided.</summary>
+    private static float PartnerWeight(SimWorld world, int i, int j)
+    {
+        var people = world.People;
+        var f = world.Relationships.Familiarity(people.Ids[i], people.Ids[j]);
+        var op = world.Relationships.Opinion(people.Ids[i], people.Ids[j]);
+        var weight = (0.2f + (f / 100f)) * (1f + (MathF.Max(0f, op) / 50f)) * (InteractionsToday(world, i, j) == 0 ? 1.3f : 1f);
+        if (world.Relationships.Fear(people.Ids[i], people.Ids[j]) >= 30f || op <= -30f) { weight *= 0.2f; }
+        return weight;
     }
 
     private Kind? ChooseKind(SimWorld world, int i, int j, ref Rng rng)

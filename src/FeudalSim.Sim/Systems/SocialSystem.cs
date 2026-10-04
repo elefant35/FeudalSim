@@ -31,12 +31,23 @@ public sealed class SocialSystem : ISimSystem
         }
 
         var rel = world.Relationships;
-        if (!rel.ShipmatesSeeded) { rel.SeedShipmates(); }
+        if (!rel.ShipmatesSeeded)
+        {
+            // Landfall: shipmate edges, then a first Renown pass from them (16 §8.2), so Renown is always the nightly state
+            // (the live fallback in Rumors.JEff costs O(people) per call: fine for 24, not for 1,500 — S6).
+            rel.SeedShipmates();
+            world.Reputation.Recompute();
+        }
 
         var prevMinute = (ctx.GameMs - ctx.DtGameMs) / 60_000;
         var minute = ctx.GameMs / 60_000;
         if (minute / 15 != prevMinute / 15) { QuarterHour(world, minute / 15); }
-        if (minute / 60 != prevMinute / 60) { Hour(world); }
+        if (minute / 60 != prevMinute / 60)
+        {
+            Hour(world);
+            world.Relationships.DailyUpdate((int)(minute / 60 % 24));
+        }
+
         if (minute / 1440 != prevMinute / 1440) { Day(world); }
     }
 
@@ -51,7 +62,7 @@ public sealed class SocialSystem : ISimSystem
             for (var i = 0; i < people.Count; i++)
             {
                 ref readonly var a = ref people.Activity[i];
-                if (a.Action == action && a.Phase == 1) { group[n++] = i; }
+                if (a.Action == action && a.Phase == 1 && Local(people, i)) { group[n++] = i; }
             }
 
             if (n < 2) { continue; }
@@ -72,20 +83,46 @@ public sealed class SocialSystem : ISimSystem
         }
     }
 
+    /// <summary>
+    /// Co-working pairs among LOD0/1 people, in (i, j) row order. A per-action chain (next row on the same action) keeps
+    /// this linear in the people plus the pairs, instead of a scan over all pairs. LOD2 social contact comes from the
+    /// interaction rolls (21 §15.5).
+    /// </summary>
     private static void Hour(SimWorld world)
     {
         var people = world.People;
+        var actions = world.Content.Actions.Count;
+        if (actions == 0) { return; }
+        Span<int> next = stackalloc int[people.Count];
+        Span<int> last = stackalloc int[actions];
+        last.Fill(-1);
+        for (var i = people.Count - 1; i >= 0; i--)
+        {
+            ref readonly var a = ref people.Activity[i];
+            next[i] = -1;
+            if (a.Phase != 1 || a.Action < 0 || !Local(people, i)) { continue; }
+            next[i] = last[a.Action];
+            last[a.Action] = i;
+        }
+
         for (var i = 0; i < people.Count; i++)
         {
             ref readonly var a = ref people.Activity[i];
-            if (a.Phase != 1 || !a.Has(ActivityState.Purposeful)) { continue; }
-            for (var j = i + 1; j < people.Count; j++)
-            {
-                ref readonly var b = ref people.Activity[j];
-                if (b.Phase == 1 && b.Action == a.Action) { world.Relationships.CoWorkHour(people.Ids[i], people.Ids[j]); }
-            }
+            if (a.Phase != 1 || !a.Has(ActivityState.Purposeful) || !Local(people, i)) { continue; }
+            var partners = 0;
+            for (var j = next[i]; j >= 0 && partners < TeamSize - 1; j = next[j], partners++) { world.Relationships.CoWorkHour(people.Ids[i], people.Ids[j]); }
         }
     }
+
+    /// <summary>
+    /// Co-working counts within work teams: each person pairs with the next <c>TeamSize − 1</c> people on the same task (in
+    /// id order). In the 24-person camp a task rarely draws more than 12, so it pairs as before; 200 people foraging at one
+    /// site no longer make 20,000 "co-worker" pairs an hour (S6).
+    /// </summary>
+    public const int TeamSize = 12;
+
+    /// <summary>LOD0 or LOD1: simulated in place, step by step.</summary>
+    public static bool Local(PersonTable people, int row) => people.Lod[row].Tier is LodTier.Lod0 or LodTier.Lod1 or LodTier.Lod0Battle;
 
     private static void Day(SimWorld world)
     {
@@ -101,6 +138,5 @@ public sealed class SocialSystem : ISimSystem
         world.Memories.Compact(world.Clock.GameMinute);
         world.Beliefs.Forget();
         world.Reputation.Recompute();
-        world.Relationships.DailyUpdate();
     }
 }

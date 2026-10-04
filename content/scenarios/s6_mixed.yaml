@@ -1,0 +1,16 @@
+# Spike S6 (30 §4, 20 §19 "sim step, 1,500 people: avg / p99 / max 8 / 16 / 40 ms"): a realistic tier mix in fine steps —
+# 200 local people (LOD1 standing in for the ≤ 48 LOD0 + LOD1 of the player's settlement; the sim side of LOD0 is the same
+# path until perception/combat exist), 1,000 in the near region (LOD2) and 300 in far settlements (LOD3).
+id: scenario.s6_mixed
+seed: 42
+start: Y0 Spring 1 05:30
+days: 2
+settlers: 1500
+ai: utility
+tiers: { lod2: 1000, lod3: 300 }
+camp:
+  food: 2000000
+  firewood: 600
+  fire_fuel_min: 240
+  bedding: 0.85
+  schedule: schedule.landfall_communal

@@ -21,6 +21,8 @@ public static class Salt
     public const uint Perception = 9;
     public const uint ChatPartner = 10;
     public const uint Interaction = 11;
+    public const uint InteractionLod2 = 12;
+    public const uint Lod3 = 13;
 }
 
 /// <summary>SplitMix64 finalizer-based mixing (Steele, Lea &amp; Flood 2014).</summary>

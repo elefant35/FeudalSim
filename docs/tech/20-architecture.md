@@ -590,6 +590,13 @@ runtime. No system hard-codes "every N steps".
 Every tiered update receives its own `dtGameMs = now − lastUpdate[tier]`. An entity that was
 promoted or demoted therefore integrates the right amount, whatever bucket it lands in.
 
+*Implemented (S6, [spike write-up](../spikes/s6-sim-scale.md)):* `TierSchedule` builds the due rows and
+their `dt` once per step after the Sense phase; per-person systems iterate only those rows. LOD2 uses
+the per-entity phase offset above; LOD3 updates at the day boundary (one settlement in M1) or every macro
+step. **LOD1 still updates every step in M1** — 0.3 µs per person-step is far inside the LOD1 budget, and
+it keeps the tuned camp unchanged; the 1 Hz bucketing above waits until a profile needs it. World-level
+upkeep is spread too: the relationship daily update runs in 24 hourly slices by holder (16 §4.8).
+
 ### 5.3 The loop, time scale and pause
 
 ```csharp
@@ -1747,6 +1754,13 @@ reviews every re-bless. AI assistants MUST NOT re-bless unless explicitly asked.
 | Fast decider latency, p95 | ≤ 1,200 ms in conversation (`DECIDER_TIMEOUT_MS`); ≤ 500 ms for combat yield/mercy, else the policy decides | Recommended | gateway stats | M1 (cloud), M7 (local) |
 | Local fast decider (Laya, if adopted) | CPU int8: ≤ 0.5 GB RAM, ≤ 2 inference threads; GPU fp16: ≈ 0.85 GB of VRAM headroom — decided by the M7 evaluation ([§11](#11-ai-gateway-interfaces)) | Minimum / recommended | counters | M7 |
 
+*S6 measurements (M3 Pro, one core, `feudalsim bench`; [write-up](../spikes/s6-sim-scale.md)):* LOD2 year
+21.5 s; LOD3 year 1.7 s; 1,500 people in a 200/1,000/300 LOD1/2/3 mix step 0.05 / 0.18 / 20.7 ms (avg /
+p99 / max); per-agent LOD1 update 0.3 µs, LOD2 hour 18.6 µs, LOD3 day 35 µs. **Calibration finding:** the
+per-agent ceilings in this table do not add up to the year targets (1,500 × 768 × 400 µs = 461 s ≫ 60 s;
+1,500 × 32 × 150 µs = 7.2 s > 5 s). The year targets bind; treat the per-agent figures as single-update
+ceilings, not averages (open question 17).
+
 **VRAM plan (≤ 4 GB):**
 
 | Item | Budget |
@@ -1846,6 +1860,10 @@ tests are green in CI.
 16. **Focus time and DP deadlines:** is focus time a logged clock-ratio change with 10 Hz stepping
     (proposed in §5.3), so 40 steps = 4 s, or a 0.25× time scale, which would make the same deadline
     16 s of real time (10 steps would be needed)? 19/20 to confirm before M1.
+17. **Per-agent budgets vs year budgets (S6):** §19's per-agent costs (LOD2 hour 400 µs, LOD3 day
+    150 µs) multiply out to 461 s and 7.2 s for a 1,500-person year, against targets of 60 s and 5 s.
+    Recommendation: keep the year targets binding and restate the per-agent rows as worst single-update
+    ceilings with averages of ≤ 50 µs (LOD2 hour, 21 §15.5) and ≤ 100 µs (LOD3 day). Measured: 18.6 µs and 35 µs.
 
 ---
 

@@ -14,6 +14,7 @@ public static class Program
             config.AddCommand<SweepCommand>("sweep").WithDescription("Run a scenario over many seeds and check 21 §19 camp metrics against their bands.");
             config.AddCommand<RumorCommand>("rumor").WithDescription("Seed one claim with 3 witnesses and measure its spread (16 §7.8 propagation speeds).");
             config.AddCommand<ReplayCommand>("replay").WithDescription("Replay a recorded input log headless and print the final state hash.");
+            config.AddCommand<BenchCommand>("bench").WithDescription("Time a scenario per step and per system against the 20 §19 budgets (spike S6).");
             config.AddCommand<RunCommand>("run").WithDescription("Run a scenario headless at max speed and write metrics.");
             config.AddBranch("ai", ai =>
             {

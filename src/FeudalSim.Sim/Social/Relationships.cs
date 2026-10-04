@@ -209,13 +209,23 @@ public sealed class RelationshipStore
         if (e.WorkHoursToday == 2f) { Contact(a, b, 1.5f, social: false); }
     }
 
-    /// <summary>Landfall: every pair of founders are shipmates — Familiarity U(15, 35), near-symmetric (16 §4.9).</summary>
+    /// <summary>A camp up to this size is one ship's company; larger (synthetic, S6) populations are crews of <see cref="CrewSize"/>.</summary>
+    public const int OneShipMax = 60;
+
+    public const int CrewSize = 24;
+
+    /// <summary>
+    /// Landfall: every pair of founders are shipmates — Familiarity U(15, 35), near-symmetric (16 §4.9). Populations
+    /// above <see cref="OneShipMax"/> (headless scale runs) are seeded as crews of 24 consecutive people, keeping the graph
+    /// sparse (21 §15.6: ≤ 12 contacts per person at LOD3).
+    /// </summary>
     public void SeedShipmates()
     {
         var ids = _world.People.Ids.ToArray();
+        var crew = ids.Length <= OneShipMax ? ids.Length : CrewSize;
         for (var i = 0; i < ids.Length; i++)
         {
-            for (var j = i + 1; j < ids.Length; j++)
+            for (var j = i + 1; j < ids.Length && j / crew == i / crew; j++)
             {
                 var rng = new Rng(SplitMix64.Mix(_world.WorldSeed, (ulong)RngStream.Social, ids[i].Value, ids[j].Value, Salt.Shipmates));
                 var f = rng.Uniform(15f, 35f);
@@ -230,12 +240,25 @@ public sealed class RelationshipStore
         ShipmatesSeeded = true;
     }
 
-    /// <summary>Once per game day: familiarity decay after 4 idle days, trust drift, slot cleanup, tags (16 §4.8–4.12).</summary>
-    public void DailyUpdate()
+    /// <summary>Hour slices of the daily update: each holder's edges update in hour <c>hash(holder) mod 24</c> (20 §5.2 spreading).</summary>
+    public const int DailySlices = 24;
+
+    public static int SliceOf(ulong holder) => (int)(SplitMix64.Avalanche(holder ^ 0x5EED_0016_0000_0000UL) % DailySlices);
+
+    /// <summary>
+    /// Once per game day per holder: familiarity decay after 4 idle days, trust drift, slot cleanup, tags (16 §4.8–4.12).
+    /// Run every game hour with that hour's slice, so the work is spread over the day instead of one midnight spike (S6:
+    /// 70k edges took 80 ms in one step). <paramref name="slice"/> −1 updates every edge (tests, tools).
+    /// </summary>
+    public void DailyUpdate(int slice = -1)
     {
         var now = _world.Clock.GameMinute;
+        var lastHolder = ulong.MaxValue;
+        var inSlice = true;
         foreach (var ((holder, other), e) in _edges)
         {
+            if (holder != lastHolder) { (lastHolder, inSlice) = (holder, slice < 0 || SliceOf(holder) == slice); }
+            if (!inSlice) { continue; }
             var h = new EntityId(holder);
             var o = new EntityId(other);
             if (now - e.LastContactMin > 4 * 1440)
@@ -246,7 +269,12 @@ public sealed class RelationshipStore
 
             e.Trust = e.Trust0 + ((e.Trust - e.Trust0) * MathF.Pow(0.9f, 1f / 32f));
             var hp = Holder(h);
-            e.Mods.RemoveAll(slot => { Decayed(slot, hp, now, out var negligible); return negligible && slot.Floor == 0f; });
+            for (var k = e.Mods.Count - 1; k >= 0; k--)
+            {
+                Decayed(e.Mods[k], hp, now, out var negligible);
+                if (negligible && e.Mods[k].Floor == 0f) { e.Mods.RemoveAt(k); }
+            }
+
             UpdateTags(e, Opinion(h, o), now, _world.Memories.HasGraveMemoryAbout(h, o, now));
         }
     }
@@ -342,15 +370,31 @@ public sealed class RelationshipStore
 
     private string Creed(ushort culture)
     {
-        if (culture >= _world.Content.Cultures.Count) { return "none"; }
-        return _world.Content.Cultures[culture].Id switch
-        {
-            "culture.varrow" => "ember_orthodox",
-            "culture.osmeri" => "ember_lax",
-            "culture.ashen_reform" => "ashen_reform",
-            "culture.brannoch" => "old_ways",
-            var other => other,
-        };
+        Cache();
+        return culture < _creeds.Length ? _creeds[culture] : "none";
+    }
+
+    private static string CreedOf(string cultureId) => cultureId switch
+    {
+        "culture.varrow" => "ember_orthodox",
+        "culture.osmeri" => "ember_lax",
+        "culture.ashen_reform" => "ashen_reform",
+        "culture.brannoch" => "old_ways",
+        var other => other,
+    };
+
+    // Content lookups resolved once per content database (not state).
+    private ContentDatabase? _cachedFor;
+    private string[] _creeds = [];
+    private int _paranoid = -1, _vengeful = -1, _brave = -1, _gullible = -1;
+
+    private void Cache()
+    {
+        var c = _world.Content;
+        if (ReferenceEquals(_cachedFor, c)) { return; }
+        _creeds = [.. c.Cultures.Select(x => string.Intern(CreedOf(x.Id)))];
+        (_paranoid, _vengeful, _brave, _gullible) = (c.TraitHandle("trait.paranoid"), c.TraitHandle("trait.vengeful"), c.TraitHandle("trait.brave"), c.TraitHandle("trait.gullible"));
+        _cachedFor = c;
     }
 
     /// <summary>16 §4.8 baseline: clamp(35 + 0.3·(W − 50) − 15·Paranoid + 10·sameHomeland + 25·kin, 5, 80).</summary>
@@ -389,16 +433,12 @@ public sealed class RelationshipStore
         var row = people.IndexOf(id);
         if (row < 0) { return new HolderTraits(50, 50, default, false, false, false, false); }
         var p = people.Personality[row];
-        var c = _world.Content;
-        return new HolderTraits(p.Warmth, p.Volatility, p.Values, HasTrait(c, p.Traits, "trait.paranoid"), HasTrait(c, p.Traits, "trait.vengeful"),
-            HasTrait(c, p.Traits, "trait.brave"), HasTrait(c, p.Traits, "trait.gullible"));
+        Cache();
+        return new HolderTraits(p.Warmth, p.Volatility, p.Values, HasTrait(p.Traits, _paranoid), HasTrait(p.Traits, _vengeful),
+            HasTrait(p.Traits, _brave), HasTrait(p.Traits, _gullible));
     }
 
-    private static bool HasTrait(ContentDatabase content, ulong traits, string id)
-    {
-        var h = content.TraitHandle(id);
-        return h >= 0 && (traits & (1UL << h)) != 0;
-    }
+    private static bool HasTrait(ulong traits, int handle) => handle >= 0 && (traits & (1UL << handle)) != 0;
 
     internal void HashInto(XxHash64 h)
     {

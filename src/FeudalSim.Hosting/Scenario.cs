@@ -41,6 +41,24 @@ public sealed record ScenarioDef
     /// <summary>Optional player position <c>[x, z]</c> (metres), sent as a logged <c>PlayerMoved</c>: headless runs can overhear talk (22 §9.2).</summary>
     public float[]? Player { get; init; }
 
+    /// <summary>
+    /// Optional tier mix for headless scale runs (S6): how many settlers, from the end of the roster, are pinned to LOD2
+    /// and LOD3 with logged <c>SetLodTier</c> commands (the rest stay LOD1). Settlements and the relevance set that assign
+    /// tiers in play arrive in M2–M4.
+    /// </summary>
+    public TierMix? Tiers { get; init; }
+
+    /// <summary>Macro-step length for headless runs: <c>hour</c> or <c>day</c> (20 §5.4; for LOD3 populations). Default: fine steps.</summary>
+    public string? MacroStep { get; init; }
+
+    public long MacroStepGameMs => MacroStep?.ToLowerInvariant() switch
+    {
+        null or "" or "none" => 0,
+        "hour" => SimClock.MsPerGameHour,
+        "day" => SimClock.MsPerGameDay,
+        var other => throw new FormatException($"macro_step must be hour or day, not '{other}'."),
+    };
+
     public static ScenarioDef Load(string path)
     {
         var yaml = new DeserializerBuilder().WithNamingConvention(UnderscoredNamingConvention.Instance).Build();
@@ -72,6 +90,7 @@ public sealed record ScenarioDef
         if (utility)
         {
             world.Camp = (Camp ?? new CampDef()).ToRecord(content);
+            world.AddSystem(new Lod3System());
             world.AddSystem(new SocialSystem());
             world.AddSystem(new InteractionSystem());
         }
@@ -89,9 +108,29 @@ public sealed record ScenarioDef
             world.Enqueue(command);
         }
 
-        if (Player is [var px, var pz]) { world.Enqueue(new CommandEnvelope(Settlers + 1, 0, CommandSource.Scenario, new PlayerMoved(px, pz, 0f))); }
+        var seq = (long)Settlers;
+        if (Player is [var px, var pz]) { world.Enqueue(new CommandEnvelope(++seq, 0, CommandSource.Scenario, new PlayerMoved(px, pz, 0f))); }
+        if (Tiers is { } mix)
+        {
+            // Spawns apply in step 1, so the tier pins go in with them (same step, later Seq): ids are 1..Settlers in order.
+            var lod3From = Settlers - mix.Lod3;
+            var lod2From = lod3From - mix.Lod2;
+            for (var i = Math.Max(0, lod2From); i < Settlers; i++)
+            {
+                var id = Sim.Core.EntityId.Make(Sim.Core.EntityKind.Person, (ulong)(i + 1));
+                world.Enqueue(new CommandEnvelope(++seq, 0, CommandSource.Scenario, new SetLodTier(id, i >= lod3From ? Sim.World.LodTier.Lod3 : Sim.World.LodTier.Lod2)));
+            }
+        }
+
         return world;
     }
+}
+
+/// <summary>Scenario <c>tiers:</c> — settlers pinned to the abstract tiers (S6).</summary>
+public sealed record TierMix
+{
+    public int Lod2 { get; init; }
+    public int Lod3 { get; init; }
 }
 
 /// <summary>The M1 graybox camp configuration (scenario YAML <c>camp:</c>).</summary>
@@ -142,7 +181,8 @@ public static class ScenarioRunner
     {
         using var jobs = new JobRunner(threads);
         var world = scenario.CreateWorld(content, jobs);
-        var stepsPerDay = SimClock.MsPerGameDay / world.Clock.GameMsPerStep;
+        var macro = scenario.MacroStepGameMs;
+        var stepsPerDay = SimClock.MsPerGameDay / (macro > 0 ? macro : world.Clock.GameMsPerStep);
         var days = new List<DayMetrics>();
         var clock = System.Diagnostics.Stopwatch.StartNew();
         var events = 0;
@@ -151,7 +191,7 @@ public static class ScenarioRunner
         {
             for (var s = 0; s < stepsPerDay; s++)
             {
-                var output = world.Step();
+                var output = macro > 0 ? world.StepMacro(macro) : world.Step();
                 camp?.Sample(world);
                 LogOpenedDecisions(world, output);
                 events += output.Events.Count;
@@ -188,6 +228,8 @@ public static class ScenarioRunner
     /// DPs a model may decide are logged as integrity commands (20 §8.5) exactly as <see cref="SimRunner"/> does; with
     /// no gateway here, the policy decides them at their deadline.
     /// </summary>
+    public static void LogOpened(SimWorld world, StepOutput output) => LogOpenedDecisions(world, output);
+
     internal static void LogOpenedDecisions(SimWorld world, StepOutput output)
     {
         foreach (var dp in output.OpenedDecisions)

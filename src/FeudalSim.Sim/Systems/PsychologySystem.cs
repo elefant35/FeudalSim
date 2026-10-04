@@ -26,15 +26,25 @@ public sealed class PsychologySystem(float comfortTarget = PsychologySystem.Land
     {
         var content = world.Content;
         if (!ReferenceEquals(_cachedFor, content)) { (_terms, _cachedFor) = (TraitTerms.Build(content), content); }
-        var dtH = ctx.DtGameHours;
-        var comfortK = 1f - SimMath.Pow(0.85f, dtH);   // 15 %/h toward the target
-        var safetyUpK = 1f - SimMath.Pow(0.95f, dtH);  // 5 %/h when rising
-        var safetyDownK = 1f - SimMath.Pow(0.80f, dtH);// 20 %/h when falling
-        var statusK = 1f - SimMath.Pow(0.97f, dtH);    // 3 %/h
-        var smoothK = 1f - SimMath.Exp(-dtH);          // EMA, τ = 1 game hour
         var people = world.People;
-        for (var i = 0; i < people.Count; i++)
+        var due = world.Due;
+        var lastDt = -1L;
+        float dtH = 0f, comfortK = 0f, safetyUpK = 0f, safetyDownK = 0f, statusK = 0f, smoothK = 0f;
+        for (var k = 0; k < due.Count; k++)
         {
+            var i = due.Rows[k];
+            if (people.Lod[i].Tier == LodTier.Lod3) { continue; }   // Lod3System
+            if (due.Dt(k) != lastDt)
+            {
+                lastDt = due.Dt(k);
+                dtH = lastDt / (float)Time.SimClock.MsPerGameHour;
+                comfortK = 1f - SimMath.Pow(0.85f, dtH);   // 15 %/h toward the target
+                safetyUpK = 1f - SimMath.Pow(0.95f, dtH);  // 5 %/h when rising
+                safetyDownK = 1f - SimMath.Pow(0.80f, dtH);// 20 %/h when falling
+                statusK = 1f - SimMath.Pow(0.97f, dtH);    // 3 %/h
+                smoothK = 1f - SimMath.Exp(-dtH);          // EMA, τ = 1 game hour
+            }
+
             ref var n = ref people.Needs[i];
             ref var e = ref people.Emotions[i];
             ref var m = ref people.Mood[i];

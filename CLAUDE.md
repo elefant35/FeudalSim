@@ -76,6 +76,7 @@ AI_GATEWAY_MODE=record LLM_LOG_TRANSCRIPTS=true dotnet run --project src/FeudalS
 dotnet run --project src/FeudalSim.Headless -- log inputs|events <file.fslog> [--filter X]   # inspect logs
 dotnet run --project src/FeudalSim.Headless -- replay --scenario <yaml> --log <inputs.fslog> --until-step N   # final hash of a recorded session
 dotnet run --project tests/FeudalSim.Benchmarks -c Release -- --filter '*'
+dotnet run -c Release --project src/FeudalSim.Headless -- bench --scenario content/scenarios/s6_mixed.yaml --warmup-days 1 --days 4   # 20 §19 step budgets (S6): per-system + slowest step
 dotnet build game/FeudalSim.Game.csproj                                  # the Godot client (also builds Hosting/Sim)
 $GODOT --path game                                                       # the M1 camp view (m1_view): Space pause · 1/2/4/8 speed · WASD pan · wheel zoom
 $GODOT --path game -- --scenario m1_overheard                            # any content/scenarios/<name>.yaml; `-- --shot out.png 30` saves a screenshot and quits

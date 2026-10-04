@@ -131,7 +131,7 @@ public static class Rumors
     public static float JEff(SimWorld world, in Claim claim)
     {
         var subject = new EntityId(claim.Subject);
-        var renown = world.Reputation.HasRenown ? world.Reputation.Renown(subject) : Renown(world, subject);   // before the first nightly pass: w = 1
+        var renown = world.Reputation.HasRenown ? world.Reputation.Renown(subject) : Renown(world, subject);   // worlds without a Renown pass yet (camps run one at Landfall): w = 1
         return world.Content.ClaimPredicates[claim.Predicate].Juiciness * (0.6f + (0.4f * renown / 100f));
     }
 

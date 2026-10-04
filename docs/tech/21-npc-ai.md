@@ -1645,6 +1645,13 @@ for agent in LOD2 (time-sliced across the hour, deterministic order by entity id
 
 Cost target ≤ 50 µs per agent-hour.
 
+*Implemented (S6):* the past hour is spent on the current action (arrival is immediate inside a camp),
+then the §7.2 scorer picks the next hour's action; needs, emotions and mood integrate the hour exactly.
+Social: ≤ 2 interaction rolls per agent-hour, each with chance I/16 (half while working) — the LOD1
+quarter-hour rate spread over the hour — with a partner among ≤ 8 sampled co-located LOD2 people, resolved
+by the same 16 code as LOD1. Cross-tier pairs (LOD1 with LOD2) are not modelled yet. Measured 18.6 µs per
+agent-hour ([s6](../spikes/s6-sim-scale.md)).
+
 ### 15.6 LOD3 daily step (Interludes, sleep-skips, far settlements)
 
 Per settlement per game day (or partial day of fraction `f` for sleep-skips: all rates and hazards
@@ -1679,6 +1686,13 @@ check** runs one season at LOD1 and at LOD3 from the same snapshot and requires:
 
 Budget: **≤ 0.5 s per simulated day for 1,500 agents** on recommended spec (multi-threaded),
 i.e. ≤ 32 s for a maximum 8-season Interlude (excluding Chronicle generation).
+
+*Implemented, uncalibrated (S6, `Lod3System`):* steps 1–5 for the graybox camp — one work action per day
+by stock pressure, yield × skill × mood factor clamp(1 + mood/500, 0.8, 1.2); the day's Satiety demand
+eaten from the stores (fed: Satiety 80, Hydration 85, Energy 85 × bedding/0.85; shortfall off Satiety);
+Social and Purpose by daily mass balance over the schedule's hours; Comfort/Safety/Status and emotions
+decayed exactly; I·f crewmate chats without memories. No event rolls yet. The calibration tables and the
+fidelity check above are M4 work. Measured 35 µs per agent-day (1,500 people: a year in 1.7 s).
 
 ### 15.7 Leaving LOD3
 

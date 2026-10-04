@@ -17,6 +17,7 @@ public enum CommandSource : byte { Player, Embodiment, Ai, Settings, Scenario, D
 [Union(5, typeof(Decisions.DecisionPointOpened))]
 [Union(6, typeof(Decisions.DecisionMade))]
 [Union(7, typeof(HoldAiRequests))]
+[Union(8, typeof(SetLodTier))]
 public abstract record StateCommand;
 
 /// <summary>Changes the real-minutes-per-game-day setting (canon §6). Logged; applies at the next step.</summary>
@@ -44,6 +45,14 @@ public sealed record SpawnPerson(
 /// </summary>
 [MessagePackObject]
 public sealed record HoldAiRequests([property: Key(0)] bool Hold) : StateCommand;
+
+/// <summary>
+/// Scenario/dev command: pins a person to simulation tier LOD1, LOD2 or LOD3 (21 §15.1). Until settlements and the
+/// relevance set exist (M2–M4), headless scale runs place people in the abstract tiers with this; LOD0 stays the
+/// LodSystem's (it needs a player and a body).
+/// </summary>
+[MessagePackObject]
+public sealed record SetLodTier([property: Key(0)] Core.EntityId Person, [property: Key(1)] World.LodTier Tier) : StateCommand;
 
 /// <summary>The player's body position as reported by the client each step (the player is always embodied).</summary>
 [MessagePackObject]

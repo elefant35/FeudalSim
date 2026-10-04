@@ -43,6 +43,8 @@ Likelihood (L) and Impact (I) on a 1–5 scale. **Score = L × I.** Review at ev
 | R26 | **Terrain3D version coupling.** A third-party GDExtension (v1.0.2, upstream-tested to Godot 4.6) already logs a deprecation (`instance_reset_physics_interpolation`) on 4.7.2; a Godot upgrade could break it. | 2 | 3 | 6 | Pin addon + engine; SHA-256 fetch; `godot.yml` headless Terrain3D check on every push; the sim owns heights, so the ArrayMesh/chunk fallback stays viable ([ADR-0009](../adr/0009-terrain.md)). | The CI Terrain3D check fails after a Godot or addon upgrade. | [20 §12.4](../tech/20-architecture.md#124-terrain--world-streaming) |
 | R27 | **AI requests in flight are not saved.** Pending AI requests and the request counter are outside the save image (an M0 gap). With a player present, overheard renders (M1-07c) are almost always in flight, so a mid-session save/load re-issues requests the original run skipped and the presentation diverges (state does not). | 3 | 2 | 6 | **Mitigated (owner's approach, 2026-10-04):** `SimRunner.SaveWhenSettled()` sends a logged `HoldAiRequests`: new requests play their template at once, the save captures when none is in flight (≤ 3 s for overheard talk; while paused the runner steps just past the deadlines), then the hold lifts. `OverheardTests` covers it. | A save/load replay test shows different `AiResultApplied` events than the straight run. | [20 §11](../tech/20-architecture.md) |
 
+| R28 | **Sim performance on minimum spec is unmeasured.** S6 passed on an Apple M3 Pro (1,500 people: worst step 20.7 ms vs the 40 ms minimum-spec budget); a ~2.5× slower CPU would exceed it at midnight (Renown pass, memory compaction). | 3 | 3 | 9 | `feudalsim bench` with `--max-step-ms`; slice the remaining nightly passes like the relationship upkeep; re-measure on minimum-spec hardware when 1,500 people become real (M5) and at M7. | `bench` on minimum spec: max step > 40 ms. | [s6](../spikes/s6-sim-scale.md), [20 §19](../tech/20-architecture.md#19-performance-budgets) |
+
 ---
 
 ## 2. Decisions needed from the owner
@@ -112,6 +114,7 @@ default**, which the plan already assumes. Confirm or override; record the answe
 | D24 | **Combat step rate** — is 10 Hz enough for melee? | Keep 10 Hz; revisit after the M2 combat playtest | [20 Q2](../tech/20-architecture.md#open-questions) |
 | D25 | **Cross-platform replay** | Not required; saves are portable, replays per platform | [20 Q6](../tech/20-architecture.md#open-questions), [21 Q2](../tech/21-npc-ai.md#open-questions) |
 | D26 | **Modding** | Data packs after M8 | [20 Q12](../tech/20-architecture.md#open-questions) |
+| D33 | **Per-agent vs year sim budgets** (S6 calibration finding): 20 §19's per-agent ceilings (LOD2 hour 400 µs, LOD3 day 150 µs) multiply out to 461 s / 7.2 s for a 1,500-person year, against 60 s / 5 s | **Applied (reversible, pending owner):** the year targets bind; the per-agent rows are worst single-update ceilings, averages ≤ 50 µs (LOD2 hour) and ≤ 100 µs (LOD3 day). Measured 18.6 / 35 µs | [20 Q17](../tech/20-architecture.md#open-questions), [s6](../spikes/s6-sim-scale.md) |
 
 ## 3. Per-document open questions
 
@@ -131,7 +134,7 @@ marked **[Resolved — canon v0.2]** in place.
 | [17 Governance & law](../design/17-governance-and-law.md#open-questions) | 7 |
 | [18 Conflict & warfare](../design/18-conflict-and-warfare.md#open-questions) | 8 (1 resolved) |
 | [19 Player experience](../design/19-player-experience.md#open-questions) | 7 (1 resolved) |
-| [20 Architecture](../tech/20-architecture.md#open-questions) | 12 (2 resolved) |
+| [20 Architecture](../tech/20-architecture.md#open-questions) | 17 (2 resolved) |
 | [21 NPC AI](../tech/21-npc-ai.md#open-questions) | 7 (1 resolved) |
 | [22 LLM integration](../tech/22-llm-integration.md#open-questions) | 10 (1 resolved) |
 | [30 Roadmap](30-roadmap.md#10-open-questions) | 3 |
