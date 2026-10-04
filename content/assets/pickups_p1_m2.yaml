@@ -1,0 +1,785 @@
+[
+  {
+    "id": "asset.pickups_p1.rough_log",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "rough_log",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/rough_log.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 92,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.pole",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "pole",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/pole.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 92,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.reed_thatch",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "reed_thatch",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/reed_thatch.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 216,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.clay",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "clay",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/clay.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 80,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.antler_billet",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "antler_billet",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/antler_billet.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 68,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.pressure_flaker",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "pressure_flaker",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/pressure_flaker.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 64,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.item_wild_carrot",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "item_wild_carrot",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/item_wild_carrot.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 120,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.item_hemlock",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "item_hemlock",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/item_hemlock.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 126,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.item_field_mushroom",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "item_field_mushroom",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/item_field_mushroom.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 120,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.item_death_cap",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "item_death_cap",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/item_death_cap.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 80,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.item_ramsons",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "item_ramsons",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/item_ramsons.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 112,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.item_lily_of_the_valley",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "item_lily_of_the_valley",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/item_lily_of_the_valley.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 112,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.item_comfrey",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "item_comfrey",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/item_comfrey.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 112,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.item_foxglove",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "item_foxglove",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/item_foxglove.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 112,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.item_valerian",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "item_valerian",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/item_valerian.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 120,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.item_water_hemlock",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "item_water_hemlock",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/item_water_hemlock.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 120,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.item_bilberries",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "item_bilberries",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/item_bilberries.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 100,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.item_nightshade_berries",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "item_nightshade_berries",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/item_nightshade_berries.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 120,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.item_hazelnuts",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "item_hazelnuts",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/item_hazelnuts.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 100,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.item_blackberries",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "item_blackberries",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/item_blackberries.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 100,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.item_nettles",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "item_nettles",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/item_nettles.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 140,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.item_sorrel",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "item_sorrel",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/item_sorrel.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 128,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.item_sea_beet",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "item_sea_beet",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/item_sea_beet.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 112,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.item_wild_strawberries",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "item_wild_strawberries",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/item_wild_strawberries.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 100,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.item_yarrow",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "item_yarrow",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/item_yarrow.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 140,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.item_plantain",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "item_plantain",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/item_plantain.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 112,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  },
+  {
+    "id": "asset.pickups_p1.item_sphagnum",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/pickups/pickups.py",
+      "params": {
+        "item": "item_sphagnum",
+        "seed": 601
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/item_sphagnum.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 100,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 harvested pickup / primitive craft material; grip origin and +Z orientation."
+  }
+]
