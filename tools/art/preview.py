@@ -1,90 +1,91 @@
-"""Preview renders for review (32 §6 step 6): a 4-angle turntable sheet and a 40 m silhouette.
-
-Usage: Blender -b --factory-startup -P tools/art/preview.py -- <asset.glb> <out-prefix>
-Writes <out-prefix>_turntable.png (2x2) and <out-prefix>_silhouette.png. Claude reads these PNGs to
-self-check before asking the owner to approve the look.
+"""M2/legacy turntable and silhouette; assembled modular characters, collision hidden.
+Blender -b -P tools/art/preview.py -- asset.glb out-prefix [--head N] [--hair N]
 """
-import math, pathlib, sys
-
+import math, pathlib, re, sys
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
-import fsart  # noqa: E402
-import bpy  # noqa: E402
+import fsart
+import bpy
+import numpy as np
+from mathutils import Vector
 
-path, prefix = fsart.args()[:2]
+args = fsart.args()
+path, prefix = args[:2]
 fsart.reset()
 bpy.ops.import_scene.gltf(filepath=path)
-lod0 = next(o for o in bpy.context.scene.objects if o.type == "MESH" and o.name.endswith("_lod0"))
+# COLOR_0.R is a wind mask, not albedo. glTF's generic importer multiplies it
+# into the base colour; preview the palette directly like the game's wind shader.
+for mat in bpy.data.materials:
+    if not mat.use_nodes: continue
+    bsdf=next((n for n in mat.node_tree.nodes if n.type=='BSDF_PRINCIPLED'),None)
+    texture=next((n for n in mat.node_tree.nodes if n.type=='TEX_IMAGE' and n.image and 'palette' in n.image.name),None)
+    if bsdf and texture:
+        mat.node_tree.links.new(texture.outputs['Color'],bsdf.inputs['Base Color'])
+bone_shapes = {p.custom_shape.name for o in bpy.context.scene.objects if o.type == 'ARMATURE' for p in o.pose.bones if p.custom_shape}
 for o in bpy.context.scene.objects:
-    if o.type == "MESH" and o is not lod0:
-        o.hide_render = True
-zs = [(lod0.matrix_world @ v.co).z for v in lod0.data.vertices]
-height = max(zs) - min(zs)
-
-scene = bpy.context.scene
-scene.render.engine = "BLENDER_EEVEE"
-scene.render.resolution_x = scene.render.resolution_y = 512
-scene.view_settings.view_transform = "Standard"           # true palette colours, pure white silhouette ground
-world = bpy.data.worlds.new("preview")
-world.use_nodes = True                                   # EEVEE ignores world.color; use the Background node
-bg = world.node_tree.nodes["Background"]
-scene.world = world
-
-target = bpy.data.objects.new("target", None)
-target.location = (0, 0, height * 0.45)
-scene.collection.objects.link(target)
-sun_data = bpy.data.lights.new("sun", type="SUN")
-sun_data.energy = 3.5
-sun = bpy.data.objects.new("sun", sun_data)
-sun.rotation_euler = (math.radians(50), 0, math.radians(30))
-scene.collection.objects.link(sun)
-cam = bpy.data.objects.new("cam", bpy.data.cameras.new("cam"))
-scene.collection.objects.link(cam)
-scene.camera = cam
-track = cam.constraints.new("TRACK_TO")
-track.target = target
-track.track_axis, track.up_axis = "TRACK_NEGATIVE_Z", "UP_Y"
-
-prefix = pathlib.Path(prefix)
-prefix.parent.mkdir(parents=True, exist_ok=True)
-frames = []
-bg.inputs["Color"].default_value = (0.62, 0.72, 0.82, 1)
-dist = max(height * 2.2, 2.0)
-for i, angle in enumerate((-90, 0, 90, 180)):
-    a = math.radians(angle)
-    cam.location = (dist * math.cos(a), dist * math.sin(a), height * 0.75)
-    scene.render.filepath = str(prefix) + f"_{i}.png"
-    bpy.ops.render.render(write_still=True)
+    if o.name in bone_shapes: o.hide_render=True
+meshes = sorted((o for o in bpy.context.scene.objects if o.type == 'MESH' and o.name not in bone_shapes), key=lambda o:o.name)
+visible = []
+slots = {}
+for o in meshes:
+    o.hide_render = o.name.endswith(('-colonly','-convcolonly')) or bool(re.search(r'_lod[1-9]\d*$',o.name))
+    if not o.hide_render:
+        slot = o.name.split('_')[0]
+        if slot in ('Head','Hair','Beard','Headwear'):
+            slots.setdefault(slot, []).append(o)
+        else:
+            visible.append(o)
+for slot, alternatives in slots.items():
+    arg = '--'+slot.lower()
+    idx = int(args[args.index(arg)+1]) if arg in args else 0
+    for i,o in enumerate(alternatives):
+        o.hide_render = i != idx
+    visible.append(alternatives[idx])
+for o in meshes:
+    if o.name in bone_shapes:
+        o.hide_render=True
+if not visible:
+    raise ValueError('no renderable model; animation-only sets need a character for preview')
+points = [o.matrix_world @ Vector(c) for o in visible for c in o.bound_box]
+low = Vector(tuple(min(p[i] for p in points) for i in range(3)))
+high = Vector(tuple(max(p[i] for p in points) for i in range(3)))
+centre=(low+high)/2
+extent=max(high-low)
+scene=bpy.context.scene
+scene.render.engine='BLENDER_EEVEE'
+scene.render.resolution_x=scene.render.resolution_y=512
+scene.render.resolution_percentage=100
+scene.view_settings.view_transform='Standard'
+world=bpy.data.worlds.new('preview'); world.use_nodes=True; scene.world=world
+bg=world.node_tree.nodes['Background']
+bg.inputs['Color'].default_value=(0.42,0.49,0.55,1)
+bg.inputs['Strength'].default_value=0.6
+sun_data=bpy.data.lights.new('sun','SUN'); sun_data.energy=2.5
+sun=bpy.data.objects.new('sun',sun_data); scene.collection.objects.link(sun)
+sun.rotation_euler=(math.radians(35),math.radians(-20),math.radians(-30))
+cam=bpy.data.objects.new('cam',bpy.data.cameras.new('cam')); scene.collection.objects.link(cam); scene.camera=cam
+cam.data.type='ORTHO'; cam.data.ortho_scale=extent*1.35
+prefix=pathlib.Path(prefix); prefix.parent.mkdir(parents=True,exist_ok=True)
+frames=[]
+for i,angle in enumerate((-90,0,90,180)):
+    a=math.radians(angle); cam.location=centre+Vector((extent*2*math.cos(a),extent*2*math.sin(a),extent*0.35))
+    cam.rotation_euler=(centre-cam.location).to_track_quat('-Z','Y').to_euler()
+    scene.render.filepath=str(prefix)+f'_{i}.png'; bpy.ops.render.render(write_still=True)
     frames.append(scene.render.filepath)
-
-# 2x2 sheet
-sheet = bpy.data.images.new("sheet", 1024, 1024)
-pixels = [0.0] * (1024 * 1024 * 4)
-for i, f in enumerate(frames):
-    img = bpy.data.images.load(f)
-    src = list(img.pixels)
-    ox, oy = (i % 2) * 512, (1 - i // 2) * 512
-    for y in range(512):
-        row = (oy + y) * 1024 + ox
-        pixels[row * 4:(row + 512) * 4] = src[y * 512 * 4:(y + 1) * 512 * 4]
-sheet.pixels = pixels
-sheet.filepath_raw = str(prefix) + "_turntable.png"
-sheet.file_format = "PNG"
-sheet.save()
-for f in frames:
-    pathlib.Path(f).unlink()
-
-# Silhouette at 40 m: black object on white, long lens.
-black = bpy.data.materials.new("black")
-black.use_nodes = True
-black.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0, 0, 0, 1)
-black.node_tree.nodes["Principled BSDF"].inputs["Roughness"].default_value = 1
-lod0.data.materials.clear()
-lod0.data.materials.append(black)
-bg.inputs["Color"].default_value = (1, 1, 1, 1)
-sun_data.energy = 0
-cam.location = (0, -40, height * 0.5)
-cam.data.lens = 200
-scene.render.filepath = str(prefix) + "_silhouette.png"
-bpy.ops.render.render(write_still=True)
-
-fsart.result(ok=True, turntable=str(prefix) + "_turntable.png", silhouette=str(prefix) + "_silhouette.png")
+sheet=bpy.data.images.new('sheet',1024,1024)
+canvas=np.zeros((1024,1024,4),dtype=np.float32)
+for i,f in enumerate(frames):
+    im=bpy.data.images.load(f); src=np.empty(512*512*4,dtype=np.float32); im.pixels.foreach_get(src)
+    x,y=(i%2)*512,(1-i//2)*512; canvas[y:y+512,x:x+512]=src.reshape(512,512,4)
+sheet.pixels.foreach_set(canvas.ravel()); sheet.filepath_raw=str(prefix)+'_turntable.png'; sheet.file_format='PNG'; sheet.save()
+for f in frames:pathlib.Path(f).unlink()
+black=bpy.data.materials.new('black'); black.use_nodes=True
+black.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value=(0,0,0,1)
+black.node_tree.nodes['Principled BSDF'].inputs['Roughness'].default_value=1
+for o in visible:
+    o.data.materials.clear(); o.data.materials.append(black)
+    for p in o.data.polygons:p.material_index=0
+bg.inputs['Color'].default_value=(1,1,1,1); bg.inputs['Strength'].default_value=1; sun_data.energy=0
+cam.data.type='PERSP'; cam.data.lens=min(200,40*24/(extent*1.25))
+cam.location=centre+Vector((0,-40,0)); cam.rotation_euler=(centre-cam.location).to_track_quat('-Z','Y').to_euler()
+scene.render.filepath=str(prefix)+'_silhouette.png'; bpy.ops.render.render(write_still=True)
+fsart.result(ok=True,turntable=str(prefix)+'_turntable.png',silhouette=str(prefix)+'_silhouette.png',assembled_objects=[o.name for o in visible])
