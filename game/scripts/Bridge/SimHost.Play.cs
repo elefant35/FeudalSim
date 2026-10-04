@@ -129,6 +129,18 @@ public partial class SimHost
     }
 
     private ulong _playerId;
+
+    /// <summary>Half a turn for the M1 stand-in (faces −Z); the settler kit faces +Z (measured).</summary>
+    private float ModelFlip => _kit is null ? Mathf.Pi : 0f;
+
+    private int _walkSamples, _walkReversed;
+
+    /// <summary>How well a body's facing agrees with its step (cos of the angle; &lt; 0 = walking backwards).</summary>
+    private float FacingDot(Node3D body, Vector2 step)
+    {
+        var facing = body.GlobalBasis.Z * (_kit is null ? -1f : 1f);
+        return new Vector2(facing.X, facing.Z).Normalized().Dot(step.Normalized());
+    }
     private string? _held;
     private Node3D? _heldNode;
 
@@ -225,9 +237,10 @@ public partial class SimHost
         }
 
         _playerBody!.Position = new Vector3(_player.X, Ground(_player.X, _player.Y), _player.Y);
-        const float faceOffset = Mathf.Pi;   // imported models face −Z (Godot's forward), as the sim's yaw assumes
-        if (moved) { _playerBody.Rotation = new Vector3(0, Mathf.Atan2(input.X, input.Y) + faceOffset, 0); }
-        else { _playerBody.Rotation = new Vector3(0, _yaw + Mathf.Pi + faceOffset, 0); }   // standing: face where you look
+        // Measured (`--facing-check`): the settler models face +Z and their clips walk +Z, so a body faces direction (x, z)
+        // at rotation atan2(x, z). The M1 stand-in faces −Z and needs a half turn.
+        if (moved) { _playerBody.Rotation = new Vector3(0, Mathf.Atan2(input.X, input.Y) + ModelFlip, 0); }
+        else { _playerBody.Rotation = new Vector3(0, _yaw + Mathf.Pi + ModelFlip, 0); }   // standing: face where you look (view forward is (−sin yaw, −cos yaw))
         var working = snap.PlayerProcess != 0 && snap.ProcessState == (byte)Sim.Crafting.ProcessState.Active && snap.GameMs / Sim.Time.SimClock.MsPerGameMinute < snap.ProcessBusyUntilMin;
         var (playerClip, playerSpeed) = moved ? CharacterKit.ClipFor(null, false, speed, _playerId)
             : Knapping ? ("knap_loop", 1f) : working && snap.ProcessRecipe == _fellRecipe ? ("chop_loop", 1f) : CharacterKit.ClipFor(null, false, 0f, _playerId);
@@ -235,7 +248,7 @@ public partial class SimHost
         Hold(Knapping ? "hammerstone" : working && snap.ProcessRecipe == _fellRecipe ? "iron_axe" : null);
         if (snap.Step != _lastPlayerStep && _runner!.Mode != RunMode.Paused && _player != _lastReportedPlayer)
         {
-            _runner.Submit(CommandSource.Embodiment, new PlayerMoved(_player.X, _player.Y, _playerBody.Rotation.Y, moved ? gait : (byte)0));
+            _runner.Submit(CommandSource.Embodiment, new PlayerMoved(_player.X, _player.Y, Mathf.Pi - (_playerBody.Rotation.Y - ModelFlip), moved ? gait : (byte)0));
             (_lastPlayerStep, _lastReportedPlayer) = (snap.Step, _player);
         }
 
@@ -267,7 +280,9 @@ public partial class SimHost
             var kitBody = _kit is not null;
             if (asleep) { _lying.Add(id); } else { _lying.Remove(id); }
             p.Body.Position = new Vector3(at.X, Ground(at.X, at.Y) + (asleep && !kitBody ? 0.15f : 0), at.Y);
-            p.Body.Rotation = asleep && !kitBody ? new Vector3(-Mathf.Pi / 2, 0, 0) : new Vector3(0, walking ? Mathf.Atan2(step.X, step.Y) + Mathf.Pi : -snap.Yaw[i], 0);   // models face −Z
+            // Walking: face the way they move. Standing: the sim's yaw ψ = atan2(dx, −dz) means facing (sin ψ, −cos ψ), i.e. rotation π − ψ.
+            p.Body.Rotation = asleep && !kitBody ? new Vector3(-Mathf.Pi / 2, 0, 0) : new Vector3(0, (walking ? Mathf.Atan2(step.X, step.Y) : Mathf.Pi - snap.Yaw[i]) + ModelFlip, 0);
+            if (walking) { _walkSamples++; if (FacingDot(p.Body, step) < 0f) { _walkReversed++; } }
             var mps = walking ? step.Length() / Math.Max(delta, 1e-3f) / (float)Math.Max(Engine.TimeScale, 0.01) : 0f;
             var (clip, clipSpeed) = CharacterKit.ClipFor(action >= 0 ? _content!.Actions[action].Id : null, asleep, mps, id);
             PlayClip(p.Anim, clip, clipSpeed);

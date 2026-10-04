@@ -97,6 +97,52 @@ public sealed class CharacterKit
         return (body, anim, heads);
     }
 
+    /// <summary>
+    /// `--facing-check`: measures, in the body's own space, which way the face points (the nose side of the head mesh) and
+    /// which way each locomotion clip travels (the planted foot slides backward relative to the body, so travel is the
+    /// opposite of the planted foot's motion). Prints both as ±Z.
+    /// </summary>
+    public string FacingReport(Node parent)
+    {
+        var lines = new List<string>();
+        var (body, anim, _) = Spawn(0, 1, []);
+        parent.AddChild(body);
+        var meshes = new List<MeshInstance3D>();
+        Collect(body, meshes);
+        var head = meshes.First(m => m.Name.ToString().StartsWith("Head_", StringComparison.Ordinal));
+        var verts = head.Mesh.SurfaceGetArrays(0)[(int)Mesh.ArrayType.Vertex].AsVector3Array();
+        var c = verts.Aggregate(Vector3.Zero, (a, v) => a + v) / verts.Length;
+        float maxZ = verts.Max(v => v.Z) - c.Z, minZ = c.Z - verts.Min(v => v.Z);
+        lines.Add($"face: head mesh extends +Z {maxZ:F3} m, −Z {minZ:F3} m → nose toward {(maxZ > minZ ? "+Z" : "−Z")}");
+        var skeleton = body.FindChildren("*", "Skeleton3D", true, false).OfType<Skeleton3D>().First();
+        var foot = skeleton.FindBone("LeftFoot");
+        foreach (var clip in new[] { "walk", "jog", "sprint" })
+        {
+            if (!anim.HasAnimation(clip)) { continue; }
+            anim.Play(clip);
+            var len = anim.GetAnimation(clip).Length;
+            var samples = new List<(float Y, float Z)>();
+            for (var k = 0; k <= 60; k++)
+            {
+                anim.Seek(len * k / 60.0, true);
+                var p = skeleton.GetBoneGlobalPose(foot).Origin;
+                samples.Add((p.Y, p.Z));
+            }
+
+            var low = samples.Min(s => s.Y);
+            float slide = 0;
+            for (var k = 1; k < samples.Count; k++)
+            {
+                if (samples[k].Y < low + 0.02f && samples[k - 1].Y < low + 0.02f) { slide += samples[k].Z - samples[k - 1].Z; }
+            }
+
+            lines.Add($"{clip}: planted foot slides {slide:+0.000;-0.000} m along Z → travels toward {(slide < 0 ? "+Z" : "−Z")}");
+        }
+
+        body.QueueFree();
+        return string.Join("\n", lines);
+    }
+
     private static void Collect(Node n, List<MeshInstance3D> into)
     {
         if (n is MeshInstance3D m) { into.Add(m); }

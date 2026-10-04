@@ -106,6 +106,13 @@ public partial class SimHost : Node3D
         }
 
         var args = OS.GetCmdlineUserArgs();
+        if (args.Contains("--facing-check") && CharacterKit.Load() is { } kit)   // dev: which way the body faces vs which way its clips walk
+        {
+            GD.Print("SimHost: facing\n" + kit.FacingReport(this));
+            GetTree().Quit();
+            return;
+        }
+
         var shot = Array.IndexOf(args, "--shot");   // dev: `-- --shot out.png 20` saves a screenshot after 20 s and quits
         if (shot >= 0 && shot + 2 < args.Length) { (_shotPath, _shotAt) = (args[shot + 1], double.Parse(args[shot + 2], System.Globalization.CultureInfo.InvariantCulture)); }
         var fps = Array.IndexOf(args, "--fps");   // dev: `-- --fps 60` logs frame-time percentiles over 60 s (after 3 s warm-up) and quits
@@ -229,6 +236,7 @@ public partial class SimHost : Node3D
             if (island.Map.Landing is { } l) { Expect("wreck offshore (ground below sea level)", island.HeightAt(l.WreckX, l.WreckZ) < 0f ? 1 : 0, 1, 0); }
             var standing = _people.Values.Count(p => Math.Abs(p.Body.Position.Y - Ground(p.Body.Position.X, p.Body.Position.Z)) < 0.2f);
             Expect("settlers with bodies on the ground", standing, 24, 0);
+            _walkSamples = _walkReversed = 0;   // counted from here while the settlers go about their work
             GD.Print("SimHost: " + island.Report);
         }
 
@@ -301,6 +309,7 @@ public partial class SimHost : Node3D
                 _autotestPhase = 9;
                 break;
             case 9:
+                Expect($"walking settlers face where they go ({_walkReversed} of {_walkSamples} frames backwards)", _walkSamples > 50 && _walkReversed == 0 ? 1 : 0, 1, 0);
                 _autotestWalkTo = null;
                 foreach (var line in _autotestResults) { GD.Print(line); }
                 GD.Print($"SimHost: ISLAND AUTOTEST {(_autotestFailed ? "FAIL" : "PASS")}");
