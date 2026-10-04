@@ -89,7 +89,7 @@ public sealed record ScenarioDef
         world.Decisions.Register(new Sim.Social.BeingToldOwner());
         world.Decisions.Register(new Sim.Economy.TradeOwner());
         return world.AddSystem(new SkillSystem()).AddSystem(new ActivitySystem()).AddSystem(new StaminaSystem()).AddSystem(new ExposureSystem()).AddSystem(new HealthSystem()).AddSystem(new NeedsDecaySystem()).AddSystem(new PsychologySystem())
-            .AddSystem(new Lod3System()).AddSystem(new SocialSystem()).AddSystem(new InteractionSystem()).AddSystem(new ProcessSystem()).AddSystem(new RegrowthSystem()).AddSystem(new ContagionSystem());
+            .AddSystem(new Lod3System()).AddSystem(new SocialSystem()).AddSystem(new InteractionSystem()).AddSystem(new ProcessSystem()).AddSystem(new RegrowthSystem()).AddSystem(new ContagionSystem()).AddSystem(new SpoilageSystem());
     }
 
     public static ScenarioDef Load(string path)
@@ -207,6 +207,9 @@ public sealed record CampDef
     /// <summary>M2-FP1: <c>landing</c> moves the camp onto the generated island's landing (<see cref="CampAnchor"/>); empty keeps the coordinates.</summary>
     public string? Anchor { get; init; }
 
+    /// <summary>11 §10.5 rationing of the camp store: 100 (full), 75, 50 or 33 percent of a ration a day per person.</summary>
+    public int Ration { get; init; } = 100;
+
     /// <summary>11 §11.1: the camp's water place — spring, stream, river, lake or marsh (c_src 0 / 0.02 / 0.04 / 0.05 / 0.30).</summary>
     public string WaterSource { get; init; } = "stream";
     public bool Coastal { get; init; } = true;           // within 500 m of the sea (coastF 0.7)
@@ -241,7 +244,7 @@ public sealed record CampDef
         {
             Active = 1, Food = Food, Firewood = Firewood, FireFuelMin = FireFuelMin, Bedding = Bedding,
             BeddingInsulation = BeddingInsulation, ShelterWindBlock = Shelter.WindBlock, ShelterRainBlock = Shelter.RainBlock,
-            ShelterInsulation = Shelter.Insulation, ShelterSleeps = (byte)Math.Clamp(Shelter.Sleeps, 1, 255), ShelterAreaM2 = Shelter.AreaM2, ElevationM = ElevationM, Coastal = Coastal ? (byte)1 : (byte)0, Kit = KitOf(content),
+            ShelterInsulation = Shelter.Insulation, ShelterSleeps = (byte)Math.Clamp(Shelter.Sleeps, 1, 255), RationPct = (byte)Math.Clamp(Ration, 0, 100), ShelterAreaM2 = Shelter.AreaM2, ElevationM = ElevationM, Coastal = Coastal ? (byte)1 : (byte)0, Kit = KitOf(content),
             WaterContamination = WaterSource switch { "spring" or "rain" => 0f, "well" => 0.01f, "river" => 0.04f, "lake" => 0.05f, "marsh" => 0.30f, _ => 0.02f },
             Schedule = handle < 0 ? (ushort)0xFFFF : (ushort)handle,
             FireX = P("fire").X, FireZ = P("fire").Z, StoresX = P("stores").X, StoresZ = P("stores").Z,

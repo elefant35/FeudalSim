@@ -888,6 +888,13 @@ Why this matters: the harvest comes in Autumn 1–6, and food must last to rough
 year, **14–20 game days**. Only salted, dried and grain-stored food spans that gap. Smoking alone
 does not.
 
+*Implementation notes (M2-07b-ii):* each food stack keeps a 16-bit spoil counter (F = 1 − spoil/65535), averaged when
+stacks merge and kept when they move. `SpoilageSystem` ages every stack once an hour with tempF from the air at the camp
+(containerF 1: everything is a pile or a sack until 14's stores; quality and pest loss wait for them too). Eating
+applies the bands above: stale ×0.9 (flesh p 0.02), spoiled flesh at full value with p 0.35, spoiled other food refused
+unless Ravenous (×0.5, p 0.15), rotten stacks discarded (`FoodRotted`). The camp's provisions stock does not spoil yet:
+biscuit and salt pork keep 32–64 days, longer than M2's runs.
+
 ### 10.5 Famine dynamics & rationing
 
 - **FoodDays** = spoilage-projected store Sat ÷ daily demand. It is a sim truth. People hold
@@ -917,6 +924,16 @@ does not.
 
 - **Seed grain** is a store tag. Eating it requires the custodian's action or theft. It creates a
   shared memory ("the winter we ate the seed") with salience 80 ([16](16-social-systems.md)).
+
+*Implementation notes (M2-07b-ii):* a camp's `ration` (scenario `camp.ration`: 100, 75, 50 or 33) caps what each
+person draws from the store a day at that share of 95 Sat. Eating stops once the day's share is eaten, and the meal
+isn't chosen again until the next day. The allocation rules (equal, by work, by rank, need first), the
+custodian's belief about FoodDays and the pressure ladder need 17's governance and 21's AI and come later. §6.1's tier
+effects are in `Survival/Fitness.cs` (work, healing, susceptibility; the varied diet's healing ×1.1). The Underfed
+TempMods and the mood terms wait for 12's TempMod hooks and 21's mood inputs. **Finding (Q13, 31 D48):** §23's
+T-STARVE-01 ½ and ¾ bands come from the famine table, which leaves out the starting Satiety reserve. By §6.1's own
+rule a full person on ½ rations dies on day ≈ 10.5 (band 8.5–10.5), and on ¾ rations has S ≈ 22–27 on day 8 (band
+40–55). The test holds the rule.
 
 ---
 
@@ -1560,6 +1577,11 @@ diagnosis, or how much food a ration holds.
 12. **Q12: condition modelling choices** (§7.5): sleeping rooms by row order in the camp's shelters, food poisoning's
     `adult` multiplier, starvation demand from the activity level, and the deferred effects. Applied (reversible);
     confirm or override. (M2-07a.)
+13. **Q13: the famine table vs §6.1 (T-STARVE-01).** The table's ½ and ¾ rows (and §23's bands) count starvation from
+    day 1 as if the Satiety reserve were spent. A full person on ¾ rations takes ≈ 4 days to empty it, so by day 8 they
+    have S ≈ 22–27, not 40–55, and on ½ rations die on day ≈ 10.5. Should §23 follow the rule (recommended: ½ death
+    9.8–11.2, ¾ S 18–32 on day 8), or should the rule accrue a share of the deficit before Satiety reaches 0? (M2-07b-ii;
+    31 D48.)
 
 ## Proposed canon additions
 

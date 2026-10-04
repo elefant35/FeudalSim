@@ -2,6 +2,6 @@
 # Base values in farthings from docs/design/15-economy-and-trade.md §3.
 - { id: item.grain_barley, name: Barley (grain), category: food,  tier: t0, trade_unit: kg,                mass_kg: 1,   base_value_f: 2, food: { sat: 140, groups: { staple: 1 }, shelf_days: 24, raw_mult: 0.5, raw_poison_p: 0.25 } }
 - { id: item.bread_loaf,   name: Bread loaf,     category: food,  tier: t1, trade_unit: 1 kg loaf,         mass_kg: 1,   base_value_f: 3, food: { sat: 100, groups: { staple: 1 }, shelf_days: 3 } }
-- { id: item.fish_fresh,   name: Fresh fish,     category: food,  tier: t0, trade_unit: kg,                mass_kg: 1,   base_value_f: 1, food: { sat: 55, groups: { protein: 1 }, shelf_days: 1, raw_mult: 0.85, raw_poison_p: 0.08 } }
-- { id: item.fish_salt,    name: Salt fish,      category: food,  tier: t0, trade_unit: kg,                mass_kg: 1,   base_value_f: 4, food: { sat: 70, groups: { protein: 1 }, shelf_days: 32 } }
+- { id: item.fish_fresh,   name: Fresh fish,     category: food,  tier: t0, trade_unit: kg,                mass_kg: 1,   base_value_f: 1, food: { sat: 55, groups: { protein: 1 }, shelf_days: 1, raw_mult: 0.85, raw_poison_p: 0.08, flesh: true } }
+- { id: item.fish_salt,    name: Salt fish,      category: food,  tier: t0, trade_unit: kg,                mass_kg: 1,   base_value_f: 4, food: { sat: 70, groups: { protein: 1 }, shelf_days: 32, flesh: true } }
 - { id: item.ale,          name: Ale,            category: drink, tier: t1, trade_unit: gallon (4.5 L),    mass_kg: 4.6, base_value_f: 4 }

@@ -87,6 +87,9 @@
           },
           "raw_poison_p": {
             "type": "number"
+          },
+          "flesh": {
+            "type": "boolean"
           }
         },
         "required": [

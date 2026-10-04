@@ -72,6 +72,10 @@ public struct Diet
 {
     public float Staple, Protein, Fresh;
     public long AtMin;
+
+    /// <summary>11 §10.5: Satiety drawn from the camp's store on <see cref="StoreDay"/> (rations cap it).</summary>
+    public float StoreSatToday;
+    public int StoreDay;
 }
 
 /// <summary>Needs, 0–100 where 100 = fully satisfied (canon §10.5).</summary>

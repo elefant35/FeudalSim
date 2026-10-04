@@ -162,7 +162,7 @@ public static class Processes
             HasLight: true, MinigameM: minigameM), ref rng);
 
         var toolFactor = stage.ToolFactor?.GetValueOrDefault(tier.ToString().ToLowerInvariant()) is { } tf and > 0f ? tf : 1f;   // 13 §3.1 TaskToolFactor
-        var labor = stage.LaborMin * toolFactor / res.WorkRate * (1.10f - (0.002f * res.PerformanceScore)) * (p.Masterwork ? 1.5f : 1f) * laborScale;
+        var labor = stage.LaborMin * toolFactor / (res.WorkRate * Survival.Fitness.WorkMult(world, worker)) * (1.10f - (0.002f * res.PerformanceScore)) * (p.Masterwork ? 1.5f : 1f) * laborScale;
         if (def.Risk is { } risk) { Accident(world, p, worker, risk, labor / 60f, skill); }
         var remaining = MathF.Max(0f, labor - (0.8f * realSeconds));
         Wear(world, p, def, stage, labor);

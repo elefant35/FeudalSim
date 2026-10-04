@@ -61,11 +61,11 @@ public sealed class HealthSystem : ISimSystem
             var level = people.Activity[i].Level;
             var age = (now - people.Core[i].BirthGameMinute) / Time.GameDate.MinutesPerYear;
             var endurance = Skills.Skills.Attribute(world, i, "end");
-            var m = HealthRules.HealMultiplier(level, n.Satiety, age < 14, age >= 65, endurance, n.Warmth, treatment: 1f);
+            var m = HealthRules.HealMultiplier(level, n.Satiety, age < 14, age >= 65, endurance, n.Warmth, treatment: 1f) * Survival.Fitness.HealMult(world, i);   // M2-07b-ii: starvation tiers, varied diet
             var bedRest = level is ActivityLevel.Sleep or ActivityLevel.Rest || v.Down;
             var slotTo = now / 360;
             var slotFrom = (now - (long)MathF.Round(dtH * 60f)) / 360;
-            var susceptibility = Treatment.Susceptibility(n.Satiety, age >= 65, n.Warmth);
+            var susceptibility = Treatment.Susceptibility(n.Satiety, age >= 65, n.Warmth) * Survival.Fitness.StarvationSusceptibility(people.Vitals[i].Starvation);
             for (var k = list.Count - 1; k >= 0; k--)
             {
                 var inj = list[k];

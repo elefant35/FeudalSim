@@ -138,6 +138,95 @@ public sealed class EatingTests
         p.Step().Events.Select(e => e.Payload).OfType<Ate>().ShouldHaveSingleItem().Item.ShouldBe(H("item.bread_loaf"));
     }
 
+    [Fact]
+    public void FreshFish_GoesStaleInHalfADayAt10C_AndRotsInADay_FasterWhenWarm()   // 11 §10.4
+    {
+        Sim.Systems.SpoilageSystem.TempFactor(10f).ShouldBe(1f);
+        Sim.Systems.SpoilageSystem.TempFactor(20f).ShouldBe(2f, 1e-4f);
+        Sim.Systems.SpoilageSystem.TempFactor(0f).ShouldBe(0.5f, 1e-4f);
+        Sim.Systems.SpoilageSystem.TempFactor(-5f).ShouldBe(0.05f);
+        Sim.Systems.SpoilageSystem.TempFactor(40f).ShouldBe(3f);
+
+        var w = Camp();
+        const int row = 3;
+        var id = w.People.Ids[row];
+        var rotted = new List<(ulong Container, int Item, int Qty)>();
+        w.Inventory.Add(id, H("item.fish_fresh"), 3);
+        w.Inventory.AgeFood(Content, 1f, 12f, rotted);
+        w.Inventory.Of(id).Single(x => x.Item == H("item.fish_fresh")).Freshness.ShouldBe(0.5f, 0.001f);   // stale
+        w.People.Needs[row].Satiety = 0f;
+        Eating.Feed(w, row, H("item.fish_fresh")).ShouldBeNull();
+        w.People.Needs[row].Satiety.ShouldBe(55f * 0.85f * 0.9f, 0.01f);   // stale ×0.9
+
+        w.Inventory.Add(id, H("item.fish_fresh"), 1);   // a fresh one joins: the stack's spoil averages (2 × 0.5 + 1 × 0) / 3
+        w.Inventory.Of(id).Single(x => x.Item == H("item.fish_fresh")).Freshness.ShouldBe(2f / 3f, 0.001f);
+        w.Inventory.AgeFood(Content, 1f, 15f, rotted);   // 2/3 of a day's freshness left: rots after 16 h
+        rotted.ShouldBeEmpty();
+        w.Inventory.AgeFood(Content, 1f, 1f, rotted);
+        rotted.ShouldHaveSingleItem().Qty.ShouldBe(3);
+        w.Inventory.Count(id, H("item.fish_fresh")).ShouldBe(0);
+    }
+
+    [Fact]
+    public void SpoiledBerries_OnlyTheRavenousEat_AtHalfValue()   // 11 §10.4: spoiled non-flesh inedible except to the Ravenous
+    {
+        var w = Camp();
+        const int row = 5;
+        var id = w.People.Ids[row];
+        w.Inventory.Add(id, H("item.blackberries"), 2, spoil: 60000);   // F ≈ 0.08
+        w.People.Needs[row].Satiety = 50f;
+        Eating.Feed(w, row, H("item.blackberries"))!.ShouldStartWith("it has spoiled");
+        w.People.Needs[row].Satiety = 10f;   // Ravenous
+        Eating.Feed(w, row, H("item.blackberries")).ShouldBeNull();
+        w.People.Needs[row].Satiety.ShouldBe(10f + (16f * 0.5f), 0.01f);
+    }
+
+    [Fact]
+    public void TheCampOnHalfRations_DrawsHalfAFullRationEachADay()   // 11 §10.5
+    {
+        var def = ScenarioDef.Load(Path.Combine(RepoRoot(), "content", "scenarios", "m1_camp.yaml"));
+        float Drawn(int ration)
+        {
+            var w = (def with { Camp = (def.Camp ?? new CampDef()) with { Ration = ration } }).CreateWorld(Content, SerialJobScheduler.Instance);
+            w.Step();
+            var perDay = new Dictionary<(int Row, int Day), float>();
+            for (var s = 0; s < 18_000 * 2; s++)   // from Spring 1 16:00 through the whole of Spring 2
+            {
+                w.Step();
+                for (var r = 0; r < w.People.Count; r++) { perDay[(r, w.People.Diet[r].StoreDay)] = w.People.Diet[r].StoreSatToday; }
+            }
+
+            var day = (int)(w.Clock.GameMinute / 1440) - 1;   // the last complete day
+            var drawn = Enumerable.Range(0, w.People.Count).Select(r => perDay.GetValueOrDefault((r, day))).ToList();
+            drawn.ShouldAllBe(x => x <= (Eating.FullRationSat * Math.Min(ration, 99) / 100f) + 0.01f || ration >= 100);
+            return drawn.Average();
+        }
+
+        var full = Drawn(100);
+        var half = Drawn(50);
+        full.ShouldBeGreaterThan(70f);
+        half.ShouldBeInRange(40f, 47.6f);   // the cap (47.5) binds
+    }
+
+    [Fact]
+    public void Starving_HalvesWork_AndHealing_AndDoublesSusceptibility()   // 11 §6.1
+    {
+        var w = Camp();
+        const int row = 7;
+        w.People.Needs[row] = Sim.World.Needs.Full;
+        Fitness.WorkMult(w, row).ShouldBe(1f);
+        w.People.Vitals[row].Starvation = 80f;
+        Fitness.WorkMult(w, row).ShouldBe(0.5f);
+        Fitness.HealMult(w, row).ShouldBe(0.2f);
+        Fitness.StarvationSusceptibility(80f).ShouldBe(2f);
+        w.People.Vitals[row].Starvation = 55f;
+        Fitness.WorkMult(w, row).ShouldBe(0.8f);
+        Fitness.StarvationSusceptibility(30f).ShouldBe(1.2f);
+        w.People.Vitals[row].Starvation = 0f;
+        w.People.Needs[row].Satiety = 10f;   // Ravenous (§2.2)
+        Fitness.WorkMult(w, row).ShouldBe(0.8f);
+    }
+
     private static string RepoRoot()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);

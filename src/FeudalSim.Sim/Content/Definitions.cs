@@ -78,6 +78,9 @@ public sealed record FoodDef
     public float RawMult { get; init; } = 1f;
 
     public float RawPoisonP { get; init; }
+
+    /// <summary>Meat or fish (11 §10.4: stale flesh poisons with p 0.02, spoiled with p 0.35).</summary>
+    public bool Flesh { get; init; }
 }
 
 /// <summary>

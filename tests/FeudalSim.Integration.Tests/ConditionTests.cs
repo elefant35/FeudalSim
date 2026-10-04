@@ -311,6 +311,47 @@ public sealed class ConditionTests
         w.People.Vitals[row].Cause.ShouldBe(VitalCause.Starvation);
     }
 
+    private static readonly int[] MealTimes = [8 * 60, 18 * 60];
+
+    /// <summary>A standard day on a ration: Satiety decays by the §2.1 table; meals of ration/2 Sat at 08:00 and 18:00.</summary>
+    private (float Day, float Starvation) OnRation(SimWorld w, int row, float rationSat, float days)
+    {
+        var n = Needs.Full;
+        for (var m = 1; m <= days * 1440; m++)
+        {
+            var hour = (m - 1) / 60 % 24;
+            var level = StandardDay(hour);
+            n.Satiety = MathF.Max(0f, n.Satiety - (NeedsDecaySystem.Rate(Content, "need.satiety", level, 0f) / 60f));
+            var minuteOfDay = (m - 1) % 1440;
+            if (Array.IndexOf(MealTimes, minuteOfDay) >= 0) { n.Satiety = MathF.Min(100f, n.Satiety + (rationSat / MealTimes.Length)); }
+            (n.Hydration, n.Energy) = (100f, 80f);
+            w.People.Needs[row] = n;
+            w.People.Activity[row].Level = level;
+            HealthSystem.Update(w, row, 1f / 60f, w.Clock.GameMinute + ++_offset);
+            if (w.IsDead(row)) { return (m / 1440f, w.People.Vitals[row].Starvation); }
+        }
+
+        return (days, w.People.Vitals[row].Starvation);
+    }
+
+    /// <summary>
+    /// T-STARVE-01's ½ and ¾ rows against §6.1's own rule: a full person's Satiety reserve (100) lasts 100 / (95 − intake)
+    /// days, then Starvation gains 0.25 × the daily deficit. ½: 2.1 d + 100 / 11.9 ≈ 10.5 d; ¾: 4.2 d, then +5.9/day → S ≈ 22
+    /// on day 8. §23's bands (death 8.5–10.5; S 40–55 on day 8) come from the famine table, which leaves the reserve out —
+    /// calibration finding 31 D48 (owner decision pending); this test holds the formula, ±7 % for meal timing.
+    /// </summary>
+    [Fact]
+    public void Rations_StarveAsSection6_1Says_ReserveFirstThenAQuarterOfTheDeficit()   // 11 §6.1, §23 T-STARVE-01 (½, ¾; D48)
+    {
+        var w = Camp();
+        var row = AdultRow(w);
+        OnRation(w, row, 0.5f * Sim.Survival.Eating.FullRationSat, 14f).Day.ShouldBeInRange(9.8f, 11.2f);
+        var w2 = Camp();
+        var (day, s) = OnRation(w2, row, 0.75f * Sim.Survival.Eating.FullRationSat, 8f);
+        day.ShouldBe(8f);   // alive after 8 days
+        s.ShouldBeInRange(18f, 32f);
+    }
+
     private static string RepoRoot()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);

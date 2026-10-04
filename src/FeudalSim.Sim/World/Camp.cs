@@ -27,6 +27,9 @@ public struct CampRecord
     /// so row / <see cref="ShelterSleeps"/> is a sleeper's room (11 §7.3 "same sleeping room") until households own huts.
     /// </summary>
     public byte ShelterSleeps;
+
+    /// <summary>11 §10.5 the store's ration: percent of a full ration (95 Sat a day) each person may draw; 0 or 100 = no limit.</summary>
+    public byte RationPct;
     public float ShelterAreaM2;
 
     public readonly (float X, float Z) Place(PlaceKind kind) => kind switch

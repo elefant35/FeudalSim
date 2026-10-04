@@ -39,7 +39,7 @@ public sealed class ContagionSystem : ISimSystem
                 {
                     if (j == i || !Sleeper(world, j) || world.Conditions.Has(people.Ids[j], d) || world.Conditions.Immune(people.Ids[j], d, ctx.GameMinute)) { continue; }
                     var age = (ctx.GameMinute - people.Core[j].BirthGameMinute) / Time.GameDate.MinutesPerYear;
-                    var sus = Health.Treatment.Susceptibility(people.Needs[j].Satiety, age >= 65, people.Needs[j].Warmth);
+                    var sus = Health.Treatment.Susceptibility(people.Needs[j].Satiety, age >= 65, people.Needs[j].Warmth) * Survival.Fitness.StarvationSusceptibility(people.Vitals[j].Starvation);
                     var p = 1f - MathF.Exp(-beta * w * inf * sus);
                     var rng = new Core.Rng(Core.SplitMix64.Mix(world.WorldSeed, (ulong)Core.RngStream.Health, people.Ids[j].Value, (ulong)ctx.GameMinute, ((ulong)(uint)d << 8) | Core.Salt.Contagion));
                     if (rng.Chance(p)) { Health.Conditions.Infect(world, j, d, (ulong)i); }

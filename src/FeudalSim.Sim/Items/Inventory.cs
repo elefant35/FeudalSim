@@ -12,7 +12,12 @@ public struct Slot
 {
     public ulong Instance;
     public int Item, Qty, Label;
-    public byte Q, Reserved0, Reserved1, Reserved2;
+    public byte Q, Reserved0;
+
+    /// <summary>11 §10.4 spoilage of a food stack: 0 fresh … 65535 rotten (freshness F = 1 − Spoil/65535). Old saves read 0.</summary>
+    public ushort Spoil;
+
+    public readonly float Freshness => 1f - (Spoil / 65535f);
 
     /// <summary>The item as its holders see it.</summary>
     public readonly int Seen => Label >= 0 ? Label : Item;
@@ -100,7 +105,7 @@ public sealed class InventoryStore
 
     /// <summary>Adds a commodity quantity at quality <paramref name="q"/> (a faucet: gathering, harvest, salvage, scenarios),
     /// believed to be <paramref name="label"/> (−1: known for what it is). Stacks merge only with the same label.</summary>
-    public void Add(EntityId container, int item, int qty, int q = 50, int label = -1)
+    public void Add(EntityId container, int item, int qty, int q = 50, int label = -1, ushort spoil = 0)
     {
         if (qty <= 0) { return; }
         if (label == item) { label = -1; }
@@ -110,12 +115,13 @@ public sealed class InventoryStore
         {
             var s = list[at];
             s.Q = MergeQ(s.Q, s.Qty, q, qty);
+            s.Spoil = (ushort)Math.Round(((s.Spoil * (double)s.Qty) + (spoil * (double)qty)) / (s.Qty + qty), MidpointRounding.AwayFromZero);   // mixed stacks average
             s.Qty += qty;
             list[at] = s;
             return;
         }
 
-        Insert(list, new Slot { Item = item, Qty = qty, Q = (byte)Math.Clamp(q, 0, 100), Label = label });
+        Insert(list, new Slot { Item = item, Qty = qty, Q = (byte)Math.Clamp(q, 0, 100), Label = label, Spoil = spoil });
     }
 
     /// <summary>13 §5.9: merging stacks averages Q by quantity (rounded half away from zero — never banker's rounding).</summary>
@@ -148,15 +154,17 @@ public sealed class InventoryStore
     /// Takes one unit from the first commodity stack its holders see as <paramref name="seen"/> (11 §8.2: a mislabelled
     /// stack gives up what it truly is). False if there is none.
     /// </summary>
-    public bool TakeOneSeen(EntityId container, int seen, out int item, out int q)
+    public bool TakeOneSeen(EntityId container, int seen, out int item, out int q) => TakeOneSeen(container, seen, out item, out q, out _);
+
+    public bool TakeOneSeen(EntityId container, int seen, out int item, out int q, out float freshness)
     {
-        (item, q) = (-1, 0);
+        (item, q, freshness) = (-1, 0, 1f);
         if (!_byContainer.TryGetValue(container.Value, out var list)) { return false; }
         for (var k = 0; k < list.Count; k++)
         {
             var s = list[k];
             if (s.Instance != 0 || s.Seen != seen) { continue; }
-            (item, q) = (s.Item, s.Q);
+            (item, q, freshness) = (s.Item, s.Q, s.Freshness);
             if (--s.Qty == 0) { list.RemoveAt(k); } else { list[k] = s; }
             if (list.Count == 0) { _byContainer.Remove(container.Value); }
             return true;
@@ -183,7 +191,7 @@ public sealed class InventoryStore
             s.Qty -= n;
             qty -= n;
             if (s.Qty == 0) { list.RemoveAt(stack); } else { list[stack] = s; }
-            if (to is { } dest) { Add(new EntityId(dest), item, n, s.Q, s.Label); }
+            if (to is { } dest) { Add(new EntityId(dest), item, n, s.Q, s.Label, s.Spoil); }
         }
 
         while (qty > 0)
@@ -236,6 +244,40 @@ public sealed class InventoryStore
         while (at < list.Count && (list[at].Item < slot.Item || (list[at].Item == slot.Item && (list[at].Instance < slot.Instance
             || (list[at].Instance == slot.Instance && list[at].Label < slot.Label))))) { at++; }
         list.Insert(at, slot);
+    }
+
+    /// <summary>
+    /// 11 §10.4: ages every food stack by <paramref name="hours"/> at temperature factor <paramref name="tempF"/>
+    /// (dF/day = tempF / shelf life); stacks that reach F = 0 rot away and are reported in <paramref name="rotted"/>.
+    /// Containers in id order, slots in order: deterministic.
+    /// </summary>
+    public void AgeFood(ContentDatabase content, float tempF, float hours, List<(ulong Container, int Item, int Qty)> rotted)
+    {
+        rotted.Clear();
+        List<ulong>? empty = null;
+        foreach (var (container, list) in _byContainer)
+        {
+            for (var k = list.Count - 1; k >= 0; k--)
+            {
+                var s = list[k];
+                if (s.Instance != 0 || content.Items[s.Item].Food is not { } food || food.ShelfDays <= 0f) { continue; }
+                var add = 65535.0 * tempF * hours / (food.ShelfDays * 24.0);
+                var spoil = s.Spoil + (int)Math.Round(add, MidpointRounding.AwayFromZero);
+                if (spoil >= 65535)
+                {
+                    rotted.Add((container, s.Item, s.Qty));
+                    list.RemoveAt(k);
+                    continue;
+                }
+
+                s.Spoil = (ushort)spoil;
+                list[k] = s;
+            }
+
+            if (list.Count == 0) { (empty ??= []).Add(container); }
+        }
+
+        foreach (var c in empty ?? []) { _byContainer.Remove(c); }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 4)]

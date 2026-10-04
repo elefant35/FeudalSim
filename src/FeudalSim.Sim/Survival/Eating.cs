@@ -35,7 +35,10 @@ public static class Eating
         if (seen < 0 || content.Items[seen].Food is null) { return "that isn't food"; }
         var people = world.People;
         var who = people.Ids[row];
-        if (!world.Inventory.TakeOneSeen(who, seen, out var item, out _)) { return "you have none"; }
+        var ravenous = people.Needs[row].Satiety < 20f;
+        if (FreshestSeen(world, who, seen) is not { } f) { return "you have none"; }
+        if (f <= SpoiledF && !ravenous && content.Items[seen].Food is { Flesh: false }) { return "it has spoiled (only the starving would eat it)"; }   // 11 §10.4
+        if (!world.Inventory.TakeOneSeen(who, seen, out var item, out _, out var freshness)) { return "you have none"; }
 
         var def = content.Items[item];
         var now = world.Clock.GameMinute;
@@ -44,15 +47,18 @@ public static class Eating
         {
             var absorb = Health.Conditions.Of(world, who).SatietyAbsorb;
             ref var n = ref people.Needs[row];
-            sat = MathF.Min(100f - n.Satiety, food.Sat * food.RawMult * absorb);
+            // 11 §10.4: stale ×0.9; spoiled flesh full value but likely poisonous; spoiled other food ×0.5 (eaten only when Ravenous).
+            var (fresh, poison) = freshness > StaleF ? (1f, 0f) : freshness > SpoiledF ? (0.9f, food.Flesh ? 0.02f : 0f) : food.Flesh ? (1f, 0.35f) : (0.5f, 0.15f);
+            sat = MathF.Min(100f - n.Satiety, food.Sat * food.RawMult * fresh * absorb);
             n.Satiety += sat;
             n.Hydration = MathF.Min(100f, n.Hydration + food.Hyd);
             Record(world, row, food.Sat * food.RawMult * food.Groups.GetValueOrDefault("staple"), food.Sat * food.RawMult * food.Groups.GetValueOrDefault("protein"),
                 food.Sat * food.RawMult * food.Groups.GetValueOrDefault("fresh"));
-            if (food.RawPoisonP > 0f)
+            var p = 1f - ((1f - food.RawPoisonP) * (1f - poison));
+            if (p > 0f)
             {
                 var rng = new Rng(SplitMix64.Mix(world.WorldSeed, (ulong)RngStream.Health, who.Value, (ulong)now, Salt.Eat ^ ((ulong)(uint)item << 8)));
-                if (rng.Chance(food.RawPoisonP)) { Health.Conditions.Infect(world, row, content.DiseaseHandle("disease.food_poisoning"), (ulong)now); }
+                if (rng.Chance(p)) { Health.Conditions.Infect(world, row, content.DiseaseHandle("disease.food_poisoning"), (ulong)now); }
             }
         }
 
@@ -68,6 +74,40 @@ public static class Eating
         var now = world.Clock.GameMinute;
         var keep = d.AtMin == 0 ? 0f : SimMath.Exp(-(now - d.AtMin) / DietTauMin);
         (d.Staple, d.Protein, d.Fresh, d.AtMin) = ((d.Staple * keep) + staple, (d.Protein * keep) + protein, (d.Fresh * keep) + fresh, now);
+    }
+
+    /// <summary>11 §10.4 freshness bands: fresh above 0.6, stale to 0.2, spoiled below.</summary>
+    public const float StaleF = 0.6f, SpoiledF = 0.2f;
+
+    /// <summary>The freshness of the first stack the person would eat from (as <see cref="InventoryStore.TakeOneSeen"/> picks), or null.</summary>
+    private static float? FreshestSeen(SimWorld world, Core.EntityId who, int seen)
+    {
+        foreach (var s in world.Inventory.Of(who)) { if (s.Instance == 0 && s.Seen == seen) { return s.Freshness; } }
+        return null;
+    }
+
+    /// <summary>11 §10.1: a full ration is 95 Sat a day (one adult's moderate day).</summary>
+    public const float FullRationSat = 95f;
+
+    /// <summary>
+    /// 11 §10.5: what the person may still draw from the camp's store today under its ration (∞ at a full ration).
+    /// </summary>
+    public static float StoreLeft(SimWorld world, int row)
+    {
+        var pct = world.Camp.RationPct;
+        if (pct is 0 or >= 100) { return float.MaxValue; }
+        ref readonly var d = ref world.People.Diet[row];
+        var today = (int)(world.Clock.GameMinute / 1440);
+        return MathF.Max(0f, (FullRationSat * pct / 100f) - (d.StoreDay == today ? d.StoreSatToday : 0f));
+    }
+
+    /// <summary>Counts Satiety drawn from the store today.</summary>
+    public static void CountStore(SimWorld world, int row, float sat)
+    {
+        ref var d = ref world.People.Diet[row];
+        var today = (int)(world.Clock.GameMinute / 1440);
+        if (d.StoreDay != today) { (d.StoreDay, d.StoreSatToday) = (today, 0f); }
+        d.StoreSatToday += sat;
     }
 
     /// <summary>How many of the three groups make up ≥ 15 % of recent eating (3 varied, 2 plain, 1 monotonous; 0 = nothing eaten yet).</summary>

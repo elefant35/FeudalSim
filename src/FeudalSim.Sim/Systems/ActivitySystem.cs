@@ -277,8 +277,9 @@ public sealed class ActivitySystem : ISimSystem
         cls = (int)def.Class;
         if (def.ChosenBySystem && k != current) { return 0f; }   // e.g. converse: started by a conversation, never by the scorer
 
-        // Availability and satiation are hard gates.
+        // Availability and satiation are hard gates (the store's ration too, 11 §10.5).
         if (def.Requires is { } req) { foreach (var (stock, min) in req) { if (world.Camp.Stock(stock) < min) { return 0f; } } }
+        if (def.Consumes is { Stock: "food" } && Survival.Eating.StoreLeft(world, i) < 1f) { return 0f; }
         if (def.UntilNeed is { } until) { foreach (var (need, level) in until) { if (Need(n, need) >= level) { return 0f; } } }
         if (def.StartBelow is { } below && k != current && def.ScheduleBlock != block)
         {
@@ -385,8 +386,13 @@ public sealed class ActivitySystem : ISimSystem
                 if (def.Consumes is { } cons && gain > 0f)
                 {
                     gain = MathF.Min(gain, world.Camp.Stock(cons.Stock) / cons.Ratio);
+                    if (cons.Stock == "food") { gain = MathF.Min(gain, Survival.Eating.StoreLeft(world, i)); }   // 11 §10.5 rations
                     world.Camp.AddStock(cons.Stock, -gain * cons.Ratio);
-                    if (cons.Stock == "food" && gain > 0f) { Survival.Eating.Record(world, i, 0.6f * gain, 0.4f * gain, 0f); }   // 11 §10.3: provisions (biscuit, salt pork)
+                    if (cons.Stock == "food" && gain > 0f)
+                    {
+                        Survival.Eating.Record(world, i, 0.6f * gain, 0.4f * gain, 0f);   // 11 §10.3: provisions (biscuit, salt pork)
+                        Survival.Eating.CountStore(world, i, gain);
+                    }
                 }
 
                 SetNeed(ref n, need, Need(n, need) + MathF.Max(0f, gain));
@@ -396,7 +402,7 @@ public sealed class ActivitySystem : ISimSystem
 
         if (def.StockPerHour is { } stocks)
         {
-            var yield = def.Skill is null ? 1f : 0.6f + (0.8f * people.SkillLevels(i)[_skillHandle[act.Action]] / 100f);
+            var yield = (def.Skill is null ? 1f : 0.6f + (0.8f * people.SkillLevels(i)[_skillHandle[act.Action]] / 100f)) * Survival.Fitness.WorkMult(world, i);   // M2-07b-ii
             foreach (var (stock, perHour) in stocks) { world.Camp.AddStock(stock, perHour * dtH * (perHour > 0f ? yield : 1f)); }
         }
 
@@ -427,6 +433,7 @@ public sealed class ActivitySystem : ISimSystem
             }
         }
         if (def.Activity == ActivityLevel.Sleep && n.Warmth < 20f) { finished = true; }   // 11 §3.2: the cold wakes them
+        if (def.Consumes is { Stock: "food" } && Survival.Eating.StoreLeft(world, i) < 0.01f) { finished = true; }   // the day's ration is eaten
         if (finished) { act.EndGameMs = ctx.GameMs; }
     }
 
