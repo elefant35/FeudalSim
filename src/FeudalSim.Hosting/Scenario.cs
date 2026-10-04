@@ -93,6 +93,8 @@ public sealed record ScenarioDef
         {
             world.AddSystem(new Sim.Dialogue.ConversationSystem());   // Sense, after LOD: holds conversing NPCs before the AI decides
             world.Decisions.Register(new Sim.Dialogue.InitiativeOwner());
+            world.Decisions.Register(new Sim.Social.EscalationOwner());
+            world.Decisions.Register(new Sim.Social.BystanderOwner());
         }
 
         world

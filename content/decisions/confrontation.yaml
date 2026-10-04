@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=../schemas/dp.schema.json
+# Provocation and escalation (16 §9, 18 §4.1). The owner (16.escalation) computes the base propensities from the pressure
+# E and the rung caps (16 §9.2, §9.6); these entries give each option's family and stakes. Character terms are already in
+# E (anger, volatility, honor, traits, fear, opinion), so options carry none here.
+- id: dp.confrontation
+  owner: 16.escalation
+  description: >-
+    16 §9.6 — the provoked person's answer. The rung after each option is fixed: laugh_off 1, retort 2, threaten 3,
+    shove 4, attack_brawl 5, attack_armed 6, attack_to_kill 7, walk_away and deescalate 0, call_others unchanged.
+    M1 runs the ladder through rung 5 (a placeholder brawl); rungs 6–7 need weapons and lethal context (M2, 18).
+  options:
+    - { id: laugh_off,      family: deescalate, stakes: low,      favors_player: true, gloss: "laugh it off; let the remark pass" }
+    - { id: retort,         family: escalate,   stakes: low,      favors_player: true, gloss: "snap back at {player} with a retort" }
+    - { id: threaten,       family: escalate,   stakes: medium,   gloss: "square up to {player}: say that again and see" }
+    - { id: shove,          family: escalate,   stakes: high,     gloss: "shove {player} hard in the chest" }
+    - { id: attack_brawl,   family: escalate,   stakes: high,     gloss: "throw a punch at {player}; a fistfight" }
+    - { id: attack_armed,   family: escalate,   stakes: critical, gloss: "draw a weapon on {player}" }
+    - { id: attack_to_kill, family: escalate,   stakes: critical, gloss: "go for {player} meaning to kill" }
+    - { id: walk_away,      family: deescalate, stakes: low,      favors_player: true, gloss: "turn and walk away from {player}" }
+    - { id: deescalate,     family: deescalate, stakes: low,      favors_player: true, gloss: "back down: let's not do this" }
+    - { id: call_others,    family: intervention, stakes: low,    gloss: "call friends over to stand with you" }
+- id: dp.bystander
+  owner: 16.bystander
+  description: >-
+    16 §9.6 bystander DP — a witness within 25 m of a quarrel at rung ≥ 2 decides whether to step in. Decided by the fast
+    decider when the player is a party (at most 3 witnesses per exchange), else by the policy.
+  options:
+    - { id: step_in,     family: intervention, stakes: medium, gloss: "step between them and calm things down" }
+    - { id: call_others, family: intervention, stakes: low,    gloss: "shout for help from the others" }
+    - { id: ignore,      family: intervention, stakes: low,    gloss: "stay out of it and watch" }

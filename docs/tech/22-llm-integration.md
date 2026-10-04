@@ -917,8 +917,10 @@ is `Llm` is answered by the fast decider, then "policy, now".
 utility / value / emotion / need terms, `favors_player`, and a gloss with `{param}` slots). Owners decide which options
 are generated and eligible and supply source strengths; the DRE and §7.8 do the rest. `PlayerUtteranceClassified` exists
 in a first form (conversation, turn, act, act probability, injection probability, sanitized text); the extraction
-record and full probabilities are appended in M1-11. Each turn currently opens the initiative DP; response DPs arrive
-with their owners (M1-08 escalation, M1-09 social, M1-10 trade).
+record and full probabilities are appended in M1-11. Each turn opens the initiative DP and, for `insult` and `threaten` (M1-08), 16's
+`escalation.respond` DP with the act's default severity (insult 3, threaten 3; `PlayerUtteranceClassified.Severity`
+carries the classifier's 1–5 from M1-11). The player's act is committed first (`insulted_me`/`threatened_me`, memory,
+a first-hand claim for everyone within 25 m). The social (M1-09) and trade (M1-10) owners join the routing next.
 
 **Stakes** (canon §13.1) set the guard floor and the risk tier:
 

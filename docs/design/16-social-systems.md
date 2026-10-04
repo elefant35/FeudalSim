@@ -1161,6 +1161,13 @@ Op +35 toward Hobb; a stranger). No weapon at hand. The LLM decides for Hobb (§
    it would be ≈ 0.57 and would pass: words can start an armed fight only where the hard-coded
    temper already makes one likely.
 
+*Implemented (M1-08, `Sim/Social/Escalation.cs`, `EscalationOwner.cs`):* E, the noise, caps and the §9.6 menu
+reproduce this example: step 1 E 69.53 → `threaten` 0.89, `call_others` 0.10, `retort` 0.013; step 3 (E 91.7) →
+`attack_brawl` 0.87, `call_others` 0.10, `shove` 0.03; step 4 (E 75.7) → 0.57 / 0.26 / 0.10 / 0.07; the typical villager
+retorts 0.89 or laughs it off 0.11 (`EscalationTests`). **Correction:** step 3's "Anger 96.7" matches neither adding
+ΔAnger 52.8 (102 → capped 100) nor 21 §6.1's saturation (49.6 + 52.8·(1 − 49.6/150) = 84.9); E 91.7 is consistent with
+the saturated value (84.9 gives 92.3), so the code uses saturation and the step's E stands.
+
 ### 9.4 De-escalation
 
 - **Bystanders:** each witness with Op ≥ 30 to either party, an authority/kin role, or Warmth ≥ 65 (not
@@ -1192,6 +1199,16 @@ accepted (17) ∧ K1's head (or most Vengeful adult) is Vengeful or Honor ≥ 70
 `FeudDeclared(K1, K2, grievanceEvents)` to 18, which owns feud conduct (revenge, raids, settlement).
 Declaring a feud is a **critical** option (canon §13.1): it stays this daily policy roll, and because
 0.05 never reaches the 0.25 critical bar, no conversation can talk a kin-group head into one.
+
+*Implemented (M1-08):* M1 runs the ladder through rung 5. `shove` emits `ConfrontationEscalated{4, Subdue}` and
+`struck_me`; `attack_brawl` emits `{5, Subdue}` and a **placeholder brawl** (`BrawlStub`: P(starter wins) =
+logistic(0.8·(power_s − power_o)), power = Str + 0.5·End + 0.25·Dex; the loser yields; no injuries) whose
+`FightResolved` applies `beat_me` (×0.5 if the loser started it) to the loser, `struck_me` to the winner and a
+first-hand `assaulted` claim to everyone within 25 m. 18's real fistfight (stun, knockdowns, separation by bystanders)
+replaces the stub in M2. Not yet: rungs 6–7 (no weapons; lethal context), `challenge` (dueling custom, 18 §4.3), drunk
+(no alcohol), status bands and authority (17), kin (§11). NPC insults now enter the ladder (policy), and each response
+is a provocation back (retort 2, threaten 3, shove 5) until someone settles it (≤ 12 exchanges as a safety stop).
+A quarrel left alone for an hour is over.
 
 ### 9.6 The response decision point (player provocations & bystanders)
 

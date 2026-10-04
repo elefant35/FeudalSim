@@ -100,6 +100,27 @@ public sealed class ConversationSystem : ISimSystem
         End(world, conv, "player");
     }
 
+    /// <summary>The player's own act is applied before the NPC's answer, deterministically (22 §6.1): modifier, memory, claim.</summary>
+    private static void CommitProvocation(SimWorld world, int player, int npc, string act, int severity)
+    {
+        var people = world.People;
+        EntityId p = people.Ids[player], r = people.Ids[npc];
+        var witnesses = Social.Escalation.Witnesses(world, player, npc, 10f);
+        var now = world.Clock.GameMinute;
+        if (act == "threaten")
+        {
+            world.Relationships.ApplyModifier(r, p, "opinion.threatened_me", isPublic: witnesses >= 3);
+            Social.Rumors.Witness(world, "claim.threatened", player, npc, 1f, Social.EscalationOwner.Earshot);
+        }
+        else
+        {
+            world.Relationships.ApplyModifier(r, p, Social.Escalation.ModifierFor(severity), isPublic: witnesses >= 3);
+            Social.Rumors.Witness(world, "claim.insulted", player, npc, 1f, Social.EscalationOwner.Earshot);
+        }
+
+        world.Memories.Remember(r, Social.MemoryKind.Insult, p, r, now, 30, 1f, 25f, -60);
+    }
+
     /// <summary>Closes a conversation: cancels its open DPs (a later decision is rejected) and frees the NPC to decide next step.</summary>
     public static void End(SimWorld world, Conversation conv, string reason)
     {
@@ -134,8 +155,20 @@ public sealed class ConversationSystem : ISimSystem
         conv.Turn = u.TurnIndex;
         conv.LastAct = u.Act;
 
-        // The response DP for the act (16 escalation, 16 social, 15 trade…) is opened here by its owner (M1-08–10).
+        // The response DP for the act (22 §6.1 routing). M1-08: insult and threaten → 16's escalation ladder; the social
+        // (M1-09) and trade (M1-10) owners join here.
         var decider = u.Injection >= InjectionPolicy ? DeciderKind.Policy : DeciderKind.Llm;
+        var npc = world.People.IndexOf(conv.Npc);
+        var player = world.People.IndexOf(conv.Player);
+        if (npc >= 0 && player >= 0 && Social.Escalation.DefaultSeverity(u.Act) is var s and > 0)
+        {
+            var severity = u.Severity > 0 ? Math.Clamp(u.Severity, 1, 5) : s;
+            CommitProvocation(world, player, npc, u.Act, severity);
+            var response = Social.Escalation.Provoke(world, player, npc, severity, decider, DecisionRulesEngine.ConversationDeadlineSteps);
+            if (world.Decisions.IsOpen(response)) { conv.Dps.Add(response); }
+            if (world.Conversations.Get(conv.Id) is null) { return; }   // the answer ended it (walked off, a fight)
+        }
+
         var id = world.Decisions.Open(InitiativeOwner.Id, new DpContext(InitiativeOwner.Kind, conv.Npc, conv.Player, (long)conv.Id), decider,
             DecisionRulesEngine.ConversationDeadlineSteps);
         if (world.Decisions.IsOpen(id)) { conv.Dps.Add(id); }

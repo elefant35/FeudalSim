@@ -37,6 +37,7 @@ public sealed class SocialSystem : ISimSystem
             // (the live fallback in Rumors.JEff costs O(people) per call: fine for 24, not for 1,500 — S6).
             rel.SeedShipmates();
             world.Reputation.Recompute();
+        world.Confrontations.Expire(world.Clock.GameMinute);
         }
 
         var prevMinute = (ctx.GameMs - ctx.DtGameMs) / 60_000;

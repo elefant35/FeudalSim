@@ -21,6 +21,9 @@ public enum Salience : byte { Trace, Minor, Notable, Major, Historic }
 [Union(12, typeof(ConversationStarted))]
 [Union(13, typeof(ConversationEnded))]
 [Union(14, typeof(InitiativeTaken))]
+[Union(15, typeof(ConfrontationEscalated))]
+[Union(16, typeof(FightResolved))]
+[Union(17, typeof(BystanderIntervened))]
 public abstract record DomainEvent;
 
 [MessagePackObject]
@@ -113,3 +116,17 @@ public sealed record InitiativeTaken(
     [property: Key(1)] EntityId Npc,
     [property: Key(2)] string Option,
     [property: Key(3)] Decisions.OptionParam[] Params) : DomainEvent;
+
+/// <summary>16 §9.5 hand-off to 18: a quarrel turned physical (rung 4 shove, 5 brawl; 6–7 from M2).</summary>
+[MessagePackObject]
+public sealed record ConfrontationEscalated(
+    [property: Key(0)] EntityId A, [property: Key(1)] EntityId B, [property: Key(2)] byte Rung,
+    [property: Key(3)] Social.FightIntent Intent, [property: Key(4)] int Witnesses) : DomainEvent;
+
+/// <summary>18 → 16: a fight's outcome (M1: the placeholder brawl — a winner, the loser yields, no injuries).</summary>
+[MessagePackObject]
+public sealed record FightResolved([property: Key(0)] ulong Fight, [property: Key(1)] EntityId Winner, [property: Key(2)] EntityId Loser, [property: Key(3)] EntityId Starter) : DomainEvent;
+
+/// <summary>A bystander stepped into a quarrel (16 §9.4): both parties' next pressure falls by <c>Calm</c>.</summary>
+[MessagePackObject]
+public sealed record BystanderIntervened([property: Key(0)] ulong Confrontation, [property: Key(1)] EntityId Who, [property: Key(2)] float Calm) : DomainEvent;

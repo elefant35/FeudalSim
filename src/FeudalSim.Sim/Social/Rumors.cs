@@ -52,7 +52,7 @@ public static class Rumors
         for (var k = 0; k < people.Count; k++)
         {
             var involved = k == actorRow || k == objRow;
-            if (!involved && (people.Activity[k].Action < 0 || people.Activity[k].Has(World.ActivityState.Asleep) || !inRange(world, actorRow, k))) { continue; }
+            if (!involved && ((people.Activity[k].Action < 0 && !world.IsPlayer(k)) || people.Activity[k].Has(World.ActivityState.Asleep) || !inRange(world, actorRow, k))) { continue; }
             var b = world.Beliefs.GetOrCreate(people.Ids[k], id, now);
             var c = involved ? 1.0f : 0.9f;
             if (c > b.C) { (b.C, b.FirstHandC) = (c, c); }

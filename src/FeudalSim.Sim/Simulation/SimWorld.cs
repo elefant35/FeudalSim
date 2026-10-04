@@ -52,6 +52,9 @@ public sealed class SimWorld
     /// <summary>Relationships (16 §4): opinion, trust, familiarity, fear, tags.</summary>
     public Social.RelationshipStore Relationships { get; }
 
+    /// <summary>Open quarrels on the escalation ladder (16 §9).</summary>
+    public Social.ConfrontationStore Confrontations { get; } = new();
+
     /// <summary>Conversations with the player (21 §14.4, 22 §4.11).</summary>
     public Dialogue.ConversationStore Conversations { get; } = new();
 

@@ -79,7 +79,8 @@ public sealed record PlayerUtteranceClassified(
     [property: Key(2)] string Act,
     [property: Key(3)] float ActP,
     [property: Key(4)] float Injection,
-    [property: Key(5)] string Text) : StateCommand;
+    [property: Key(5)] string Text,
+    [property: Key(6)] int Severity = 0) : StateCommand;
 
 /// <summary>The player's body position as reported by the client each step (the player is always embodied).</summary>
 [MessagePackObject]

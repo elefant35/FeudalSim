@@ -393,11 +393,12 @@ public sealed class InteractionSystem : ISimSystem
                 break;
 
             case Kind.Insult:
+                // The act (16 §5.2), then the target's answer on the escalation ladder, decided by the policy (16 §9.2, §9.6).
                 var witnesses = CountAtPlace(world, i) - 2;
                 rel.ApplyModifier(b, a, "opinion.insulted_me", isPublic: witnesses >= 3);
-                Anger(world, j, i, 25f * (witnesses >= 3 ? 1.4f : 1f), honorTouched: true);
                 mem.Remember(b, MemoryKind.Insult, a, b, now, 30, 1f, 25f, -60);
                 Rumors.Witness(world, "claim.insulted", i, j, 1f, Range);
+                Escalation.Provoke(world, i, j, 3, Decisions.DeciderKind.Policy, Decisions.DecisionRulesEngine.ConversationDeadlineSteps);
                 break;
 
             case Kind.Apologize:
