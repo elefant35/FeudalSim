@@ -8,11 +8,21 @@ namespace FeudalSim.Sim.World;
 /// </summary>
 public static class Heightfield
 {
-    /// <summary>Heights in metres for a <paramref name="size"/>×<paramref name="size"/> grid, row-major (z rows, x columns).</summary>
-    public static float[] Generate(ulong seed, int size, float spacingM, float maxHeightM = 36f, float baseCellM = 160f, int octaves = 5)
+    /// <summary>
+    /// Heights in metres for a <paramref name="size"/>×<paramref name="size"/> grid, row-major (z rows, x columns). Rows are
+    /// generated in fixed 64-row chunks on <paramref name="jobs"/> (M1-S4: 8 km took 15.7 s on one thread); every height is
+    /// a pure function of (seed, x, z), so the result is identical for any thread count.
+    /// </summary>
+    public static float[] Generate(ulong seed, int size, float spacingM, float maxHeightM = 36f, float baseCellM = 160f, int octaves = 5, IJobScheduler? jobs = null)
     {
         var heights = new float[size * size];
-        for (var z = 0; z < size; z++)
+        (jobs ?? SerialJobScheduler.Instance).ForEachChunk(size, (start, end) => Rows(heights, start, end, seed, size, spacingM, maxHeightM, baseCellM, octaves));
+        return heights;
+    }
+
+    private static void Rows(float[] heights, int start, int end, ulong seed, int size, float spacingM, float maxHeightM, float baseCellM, int octaves)
+    {
+        for (var z = start; z < end; z++)
         {
             for (var x = 0; x < size; x++)
             {
@@ -29,8 +39,6 @@ public static class Heightfield
                 heights[(z * size) + x] = (float)(Math.Pow(h, 1.6) * maxHeightM);   // flatter lowlands, sharper hills
             }
         }
-
-        return heights;
     }
 
     private static double ValueNoise(ulong seed, ulong octave, double x, double z)

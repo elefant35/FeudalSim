@@ -91,7 +91,7 @@ python3 tools/audio/build_m1.py                                          # M1-21
 python3 tools/art/build_kit.py [--previews]                              # M1-20 graybox kit: 40 assets → export → check → content/assets/graybox.yaml
 tools/godot/embodiment_check.sh                                          # LOD0 bodies + headless replay of the client session
 tools/godot/fetch_addons.sh                                              # pinned third-party addons (Terrain3D) → game/addons/ (SHA-256 checked)
-$GODOT --path game res://scenes/dev/TerrainSpike.tscn -- --terrain3d [--samples 4097] [--autowalk]   # terrain spike (ADR-0009)
+$GODOT --path game res://scenes/dev/TerrainSpike.tscn -- --terrain3d [--samples 4097] [--autowalk] [--cache] [--traverse 150]   # terrain (ADR-0009; S4: cache + full-map traverse, 0 hitches > 50 ms)
 ```
 
 Headless runs write `sim_runs/<id>/` (gitignored). CI (`.github/workflows/ci.yml`) runs build, tests,

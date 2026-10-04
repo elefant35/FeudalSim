@@ -76,6 +76,21 @@ detail texture tinted by the palette colour map — the same look as the ArrayMe
 - S4 (streaming the full map with no hitch > 50 ms) continues in M1 on Terrain3D: this spike
   loaded 8 km in one go and walked near the origin; walking/running across regions is still to measure.
 
+## S4 — streaming the full map (M1-S4, 2026-10-04)
+
+- **Typed facade** `game/scripts/World/Terrain3DFacade.cs` owns every name-based call and the four gotchas above;
+  `TerrainSpike` uses it (the `--check` CI step goes through it).
+- **Parallel, chunked heightfield:** `Heightfield.Generate(..., jobs)` in fixed 64-row chunks on the Hosting job runner;
+  bit-identical to serial (`HeightfieldTests`). 8 km: **15.7 s → 2.7–2.9 s** on 10 threads (M3 Pro).
+- **World cache** `user://worlds/<seed>/terrain` (Terrain3D region files, 60 MB for 8 km): first session imports
+  (479 ms) and saves (342 ms); later sessions load in **307–359 ms** with heights still matching the sim (0.000 m).
+- **Traverse** (`--traverse 150`): a serpentine of 38.4 km through all **16/16 regions** at 150 m/s (a stress pace,
+  ~23× sprint), 256 s, 124,875 frames: p50 2.04 ms, p99 2.11, p99.9 2.38, **max 13.0 ms — 0 hitches > 50 ms** (0 > 33 ms);
+  VRAM **320 MB** (textures 260) inside the 450 MB terrain line. **S4 PASS** on the reference Mac; re-measure with real
+  terrain materials (M2) and on minimum spec.
+- Still open: the sim heights are regenerated each session (2.8 s) even when Terrain3D loads from cache — cache the
+  sim heightfield beside it when world generation lands (M2, 10).
+
 ## Revisit if
 
 Terrain3D stops loading on the pinned Godot (the deprecation above becomes a removal), S4 shows

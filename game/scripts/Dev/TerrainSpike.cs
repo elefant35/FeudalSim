@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using FeudalSim.Game.World;
 using FeudalSim.Sim.World;
 using Godot;
 
@@ -12,6 +13,8 @@ namespace FeudalSim.Game.Dev;
 /// 257), `--autowalk` (walk a circle with vsync off for 20 s, log fps, GPU frame time, VRAM, hitches and C#
 /// interop cost, save a screenshot to user://terrain_spike[_t3d].png and quit), `--check` (with --terrain3d: build,
 /// verify Terrain3D heights match the sim heightfield, exit 0/1 — works with --headless; used by godot.yml).
+/// M1-S4: `--cache` loads the world from user://worlds/42/terrain when present (else generates in parallel and saves
+/// it); `--traverse [speed m/s]` runs a serpentine across all 16 regions of the 8 km map and reports hitches > 50 ms.
 /// </summary>
 public partial class TerrainSpike : Node3D
 {
@@ -30,11 +33,22 @@ public partial class TerrainSpike : Node3D
     private double _sampleTimer;
     private string _label = "";
     private float _alignErr = float.NaN;
+    private Terrain3DFacade? _t3d;
+    private bool _traverse;
+    private float _traverseSpeed = 60f;
+    private readonly List<Vector2> _route = [];
+    private int _routeAt;
+    private readonly List<double> _frameMs = new(65536);
+    private int _regionsVisited;
+    private readonly HashSet<(int, int)> _regions = [];
 
     public override void _Ready()
     {
         var args = OS.GetCmdlineUserArgs();
         _autowalk = args.Contains("--autowalk");
+        _traverse = args.Contains("--traverse");
+        var ts = Array.IndexOf(args, "--traverse");
+        if (ts >= 0 && ts + 1 < args.Length && float.TryParse(args[ts + 1], System.Globalization.CultureInfo.InvariantCulture, out var speed)) { _traverseSpeed = speed; }
         _terrain3d = args.Contains("--terrain3d");
         var at = Array.IndexOf(args, "--samples");
         if (at >= 0 && at + 1 < args.Length) { _size = int.Parse(args[at + 1], System.Globalization.CultureInfo.InvariantCulture); }
@@ -43,7 +57,11 @@ public partial class TerrainSpike : Node3D
         _player = GetNode<CharacterBody3D>("Player");
         _cameraPivot = GetNode<Node3D>("Player/CameraPivot");
         var sw = Stopwatch.StartNew();
-        _heights = Heightfield.Generate(42, _size, Spacing);
+        using (var jobs = new FeudalSim.Hosting.JobRunner(Math.Max(1, System.Environment.ProcessorCount - 1)))
+        {
+            _heights = Heightfield.Generate(42, _size, Spacing, jobs: jobs);   // M1-S4: chunked, parallel, identical to serial
+        }
+
         var genMs = sw.Elapsed.TotalMilliseconds;
         var extent = (_size - 1) * Spacing;
         float spawnY;
@@ -75,12 +93,36 @@ public partial class TerrainSpike : Node3D
         _player.Position = new Vector3(0, spawnY, 0);
         RenderingServer.ViewportSetMeasureRenderTime(GetViewport().GetViewportRid(), true);
         if (_autowalk) { DisplayServer.WindowSetVsyncMode(DisplayServer.VSyncMode.Disabled); }
+        if (_traverse)
+        {
+            // A serpentine through the middle of every 2,048 m region row: 4 rows × 8 km, so all 16 regions are crossed.
+            var edge = ((_size - 1) * Spacing / 2f) - 64f;
+            for (var row = 0; row < 4; row++)
+            {
+                var z = -edge + (row * 2048f) + 960f;
+                _route.Add(new Vector2(row % 2 == 0 ? -edge : edge, z));
+                _route.Add(new Vector2(row % 2 == 0 ? edge : -edge, z));
+            }
+
+            _player.Position = new Vector3(_route[0].X, SampleSim(_route[0].X, _route[0].Y) + 2f, _route[0].Y);
+            _routeAt = 1;
+            GD.Print($"TerrainSpike: traverse {_route.Count} waypoints at {_traverseSpeed} m/s ≈ {RouteLength() / _traverseSpeed:F0} s");
+        }
     }
 
-    /// <summary>Approach A: Terrain3D through its GDExtension API (no C# bindings: ClassDB + Get/Set/Call by name).</summary>
+    private float SampleSim(float x, float z) => TerrainBuilder.SampleHeight(_heights, _size, Spacing, x, z);
+
+    private float RouteLength()
+    {
+        var length = 0f;
+        for (var i = 1; i < _route.Count; i++) { length += _route[i - 1].DistanceTo(_route[i]); }
+        return length;
+    }
+
+    /// <summary>Approach A: Terrain3D through the typed facade (World/Terrain3DFacade.cs).</summary>
     private float BuildTerrain3D(double genMs)
     {
-        if (!ClassDB.ClassExists("Terrain3D"))
+        if (!Terrain3DFacade.Available)
         {
             GD.PushError("Terrain3D is not installed — run tools/godot/fetch_addons.sh");
             GetTree().Quit(1);
@@ -112,27 +154,22 @@ public partial class TerrainSpike : Node3D
         var imagesMs = sw.Elapsed.TotalMilliseconds;
 
         sw.Restart();
-        var terrain = ClassDB.Instantiate("Terrain3D").AsGodotObject() as Node3D ?? throw new InvalidOperationException("Terrain3D did not instantiate as a Node3D");
-        terrain.Name = "Terrain3D";
-        terrain.Set("vertex_spacing", Spacing);
-        terrain.Set("collision_mode", 1);   // Dynamic / Game: collision built around the camera
-        terrain.Set("mesh_lods", 7);
-        terrain.Set("mesh_size", 48);
-        // free_editor_textures (default on) makes Terrain3D reload its assets *from their file path* on entering the
-        // tree in-game; runtime-built assets have no path, so they'd be dropped (load("") → checkerboard). Found here.
-        terrain.Set("free_editor_textures", false);
-        terrain.Set("assets", DetailTextureAssets());
-        AddChild(terrain);   // material and data exist once the node is in the tree; region_size only applies then
-        terrain.Call("change_region_size", regionSize);
-        terrain.Get("material").AsGodotObject().Set("world_background", 0);   // None: no infinite flat plane outside the regions
-        terrain.Call("set_camera", GetNode<Camera3D>("Player/CameraPivot/Camera"));
+        _t3d = Terrain3DFacade.Create(this, Spacing, regionSize, GetNode<Camera3D>("Player/CameraPivot/Camera"), DetailTextureAssets());
+        var terrain = _t3d.Node;
         var nodeMs = sw.Elapsed.TotalMilliseconds;
 
         sw.Restart();
         var half = (_size - 1) * Spacing / 2f;
         _t3dData = terrain.Get("data").AsGodotObject();
-        _t3dData.Call("import_images", new Godot.Collections.Array { heightImg, default, colorImg }, new Vector3(-half, 0, -half), 0f, 1f);
+        var cached = OS.GetCmdlineUserArgs().Contains("--cache") && _t3d.TryLoadCache(42);
+        if (!cached) { _t3d.Import(heightImg, colorImg, half); }
         var importMs = sw.Elapsed.TotalMilliseconds;
+        if (!cached && OS.GetCmdlineUserArgs().Contains("--cache"))
+        {
+            sw.Restart();
+            _t3d.SaveCache(42);
+            GD.Print($"TerrainSpike: cached world → {ProjectSettings.GlobalizePath(Terrain3DFacade.CacheDir(42))} in {sw.Elapsed.TotalMilliseconds:F0} ms");
+        }
 
         // Alignment: Terrain3D heights must match the sim heightfield the rest of the game uses.
         var maxErr = 0f;
@@ -140,13 +177,13 @@ public partial class TerrainSpike : Node3D
         {
             var x = (i * 7919 % (img - 1)) * Spacing - half;
             var z = (i * 104729 % (img - 1)) * Spacing - half;
-            var t3d = _t3dData.Call("get_height", new Vector3(x, 0, z)).AsSingle();
+            var t3d = _t3d.HeightAt(new Vector3(x, 0, z));
             maxErr = Math.Max(maxErr, Math.Abs(t3d - TerrainBuilder.SampleHeight(_heights, _size, Spacing, x, z)));
         }
 
         _alignErr = maxErr;
-        GD.Print($"TerrainSpike[A]: Terrain3D {terrain.Call("get_version")} · {_size}² @ {Spacing} m = {(_size - 1) * Spacing} m · regions {_t3dData.Call("get_region_count")} × {terrain.Get("region_size")} · heights {genMs:F0} ms, images {imagesMs:F0} ms, node {nodeMs:F0} ms, import {importMs:F0} ms · height match max error {maxErr:F3} m over 64 points");
-        return _t3dData.Call("get_height", Vector3.Zero).AsSingle();
+        GD.Print($"TerrainSpike[A]: Terrain3D {_t3d.Version} · {_size}² @ {Spacing} m = {(_size - 1) * Spacing} m · regions {_t3d.RegionCount} × {_t3d.RegionSize} · heights {genMs:F0} ms ({System.Environment.ProcessorCount - 1} threads), images {imagesMs:F0} ms, node {nodeMs:F0} ms, {(cached ? "cache load" : "import")} {importMs:F0} ms · height match max error {maxErr:F3} m over 64 points");
+        return _t3d.HeightAt(Vector3.Zero);
     }
 
     /// <summary>
@@ -184,6 +221,7 @@ public partial class TerrainSpike : Node3D
 
     public override void _PhysicsProcess(double delta)
     {
+        if (_traverse) { Traverse((float)delta); return; }
         var dir = Vector3.Zero;
         if (_autowalk)
         {
@@ -206,8 +244,36 @@ public partial class TerrainSpike : Node3D
         if (dir.LengthSquared() > 0.01f) { _player.GetNode<Node3D>("Body").Rotation = new Vector3(0, Mathf.Atan2(-dir.X, -dir.Z), 0); }
     }
 
+    /// <summary>M1-S4: fly the route at speed, kept on the sim heightfield (the camera drives Terrain3D's clipmap and collision).</summary>
+    private void Traverse(float delta)
+    {
+        if (_routeAt >= _route.Count) { return; }
+        var at = new Vector2(_player.Position.X, _player.Position.Z);
+        var to = _route[_routeAt] - at;
+        var step = _traverseSpeed * delta;
+        if (to.Length() <= step) { at = _route[_routeAt]; _routeAt++; } else { at += to.Normalized() * step; }
+        _player.Position = new Vector3(at.X, SampleSim(at.X, at.Y) + 1f, at.Y);
+        if (to.LengthSquared() > 0.01f) { _player.GetNode<Node3D>("Body").Rotation = new Vector3(0, Mathf.Atan2(-to.X, -to.Y), 0); }
+        var half = (_size - 1) * Spacing / 2f;
+        _regions.Add(((int)((at.X + half) / 2048f), (int)((at.Y + half) / 2048f)));
+        _regionsVisited = _regions.Count;
+        if (_routeAt >= _route.Count) { TraverseReport(); }
+    }
+
+    private void TraverseReport()
+    {
+        var mb = 1024.0 * 1024.0;
+        var frames = _frameMs.Count;
+        _frameMs.Sort();
+        double Q(double q) => _frameMs[Math.Min(frames - 1, (int)Math.Ceiling(q * frames) - 1)];
+        var hitches = _frameMs.Count(f => f > 50);
+        GD.Print(FormattableString.Invariant($"TerrainSpike: TRAVERSE {(hitches == 0 ? "PASS" : "FAIL")} · {RouteLength() / 1000:F1} km at {_traverseSpeed} m/s in {_elapsed:F0} s · regions crossed {_regionsVisited}/16 · frames {frames} · frame ms p50 {Q(0.5):F2} p99 {Q(0.99):F2} p99.9 {Q(0.999):F2} max {_frameMs[^1]:F1} · hitches > 50 ms {hitches}, > 33 ms {_frameMs.Count(f => f > 33)} · VRAM {Performance.GetMonitor(Performance.Monitor.RenderVideoMemUsed) / mb:F0} MB (textures {Performance.GetMonitor(Performance.Monitor.RenderTextureMemUsed) / mb:F0}, buffers {Performance.GetMonitor(Performance.Monitor.RenderBufferMemUsed) / mb:F0})"));
+        GetTree().Quit(hitches == 0 ? 0 : 1);
+    }
+
     public override void _Process(double delta)
     {
+        if (_traverse && _elapsed > 3) { _frameMs.Add(delta * 1000); }
         _elapsed += delta;
         _sampleTimer += delta;
         if (_elapsed > 3) { _maxFrameMs = Math.Max(_maxFrameMs, delta * 1000); }
