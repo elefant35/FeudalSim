@@ -58,7 +58,7 @@ jobs:
         run: dotnet run --project src/FeudalSim.Headless --no-build -c Release -- social --seeds 10 --days 30
 
       - name: "Knapping calibration (12 §6.5, 13 §13.3, M2-11a): curves current, attentive m matches the NPC logistic"
-        run: dotnet run --project src/FeudalSim.Headless --no-build -c Release -- minigame --check --samples 2000
+        run: dotnet run --project src/FeudalSim.Headless --no-build -c Release -- minigame --check
 
       - name: "Weather chain (10 §6.3, M2-03): shares within 3 points over 3,000 years"
         run: dotnet run --project src/FeudalSim.Headless --no-build -c Release -- weather

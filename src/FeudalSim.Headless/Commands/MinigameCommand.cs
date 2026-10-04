@@ -16,6 +16,7 @@ public sealed class MinigameSettings : CommandSettings
     public bool Check { get; init; }
 
     [CommandOption("--samples <N>")]
+    [Description("Plays per band for the target checks (the fit itself always uses 4,000).")]
     public int Samples { get; init; } = 4000;
 }
 
@@ -24,11 +25,13 @@ public sealed class MinigameCommand : Command<MinigameSettings>
 {
     private static readonly string[] Stages = ["choose", "rough", "thin", "pressure"];
 
+    public const int FitSamples = 4000;
+
     public override int Execute(CommandContext context, MinigameSettings settings, CancellationToken cancellationToken)
     {
         var root = RepoPaths.FindContentRoot(Directory.GetCurrentDirectory());
         var path = Path.Combine(root, "minigames", "knapping.yaml");
-        var def = Calibration.FitKnapping(settings.Samples);
+        var def = Calibration.FitKnapping(FitSamples);   // fixed: the shipped curve is always this fit (--samples only sizes the checks)
         var yaml = Yaml(def);
         if (settings.Check)
         {
