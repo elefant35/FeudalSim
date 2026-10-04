@@ -11,10 +11,11 @@
 
 ## Current milestone
 
-**M0 — Foundations** · started: 2026-10-03 · target exit: all items below `[x]` and the exit criteria in
-[30-roadmap §5 (M0)](30-roadmap.md#m0--foundations) verified.
+**M1 — Talking Camp** · started: 2026-10-04 · target exit: all M1 items `[x]` and the exit criteria in
+[30-roadmap §5 (M1)](30-roadmap.md#m1--talking-camp) verified (including 22 §17.2's 13 criteria).
 
-Next milestone: **M1 — Talking Camp** (work breakdown is generated when M0 closes).
+Previous: **M0 — Foundations — complete 2026-10-04** (gate passed at 7f4756e; evidence in the M0
+sections below). Next after M1: **M2 — Landfall**.
 
 ---
 
@@ -33,6 +34,84 @@ answer.
 | Download resources needed for development (plugins such as Terrain3D, libraries, tools, CC0/permissive assets) | **yes — standing approval (owner, 2026-10-04)** | The license must be acceptable and recorded (32 §14, `ASSET_LICENSES.md`); pin versions and checksums; prefer official sources |
 | Commit generated binary assets (requires Git LFS installed) | **yes** — Git LFS installed 2026-10-03 | — |
 | Approve art "looks" (manifest status → `approved`) | **owner only** | Claude may set `review`, never `approved` |
+
+---
+
+## M1 — Talking Camp work breakdown
+
+Generated 2026-10-04 at the M0 gate from [30 §5 (M1)](30-roadmap.md#m1--talking-camp) (in scope + exit
+criteria), the M1 rows of [21 §20](../tech/21-npc-ai.md), [16](../design/16-social-systems.md),
+[15](../design/15-economy-and-trade.md), [19](../design/19-player-experience.md),
+[22 §17.1–17.2](../tech/22-llm-integration.md#172-m1--talking-camp-the-de-risking-milestone-for-this-document),
+[32 §16](32-art-and-audio-production.md#16-production-schedule-by-milestone), the M0→M1 discovered work, and
+the M1 spikes. Items are sized ≈ ½–2 days; split them (`M1-12a`…) when they grow. Risk-retiring items
+(spikes, the decision-first pipeline, calibration) go first.
+
+### Spikes (30 §4)
+
+| ID | Item | Status | Evidence |
+|----|------|--------|----------|
+| M1-S2 | **Dialogue latency & cost** — model bake-off; TTFT p50 < 1.0 s, first words ≤ 1.2 s (Tier A); cost per play-hour; pin fast providers (M0 saw 3.9–9.6 s variance on qwen3-14b) | [ ] | |
+| M1-S3 | **Fast-decider bake-off** — `qwen/qwen3.5-9b`, `qwen/qwen3-30b-a3b-instruct-2507`, Laya zero-shot, Jev if access; p50/p95 latency (quick-choice DPs need ≤ 500 ms; M0 measured ~650–840 ms), ECE, cost, injection susceptibility | [ ] | |
+| M1-S6 | **Sim scale** — 1,500 agents across LOD tiers within 20 §19 budgets; 1 game year headless ≤ 60 s at LOD2; 21's 300–500 agents × 1 year | [ ] | |
+| M1-S1 | **Crowd render** — 150 animated low-poly characters at 60 fps (recommended spec), 300 in battle mode ≥ 30 fps | [ ] | |
+| M1-S4 | **Terrain streaming 8,192 m** (carried from M0): typed Terrain3D facade, region streaming while walking/running the full map with no hitch > 50 ms, VRAM in budget; **parallel chunked heightfield generation** (8 km takes 15.7 s single-threaded) and world caching under `user://worlds/<seed>/` | [ ] | |
+| M1-S5 | **Local LLM early look** — 7–14B 4-bit beside the Godot client; p50 TTFT ≤ 1.5 s while holding 60 fps | [ ] | |
+
+### Person model & NPC AI (canon §10, 21, 11)
+
+| ID | Item | Status | Evidence |
+|----|------|--------|----------|
+| M1-01 | Person model components: attributes, skill subset, personality facets, values, the 16 canon traits (+ ~8), psych + simplified physical needs, emotions & mood — tables, content YAML, save columns | [ ] | |
+| M1-02 | Utility AI v1: action catalog (eat, drink, sleep, gather wood/food, tend fire, socialize, idle, flee), scoring + curves, noise & hijack, simple schedules (21 §7.1–7.6); 21 §19 M1 headless metrics | [ ] | |
+| M1-03 | **DP propensity layer** (21 §7.8): `m_o` terms, family tempering, `includes`, hijack fold-in, `MenuPropensities` + KeyFactors; DecisionTrace / inspector | [ ] | |
+| M1-04 | Initiative options (21 §14.5) and pending-DP state (21 §14.6); **persist open DPs, long-shot counters and pending AI requests in saves** (M0 discovered work) | [ ] | |
+
+### Social core (16)
+
+| ID | Item | Status | Evidence |
+|----|------|--------|----------|
+| M1-05 | Opinion (modifiers #1–35, #38–39, D1–D5, D9), Trust, Familiarity, Fear; tags through Enemy/Rival | [ ] | |
+| M1-06 | NPC↔NPC interactions Chat/Gossip/Joke/Praise/Comfort/Request/Argue/Insult/Apologize/Warn (policy); memory + compaction | [ ] | |
+| M1-07 | Claims, beliefs and rumors with mutation; reputation axes (no Lawfulness effects yet); LLM rendering of overheard talk (policy decides) | [ ] | |
+| M1-08 | Escalation ladder through rung 5 with a **stubbed brawl** hand-off; provocation-response and bystander DPs (the owner's "insult → shove → brawl" and "bystander steps in" examples) | [ ] | |
+| M1-09 | Social DP owners: rapport (#58–59, +10/day cap), apology, request, being told | [ ] | |
+
+### Trade (15)
+
+| ID | Item | Status | Evidence |
+|----|------|--------|----------|
+| M1-10 | Haggle prototype: §5 values and curves, §5.6 trade DP owner (menus, propensities, guards, concession steps from `Margin = C_sys·s·(0.5+0.5·K_skill)`), stub trade execution moving goods and coin at the menu price | [ ] | |
+
+### Dialogue pipeline & AI (22)
+
+| ID | Item | Status | Evidence |
+|----|------|--------|----------|
+| M1-11 | Sanitize + input limits (280/500 chars, 2 s between turns) + fast-decider act classification (catalog v2, thresholds p ≥ 0.45 / margin 0.10, injection flag ≥ 0.3 → policy) | [ ] | |
+| M1-12 | **Decision-first LLM reply**: bundled reply route in the gateway, header parse + pre-cleared lookup, Tier A streaming / Tier B verification, one regeneration then template (canon §13.5 #2) | [ ] | |
+| M1-13 | Prompt building from sim state (persona, inclinations as verbal bands, glosses, memories) and template coverage for every line kind | [ ] | |
+| M1-14 | Resilience: network cut mid-conversation → policy + templates within one turn; breaker latency trigger (p95 TTFT); sim never delayed by language calls (22 §17.2 #9) | [ ] | |
+| M1-15 | Determinism: a recorded 1-hour conversation session replays with identical menu hashes, `DecisionResolved` records and state hashes (22 §17.2 #10) | [ ] | |
+| M1-16 | **Calibration & red-team harness**: golden neutral scenarios (LLM-vs-policy gap ≤ 10 pts per family), refusal suite ≥ 95%, red-team suite (0 off-menu / guard bypass), guard over-rejection ≤ 5% (22 §17.2 #2–4) | [ ] | |
+| M1-17 | Template-mode completability scenario in CI: the policy decides every DP (22 §17.2 #12) | [ ] | |
+
+### Client, art & audio (19, 32)
+
+| ID | Item | Status | Evidence |
+|----|------|--------|----------|
+| M1-18 | Graybox camp scene: 24 settlers with the player, LOD0 bodies near, conversation entry; flat test terrain (real terrain is out of scope) | [ ] | |
+| M1-19 | Dialogue UI: free text, streaming, quick intents, intent echo with 1.5 s unsay, latency choreography, decision surfacing (gestures, stance cues, proposal cards, stub trade panel, escalation ladder); People page (basic) | [ ] | |
+| M1-20 | Graybox kit through the art pipeline: capsule people with role markers, primitive props, block buildings (~40 assets, manifest + checks + previews) | [ ] | |
+| M1-21 | Audio: placeholder UI sounds and reaction "bark" vocalization placeholders (32 §16) | [ ] | |
+
+### Exit-criteria work
+
+| ID | Item | Status | Evidence |
+|----|------|--------|----------|
+| M1-22 | Headless social sim: 30 game days of the camp, no deadlocks; a public event's rumor reaches ≥ 80% within 3 days; ≥ 1 emergent dispute per 10 days | [ ] | |
+| M1-23 | Cost and latency report at verified prices: ≤ $0.05 per typical play-hour (22 §17.2 #1, #8) | [ ] | |
+| M1-24 | **Playtest** (owner-run: ≥ 5 people × ≥ 45 min; 22 §17.2 #11 rubric + 30's feel criteria) | [ ] | Needs the owner to recruit testers |
+| M1-25 | ADR-0010 step 3: spike a `net10.0` game project on Godot 4.7.x (or adopt a Godot release whose GodotSharp targets net10) — .NET 8 support ends 2026-11-10 | [ ] | |
 
 ---
 
@@ -83,28 +162,28 @@ Source of truth for the steps: [20 §20](../tech/20-architecture.md#20-m0-founda
 
 | ID | Item | Status | Evidence |
 |----|------|--------|----------|
-| S4 | Terrain streaming for 8,192 m (continues into M1) | [ ] | **Carried into M1** (decided 2026-10-04): 30 §4 timeboxes it at 1–2 weeks over M0–M1, feeding M2, and it is not an M0 exit criterion. It starts after the terrain technology is chosen (M0-12 → ADR-0009), because Terrain3D brings its own region streaming while the built-in fallback needs our own chunking/LOD. Pass: walk/run the full 8 × 8 km map with no hitch > 50 ms and VRAM within budget |
+| S4 | Terrain streaming for 8,192 m (continues into M1) | [-] | **Moved to M1 as M1-S4** — **carried into M1** (decided 2026-10-04): 30 §4 timeboxes it at 1–2 weeks over M0–M1, feeding M2, and it is not an M0 exit criterion. It starts after the terrain technology is chosen (M0-12 → ADR-0009), because Terrain3D brings its own region streaming while the built-in fallback needs our own chunking/LOD. Pass: walk/run the full 8 × 8 km map with no hitch > 50 ms and VRAM within budget |
 
 ---
 
 ## M0 exit criteria (from [30 §5](30-roadmap.md#m0--foundations))
 
-**Gate run 2026-10-04:** all seven exit criteria pass with fresh evidence (below), **but M0 is not
-closed**: the roadmap's M0 deliverables also include the 22 §17.1 M0 gateway scope, and part of it
-(decision-point records, policy decider, DP watchdog, breaker, recorder, keychain) was never put in
-the breakdown → M0-16…M0-19 added.
+**Gate 1 (2026-10-04, 49e5cc2):** all seven criteria passed, but M0 stayed open — part of the 22 §17.1
+M0 gateway scope was missing from the breakdown → M0-16…M0-19 added.
+**Gate 2 (2026-10-04, 7f4756e): passed — M0 complete.** M0-16–18 done, M0-19 dropped by the owner, S4
+moved to M1; every criterion re-run after those changes (evidence below).
 
 Verified only by running the command or test and pasting the result into **Evidence**.
 
 | Criterion | Status | Evidence |
 |-----------|--------|----------|
-| `dotnet build` and `dotnet test` green in CI on every push | [x] | CI (ubuntu + macOS) runs on every push and PR; green at eb61a11, 1bb2c52, e72004d (latest completed code run); later pushes listed in the session log |
-| Headless runner: 1 game year, 24 agents, same seed → byte-identical event logs | [x] | **Gate 2026-10-04** (SDK 10 build): `run --scenario content/scenarios/m0_smoke.yaml --days 32 --write-events` in two processes: 576,000 steps each (0.57 s / 0.54 s), final hash 278a45908644efce both; `events.fslog` SHA-256 b692b44d…a45a6f and `inputs.fslog` c8aa7c24…254c78 in both — **identical to the 2026-10-03 run** |
-| Godot client shows a capsule moving by sim commands; pause and time scale work | [x] | `Godot --headless --path game -- --autotest` (Boot, 24 settlers): "×1 rate: 10 (expected 10 ± 10%) · settlers moved at ×1: 23 · steps while paused: 0 · settlers moved while paused: 0 · tree paused: 1 · ×4 rate: 40 (expected 40 ± 10%) · Engine.TimeScale: 4 · AUTOTEST PASS · dilation events 0", exit 0, no warnings; also runs in `godot.yml` (green, 37165483955). Found & fixed: Space could never un-pause (SimHost paused with the tree) |
-| A command-line call reaches OpenRouter and the response is recorded into the event log | [x] | **Gate 2026-10-04:** `run --scenario content/scenarios/m0_ai_ping.yaml --realtime --seconds 25` → `log inputs … --filter AiResult`: "seq 25 @step 29 [Ai] AiResultCommand { Outcome = Ok, Text = Good morrow, friend. Did you manage to salvage anything from the wreck?, ProviderTag = openrouter, LatencyMs = 849, TokensIn = 62, TokensOut = 20 }"; events log: AiResultApplied, UsedFallback = False; 9.88 steps/s |
-| Content validation fails CI on malformed YAML | [x] | **Gate 2026-10-04:** scratch copy of `content/` → `content validate --root` exit 0; plus `fixtures/broken/items/bad.yaml` → "content/items/bad.yaml:11:7: /2/id: … pattern … FAILED with 5 error(s)", **exit 1**; CI runs the same command on every push |
-| All 15 steps of 20 §20 pass, including replay of a recorded client session | [x] | Steps 1–15 verified (rows M0-01…M0-15 above). Client-session replay: `tools/godot/embodiment_check.sh` → Godot hash = headless replay hash (also in `godot.yml`) |
-| ADRs 0005–0010 written and accepted | [x] | 0005–0010 Accepted; 0009 (terrain) accepted 2026-10-04 on the M0-12 spike results |
+| `dotnet build` and `dotnet test` green in CI on every push | [x] | CI (ubuntu + macOS) and `godot.yml` run on every push and PR. **Gate 2:** green at 7f4756e (ci 37168843623, godot 37168843600); every push this session went green (d04d2de, 2b7c10f, 49e5cc2, a367281, 7f4756e) |
+| Headless runner: 1 game year, 24 agents, same seed → byte-identical event logs | [x] | **Gate 2:** `run --scenario content/scenarios/m0_smoke.yaml --days 32 --write-events` in two processes: 576,000 steps each (0.54 s / 0.56 s), final hash 0bb4d5da1276f3ec both (DRE state now in the hash); `events.fslog` b692b44d…a45a6f and `inputs.fslog` c8aa7c24…254c78 in both — same bytes as 2026-10-03 |
+| Godot client shows a capsule moving by sim commands; pause and time scale work | [x] | **Gate 2:** `Godot --headless --max-fps 60 --path game -- --autotest`: "×1 rate: 10 · settlers moved at ×1: 23 · steps while paused: 0 · settlers moved while paused: 0 · tree paused: 1 · ×4 rate: 40 · Engine.TimeScale: 4 · AUTOTEST PASS · dilation events 0", exit 0, no warnings; also in `godot.yml` |
+| A command-line call reaches OpenRouter and the response is recorded into the event log | [x] | **Gate 2:** `run --scenario content/scenarios/m0_ai_ping.yaml --realtime --seconds 25` (9.96 steps/s) → "seq 25 @step 29 [Ai] AiResultCommand { Outcome = Ok, Text = Good morrow, fellow survivor. Hope you slept well on the cold ground., ProviderTag = openrouter, LatencyMs = 888, TokensIn = 62, TokensOut = 20 }"; events log: AiResultApplied, UsedFallback = False. Decision points too: a live fast-decider `DecisionMade` (M0-18) |
+| Content validation fails CI on malformed YAML | [x] | **Gate 2:** scratch copy → `content validate --root` exit 0; plus `fixtures/broken/items/bad.yaml` → "content/items/bad.yaml:3:1: /: Some items do not match the required schema … FAILED with 5 error(s)", **exit 1**; CI runs it on every push |
+| All 15 steps of 20 §20 pass, including replay of a recorded client session | [x] | Steps 1–15 verified (M0-01…M0-15). **Gate 2:** `tools/godot/embodiment_check.sh` → "PASS: Godot session and headless replay agree at step 698 (hash 966311a24a11c4a1); 6 embodiments, 3 demotions, max snap 0.128 m"; Terrain3D `--check` → "CHECK PASS … 0.000 m"; plus the 22 §17.1 gateway scope (M0-16–18) |
+| ADRs 0005–0010 written and accepted | [x] | **Gate 2:** 0005, 0006, 0007, 0008, 0009, 0010 — all `Status: Accepted` |
 
 ---
 
@@ -127,14 +206,14 @@ Items found while working that belong to a later milestone or need triage.
 |------|------|---------------------|--------|
 | 2026-10-03 | Fine-tune Laya as the local fast decider from recorded decisions | M7 (data from M1) | canon §4.1 |
 | 2026-10-03 | Apply for TypeSafe Jev API access for the S3 bake-off | M1 | 31 D28 |
-| 2026-10-03 | Dialogue latency varied 3.9–9.6 s for qwen/qwen3-14b on OpenRouter (provider routing); S2 must pin fast providers or pick another model | M1 (S2) | M0-10 |
-| 2026-10-03 | Persist pending AI requests and the AI request counter in saves — **and the DRE's open decision points, long-shot counters and DP ordinal** (hashed since M0-16, not yet saved) | M1 | M0-10, M0-16 |
-| 2026-10-04 | **Fast-decider latency vs the 0.5 s quick-choice deadline:** `openrouter-llm` answered in ~650 ms (M0-10), so combat/quick-choice DPs (5 steps) would mostly fall to the policy. S3's bake-off must reach p95 ≤ 500 ms (Laya local, Jev) or quick choices stay policy-only | M1 (S3) | M0-17 |
+| 2026-10-03 | Dialogue latency varied 3.9–9.6 s for qwen/qwen3-14b on OpenRouter (provider routing); S2 must pin fast providers or pick another model | M1 (S2) → **scheduled: M1-S2** | M0-10 |
+| 2026-10-03 | Persist pending AI requests and the AI request counter in saves — **and the DRE's open decision points, long-shot counters and DP ordinal** (hashed since M0-16, not yet saved) | M1 → **scheduled: M1-04** | M0-10, M0-16 |
+| 2026-10-04 | **Fast-decider latency vs the 0.5 s quick-choice deadline:** `openrouter-llm` answered in ~650 ms (M0-10), so combat/quick-choice DPs (5 steps) would mostly fall to the policy. S3's bake-off must reach p95 ≤ 500 ms (Laya local, Jev) or quick choices stay policy-only | M1 (S3) → **scheduled: M1-S3** | M0-17 |
 | 2026-10-03 | Full 20 §9.4 snapshot layout (header + TOC + per-chunk hashes) | M3 | M0-06 |
 | 2026-10-03 | ~~**Install the .NET 10 SDK, update `global.json`, unpin the Roslyn-4.11 workarounds**~~ — **done 2026-10-04** (SDK 10.0.401 arrived with the Godot cask; ADR-0010 step 2) | M0 | M0-02, M0-07 |
-| 2026-10-04 | **Parallel, chunked world-gen heightfield** (8 km takes 15.7 s single-threaded; ≤ 60 s budget, cached per seed) and the **typed Terrain3D facade** with import/caching under `user://worlds/<seed>/` | M1 (S4) / M2 | M0-12, ADR-0009 |
+| 2026-10-04 | **Parallel, chunked world-gen heightfield** (8 km takes 15.7 s single-threaded; ≤ 60 s budget, cached per seed) and the **typed Terrain3D facade** with import/caching under `user://worlds/<seed>/` | M1 (S4) / M2 → **scheduled: M1-S4** | M0-12, ADR-0009 |
 | 2026-10-04 | Ship Terrain3D's MIT notice in builds (Godot export filters drop `LICENSE.txt`) | M8 | ADR-0009 |
-| 2026-10-04 | ADR-0010 step 3: spike a `net10.0` game project on Godot 4.7.x, or wait for a Godot release whose GodotSharp targets net10 — .NET 8 support ends 2026-11-10 | M1 | ADR-0010 |
+| 2026-10-04 | ADR-0010 step 3: spike a `net10.0` game project on Godot 4.7.x, or wait for a Godot release whose GodotSharp targets net10 — .NET 8 support ends 2026-11-10 | M1 → **scheduled: M1-25** |  ADR-0010 |
 
 ---
 
@@ -144,6 +223,7 @@ Newest first. One entry per session or work item: date, what changed, evidence, 
 
 | Date | Work | Evidence | Next |
 |------|------|----------|------|
+| 2026-10-04 | **M0 gate 2 passed — M0 complete.** All 7 exit criteria re-run after M0-16–18; S4 moved to M1; M1 breakdown generated (6 spikes + 25 items) | CI + godot green at 7f4756e; gate evidence in the exit-criteria table | M1: start with M1-S2 / M1-S3 (latency, fast decider) and M1-01…03 (person model, DP propensities) |
 | 2026-10-04 | M0-18: circuit breaker, AI_GATEWAY_MODE recorder, gateway DP routing (fast decider / policy, now) | 81 tests; live DP decided by the fast decider and replayed to ff6b7420c63dd0c1 | M0 gate (all items now [x] or [-]) |
 | 2026-10-04 | M0-16 + M0-17: decision points in the sim (records, DRE, guards, policy decider, watchdog, integrity verification); M0-19 dropped (owner: `.env`) | 74 tests; mutation checks; dp-ping run + replay hash ea25ca3b19f19ee9 | M0-18 (breaker + recorder + gateway DP routing) |
 | 2026-10-04 | M0-12 done (Terrain3D v1.0.2 vs ArrayMesh; 8 km in Terrain3D at GPU 4.46 ms / 301 MB), ADR-0009 accepted, M0-15 done (20 v0.2, R26). **M0 gate:** all 7 exit criteria re-verified, but the 22 §17.1 M0 gateway scope was missing from the breakdown → M0-16…19 added; M0 stays open | 49e5cc2; gate evidence in the exit-criteria table | M0-16 (DP records) → M0-17 (policy decider + watchdog) → M0-18 (breaker + recorder); owner: M0-19 deferral |
