@@ -29,10 +29,16 @@ public sealed class DialogueHost
     private readonly TurnRateLimiter _limiter;
     private readonly ConcurrentDictionary<ulong, bool> _routed = new();
     private volatile ConversationView? _view;
+    private readonly ClaimExtractor _claims;
+    private volatile Known? _known;
+
+    /// <summary>The camp's names for claim extraction, refreshed when a conversation starts (sim thread → caller thread).</summary>
+    private sealed record Known(ulong Conversation, EntityId Player, EntityId Npc, IReadOnlyList<(string Name, EntityId Id)> People);
 
     public DialogueHost(Action<CommandSource, StateCommand> submit, IChatProvider? chat, IDecider? decider, AiConfig config, ContentDatabase content, TimeProvider? clock = null)
     {
         _submit = submit;
+        _claims = new ClaimExtractor(content.ClaimPredicates);
         _classifier = new TurnClassifier(config.TemplateMode ? null : decider);
         _router = new DialogueReplyRouter(config.TemplateMode ? null : chat, config.TemplateMode ? null : decider, config, new TemplateBank(content));
         _limiter = new TurnRateLimiter(clock ?? TimeProvider.System);
@@ -78,7 +84,15 @@ public sealed class DialogueHost
         var c = await _classifier.ClassifyAsync(line, context, ct).ConfigureAwait(false);
         Spend(c.CostUsd);
         var (task, hours) = c.Act == "request" ? RequestTask(line.Text) : ("", 0f);
-        _submit(CommandSource.Player, TurnClassifier.ToCommand(view.Id, view.Turn + 1, line, c, task, hours));
+        var command = TurnClassifier.ToCommand(view.Id, view.Turn + 1, line, c, task, hours);
+        if (_known is { } known && known.Conversation == view.Id && c.Act is not ("insult" or "threaten" or "request" or "apologize" or "promise" or "trade_offer" or "accept_offer" or "reject_offer")
+            && _claims.Extract(line.Text, known.People, known.Player, known.Npc) is { } claim)
+        {
+            // 22 §4.5 Claim pack (M1: deterministic): a stated deed about a named person is a "tell" with its claim.
+            command = command with { Act = "tell", ClaimPredicate = claim.Predicate, ClaimSubject = claim.Subject, ClaimObject = claim.Object, ClaimFirstHand = claim.FirstHand };
+        }
+
+        _submit(CommandSource.Player, command);
         _view = view with { Turn = view.Turn + 1 };   // the next line numbers on even before the sim catches up
         Classified?.Invoke(c);
         return c;
@@ -117,6 +131,11 @@ public sealed class DialogueHost
 
         var conv = world.Conversations.Open.FirstOrDefault(c => c.Player == world.PlayerId);
         _view = conv is null ? null : TurnBundleBuilder.View(world, conv);
+        if (conv is not null && _known?.Conversation != conv.Id)
+        {
+            var people = world.People;
+            _known = new Known(conv.Id, conv.Player, conv.Npc, [.. Enumerable.Range(0, people.Count).Select(i => (people.Names[i], people.Ids[i]))]);
+        }
         var taken = new HashSet<ulong>();
         if (conv is null) { return taken; }
         var mine = output.OpenedDecisions.Where(d => d.MaxDecider == DeciderKind.Llm && d.Context.Chooser == conv.Npc).ToList();

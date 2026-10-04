@@ -55,6 +55,9 @@ jobs:
       - name: Camp sweep — 21 §19 metrics in band (20 seeds × 30 days; the nightly protocol is 100)
         run: dotnet run --project src/FeudalSim.Headless --no-build -c Release -- sweep --scenario content/scenarios/m1_camp.yaml --seeds 20 --days 30
 
+      - name: Template-mode completability (22 §13.3; the policy decides every DP, 10 worlds)
+        run: dotnet run --project src/FeudalSim.Headless --no-build -c Release -- complete --seeds 10
+
       - name: Upload test results and smoke run
         if: always()
         uses: actions/upload-artifact@v4

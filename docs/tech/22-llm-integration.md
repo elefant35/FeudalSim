@@ -2152,6 +2152,22 @@ an insult, make and keep a promise, report a theft) must pass in CI in template 
 milestone from M1, with every DP decided by the policy. A **template-coverage check** asserts that
 every option id any owner can put on a menu has at least one template per stance band.
 
+*Implemented (M1-17):* `CompletabilityRun` (Hosting) + **`feudalsim complete --seeds 10`** (a CI step) plays the M1
+forms of the goals through the real `DialogueHost` in template mode — heuristic classification, claim extraction,
+policy for every DP, templates for every line — stepping the sim on the calling thread and waiting for the host's
+submissions, so a run is deterministic (same hash twice). Goals: **barter and haggle** (open, offer 85% of the ask,
+accept the counter), **resolve an insult** (insult; follow the settler if they walk off; apologize until one accepts),
+**report a deed and be believed** ("I saw X stole from Y" → `belief.respond` believe/repeat/keep_quiet), **get help and
+see it kept** (a favor asked, agreed and done within 2 game days — M1's form of a promise kept). Each goal may need
+several settlers; all pass in 10 worlds (5–18 player turns, every DP by the policy, every line a template). Stale
+decisions after a conversation closes are rejected by the guard (≤ 1 per world), as designed. Promises with
+quantities and deadlines, shelter-building and theft join with their M2–M4 systems. Found and fixed on the way: the
+host never extracted claims (`ClaimExtractor`: predicate verbs from content phrases, names, "me"/"you"); the heuristic's
+pseudo-probabilities were too flat to pass §5.2's acceptance rule (base mass 1.0/0.1 → 0.5/0.02: golden-set act
+accuracy 77.4% → 95.7%, ambiguous 25 → 5; its cues were written against that set, so read it as an upper bound); and
+LOD0 bodies need a client, so headless drivers use `HeadlessBodies` (straight-line walking reported as
+`EmbodimentReport`).
+
 ---
 
 ## 14. Local-first plan

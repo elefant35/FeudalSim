@@ -190,7 +190,9 @@ public static partial class HeuristicClassifier
     {
         var acts = TurnClassifier.Acts;
         var w = new float[acts.Length];
-        for (var i = 0; i < acts.Length; i++) { w[i] = acts[i].Id == "small_talk" ? 1f : 0.1f; }
+        // Base mass: small talk 0.5, every other act 0.02, so a single matching cue clears 22 §5.2's acceptance rule
+        // (top ≥ 0.45, margin ≥ 0.10) instead of always reading as ambiguous (M1-17: "Could you help me…?" was "ask").
+        for (var i = 0; i < acts.Length; i++) { w[i] = acts[i].Id == "small_talk" ? 0.5f : 0.02f; }
         foreach (var (act, cue, weight) in Cues)
         {
             if (cue.IsMatch(text)) { w[Array.FindIndex(acts, a => a.Id == act)] += weight; }

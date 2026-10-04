@@ -16,6 +16,7 @@ public static class Program
             config.AddCommand<ReplayCommand>("replay").WithDescription("Replay a recorded input log headless and print the final state hash.");
             config.AddCommand<BenchCommand>("bench").WithDescription("Time a scenario per step and per system against the 20 §19 budgets (spike S6).");
             config.AddCommand<TalkCommand>("talk").WithDescription("A live conversation through the M1 dialogue pipeline, timed (22 §4, §12.4).");
+            config.AddCommand<CompleteCommand>("complete").WithDescription("22 §13.3: the golden goals in template mode (policy decides every DP, templates speak); exit 0 = completable.");
             config.AddCommand<RunCommand>("run").WithDescription("Run a scenario headless at max speed and write metrics.");
             config.AddBranch("ai", ai =>
             {
