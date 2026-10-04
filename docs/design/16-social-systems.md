@@ -1015,6 +1015,15 @@ R_full = all beliefs;   R³ᵖ = excludes SelfInvolved beliefs (§4.7)
 Competence also updates from **use**: each time A uses an item B made or a service B gave, a
 `Skilled/ShoddyWork` first-hand claim is updated by quality vs. A's expectation (13 provides quality).
 
+*Implemented (M1-07b, 2026-10-04):* `Sim/Social/Reputation.cs` (`world.Reputation`) computes R_full and R³ᵖ per
+(holder, subject) from beliefs at c ≥ 0.5. Only the strongest variant of each original claim counts. Self-involved
+beliefs (holder is the claim's object) are excluded from R³ᵖ, which enforces §4.7. Ages run to the start of the current
+day, so an impression is a pure function of (beliefs, day) and is cached until either changes. **D9** is now part of
+`Derived`, with weights equal to the holder's value itself (0–100): Honesty←Fairness, Generosity←(Fairness + Family)/2,
+Courage←Honor, Peaceableness←Warmth, Piety←Faith. Lawfulness gets no M1 effects and Competence feeds no D9. Worked
+check: one believed theft (c 0.9) gives Honesty −10.8 and, with Fairness 50, Opinion −5.4. The **trust ceiling**
+(`50 + 0.5·R_full Honesty`) and **plaus** (§7.2) read it.
+
 ### 8.2 Community reputation & Renown
 
 A **community** is a settlement (and, later, a polity per 17). It has no global number for you:
@@ -1029,6 +1038,13 @@ Maintained incrementally (delta-updated when a member's impression changes; full
 for Renown ≥ 20, lazily otherwise). `Rep_C` is used by institutions (17's councils, 15's guild-like
 bodies) and for the player's "what the village thinks" estimate; **individuals always act on their own
 `R_A`**.
+
+*Implemented (M1-07b):* Renown is recomputed nightly over the whole world as one community. The first pass uses
+w = 1; from then on, w comes from the previous night (opinion leaders count up to 3×). It is saved (renown table) and
+hashed, and it feeds `J_eff`. `Community(subject, axis)` gives Rep_C on demand. In the 24-person camp, Renown is
+60–100 for everyone by day 3. **Camp effect (100 seeds × 30 days):** friends rise to 0.31 per person, with a friend
+in 100 % of seeds (0.09 and 83 % before D9). This comes mostly from believed `helped` acts lifting Generosity
+impressions. All 21 §19 bands hold. The M1 rumor exit check now passes in 100 % of seeds.
 
 ### 8.3 Effects
 
@@ -1859,7 +1875,11 @@ betray a confidence, an Honest guard asked to ignore a theft) refuse in ≥ 95% 
 16. **§7.8 vs §7.2.** At camp trust, §7.2's credibility gives ≈ 0.35–0.40 acceptance, but §7.8's speeds assume ≈ 0.7,
     so a 3-witness juicy claim takes 1.2–1.5 d to t50, not 0.5 d (§7.10 note). Keep §7.2 and restate the §7.8 targets,
     or raise `cred`'s intercept (e.g. 0.15 → 0.35)? The M1 exit criterion passes either way, measured as *heard*.
-15. **Friendship formation rate.** The M1 camp makes 0.09 friends / person by day 30 with no rapport DPs and no
+17. **Trust ceiling at neutral reputation.** §4.8's `T ≤ 50 + 0.5·R_full Honesty` caps trust at 50 for anyone without
+    a positive Honesty record. The M1 vocabulary has almost no positive Honesty claims (`made_amends` +4), so Close
+    friend (T ≥ 60) is unreachable and claim acceptance stays ≈ 0.4 (Q16). Should the ceiling apply only when
+    R < 0 (a believed liar), or should kept promises and returned property (17/15) create `Honest` claims?
+15. **Friendship formation rate.** The M1 camp makes 0.31 friends / person by day 30 with D9 (0.09 before) with no rapport DPs and no
     gossip yet. What target (e.g. 1–2 friends / person by day 30) should the 21 §19 sweep enforce? It interacts
     with Q12.
 

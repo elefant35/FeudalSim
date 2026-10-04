@@ -29,6 +29,15 @@ public static class SaveCodec
     public const string MemoriesTable = "memories";
     public const string ClaimsTable = "claims";
     public const string BeliefsTable = "beliefs";
+    public const string RenownTable = "renown";
+
+    private static TableChunk RenownChunk(Social.ReputationStore store)
+    {
+        var rows = store.Export();
+        var chunk = new TableChunk { Table = RenownTable, RowCount = rows.Length };
+        chunk.Columns.Add(new ColumnBlock { Name = "rows", LayoutVersion = 1, ElementSize = Marshal.SizeOf<Social.ReputationStore.Row>(), Data = MemoryMarshal.AsBytes(rows.AsSpan()).ToArray() });
+        return chunk;
+    }
 
     private static TableChunk ClaimsChunk(Social.ClaimStore store)
     {
@@ -123,7 +132,7 @@ public static class SaveCodec
                 LastCommandSeq = world.LastCommandSeq,
             },
             IdCounters = counters,
-            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories), ClaimsChunk(world.Claims), BeliefsChunk(world.Beliefs)],
+            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories), ClaimsChunk(world.Claims), BeliefsChunk(world.Beliefs), RenownChunk(world.Reputation)],
         };
     }
 
@@ -211,6 +220,12 @@ public static class SaveCodec
                 world.Beliefs.Import(MemoryMarshal.Cast<byte, Social.BeliefStore.Row>(brows.Data).ToArray(), MemoryMarshal.Cast<byte, ulong>(told.Data).ToArray());
             }
             else { notes.Add("Claims/beliefs tables have an unknown layout; rumors reset."); }
+        }
+
+        if (image.Tables.FirstOrDefault(t => t.Table == RenownTable)?.Columns.FirstOrDefault(c => c.Name == "rows") is { } rrows)
+        {
+            if (rrows.ElementSize == Marshal.SizeOf<Social.ReputationStore.Row>()) { world.Reputation.Import(MemoryMarshal.Cast<byte, Social.ReputationStore.Row>(rrows.Data).ToArray()); }
+            else { notes.Add("Renown table has an unknown layout; renown recomputes tonight."); }
         }
 
         warnings = notes;

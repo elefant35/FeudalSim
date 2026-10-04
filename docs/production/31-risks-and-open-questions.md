@@ -126,7 +126,7 @@ marked **[Resolved — canon v0.2]** in place.
 | [13 Crafting & minigames](../design/13-crafting-and-minigames.md#open-questions) | 10 (5 resolved) |
 | [14 Technology & buildings](../design/14-technology-and-buildings.md#open-questions) | 7 (2 resolved) |
 | [15 Economy & trade](../design/15-economy-and-trade.md#open-questions) | 8 (2 resolved) |
-| [16 Social systems](../design/16-social-systems.md#open-questions) | 16 |
+| [16 Social systems](../design/16-social-systems.md#open-questions) | 17 |
 | [17 Governance & law](../design/17-governance-and-law.md#open-questions) | 7 |
 | [18 Conflict & warfare](../design/18-conflict-and-warfare.md#open-questions) | 8 (1 resolved) |
 | [19 Player experience](../design/19-player-experience.md#open-questions) | 7 (1 resolved) |

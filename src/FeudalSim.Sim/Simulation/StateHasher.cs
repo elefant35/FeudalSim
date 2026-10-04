@@ -45,6 +45,7 @@ public static class StateHasher
         world.Memories.HashInto(h);
         world.Claims.HashInto(h);
         world.Beliefs.HashInto(h);
+        world.Reputation.HashInto(h);
         return h.GetCurrentHashAsUInt64();
     }
 }

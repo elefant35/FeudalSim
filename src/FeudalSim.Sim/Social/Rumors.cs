@@ -60,6 +60,7 @@ public static class Rumors
             b.NovSinceMin = now;
         }
 
+        world.Beliefs.Touch();
         return id;
     }
 
@@ -73,6 +74,8 @@ public static class Rumors
             var b = world.Beliefs.GetOrCreate(world.People.Ids[w], id, now);
             (b.C, b.FirstHandC, b.FirstHand) = (0.9f, 0.9f, true);
         }
+
+        world.Beliefs.Touch();
 
         return id;
     }
@@ -88,9 +91,15 @@ public static class Rumors
         var def = world.Content.ClaimPredicates[claim.Predicate];
         EntityId l = people.Ids[listener], s = people.Ids[teller], subject = new(claim.Subject);
         var cred = (0.15f + (0.75f * rel.Trust(l, s) / 100f)) * MathF.Pow(0.9f, hop);
-        const float plaus = 1f;   // 16 §7.2 plaus needs R_full (M1-07b)
-        var bias = 1f;
         var op = subject == l ? 0f : rel.Opinion(l, subject);
+        var plaus = 1f;   // fits what I already think: 1 + 0.5·(−R_full on the claim's main axis)/100·sign(harm)
+        if (def.Valence != ClaimValence.Neutral && subject != l && world.Reputation.MainAxis(claim.Predicate) is var main and >= 0)
+        {
+            var r = world.Reputation.R(l, subject, (RepAxis)main);
+            plaus = Math.Clamp(1f + (0.5f * -r / 100f * (def.Valence == ClaimValence.Negative ? 1f : -1f)), 0.5f, 1.5f);
+        }
+
+        var bias = 1f;
         if (def.Valence == ClaimValence.Negative)
         {
             if (op >= 50f) { bias = 0.6f; } else if (op <= -30f) { bias = 1.3f; }
@@ -119,7 +128,12 @@ public static class Rumors
 
     // ---- 16 §7.4 tellability ---------------------------------------------------------------------------------
 
-    public static float JEff(SimWorld world, in Claim claim) => world.Content.ClaimPredicates[claim.Predicate].Juiciness * (0.6f + (0.4f * Renown(world, new EntityId(claim.Subject)) / 100f));
+    public static float JEff(SimWorld world, in Claim claim)
+    {
+        var subject = new EntityId(claim.Subject);
+        var renown = world.Reputation.HasRenown ? world.Reputation.Renown(subject) : Renown(world, subject);   // before the first nightly pass: w = 1
+        return world.Content.ClaimPredicates[claim.Predicate].Juiciness * (0.6f + (0.4f * renown / 100f));
+    }
 
     /// <summary>
     /// 16 §8.2 Renown over the whole world as one community: <c>100 · mean_m knows(m, B)</c>,
@@ -279,6 +293,7 @@ public static class Rumors
 
         var b = existing ?? world.Beliefs.GetOrCreate(people.Ids[listener], claimId, now);
         Update(b, cS, supports: true);
+        world.Beliefs.Touch();
         if (existing is null) { (b.Source, b.Hop) = (people.Ids[teller].Value, (byte)Math.Min(255, hop)); }
         if (option == ToldOption.Repeat) { (b.EagerUntilMin, b.NovSinceMin) = (now + (2 * 1440), now); }
         if (option == ToldOption.KeepQuiet) { b.QuietUntilMin = now + (8 * 1440); }

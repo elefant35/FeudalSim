@@ -140,6 +140,12 @@ public sealed class BeliefStore
 
     public int Count => _byPerson.Values.Sum(l => l.Count);
 
+    /// <summary>Bumped on every belief change; caches derived from beliefs (reputation) key on it. Not state.</summary>
+    public long Version { get; private set; }
+
+    /// <summary>Call after changing a belief's confidence in place.</summary>
+    public void Touch() => Version++;
+
     public IReadOnlyList<Belief> Of(EntityId person) => _byPerson.TryGetValue(person.Value, out var l) ? l : [];
 
     /// <summary>Allocation-free view for sim hot paths (valid until the next GetOrCreate/Forget).</summary>
@@ -155,6 +161,7 @@ public sealed class BeliefStore
     public Belief GetOrCreate(EntityId person, int claim, long nowMin)
     {
         if (Get(person, claim) is { } b) { return b; }
+        Version++;
         if (!_byPerson.TryGetValue(person.Value, out var list)) { _byPerson[person.Value] = list = []; }
         b = new Belief { Claim = claim, HeardMin = nowMin, NovSinceMin = nowMin };
         list.Add(b);
@@ -172,6 +179,7 @@ public sealed class BeliefStore
     public void Forget()
     {
         foreach (var list in _byPerson.Values) { list.RemoveAll(b => b.C < ForgetBelow); }
+        Version++;
     }
 
     /// <summary>How many people other than the claim's subject hold a belief derived from <paramref name="root"/> at c ≥ <paramref name="min"/> (any variant).</summary>
@@ -248,6 +256,7 @@ public sealed class BeliefStore
     internal void Import(Row[] rows, ulong[] told)
     {
         _byPerson.Clear();
+        Version++;
         foreach (var r in rows)
         {
             if (!_byPerson.TryGetValue(r.Owner, out var list)) { _byPerson[r.Owner] = list = []; }

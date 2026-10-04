@@ -33,7 +33,7 @@ public sealed class RelationshipEdge
 /// Relationships (16 §4): Opinion as derived terms + decaying modifier slots, Trust, Familiarity, Fear and tags,
 /// stored as sparse directed edges in id order (deterministic). Reads are pure; the daily update (familiarity decay,
 /// trust drift, slot cleanup, tags) is the only state change besides events. Derived terms in M1: D3 homeland,
-/// D4 faith, D5 values alignment (D1 kin and D2 household need the kin graph; D9 needs reputation — M1-07).
+/// D4 faith, D5 values alignment, D9 reputation impression (D1 kin and D2 household need the kin graph).
 /// </summary>
 public sealed class RelationshipStore
 {
@@ -155,9 +155,10 @@ public sealed class RelationshipStore
         e.Mods[index] = slot;
     }
 
-    /// <summary>16 §4.8 evidence: positive g → T += g·(100 − T)/100; negative l → T −= l·(0.5 + T/100); ceiling 50 + 0.5·Honesty.</summary>
-    public void TrustEvidence(EntityId holder, EntityId other, float amount, float honestyReputation = 0f)
+    /// <summary>16 §4.8 evidence: positive g → T += g·(100 − T)/100; negative l → T −= l·(0.5 + T/100); ceiling 50 + 0.5·R_full Honesty.</summary>
+    public void TrustEvidence(EntityId holder, EntityId other, float amount, float? honestyReputation = null)
     {
+        var honesty = honestyReputation ?? _world.Reputation.R(holder, other, RepAxis.Honesty);
         var e = GetOrCreate(holder, other);
         var hp = Holder(holder);
         if (amount >= 0f)
@@ -170,7 +171,7 @@ public sealed class RelationshipStore
             e.Trust -= -amount * (0.5f + (e.Trust / 100f));
         }
 
-        e.Trust = Math.Clamp(e.Trust, 0f, Math.Min(100f, 50f + (0.5f * honestyReputation)));
+        e.Trust = Math.Clamp(e.Trust, 0f, Math.Min(100f, 50f + (0.5f * honesty)));
     }
 
     /// <summary>16 §4.9: ΔF = w·(1 − F/100) in both directions; social contact capped at +6 per pair per day.</summary>
@@ -303,7 +304,7 @@ public sealed class RelationshipStore
         var d4 = ca == cb ? 4f * pa.Values.Faith / 50f
             : (ca, cb) is ("ember_orthodox", "ember_lax") or ("ember_lax", "ember_orthodox") ? -3f
             : -(5f + (15f * pa.Values.Faith / 100f));
-        return d3 + d4 + ValuesAlignment(a, b, holder, other);
+        return d3 + d4 + ValuesAlignment(a, b, holder, other) + _world.Reputation.D9(a, holder, other);
     }
 
     /// <summary>D5: 10·cos(v_A − 50, perceived v_B − 50); A perceives B's values with noise σ = 30·(1 − F/100), stable per pair.</summary>

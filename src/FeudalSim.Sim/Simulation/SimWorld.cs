@@ -29,6 +29,7 @@ public sealed class SimWorld
         Clock = new SimClock(startGameMs, dayLengthMinutes);
         Decisions = new DecisionRulesEngine(this);
         Relationships = new Social.RelationshipStore(this);
+        Reputation = new Social.ReputationStore(this);
     }
 
     public ulong WorldSeed { get; }
@@ -44,6 +45,9 @@ public sealed class SimWorld
 
     /// <summary>Beliefs per person (16 §7).</summary>
     public Social.BeliefStore Beliefs { get; } = new();
+
+    /// <summary>Reputation and Renown (16 §8).</summary>
+    public Social.ReputationStore Reputation { get; }
 
     /// <summary>Relationships (16 §4): opinion, trust, familiarity, fear, tags.</summary>
     public Social.RelationshipStore Relationships { get; }
