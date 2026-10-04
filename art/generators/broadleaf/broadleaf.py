@@ -22,7 +22,8 @@ def generate(params):
  name=f'tree_{species}_{variant}';parts=[];coll=[]
  stage=params.get('stage','tree')
  if stage!='tree':
-  length=1.1 if stage=='stump' else h*.65
+  name=f'tree_{species}_{stage}_{variant}'
+  length=.7 if stage=='stump' else h*.65
   a=(0,0,0) if stage=='stump' else (-length/2,0,r)
   b=(0,0,length) if stage=='stump' else (length/2,0,r*.5)
   parts.append(tube('bark',a,b,r,r*.65,bark,10))

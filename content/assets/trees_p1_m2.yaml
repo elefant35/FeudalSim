@@ -1,0 +1,892 @@
+[
+  {
+    "id": "asset.trees_p1.elm_a",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "elm",
+        "seed": 401,
+        "variant": "a"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/elm_a.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 950,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 timber elm; palette/wind/trunk collision."
+  },
+  {
+    "id": "asset.trees_p1.elm_b",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "elm",
+        "seed": 402,
+        "variant": "b"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/elm_b.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 950,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 timber elm; palette/wind/trunk collision."
+  },
+  {
+    "id": "asset.trees_p1.elm_c",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "elm",
+        "seed": 403,
+        "variant": "c"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/elm_c.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 950,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 timber elm; palette/wind/trunk collision."
+  },
+  {
+    "id": "asset.trees_p1.yew_a",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "yew",
+        "seed": 401,
+        "variant": "a"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/yew_a.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 860,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 timber yew; palette/wind/trunk collision."
+  },
+  {
+    "id": "asset.trees_p1.yew_b",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "yew",
+        "seed": 402,
+        "variant": "b"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/yew_b.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 860,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 timber yew; palette/wind/trunk collision."
+  },
+  {
+    "id": "asset.trees_p1.yew_c",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "yew",
+        "seed": 403,
+        "variant": "c"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/yew_c.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 860,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 timber yew; palette/wind/trunk collision."
+  },
+  {
+    "id": "asset.trees_p1.lime_a",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "lime",
+        "seed": 401,
+        "variant": "a"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/lime_a.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 950,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 timber lime; palette/wind/trunk collision."
+  },
+  {
+    "id": "asset.trees_p1.lime_b",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "lime",
+        "seed": 402,
+        "variant": "b"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/lime_b.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 950,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 timber lime; palette/wind/trunk collision."
+  },
+  {
+    "id": "asset.trees_p1.lime_c",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "lime",
+        "seed": 403,
+        "variant": "c"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/lime_c.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 950,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 timber lime; palette/wind/trunk collision."
+  },
+  {
+    "id": "asset.trees_p1.scots_pine_stump",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "scots_pine",
+        "seed": 401,
+        "variant": "a",
+        "stage": "stump"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/scots_pine_stump.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 72,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 scots_pine cut state; exposed pale end grain, grounded hull."
+  },
+  {
+    "id": "asset.trees_p1.scots_pine_log",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "scots_pine",
+        "seed": 401,
+        "variant": "a",
+        "stage": "log"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/scots_pine_log.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 72,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 scots_pine cut state; exposed pale end grain, grounded hull."
+  },
+  {
+    "id": "asset.trees_p1.oak_stump",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "oak",
+        "seed": 401,
+        "variant": "a",
+        "stage": "stump"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/oak_stump.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 72,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 oak cut state; exposed pale end grain, grounded hull."
+  },
+  {
+    "id": "asset.trees_p1.oak_log",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "oak",
+        "seed": 401,
+        "variant": "a",
+        "stage": "log"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/oak_log.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 72,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 oak cut state; exposed pale end grain, grounded hull."
+  },
+  {
+    "id": "asset.trees_p1.birch_stump",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "birch",
+        "seed": 401,
+        "variant": "a",
+        "stage": "stump"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/birch_stump.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 72,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 birch cut state; exposed pale end grain, grounded hull."
+  },
+  {
+    "id": "asset.trees_p1.birch_log",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "birch",
+        "seed": 401,
+        "variant": "a",
+        "stage": "log"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/birch_log.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 72,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 birch cut state; exposed pale end grain, grounded hull."
+  },
+  {
+    "id": "asset.trees_p1.ash_stump",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "ash",
+        "seed": 401,
+        "variant": "a",
+        "stage": "stump"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/ash_stump.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 72,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 ash cut state; exposed pale end grain, grounded hull."
+  },
+  {
+    "id": "asset.trees_p1.ash_log",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "ash",
+        "seed": 401,
+        "variant": "a",
+        "stage": "log"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/ash_log.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 72,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 ash cut state; exposed pale end grain, grounded hull."
+  },
+  {
+    "id": "asset.trees_p1.beech_stump",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "beech",
+        "seed": 401,
+        "variant": "a",
+        "stage": "stump"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/beech_stump.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 72,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 beech cut state; exposed pale end grain, grounded hull."
+  },
+  {
+    "id": "asset.trees_p1.beech_log",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "beech",
+        "seed": 401,
+        "variant": "a",
+        "stage": "log"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/beech_log.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 72,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 beech cut state; exposed pale end grain, grounded hull."
+  },
+  {
+    "id": "asset.trees_p1.alder_stump",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "alder",
+        "seed": 401,
+        "variant": "a",
+        "stage": "stump"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/alder_stump.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 72,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 alder cut state; exposed pale end grain, grounded hull."
+  },
+  {
+    "id": "asset.trees_p1.alder_log",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "alder",
+        "seed": 401,
+        "variant": "a",
+        "stage": "log"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/alder_log.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 72,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 alder cut state; exposed pale end grain, grounded hull."
+  },
+  {
+    "id": "asset.trees_p1.willow_stump",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "willow",
+        "seed": 401,
+        "variant": "a",
+        "stage": "stump"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/willow_stump.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 72,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 willow cut state; exposed pale end grain, grounded hull."
+  },
+  {
+    "id": "asset.trees_p1.willow_log",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "willow",
+        "seed": 401,
+        "variant": "a",
+        "stage": "log"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/willow_log.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 72,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 willow cut state; exposed pale end grain, grounded hull."
+  },
+  {
+    "id": "asset.trees_p1.elm_stump",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "elm",
+        "seed": 401,
+        "variant": "a",
+        "stage": "stump"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/elm_stump.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 72,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 elm cut state; exposed pale end grain, grounded hull."
+  },
+  {
+    "id": "asset.trees_p1.elm_log",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "elm",
+        "seed": 401,
+        "variant": "a",
+        "stage": "log"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/elm_log.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 72,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 elm cut state; exposed pale end grain, grounded hull."
+  },
+  {
+    "id": "asset.trees_p1.yew_stump",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "yew",
+        "seed": 401,
+        "variant": "a",
+        "stage": "stump"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/yew_stump.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 72,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 yew cut state; exposed pale end grain, grounded hull."
+  },
+  {
+    "id": "asset.trees_p1.yew_log",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "yew",
+        "seed": 401,
+        "variant": "a",
+        "stage": "log"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/yew_log.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 72,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 yew cut state; exposed pale end grain, grounded hull."
+  },
+  {
+    "id": "asset.trees_p1.lime_stump",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "lime",
+        "seed": 401,
+        "variant": "a",
+        "stage": "stump"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/lime_stump.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 72,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 lime cut state; exposed pale end grain, grounded hull."
+  },
+  {
+    "id": "asset.trees_p1.lime_log",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "lime",
+        "seed": 401,
+        "variant": "a",
+        "stage": "log"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/lime_log.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 72,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P1 lime cut state; exposed pale end grain, grounded hull."
+  }
+]
