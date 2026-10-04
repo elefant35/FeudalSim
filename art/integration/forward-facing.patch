@@ -1,0 +1,29 @@
+--- a/game/scripts/Bridge/SimHost.Play.cs
++++ b/game/scripts/Bridge/SimHost.Play.cs
+@@ -225,7 +225,7 @@
+         }
+ 
+         _playerBody!.Position = new Vector3(_player.X, Ground(_player.X, _player.Y), _player.Y);
+-        const float faceOffset = Mathf.Pi;   // imported models face −Z (Godot's forward), as the sim's yaw assumes
++        var faceOffset = _playerKitBody ? 0f : Mathf.Pi;   // M2 kit art faces +Z; legacy stand-in faces −Z
+         if (moved) { _playerBody.Rotation = new Vector3(0, Mathf.Atan2(input.X, input.Y) + faceOffset, 0); }
+         else { _playerBody.Rotation = new Vector3(0, _yaw + Mathf.Pi + faceOffset, 0); }   // standing: face where you look
+         var working = snap.PlayerProcess != 0 && snap.ProcessState == (byte)Sim.Crafting.ProcessState.Active && snap.GameMs / Sim.Time.SimClock.MsPerGameMinute < snap.ProcessBusyUntilMin;
+@@ -235,7 +235,7 @@
+         Hold(Knapping ? "hammerstone" : working && snap.ProcessRecipe == _fellRecipe ? "iron_axe" : null);
+         if (snap.Step != _lastPlayerStep && _runner!.Mode != RunMode.Paused && _player != _lastReportedPlayer)
+         {
+-            _runner.Submit(CommandSource.Embodiment, new PlayerMoved(_player.X, _player.Y, _playerBody.Rotation.Y, moved ? gait : (byte)0));
++            _runner.Submit(CommandSource.Embodiment, new PlayerMoved(_player.X, _player.Y, moved ? Mathf.Atan2(input.X, -input.Y) : -_yaw, moved ? gait : (byte)0));
+             (_lastPlayerStep, _lastReportedPlayer) = (snap.Step, _player);
+         }
+ 
+@@ -267,7 +267,7 @@
+             var kitBody = _kit is not null;
+             if (asleep) { _lying.Add(id); } else { _lying.Remove(id); }
+             p.Body.Position = new Vector3(at.X, Ground(at.X, at.Y) + (asleep && !kitBody ? 0.15f : 0), at.Y);
+-            p.Body.Rotation = asleep && !kitBody ? new Vector3(-Mathf.Pi / 2, 0, 0) : new Vector3(0, walking ? Mathf.Atan2(step.X, step.Y) + Mathf.Pi : -snap.Yaw[i], 0);   // models face −Z
++            p.Body.Rotation = asleep && !kitBody ? new Vector3(-Mathf.Pi / 2, 0, 0) : new Vector3(0, walking ? Mathf.Atan2(step.X, step.Y) + (kitBody ? 0f : Mathf.Pi) : -snap.Yaw[i] + (kitBody ? Mathf.Pi : 0f), 0);   // M2 art +Z; sim yaw atan2(dx, −dz)
+             var mps = walking ? step.Length() / Math.Max(delta, 1e-3f) / (float)Math.Max(Engine.TimeScale, 0.01) : 0f;
+             var (clip, clipSpeed) = CharacterKit.ClipFor(action >= 0 ? _content!.Actions[action].Id : null, asleep, mps, id);
+             PlayClip(p.Anim, clip, clipSpeed);
