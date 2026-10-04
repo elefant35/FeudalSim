@@ -1,0 +1,350 @@
+[
+  {
+    "id": "asset.camp.campfire",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp/camp.py",
+      "params": {
+        "item": "campfire",
+        "seed": 301
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/buildings/campfire.glb"
+    ],
+    "budget_class": "workstation",
+    "measured": {
+      "tris_lod0": 642,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "M2 P0 campfire; worn own-work palette geometry."
+  },
+  {
+    "id": "asset.camp.sailcloth_shelter",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp/camp.py",
+      "params": {
+        "item": "sailcloth_shelter",
+        "seed": 301
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/buildings/sailcloth_shelter.glb"
+    ],
+    "budget_class": "building_small",
+    "measured": {
+      "tris_lod0": 424,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "M2 P0 sailcloth shelter; worn own-work palette geometry."
+  },
+  {
+    "id": "asset.camp.lean_to",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp/camp.py",
+      "params": {
+        "item": "lean_to",
+        "seed": 301
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/buildings/lean_to.glb"
+    ],
+    "budget_class": "building_small",
+    "measured": {
+      "tris_lod0": 532,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "M2 P0 lean to; worn own-work palette geometry."
+  },
+  {
+    "id": "asset.camp.bough_bed",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp/camp.py",
+      "params": {
+        "item": "bough_bed",
+        "seed": 301
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/bough_bed.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 276,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "M2 P0 bough bed; worn own-work palette geometry."
+  },
+  {
+    "id": "asset.camp.crate",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp/camp.py",
+      "params": {
+        "item": "crate",
+        "seed": 301
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/crate.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 312,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "M2 P0 crate; worn own-work palette geometry."
+  },
+  {
+    "id": "asset.camp.barrel",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp/camp.py",
+      "params": {
+        "item": "barrel",
+        "seed": 301
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/barrel.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 188,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "M2 P0 barrel; worn own-work palette geometry."
+  },
+  {
+    "id": "asset.camp.sack",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp/camp.py",
+      "params": {
+        "item": "sack",
+        "seed": 301
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/sack.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 168,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "M2 P0 sack; worn own-work palette geometry."
+  },
+  {
+    "id": "asset.camp.chest",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp/camp.py",
+      "params": {
+        "item": "chest",
+        "seed": 301
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/chest.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 380,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "M2 P0 chest; worn own-work palette geometry."
+  },
+  {
+    "id": "asset.camp.water_skin",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp/camp.py",
+      "params": {
+        "item": "water_skin",
+        "seed": 301
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/water_skin.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 208,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "M2 P0 water skin; worn own-work palette geometry."
+  },
+  {
+    "id": "asset.camp.wooden_bucket",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp/camp.py",
+      "params": {
+        "item": "wooden_bucket",
+        "seed": 301
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/wooden_bucket.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 208,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "M2 P0 wooden bucket; worn own-work palette geometry."
+  },
+  {
+    "id": "asset.camp.firewood_pile",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp/camp.py",
+      "params": {
+        "item": "firewood_pile",
+        "seed": 301
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/firewood_pile.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 360,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "M2 P0 firewood pile; worn own-work palette geometry."
+  },
+  {
+    "id": "asset.camp.firewood_bundle",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/camp/camp.py",
+      "params": {
+        "item": "firewood_bundle",
+        "seed": 301
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/firewood_bundle.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 328,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "M2 P0 firewood bundle; worn own-work palette geometry."
+  }
+]
