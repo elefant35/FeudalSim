@@ -1,0 +1,982 @@
+# yaml-language-server: $schema=../schemas/asset.schema.json
+# Original procedural P1 botanical family; fact references in art/generators/forage/SOURCES.md.
+- id: asset.flora.hawthorn_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "hawthorn", "variant": "a", "seed": 7101}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/bushes/hawthorn_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 296, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Lobed leaves, thorn accents, red haws and pale five-petal blossoms. P1; original procedural work. Reference B08 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.hawthorn_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "hawthorn", "variant": "b", "seed": 7102}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/bushes/hawthorn_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 296, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Lobed leaves, thorn accents, red haws and pale five-petal blossoms. P1; original procedural work. Reference B08 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.blackthorn_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "blackthorn", "variant": "a", "seed": 7201}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/bushes/blackthorn_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 256, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Oval leaves, angular thorn tips, dark sloes and pale five-petal blossoms. P1; original procedural work. Reference B08 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.blackthorn_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "blackthorn", "variant": "b", "seed": 7202}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/bushes/blackthorn_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 256, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Oval leaves, angular thorn tips, dark sloes and pale five-petal blossoms. P1; original procedural work. Reference B08 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.elder_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "elder", "variant": "a", "seed": 7301}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/bushes/elder_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 291, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Pinnate five-leaflet details, pale flowers and dark berry clusters. P1; original procedural work. Reference B09 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.elder_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "elder", "variant": "b", "seed": 7302}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/bushes/elder_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 291, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Pinnate five-leaflet details, pale flowers and dark berry clusters. P1; original procedural work. Reference B09 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.crab_apple_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "crab_apple", "variant": "a", "seed": 7401}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/bushes/crab_apple_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 232, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Broad small-tree crown, oval leaves and larger red/gold fruit. P1; original procedural work. Reference B10 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.crab_apple_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "crab_apple", "variant": "b", "seed": 7402}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/bushes/crab_apple_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 232, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Broad small-tree crown, oval leaves and larger red/gold fruit. P1; original procedural work. Reference B10 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.juniper_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "juniper", "variant": "a", "seed": 7501}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/bushes/juniper_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 212, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Dense upright needle-green crown, pointed needle details and dark berry-cones. P1; original procedural work. Reference B11 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.juniper_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "juniper", "variant": "b", "seed": 7502}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/bushes/juniper_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 212, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Dense upright needle-green crown, pointed needle details and dark berry-cones. P1; original procedural work. Reference B11 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.dog_rose_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "dog_rose", "variant": "a", "seed": 7601}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/bushes/dog_rose_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 300, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Arching thorny canes, compound leaves, pale open five-petal flowers and elongated red hips. P1; original procedural work. Reference B12 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.dog_rose_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "dog_rose", "variant": "b", "seed": 7602}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/bushes/dog_rose_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 300, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Arching thorny canes, compound leaves, pale open five-petal flowers and elongated red hips. P1; original procedural work. Reference B12 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.bilberry_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "bilberry", "variant": "a", "seed": 7701}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/bushes/bilberry_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 138, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Low angular green stems, small ovate leaves and dark berries without the large nightshade calyx. P1; original procedural work. Reference B07 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.bilberry_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "bilberry", "variant": "b", "seed": 7702}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/bushes/bilberry_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 138, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Low angular green stems, small ovate leaves and dark berries without the large nightshade calyx. P1; original procedural work. Reference B07 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.yarrow_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "yarrow", "variant": "a", "seed": 7801}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/yarrow_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 270, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Slender stems, finely divided foliage and flat pale flower clusters. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.yarrow_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "yarrow", "variant": "b", "seed": 7802}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/yarrow_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 270, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Slender stems, finely divided foliage and flat pale flower clusters. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.plantain_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "plantain", "variant": "a", "seed": 7901}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/plantain_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 84, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Broad basal rosettes with upright dark seed spikes. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.plantain_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "plantain", "variant": "b", "seed": 7902}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/plantain_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 84, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Broad basal rosettes with upright dark seed spikes. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.comfrey_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "comfrey", "variant": "a", "seed": 8001}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/comfrey_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 150, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Coarse broad rosette, visible hair accents, short drooping tubular flower clusters. P1; original procedural work. Reference B06 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.comfrey_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "comfrey", "variant": "b", "seed": 8002}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/comfrey_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 150, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Coarse broad rosette, visible hair accents, short drooping tubular flower clusters. P1; original procedural work. Reference B06 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.ramsons_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "ramsons", "variant": "a", "seed": 8101}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/ramsons_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 105, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Broad basal leaves and clusters of six-point pale star flowers. P1; original procedural work. Reference B05 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.ramsons_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "ramsons", "variant": "b", "seed": 8102}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/ramsons_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 105, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Broad basal leaves and clusters of six-point pale star flowers. P1; original procedural work. Reference B05 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.feverfew_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "feverfew", "variant": "a", "seed": 8201}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/feverfew_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 93, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Pale daisy petals around small gold centers. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.feverfew_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "feverfew", "variant": "b", "seed": 8202}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/feverfew_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 93, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Pale daisy petals around small gold centers. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.meadowsweet_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "meadowsweet", "variant": "a", "seed": 8301}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/meadowsweet_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 147, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Airy cream flower plumes over broad leaflets. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.meadowsweet_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "meadowsweet", "variant": "b", "seed": 8302}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/meadowsweet_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 147, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Airy cream flower plumes over broad leaflets. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.wild_thyme_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "wild_thyme", "variant": "a", "seed": 8401}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/wild_thyme_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 66, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Low herb carpet with tiny leaves and small muted pink-proxy flowers. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.wild_thyme_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "wild_thyme", "variant": "b", "seed": 8402}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/wild_thyme_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 66, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Low herb carpet with tiny leaves and small muted pink-proxy flowers. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.sphagnum_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "sphagnum", "variant": "a", "seed": 8501}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/sphagnum_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 132, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Moss cushions and pale star-shaped capitula. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.sphagnum_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "sphagnum", "variant": "b", "seed": 8502}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/sphagnum_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 132, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Moss cushions and pale star-shaped capitula. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.valerian_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "valerian", "variant": "a", "seed": 8601}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/valerian_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 270, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Pinnate foliage and pale pink-proxy flower heads. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.valerian_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "valerian", "variant": "b", "seed": 8602}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/valerian_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 270, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Pinnate foliage and pale pink-proxy flower heads. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.water_mint_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "water_mint", "variant": "a", "seed": 8701}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/water_mint_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 208, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Opposite serrated leaves and pale flower whorls. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.water_mint_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "water_mint", "variant": "b", "seed": 8702}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/water_mint_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 208, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Opposite serrated leaves and pale flower whorls. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.nettle_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "nettle", "variant": "a", "seed": 8801}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/nettle_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 184, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Opposite sharply toothed leaves, small stinging hair accents and green flower strands. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.nettle_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "nettle", "variant": "b", "seed": 8802}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/nettle_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 184, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Opposite sharply toothed leaves, small stinging hair accents and green flower strands. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.sorrel_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "sorrel", "variant": "a", "seed": 8901}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/sorrel_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 140, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Arrow/lobed basal foliage and sparse reddish seed strands. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.sorrel_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "sorrel", "variant": "b", "seed": 8902}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/sorrel_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 140, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Arrow/lobed basal foliage and sparse reddish seed strands. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.wild_carrot_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "wild_carrot", "variant": "a", "seed": 9001}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/wild_carrot_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 286, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Pale compound umbels, divided foliage, dark central floret, small stem hairs and bracts. P1; original procedural work. Reference B01 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.wild_carrot_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "wild_carrot", "variant": "b", "seed": 9002}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/wild_carrot_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 286, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Pale compound umbels, divided foliage, dark central floret, small stem hairs and bracts. P1; original procedural work. Reference B01 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.hemlock_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "hemlock", "variant": "a", "seed": 9101}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/hemlock_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 272, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Pale compound umbels and divided foliage; smooth stems with conspicuous woad-blue blotches (palette proxy for purple). P1; original procedural work. Reference B02 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.hemlock_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "hemlock", "variant": "b", "seed": 9102}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/hemlock_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 272, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Pale compound umbels and divided foliage; smooth stems with conspicuous woad-blue blotches (palette proxy for purple). P1; original procedural work. Reference B02 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.water_hemlock_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "water_hemlock", "variant": "a", "seed": 9201}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/water_hemlock_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 264, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Cicuta virosa; pale compound umbels, narrow deeply toothed divided leaflets. P1; original procedural work. Reference B03 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.water_hemlock_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "water_hemlock", "variant": "b", "seed": 9202}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/water_hemlock_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 264, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Cicuta virosa; pale compound umbels, narrow deeply toothed divided leaflets. P1; original procedural work. Reference B03 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.foxglove_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "foxglove", "variant": "a", "seed": 9301}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/foxglove_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 228, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Similar broad rosette with tall spire of dangling tubular flowers; existing woad/madder substitute purple. P1; original procedural work. Reference B06 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.foxglove_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "foxglove", "variant": "b", "seed": 9302}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/foxglove_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 228, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Similar broad rosette with tall spire of dangling tubular flowers; existing woad/madder substitute purple. P1; original procedural work. Reference B06 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.lily_of_the_valley_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "lily_of_the_valley", "variant": "a", "seed": 9401}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/lily_of_the_valley_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 180, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Broad basal leaves and one-sided arching sprays of five hanging pale bells. P1; original procedural work. Reference B05 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.lily_of_the_valley_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "lily_of_the_valley", "variant": "b", "seed": 9402}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/lily_of_the_valley_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 180, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Broad basal leaves and one-sided arching sprays of five hanging pale bells. P1; original procedural work. Reference B05 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.deadly_nightshade_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "deadly_nightshade", "variant": "a", "seed": 9501}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/deadly_nightshade_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 156, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Branching herb with broad paired upper leaves; dark berries with a large five-point green calyx and dull bell flowers. P1; original procedural work. Reference B07 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.deadly_nightshade_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "deadly_nightshade", "variant": "b", "seed": 9502}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/deadly_nightshade_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 156, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Branching herb with broad paired upper leaves; dark berries with a large five-point green calyx and dull bell flowers. P1; original procedural work. Reference B07 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.field_mushroom_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "field_mushroom", "variant": "a", "seed": 9601}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/field_mushroom_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 180, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Pale cap and dark brown gill underside; thin stem ring; no basal cup. P1; original procedural work. Reference B04 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.field_mushroom_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "field_mushroom", "variant": "b", "seed": 9602}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/field_mushroom_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 180, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Pale cap and dark brown gill underside; thin stem ring; no basal cup. P1; original procedural work. Reference B04 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.death_cap_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "death_cap", "variant": "a", "seed": 9701}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/death_cap_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 216, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Similar pale cap with subdued olive center, white gill underside, stem ring and visible basal volva cup. P1; original procedural work. Reference B04 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.death_cap_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "death_cap", "variant": "b", "seed": 9702}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/death_cap_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 216, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Similar pale cap with subdued olive center, white gill underside, stem ring and visible basal volva cup. P1; original procedural work. Reference B04 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.fly_agaric_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "fly_agaric", "variant": "a", "seed": 9801}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/fly_agaric_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 261, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Madder-red cap with pale patches, white underside, ring and basal cup. P1; original procedural work. Reference B04 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.fly_agaric_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "fly_agaric", "variant": "b", "seed": 9802}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/fly_agaric_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 261, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Madder-red cap with pale patches, white underside, ring and basal cup. P1; original procedural work. Reference B04 in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.wild_oats_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "wild_oats", "variant": "a", "seed": 9901}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/wild_oats_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 168, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Tall blades and loose nodding panicles of pale spikelets. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.wild_oats_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "wild_oats", "variant": "b", "seed": 9902}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/wild_oats_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 168, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Tall blades and loose nodding panicles of pale spikelets. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.sea_beet_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "sea_beet", "variant": "a", "seed": 10001}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/sea_beet_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 224, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Broad wavy leaf rosettes and narrow green flower strands. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.sea_beet_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "sea_beet", "variant": "b", "seed": 10002}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/sea_beet_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 224, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Broad wavy leaf rosettes and narrow green flower strands. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.wild_cabbage_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "wild_cabbage", "variant": "a", "seed": 10101}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/wild_cabbage_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 136, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Waxy blue-green broad rosettes with small yellow four-petal flowers. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.wild_cabbage_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "wild_cabbage", "variant": "b", "seed": 10102}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/wild_cabbage_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 136, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Waxy blue-green broad rosettes with small yellow four-petal flowers. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.wild_pea_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "wild_pea", "variant": "a", "seed": 10201}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/wild_pea_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 118, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Twining stems, small paired leaflets, pale pea flowers and green pods. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.wild_pea_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "wild_pea", "variant": "b", "seed": 10202}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/wild_pea_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 118, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Twining stems, small paired leaflets, pale pea flowers and green pods. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.wild_flax_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "wild_flax", "variant": "a", "seed": 10301}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/wild_flax_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 66, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Thin upright stems with linear leaves and small five-petal blue flowers. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.wild_flax_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "wild_flax", "variant": "b", "seed": 10302}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/wild_flax_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 66, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Thin upright stems with linear leaves and small five-petal blue flowers. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.wild_hops_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "wild_hops", "variant": "a", "seed": 10401}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/wild_hops_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 144, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Twining stems, lobed leaves and pendant light-green cones. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.wild_hops_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "wild_hops", "variant": "b", "seed": 10402}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/wild_hops_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 144, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Twining stems, lobed leaves and pendant light-green cones. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.wild_strawberry_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "wild_strawberry", "variant": "a", "seed": 10501}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/wild_strawberry_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 195, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Trifoliate toothed foliage, pale five-petal flowers and small elongated red fruit. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."
+- id: asset.flora.wild_strawberry_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/forage/forage.py
+    params: {"species": "wild_strawberry", "variant": "b", "seed": 10502}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/wild_strawberry_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 195, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Trifoliate toothed foliage, pale five-petal flowers and small elongated red fruit. P1; original procedural work. Reference conventional morphology in forage/SOURCES.md. Grounded metre-scale patch; no collision. One palette material, COLOR_0 R wind. Separate flowers/fruit for optional seasonal hiding. Owner look review pending."

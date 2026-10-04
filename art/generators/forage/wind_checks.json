@@ -1,0 +1,634 @@
+{
+  "result": "pass",
+  "coverage": 70,
+  "assets": [
+    {
+      "output": "game/assets/flora/bushes/hawthorn_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 832,
+      "seasonal_parts": [
+        "bush_hawthorn_a_fruit",
+        "bush_hawthorn_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/bushes/hawthorn_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 832,
+      "seasonal_parts": [
+        "bush_hawthorn_b_fruit",
+        "bush_hawthorn_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/bushes/blackthorn_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 696,
+      "seasonal_parts": [
+        "bush_blackthorn_a_fruit",
+        "bush_blackthorn_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/bushes/blackthorn_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 696,
+      "seasonal_parts": [
+        "bush_blackthorn_b_fruit",
+        "bush_blackthorn_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/bushes/elder_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 783,
+      "seasonal_parts": [
+        "bush_elder_a_fruit",
+        "bush_elder_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/bushes/elder_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 783,
+      "seasonal_parts": [
+        "bush_elder_b_fruit",
+        "bush_elder_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/bushes/crab_apple_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 624,
+      "seasonal_parts": [
+        "bush_crab_apple_a_fruit"
+      ]
+    },
+    {
+      "output": "game/assets/flora/bushes/crab_apple_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 624,
+      "seasonal_parts": [
+        "bush_crab_apple_b_fruit"
+      ]
+    },
+    {
+      "output": "game/assets/flora/bushes/juniper_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 588,
+      "seasonal_parts": [
+        "bush_juniper_a_fruit"
+      ]
+    },
+    {
+      "output": "game/assets/flora/bushes/juniper_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 588,
+      "seasonal_parts": [
+        "bush_juniper_b_fruit"
+      ]
+    },
+    {
+      "output": "game/assets/flora/bushes/dog_rose_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 720,
+      "seasonal_parts": [
+        "bush_dog_rose_a_flowers",
+        "bush_dog_rose_a_fruit"
+      ]
+    },
+    {
+      "output": "game/assets/flora/bushes/dog_rose_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 720,
+      "seasonal_parts": [
+        "bush_dog_rose_b_flowers",
+        "bush_dog_rose_b_fruit"
+      ]
+    },
+    {
+      "output": "game/assets/flora/bushes/bilberry_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 354,
+      "seasonal_parts": [
+        "bush_bilberry_a_fruit"
+      ]
+    },
+    {
+      "output": "game/assets/flora/bushes/bilberry_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 354,
+      "seasonal_parts": [
+        "bush_bilberry_b_fruit"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/yarrow_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 654,
+      "seasonal_parts": [
+        "plant_yarrow_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/yarrow_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 654,
+      "seasonal_parts": [
+        "plant_yarrow_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/plantain_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 180,
+      "seasonal_parts": [
+        "plant_plantain_a_fruit"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/plantain_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 180,
+      "seasonal_parts": [
+        "plant_plantain_b_fruit"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/comfrey_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 338,
+      "seasonal_parts": [
+        "plant_comfrey_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/comfrey_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 338,
+      "seasonal_parts": [
+        "plant_comfrey_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/ramsons_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 279,
+      "seasonal_parts": [
+        "plant_ramsons_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/ramsons_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 279,
+      "seasonal_parts": [
+        "plant_ramsons_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/feverfew_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 243,
+      "seasonal_parts": [
+        "plant_feverfew_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/feverfew_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 243,
+      "seasonal_parts": [
+        "plant_feverfew_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/meadowsweet_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 405,
+      "seasonal_parts": [
+        "plant_meadowsweet_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/meadowsweet_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 405,
+      "seasonal_parts": [
+        "plant_meadowsweet_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/wild_thyme_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 162,
+      "seasonal_parts": [
+        "plant_wild_thyme_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/wild_thyme_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 162,
+      "seasonal_parts": [
+        "plant_wild_thyme_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/sphagnum_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 0.77778,
+      "vertices": 396,
+      "seasonal_parts": []
+    },
+    {
+      "output": "game/assets/flora/plants/sphagnum_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 0.69444,
+      "vertices": 396,
+      "seasonal_parts": []
+    },
+    {
+      "output": "game/assets/flora/plants/valerian_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 654,
+      "seasonal_parts": [
+        "plant_valerian_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/valerian_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 654,
+      "seasonal_parts": [
+        "plant_valerian_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/water_mint_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 612,
+      "seasonal_parts": [
+        "plant_water_mint_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/water_mint_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 612,
+      "seasonal_parts": [
+        "plant_water_mint_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/nettle_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 540,
+      "seasonal_parts": [
+        "plant_nettle_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/nettle_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 540,
+      "seasonal_parts": [
+        "plant_nettle_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/sorrel_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 408,
+      "seasonal_parts": [
+        "plant_sorrel_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/sorrel_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 408,
+      "seasonal_parts": [
+        "plant_sorrel_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/wild_carrot_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 730,
+      "seasonal_parts": [
+        "plant_wild_carrot_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/wild_carrot_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 730,
+      "seasonal_parts": [
+        "plant_wild_carrot_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/hemlock_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 664,
+      "seasonal_parts": [
+        "plant_hemlock_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/hemlock_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 664,
+      "seasonal_parts": [
+        "plant_hemlock_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/water_hemlock_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 720,
+      "seasonal_parts": [
+        "plant_water_hemlock_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/water_hemlock_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 720,
+      "seasonal_parts": [
+        "plant_water_hemlock_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/foxglove_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 456,
+      "seasonal_parts": [
+        "plant_foxglove_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/foxglove_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 456,
+      "seasonal_parts": [
+        "plant_foxglove_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/lily_of_the_valley_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 364,
+      "seasonal_parts": [
+        "plant_lily_of_the_valley_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/lily_of_the_valley_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 364,
+      "seasonal_parts": [
+        "plant_lily_of_the_valley_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/deadly_nightshade_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 404,
+      "seasonal_parts": [
+        "plant_deadly_nightshade_a_fruit",
+        "plant_deadly_nightshade_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/deadly_nightshade_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 404,
+      "seasonal_parts": [
+        "plant_deadly_nightshade_b_fruit",
+        "plant_deadly_nightshade_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/field_mushroom_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 0.0,
+      "vertices": 366,
+      "seasonal_parts": []
+    },
+    {
+      "output": "game/assets/flora/plants/field_mushroom_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 0.0,
+      "vertices": 366,
+      "seasonal_parts": []
+    },
+    {
+      "output": "game/assets/flora/plants/death_cap_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 0.0,
+      "vertices": 438,
+      "seasonal_parts": []
+    },
+    {
+      "output": "game/assets/flora/plants/death_cap_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 0.0,
+      "vertices": 438,
+      "seasonal_parts": []
+    },
+    {
+      "output": "game/assets/flora/plants/fly_agaric_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 0.0,
+      "vertices": 573,
+      "seasonal_parts": []
+    },
+    {
+      "output": "game/assets/flora/plants/fly_agaric_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 0.0,
+      "vertices": 573,
+      "seasonal_parts": []
+    },
+    {
+      "output": "game/assets/flora/plants/wild_oats_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 420,
+      "seasonal_parts": [
+        "plant_wild_oats_a_fruit"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/wild_oats_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 420,
+      "seasonal_parts": [
+        "plant_wild_oats_b_fruit"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/sea_beet_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 660,
+      "seasonal_parts": [
+        "plant_sea_beet_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/sea_beet_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 660,
+      "seasonal_parts": [
+        "plant_sea_beet_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/wild_cabbage_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 396,
+      "seasonal_parts": [
+        "plant_wild_cabbage_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/wild_cabbage_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 396,
+      "seasonal_parts": [
+        "plant_wild_cabbage_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/wild_pea_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 306,
+      "seasonal_parts": [
+        "plant_wild_pea_a_fruit",
+        "plant_wild_pea_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/wild_pea_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 306,
+      "seasonal_parts": [
+        "plant_wild_pea_b_fruit",
+        "plant_wild_pea_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/wild_flax_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 162,
+      "seasonal_parts": [
+        "plant_wild_flax_a_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/wild_flax_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 162,
+      "seasonal_parts": [
+        "plant_wild_flax_b_flowers"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/wild_hops_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 396,
+      "seasonal_parts": [
+        "plant_wild_hops_a_fruit"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/wild_hops_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 396,
+      "seasonal_parts": [
+        "plant_wild_hops_b_fruit"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/wild_strawberry_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 549,
+      "seasonal_parts": [
+        "plant_wild_strawberry_a_flowers",
+        "plant_wild_strawberry_a_fruit"
+      ]
+    },
+    {
+      "output": "game/assets/flora/plants/wild_strawberry_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "vertices": 549,
+      "seasonal_parts": [
+        "plant_wild_strawberry_b_flowers",
+        "plant_wild_strawberry_b_fruit"
+      ]
+    }
+  ]
+}

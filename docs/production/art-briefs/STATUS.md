@@ -6,6 +6,7 @@ The art agent keeps this current; the code agent reads it to wire assets in. New
 
 | Date | Asset(s) | Files | Notes |
 |------|----------|-------|-------|
+| 2026-10-04 | P1 bushes and forage: all 70 variants | `content/assets/forage_m2.yaml`, `art/generators/forage/`, `game/assets/flora/` | Seven additional bushes and all 28 non-reed plant nodes, two variants each. 66–300 tris, palette, no collision; GLB wind coverage/anchors/tips verified (fungi rigid). Five contact/silhouette pages plus lookalikes, mushroom underside/cup and berry calyx inspected. Tiny rachis connectors, rounded crowns, arrow-shaped sorrel leaves and distinct mushroom seed patches repaired after review. Morphology sources and palette proxies recorded in SOURCES.md. |
 | 2026-10-04 | P1 settler libraries: adult updates and child | `content/assets/characters_m2.yaml`, three body GLBs, `art/generators/settlers/p1.py` | Six heads per body with 10 expression keys, six hair options, four extra clothing layers. Conservative assembled budgets male 3,796 / female 3,720 / child 3,704; all 40 bones retained. Child bare height 1.235 m, hood 1.254 m; larger head/shorter limbs and local-rotation retargeting reviewed. Twelve outfits, silhouettes, heads/expressions, child motion and 72 first-person work frames inspected. |
 | 2026-10-04 | P1 trees and cut states: 29 | `content/assets/trees_p1_m2.yaml`, `art/generators/broadleaf/`, `game/assets/flora/trees/` | Elm/yew/lime ×3 and stump/log states for all 10 tree species. 72–950 tris, palette, grounded cut states, trunk collision and foliage wind. All four-angle turntables and silhouette sheets inspected. |
 | 2026-10-04 | P1 later camp: 11 | `content/assets/camp_p1_m2.yaml`, `art/generators/camp_later/`, `game/assets/buildings/` | Drying rack, knapping stones, covered storage pit, latrine, 4 × 5 m hut and six construction stages. 300–1,238 tris; hut doorway 2.02 m. Roof/gable normals repaired after preview review. All turntables inspected. Storage pit liner needs terrain depression placement on the code side. |
@@ -26,7 +27,7 @@ The art agent keeps this current; the code agent reads it to wire assets in. New
 ## In progress
 
 - 2026-10-04: **P0 complete and committed for owner review**, including the wreck and character movement follow-up. No asset is owner-approved yet. Full content validation passes (50 content files).
-- 2026-10-04: P1 trees, later camp, pickups and animations checked and visually reviewed. Character layers/heads/child and 70 botanical variants are finishing visual QA. P2 sources are prepared; exports follow completion of P1.
+- 2026-10-04: **P1 complete**: 29 tree/cut states, 70 botanical variants, 11 later camp/stages, 27 materials/pickups, expanded adult/child libraries and 14 additional human clips. P2 animal, combat and hunting exports are underway.
 - Tooling supports M2 naming, collision exclusion, modular character budgets, expressions, palette UV centres and animation-only GLBs; legacy graybox regression passes. Exporter explicitly preserves wind colors; preview renders palette directly. Pipeline commit `24517a4`.
 
 ## Requests to the code agent

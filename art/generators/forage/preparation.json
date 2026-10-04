@@ -1,0 +1,494 @@
+{
+  "assets": [
+    {
+      "species": "hawthorn",
+      "variant": "a",
+      "tris": 296,
+      "height_m": 2.3511,
+      "min_z": -0.01016
+    },
+    {
+      "species": "hawthorn",
+      "variant": "b",
+      "tris": 296,
+      "height_m": 2.7057,
+      "min_z": -0.0097
+    },
+    {
+      "species": "blackthorn",
+      "variant": "a",
+      "tris": 256,
+      "height_m": 2.101,
+      "min_z": -0.01238
+    },
+    {
+      "species": "blackthorn",
+      "variant": "b",
+      "tris": 256,
+      "height_m": 2.3828,
+      "min_z": -0.01006
+    },
+    {
+      "species": "elder",
+      "variant": "a",
+      "tris": 291,
+      "height_m": 2.7349,
+      "min_z": -0.00961
+    },
+    {
+      "species": "elder",
+      "variant": "b",
+      "tris": 291,
+      "height_m": 3.0458,
+      "min_z": -0.00825
+    },
+    {
+      "species": "crab_apple",
+      "variant": "a",
+      "tris": 232,
+      "height_m": 2.8803,
+      "min_z": -0.00858
+    },
+    {
+      "species": "crab_apple",
+      "variant": "b",
+      "tris": 232,
+      "height_m": 3.3753,
+      "min_z": -0.00797
+    },
+    {
+      "species": "juniper",
+      "variant": "a",
+      "tris": 212,
+      "height_m": 1.2032,
+      "min_z": -0.00417
+    },
+    {
+      "species": "juniper",
+      "variant": "b",
+      "tris": 212,
+      "height_m": 1.3466,
+      "min_z": -0.00374
+    },
+    {
+      "species": "dog_rose",
+      "variant": "a",
+      "tris": 300,
+      "height_m": 1.0654,
+      "min_z": -0.00357
+    },
+    {
+      "species": "dog_rose",
+      "variant": "b",
+      "tris": 300,
+      "height_m": 1.185,
+      "min_z": -0.00321
+    },
+    {
+      "species": "bilberry",
+      "variant": "a",
+      "tris": 138,
+      "height_m": 0.347,
+      "min_z": -0.00247
+    },
+    {
+      "species": "bilberry",
+      "variant": "b",
+      "tris": 138,
+      "height_m": 0.3833,
+      "min_z": -0.00223
+    },
+    {
+      "species": "yarrow",
+      "variant": "a",
+      "tris": 270,
+      "height_m": 0.5889,
+      "min_z": 0.0
+    },
+    {
+      "species": "yarrow",
+      "variant": "b",
+      "tris": 270,
+      "height_m": 0.6585,
+      "min_z": 0.0
+    },
+    {
+      "species": "plantain",
+      "variant": "a",
+      "tris": 84,
+      "height_m": 0.34,
+      "min_z": 0.0
+    },
+    {
+      "species": "plantain",
+      "variant": "b",
+      "tris": 84,
+      "height_m": 0.3808,
+      "min_z": 0.0
+    },
+    {
+      "species": "comfrey",
+      "variant": "a",
+      "tris": 150,
+      "height_m": 0.6829,
+      "min_z": 0.0
+    },
+    {
+      "species": "comfrey",
+      "variant": "b",
+      "tris": 150,
+      "height_m": 0.7645,
+      "min_z": 0.0
+    },
+    {
+      "species": "ramsons",
+      "variant": "a",
+      "tris": 105,
+      "height_m": 0.2797,
+      "min_z": 0.0
+    },
+    {
+      "species": "ramsons",
+      "variant": "b",
+      "tris": 105,
+      "height_m": 0.3235,
+      "min_z": 0.0
+    },
+    {
+      "species": "feverfew",
+      "variant": "a",
+      "tris": 93,
+      "height_m": 0.484,
+      "min_z": 0.0
+    },
+    {
+      "species": "feverfew",
+      "variant": "b",
+      "tris": 93,
+      "height_m": 0.5416,
+      "min_z": 0.0
+    },
+    {
+      "species": "meadowsweet",
+      "variant": "a",
+      "tris": 147,
+      "height_m": 0.991,
+      "min_z": 0.0
+    },
+    {
+      "species": "meadowsweet",
+      "variant": "b",
+      "tris": 147,
+      "height_m": 1.099,
+      "min_z": 0.0
+    },
+    {
+      "species": "wild_thyme",
+      "variant": "a",
+      "tris": 66,
+      "height_m": 0.16,
+      "min_z": 0.0
+    },
+    {
+      "species": "wild_thyme",
+      "variant": "b",
+      "tris": 66,
+      "height_m": 0.1792,
+      "min_z": 0.0
+    },
+    {
+      "species": "sphagnum",
+      "variant": "a",
+      "tris": 132,
+      "height_m": 0.07,
+      "min_z": 0.0
+    },
+    {
+      "species": "sphagnum",
+      "variant": "b",
+      "tris": 132,
+      "height_m": 0.07,
+      "min_z": 0.0
+    },
+    {
+      "species": "valerian",
+      "variant": "a",
+      "tris": 270,
+      "height_m": 0.9589,
+      "min_z": 0.0
+    },
+    {
+      "species": "valerian",
+      "variant": "b",
+      "tris": 270,
+      "height_m": 1.0729,
+      "min_z": 0.0
+    },
+    {
+      "species": "water_mint",
+      "variant": "a",
+      "tris": 208,
+      "height_m": 0.54,
+      "min_z": 0.0
+    },
+    {
+      "species": "water_mint",
+      "variant": "b",
+      "tris": 208,
+      "height_m": 0.6048,
+      "min_z": 0.0
+    },
+    {
+      "species": "nettle",
+      "variant": "a",
+      "tris": 184,
+      "height_m": 0.7,
+      "min_z": 0.0
+    },
+    {
+      "species": "nettle",
+      "variant": "b",
+      "tris": 184,
+      "height_m": 0.784,
+      "min_z": 0.0
+    },
+    {
+      "species": "sorrel",
+      "variant": "a",
+      "tris": 140,
+      "height_m": 0.502,
+      "min_z": 0.0
+    },
+    {
+      "species": "sorrel",
+      "variant": "b",
+      "tris": 140,
+      "height_m": 0.5608,
+      "min_z": 0.0
+    },
+    {
+      "species": "wild_carrot",
+      "variant": "a",
+      "tris": 286,
+      "height_m": 0.711,
+      "min_z": 0.0
+    },
+    {
+      "species": "wild_carrot",
+      "variant": "b",
+      "tris": 286,
+      "height_m": 0.7914,
+      "min_z": 0.0
+    },
+    {
+      "species": "hemlock",
+      "variant": "a",
+      "tris": 272,
+      "height_m": 1.548,
+      "min_z": 0.0
+    },
+    {
+      "species": "hemlock",
+      "variant": "b",
+      "tris": 272,
+      "height_m": 1.7304,
+      "min_z": 0.0
+    },
+    {
+      "species": "water_hemlock",
+      "variant": "a",
+      "tris": 264,
+      "height_m": 1.078,
+      "min_z": 0.0
+    },
+    {
+      "species": "water_hemlock",
+      "variant": "b",
+      "tris": 264,
+      "height_m": 1.204,
+      "min_z": 0.0
+    },
+    {
+      "species": "foxglove",
+      "variant": "a",
+      "tris": 228,
+      "height_m": 1.2,
+      "min_z": 0.0
+    },
+    {
+      "species": "foxglove",
+      "variant": "b",
+      "tris": 228,
+      "height_m": 1.344,
+      "min_z": 0.0
+    },
+    {
+      "species": "lily_of_the_valley",
+      "variant": "a",
+      "tris": 180,
+      "height_m": 0.2875,
+      "min_z": -0.00012
+    },
+    {
+      "species": "lily_of_the_valley",
+      "variant": "b",
+      "tris": 180,
+      "height_m": 0.3239,
+      "min_z": -0.00011
+    },
+    {
+      "species": "deadly_nightshade",
+      "variant": "a",
+      "tris": 156,
+      "height_m": 0.92,
+      "min_z": 0.0
+    },
+    {
+      "species": "deadly_nightshade",
+      "variant": "b",
+      "tris": 156,
+      "height_m": 1.0304,
+      "min_z": 0.0
+    },
+    {
+      "species": "field_mushroom",
+      "variant": "a",
+      "tris": 180,
+      "height_m": 0.1748,
+      "min_z": 0.0
+    },
+    {
+      "species": "field_mushroom",
+      "variant": "b",
+      "tris": 180,
+      "height_m": 0.1983,
+      "min_z": 0.0
+    },
+    {
+      "species": "death_cap",
+      "variant": "a",
+      "tris": 216,
+      "height_m": 0.1847,
+      "min_z": 0.0
+    },
+    {
+      "species": "death_cap",
+      "variant": "b",
+      "tris": 216,
+      "height_m": 0.2037,
+      "min_z": 0.0
+    },
+    {
+      "species": "fly_agaric",
+      "variant": "a",
+      "tris": 261,
+      "height_m": 0.1742,
+      "min_z": 0.0
+    },
+    {
+      "species": "fly_agaric",
+      "variant": "b",
+      "tris": 261,
+      "height_m": 0.2093,
+      "min_z": 0.0
+    },
+    {
+      "species": "wild_oats",
+      "variant": "a",
+      "tris": 168,
+      "height_m": 0.8225,
+      "min_z": -0.00023
+    },
+    {
+      "species": "wild_oats",
+      "variant": "b",
+      "tris": 168,
+      "height_m": 0.9209,
+      "min_z": -0.0002
+    },
+    {
+      "species": "sea_beet",
+      "variant": "a",
+      "tris": 224,
+      "height_m": 0.502,
+      "min_z": 0.0
+    },
+    {
+      "species": "sea_beet",
+      "variant": "b",
+      "tris": 224,
+      "height_m": 0.5608,
+      "min_z": 0.0
+    },
+    {
+      "species": "wild_cabbage",
+      "variant": "a",
+      "tris": 136,
+      "height_m": 0.45,
+      "min_z": 0.0
+    },
+    {
+      "species": "wild_cabbage",
+      "variant": "b",
+      "tris": 136,
+      "height_m": 0.504,
+      "min_z": 0.0
+    },
+    {
+      "species": "wild_pea",
+      "variant": "a",
+      "tris": 118,
+      "height_m": 0.6853,
+      "min_z": -0.00286
+    },
+    {
+      "species": "wild_pea",
+      "variant": "b",
+      "tris": 118,
+      "height_m": 0.7665,
+      "min_z": -0.00261
+    },
+    {
+      "species": "wild_flax",
+      "variant": "a",
+      "tris": 66,
+      "height_m": 0.46,
+      "min_z": 0.0
+    },
+    {
+      "species": "wild_flax",
+      "variant": "b",
+      "tris": 66,
+      "height_m": 0.5152,
+      "min_z": 0.0
+    },
+    {
+      "species": "wild_hops",
+      "variant": "a",
+      "tris": 144,
+      "height_m": 0.8246,
+      "min_z": -0.00246
+    },
+    {
+      "species": "wild_hops",
+      "variant": "b",
+      "tris": 144,
+      "height_m": 0.9227,
+      "min_z": -0.00223
+    },
+    {
+      "species": "wild_strawberry",
+      "variant": "a",
+      "tris": 195,
+      "height_m": 0.1809,
+      "min_z": -0.00057
+    },
+    {
+      "species": "wild_strawberry",
+      "variant": "b",
+      "tris": 195,
+      "height_m": 0.2024,
+      "min_z": -0.00051
+    }
+  ]
+}

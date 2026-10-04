@@ -1,0 +1,2066 @@
+{
+  "result": "pass",
+  "assets": [
+    {
+      "species": "hawthorn",
+      "variant": "a",
+      "output": "game/assets/flora/bushes/hawthorn_a.glb",
+      "params": {
+        "species": "hawthorn",
+        "variant": "a",
+        "seed": 7101
+      },
+      "check": {
+        "assembled_objects": [
+          "bush_hawthorn_a",
+          "bush_hawthorn_a_flowers",
+          "bush_hawthorn_a_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/bushes/hawthorn_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 2.351,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 296,
+        "tris": {
+          "0": 296
+        }
+      }
+    },
+    {
+      "species": "hawthorn",
+      "variant": "b",
+      "output": "game/assets/flora/bushes/hawthorn_b.glb",
+      "params": {
+        "species": "hawthorn",
+        "variant": "b",
+        "seed": 7102
+      },
+      "check": {
+        "assembled_objects": [
+          "bush_hawthorn_b",
+          "bush_hawthorn_b_flowers",
+          "bush_hawthorn_b_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/bushes/hawthorn_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 2.706,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 296,
+        "tris": {
+          "0": 296
+        }
+      }
+    },
+    {
+      "species": "blackthorn",
+      "variant": "a",
+      "output": "game/assets/flora/bushes/blackthorn_a.glb",
+      "params": {
+        "species": "blackthorn",
+        "variant": "a",
+        "seed": 7201
+      },
+      "check": {
+        "assembled_objects": [
+          "bush_blackthorn_a",
+          "bush_blackthorn_a_flowers",
+          "bush_blackthorn_a_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/bushes/blackthorn_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 2.101,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 256,
+        "tris": {
+          "0": 256
+        }
+      }
+    },
+    {
+      "species": "blackthorn",
+      "variant": "b",
+      "output": "game/assets/flora/bushes/blackthorn_b.glb",
+      "params": {
+        "species": "blackthorn",
+        "variant": "b",
+        "seed": 7202
+      },
+      "check": {
+        "assembled_objects": [
+          "bush_blackthorn_b",
+          "bush_blackthorn_b_flowers",
+          "bush_blackthorn_b_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/bushes/blackthorn_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 2.383,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 256,
+        "tris": {
+          "0": 256
+        }
+      }
+    },
+    {
+      "species": "elder",
+      "variant": "a",
+      "output": "game/assets/flora/bushes/elder_a.glb",
+      "params": {
+        "species": "elder",
+        "variant": "a",
+        "seed": 7301
+      },
+      "check": {
+        "assembled_objects": [
+          "bush_elder_a",
+          "bush_elder_a_flowers",
+          "bush_elder_a_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/bushes/elder_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 2.735,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 291,
+        "tris": {
+          "0": 291
+        }
+      }
+    },
+    {
+      "species": "elder",
+      "variant": "b",
+      "output": "game/assets/flora/bushes/elder_b.glb",
+      "params": {
+        "species": "elder",
+        "variant": "b",
+        "seed": 7302
+      },
+      "check": {
+        "assembled_objects": [
+          "bush_elder_b",
+          "bush_elder_b_flowers",
+          "bush_elder_b_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/bushes/elder_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 3.046,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 291,
+        "tris": {
+          "0": 291
+        }
+      }
+    },
+    {
+      "species": "crab_apple",
+      "variant": "a",
+      "output": "game/assets/flora/bushes/crab_apple_a.glb",
+      "params": {
+        "species": "crab_apple",
+        "variant": "a",
+        "seed": 7401
+      },
+      "check": {
+        "assembled_objects": [
+          "bush_crab_apple_a",
+          "bush_crab_apple_a_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/bushes/crab_apple_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 2.88,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 232,
+        "tris": {
+          "0": 232
+        }
+      }
+    },
+    {
+      "species": "crab_apple",
+      "variant": "b",
+      "output": "game/assets/flora/bushes/crab_apple_b.glb",
+      "params": {
+        "species": "crab_apple",
+        "variant": "b",
+        "seed": 7402
+      },
+      "check": {
+        "assembled_objects": [
+          "bush_crab_apple_b",
+          "bush_crab_apple_b_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/bushes/crab_apple_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 3.375,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 232,
+        "tris": {
+          "0": 232
+        }
+      }
+    },
+    {
+      "species": "juniper",
+      "variant": "a",
+      "output": "game/assets/flora/bushes/juniper_a.glb",
+      "params": {
+        "species": "juniper",
+        "variant": "a",
+        "seed": 7501
+      },
+      "check": {
+        "assembled_objects": [
+          "bush_juniper_a",
+          "bush_juniper_a_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/bushes/juniper_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 1.203,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 212,
+        "tris": {
+          "0": 212
+        }
+      }
+    },
+    {
+      "species": "juniper",
+      "variant": "b",
+      "output": "game/assets/flora/bushes/juniper_b.glb",
+      "params": {
+        "species": "juniper",
+        "variant": "b",
+        "seed": 7502
+      },
+      "check": {
+        "assembled_objects": [
+          "bush_juniper_b",
+          "bush_juniper_b_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/bushes/juniper_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 1.347,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 212,
+        "tris": {
+          "0": 212
+        }
+      }
+    },
+    {
+      "species": "dog_rose",
+      "variant": "a",
+      "output": "game/assets/flora/bushes/dog_rose_a.glb",
+      "params": {
+        "species": "dog_rose",
+        "variant": "a",
+        "seed": 7601
+      },
+      "check": {
+        "assembled_objects": [
+          "bush_dog_rose_a",
+          "bush_dog_rose_a_flowers",
+          "bush_dog_rose_a_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/bushes/dog_rose_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 1.065,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 300,
+        "tris": {
+          "0": 300
+        }
+      }
+    },
+    {
+      "species": "dog_rose",
+      "variant": "b",
+      "output": "game/assets/flora/bushes/dog_rose_b.glb",
+      "params": {
+        "species": "dog_rose",
+        "variant": "b",
+        "seed": 7602
+      },
+      "check": {
+        "assembled_objects": [
+          "bush_dog_rose_b",
+          "bush_dog_rose_b_flowers",
+          "bush_dog_rose_b_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/bushes/dog_rose_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 1.185,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 300,
+        "tris": {
+          "0": 300
+        }
+      }
+    },
+    {
+      "species": "bilberry",
+      "variant": "a",
+      "output": "game/assets/flora/bushes/bilberry_a.glb",
+      "params": {
+        "species": "bilberry",
+        "variant": "a",
+        "seed": 7701
+      },
+      "check": {
+        "assembled_objects": [
+          "bush_bilberry_a",
+          "bush_bilberry_a_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/bushes/bilberry_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.347,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 138,
+        "tris": {
+          "0": 138
+        }
+      }
+    },
+    {
+      "species": "bilberry",
+      "variant": "b",
+      "output": "game/assets/flora/bushes/bilberry_b.glb",
+      "params": {
+        "species": "bilberry",
+        "variant": "b",
+        "seed": 7702
+      },
+      "check": {
+        "assembled_objects": [
+          "bush_bilberry_b",
+          "bush_bilberry_b_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/bushes/bilberry_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.383,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 138,
+        "tris": {
+          "0": 138
+        }
+      }
+    },
+    {
+      "species": "yarrow",
+      "variant": "a",
+      "output": "game/assets/flora/plants/yarrow_a.glb",
+      "params": {
+        "species": "yarrow",
+        "variant": "a",
+        "seed": 7801
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_yarrow_a",
+          "plant_yarrow_a_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/yarrow_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.589,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 270,
+        "tris": {
+          "0": 270
+        }
+      }
+    },
+    {
+      "species": "yarrow",
+      "variant": "b",
+      "output": "game/assets/flora/plants/yarrow_b.glb",
+      "params": {
+        "species": "yarrow",
+        "variant": "b",
+        "seed": 7802
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_yarrow_b",
+          "plant_yarrow_b_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/yarrow_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.659,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 270,
+        "tris": {
+          "0": 270
+        }
+      }
+    },
+    {
+      "species": "plantain",
+      "variant": "a",
+      "output": "game/assets/flora/plants/plantain_a.glb",
+      "params": {
+        "species": "plantain",
+        "variant": "a",
+        "seed": 7901
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_plantain_a",
+          "plant_plantain_a_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/plantain_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.34,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 84,
+        "tris": {
+          "0": 84
+        }
+      }
+    },
+    {
+      "species": "plantain",
+      "variant": "b",
+      "output": "game/assets/flora/plants/plantain_b.glb",
+      "params": {
+        "species": "plantain",
+        "variant": "b",
+        "seed": 7902
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_plantain_b",
+          "plant_plantain_b_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/plantain_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.381,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 84,
+        "tris": {
+          "0": 84
+        }
+      }
+    },
+    {
+      "species": "comfrey",
+      "variant": "a",
+      "output": "game/assets/flora/plants/comfrey_a.glb",
+      "params": {
+        "species": "comfrey",
+        "variant": "a",
+        "seed": 8001
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_comfrey_a",
+          "plant_comfrey_a_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/comfrey_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.683,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 150,
+        "tris": {
+          "0": 150
+        }
+      }
+    },
+    {
+      "species": "comfrey",
+      "variant": "b",
+      "output": "game/assets/flora/plants/comfrey_b.glb",
+      "params": {
+        "species": "comfrey",
+        "variant": "b",
+        "seed": 8002
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_comfrey_b",
+          "plant_comfrey_b_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/comfrey_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.765,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 150,
+        "tris": {
+          "0": 150
+        }
+      }
+    },
+    {
+      "species": "ramsons",
+      "variant": "a",
+      "output": "game/assets/flora/plants/ramsons_a.glb",
+      "params": {
+        "species": "ramsons",
+        "variant": "a",
+        "seed": 8101
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_ramsons_a",
+          "plant_ramsons_a_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/ramsons_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.28,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 105,
+        "tris": {
+          "0": 105
+        }
+      }
+    },
+    {
+      "species": "ramsons",
+      "variant": "b",
+      "output": "game/assets/flora/plants/ramsons_b.glb",
+      "params": {
+        "species": "ramsons",
+        "variant": "b",
+        "seed": 8102
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_ramsons_b",
+          "plant_ramsons_b_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/ramsons_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.324,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 105,
+        "tris": {
+          "0": 105
+        }
+      }
+    },
+    {
+      "species": "feverfew",
+      "variant": "a",
+      "output": "game/assets/flora/plants/feverfew_a.glb",
+      "params": {
+        "species": "feverfew",
+        "variant": "a",
+        "seed": 8201
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_feverfew_a",
+          "plant_feverfew_a_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/feverfew_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.484,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 93,
+        "tris": {
+          "0": 93
+        }
+      }
+    },
+    {
+      "species": "feverfew",
+      "variant": "b",
+      "output": "game/assets/flora/plants/feverfew_b.glb",
+      "params": {
+        "species": "feverfew",
+        "variant": "b",
+        "seed": 8202
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_feverfew_b",
+          "plant_feverfew_b_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/feverfew_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.542,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 93,
+        "tris": {
+          "0": 93
+        }
+      }
+    },
+    {
+      "species": "meadowsweet",
+      "variant": "a",
+      "output": "game/assets/flora/plants/meadowsweet_a.glb",
+      "params": {
+        "species": "meadowsweet",
+        "variant": "a",
+        "seed": 8301
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_meadowsweet_a",
+          "plant_meadowsweet_a_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/meadowsweet_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.991,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 147,
+        "tris": {
+          "0": 147
+        }
+      }
+    },
+    {
+      "species": "meadowsweet",
+      "variant": "b",
+      "output": "game/assets/flora/plants/meadowsweet_b.glb",
+      "params": {
+        "species": "meadowsweet",
+        "variant": "b",
+        "seed": 8302
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_meadowsweet_b",
+          "plant_meadowsweet_b_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/meadowsweet_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 1.099,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 147,
+        "tris": {
+          "0": 147
+        }
+      }
+    },
+    {
+      "species": "wild_thyme",
+      "variant": "a",
+      "output": "game/assets/flora/plants/wild_thyme_a.glb",
+      "params": {
+        "species": "wild_thyme",
+        "variant": "a",
+        "seed": 8401
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_wild_thyme_a",
+          "plant_wild_thyme_a_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/wild_thyme_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.16,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 66,
+        "tris": {
+          "0": 66
+        }
+      }
+    },
+    {
+      "species": "wild_thyme",
+      "variant": "b",
+      "output": "game/assets/flora/plants/wild_thyme_b.glb",
+      "params": {
+        "species": "wild_thyme",
+        "variant": "b",
+        "seed": 8402
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_wild_thyme_b",
+          "plant_wild_thyme_b_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/wild_thyme_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.179,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 66,
+        "tris": {
+          "0": 66
+        }
+      }
+    },
+    {
+      "species": "sphagnum",
+      "variant": "a",
+      "output": "game/assets/flora/plants/sphagnum_a.glb",
+      "params": {
+        "species": "sphagnum",
+        "variant": "a",
+        "seed": 8501
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_sphagnum_a"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/sphagnum_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.07,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 132,
+        "tris": {
+          "0": 132
+        }
+      }
+    },
+    {
+      "species": "sphagnum",
+      "variant": "b",
+      "output": "game/assets/flora/plants/sphagnum_b.glb",
+      "params": {
+        "species": "sphagnum",
+        "variant": "b",
+        "seed": 8502
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_sphagnum_b"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/sphagnum_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.07,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 132,
+        "tris": {
+          "0": 132
+        }
+      }
+    },
+    {
+      "species": "valerian",
+      "variant": "a",
+      "output": "game/assets/flora/plants/valerian_a.glb",
+      "params": {
+        "species": "valerian",
+        "variant": "a",
+        "seed": 8601
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_valerian_a",
+          "plant_valerian_a_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/valerian_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.959,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 270,
+        "tris": {
+          "0": 270
+        }
+      }
+    },
+    {
+      "species": "valerian",
+      "variant": "b",
+      "output": "game/assets/flora/plants/valerian_b.glb",
+      "params": {
+        "species": "valerian",
+        "variant": "b",
+        "seed": 8602
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_valerian_b",
+          "plant_valerian_b_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/valerian_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 1.073,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 270,
+        "tris": {
+          "0": 270
+        }
+      }
+    },
+    {
+      "species": "water_mint",
+      "variant": "a",
+      "output": "game/assets/flora/plants/water_mint_a.glb",
+      "params": {
+        "species": "water_mint",
+        "variant": "a",
+        "seed": 8701
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_water_mint_a",
+          "plant_water_mint_a_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/water_mint_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.54,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 208,
+        "tris": {
+          "0": 208
+        }
+      }
+    },
+    {
+      "species": "water_mint",
+      "variant": "b",
+      "output": "game/assets/flora/plants/water_mint_b.glb",
+      "params": {
+        "species": "water_mint",
+        "variant": "b",
+        "seed": 8702
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_water_mint_b",
+          "plant_water_mint_b_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/water_mint_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.605,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 208,
+        "tris": {
+          "0": 208
+        }
+      }
+    },
+    {
+      "species": "nettle",
+      "variant": "a",
+      "output": "game/assets/flora/plants/nettle_a.glb",
+      "params": {
+        "species": "nettle",
+        "variant": "a",
+        "seed": 8801
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_nettle_a",
+          "plant_nettle_a_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/nettle_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.7,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 184,
+        "tris": {
+          "0": 184
+        }
+      }
+    },
+    {
+      "species": "nettle",
+      "variant": "b",
+      "output": "game/assets/flora/plants/nettle_b.glb",
+      "params": {
+        "species": "nettle",
+        "variant": "b",
+        "seed": 8802
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_nettle_b",
+          "plant_nettle_b_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/nettle_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.784,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 184,
+        "tris": {
+          "0": 184
+        }
+      }
+    },
+    {
+      "species": "sorrel",
+      "variant": "a",
+      "output": "game/assets/flora/plants/sorrel_a.glb",
+      "params": {
+        "species": "sorrel",
+        "variant": "a",
+        "seed": 8901
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_sorrel_a",
+          "plant_sorrel_a_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/sorrel_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.502,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 140,
+        "tris": {
+          "0": 140
+        }
+      }
+    },
+    {
+      "species": "sorrel",
+      "variant": "b",
+      "output": "game/assets/flora/plants/sorrel_b.glb",
+      "params": {
+        "species": "sorrel",
+        "variant": "b",
+        "seed": 8902
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_sorrel_b",
+          "plant_sorrel_b_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/sorrel_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.561,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 140,
+        "tris": {
+          "0": 140
+        }
+      }
+    },
+    {
+      "species": "wild_carrot",
+      "variant": "a",
+      "output": "game/assets/flora/plants/wild_carrot_a.glb",
+      "params": {
+        "species": "wild_carrot",
+        "variant": "a",
+        "seed": 9001
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_wild_carrot_a",
+          "plant_wild_carrot_a_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/wild_carrot_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.711,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 286,
+        "tris": {
+          "0": 286
+        }
+      }
+    },
+    {
+      "species": "wild_carrot",
+      "variant": "b",
+      "output": "game/assets/flora/plants/wild_carrot_b.glb",
+      "params": {
+        "species": "wild_carrot",
+        "variant": "b",
+        "seed": 9002
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_wild_carrot_b",
+          "plant_wild_carrot_b_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/wild_carrot_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.791,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 286,
+        "tris": {
+          "0": 286
+        }
+      }
+    },
+    {
+      "species": "hemlock",
+      "variant": "a",
+      "output": "game/assets/flora/plants/hemlock_a.glb",
+      "params": {
+        "species": "hemlock",
+        "variant": "a",
+        "seed": 9101
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_hemlock_a",
+          "plant_hemlock_a_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/hemlock_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 1.548,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 272,
+        "tris": {
+          "0": 272
+        }
+      }
+    },
+    {
+      "species": "hemlock",
+      "variant": "b",
+      "output": "game/assets/flora/plants/hemlock_b.glb",
+      "params": {
+        "species": "hemlock",
+        "variant": "b",
+        "seed": 9102
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_hemlock_b",
+          "plant_hemlock_b_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/hemlock_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 1.73,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 272,
+        "tris": {
+          "0": 272
+        }
+      }
+    },
+    {
+      "species": "water_hemlock",
+      "variant": "a",
+      "output": "game/assets/flora/plants/water_hemlock_a.glb",
+      "params": {
+        "species": "water_hemlock",
+        "variant": "a",
+        "seed": 9201
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_water_hemlock_a",
+          "plant_water_hemlock_a_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/water_hemlock_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 1.078,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 264,
+        "tris": {
+          "0": 264
+        }
+      }
+    },
+    {
+      "species": "water_hemlock",
+      "variant": "b",
+      "output": "game/assets/flora/plants/water_hemlock_b.glb",
+      "params": {
+        "species": "water_hemlock",
+        "variant": "b",
+        "seed": 9202
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_water_hemlock_b",
+          "plant_water_hemlock_b_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/water_hemlock_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 1.204,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 264,
+        "tris": {
+          "0": 264
+        }
+      }
+    },
+    {
+      "species": "foxglove",
+      "variant": "a",
+      "output": "game/assets/flora/plants/foxglove_a.glb",
+      "params": {
+        "species": "foxglove",
+        "variant": "a",
+        "seed": 9301
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_foxglove_a",
+          "plant_foxglove_a_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/foxglove_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 1.2,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 228,
+        "tris": {
+          "0": 228
+        }
+      }
+    },
+    {
+      "species": "foxglove",
+      "variant": "b",
+      "output": "game/assets/flora/plants/foxglove_b.glb",
+      "params": {
+        "species": "foxglove",
+        "variant": "b",
+        "seed": 9302
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_foxglove_b",
+          "plant_foxglove_b_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/foxglove_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 1.344,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 228,
+        "tris": {
+          "0": 228
+        }
+      }
+    },
+    {
+      "species": "lily_of_the_valley",
+      "variant": "a",
+      "output": "game/assets/flora/plants/lily_of_the_valley_a.glb",
+      "params": {
+        "species": "lily_of_the_valley",
+        "variant": "a",
+        "seed": 9401
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_lily_of_the_valley_a",
+          "plant_lily_of_the_valley_a_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/lily_of_the_valley_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.287,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 180,
+        "tris": {
+          "0": 180
+        }
+      }
+    },
+    {
+      "species": "lily_of_the_valley",
+      "variant": "b",
+      "output": "game/assets/flora/plants/lily_of_the_valley_b.glb",
+      "params": {
+        "species": "lily_of_the_valley",
+        "variant": "b",
+        "seed": 9402
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_lily_of_the_valley_b",
+          "plant_lily_of_the_valley_b_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/lily_of_the_valley_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.324,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 180,
+        "tris": {
+          "0": 180
+        }
+      }
+    },
+    {
+      "species": "deadly_nightshade",
+      "variant": "a",
+      "output": "game/assets/flora/plants/deadly_nightshade_a.glb",
+      "params": {
+        "species": "deadly_nightshade",
+        "variant": "a",
+        "seed": 9501
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_deadly_nightshade_a",
+          "plant_deadly_nightshade_a_flowers",
+          "plant_deadly_nightshade_a_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/deadly_nightshade_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.92,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 156,
+        "tris": {
+          "0": 156
+        }
+      }
+    },
+    {
+      "species": "deadly_nightshade",
+      "variant": "b",
+      "output": "game/assets/flora/plants/deadly_nightshade_b.glb",
+      "params": {
+        "species": "deadly_nightshade",
+        "variant": "b",
+        "seed": 9502
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_deadly_nightshade_b",
+          "plant_deadly_nightshade_b_flowers",
+          "plant_deadly_nightshade_b_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/deadly_nightshade_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 1.03,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 156,
+        "tris": {
+          "0": 156
+        }
+      }
+    },
+    {
+      "species": "field_mushroom",
+      "variant": "a",
+      "output": "game/assets/flora/plants/field_mushroom_a.glb",
+      "params": {
+        "species": "field_mushroom",
+        "variant": "a",
+        "seed": 9601
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_field_mushroom_a"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/field_mushroom_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.175,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 180,
+        "tris": {
+          "0": 180
+        }
+      }
+    },
+    {
+      "species": "field_mushroom",
+      "variant": "b",
+      "output": "game/assets/flora/plants/field_mushroom_b.glb",
+      "params": {
+        "species": "field_mushroom",
+        "variant": "b",
+        "seed": 9602
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_field_mushroom_b"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/field_mushroom_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.198,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 180,
+        "tris": {
+          "0": 180
+        }
+      }
+    },
+    {
+      "species": "death_cap",
+      "variant": "a",
+      "output": "game/assets/flora/plants/death_cap_a.glb",
+      "params": {
+        "species": "death_cap",
+        "variant": "a",
+        "seed": 9701
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_death_cap_a"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/death_cap_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.185,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 216,
+        "tris": {
+          "0": 216
+        }
+      }
+    },
+    {
+      "species": "death_cap",
+      "variant": "b",
+      "output": "game/assets/flora/plants/death_cap_b.glb",
+      "params": {
+        "species": "death_cap",
+        "variant": "b",
+        "seed": 9702
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_death_cap_b"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/death_cap_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.204,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 216,
+        "tris": {
+          "0": 216
+        }
+      }
+    },
+    {
+      "species": "fly_agaric",
+      "variant": "a",
+      "output": "game/assets/flora/plants/fly_agaric_a.glb",
+      "params": {
+        "species": "fly_agaric",
+        "variant": "a",
+        "seed": 9801
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_fly_agaric_a"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/fly_agaric_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.174,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 261,
+        "tris": {
+          "0": 261
+        }
+      }
+    },
+    {
+      "species": "fly_agaric",
+      "variant": "b",
+      "output": "game/assets/flora/plants/fly_agaric_b.glb",
+      "params": {
+        "species": "fly_agaric",
+        "variant": "b",
+        "seed": 9802
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_fly_agaric_b"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/fly_agaric_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.209,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 261,
+        "tris": {
+          "0": 261
+        }
+      }
+    },
+    {
+      "species": "wild_oats",
+      "variant": "a",
+      "output": "game/assets/flora/plants/wild_oats_a.glb",
+      "params": {
+        "species": "wild_oats",
+        "variant": "a",
+        "seed": 9901
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_wild_oats_a",
+          "plant_wild_oats_a_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/wild_oats_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.823,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 168,
+        "tris": {
+          "0": 168
+        }
+      }
+    },
+    {
+      "species": "wild_oats",
+      "variant": "b",
+      "output": "game/assets/flora/plants/wild_oats_b.glb",
+      "params": {
+        "species": "wild_oats",
+        "variant": "b",
+        "seed": 9902
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_wild_oats_b",
+          "plant_wild_oats_b_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/wild_oats_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.921,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 168,
+        "tris": {
+          "0": 168
+        }
+      }
+    },
+    {
+      "species": "sea_beet",
+      "variant": "a",
+      "output": "game/assets/flora/plants/sea_beet_a.glb",
+      "params": {
+        "species": "sea_beet",
+        "variant": "a",
+        "seed": 10001
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_sea_beet_a",
+          "plant_sea_beet_a_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/sea_beet_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.502,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 224,
+        "tris": {
+          "0": 224
+        }
+      }
+    },
+    {
+      "species": "sea_beet",
+      "variant": "b",
+      "output": "game/assets/flora/plants/sea_beet_b.glb",
+      "params": {
+        "species": "sea_beet",
+        "variant": "b",
+        "seed": 10002
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_sea_beet_b",
+          "plant_sea_beet_b_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/sea_beet_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.561,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 224,
+        "tris": {
+          "0": 224
+        }
+      }
+    },
+    {
+      "species": "wild_cabbage",
+      "variant": "a",
+      "output": "game/assets/flora/plants/wild_cabbage_a.glb",
+      "params": {
+        "species": "wild_cabbage",
+        "variant": "a",
+        "seed": 10101
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_wild_cabbage_a",
+          "plant_wild_cabbage_a_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/wild_cabbage_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.45,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 136,
+        "tris": {
+          "0": 136
+        }
+      }
+    },
+    {
+      "species": "wild_cabbage",
+      "variant": "b",
+      "output": "game/assets/flora/plants/wild_cabbage_b.glb",
+      "params": {
+        "species": "wild_cabbage",
+        "variant": "b",
+        "seed": 10102
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_wild_cabbage_b",
+          "plant_wild_cabbage_b_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/wild_cabbage_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.504,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 136,
+        "tris": {
+          "0": 136
+        }
+      }
+    },
+    {
+      "species": "wild_pea",
+      "variant": "a",
+      "output": "game/assets/flora/plants/wild_pea_a.glb",
+      "params": {
+        "species": "wild_pea",
+        "variant": "a",
+        "seed": 10201
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_wild_pea_a",
+          "plant_wild_pea_a_flowers",
+          "plant_wild_pea_a_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/wild_pea_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.685,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 118,
+        "tris": {
+          "0": 118
+        }
+      }
+    },
+    {
+      "species": "wild_pea",
+      "variant": "b",
+      "output": "game/assets/flora/plants/wild_pea_b.glb",
+      "params": {
+        "species": "wild_pea",
+        "variant": "b",
+        "seed": 10202
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_wild_pea_b",
+          "plant_wild_pea_b_flowers",
+          "plant_wild_pea_b_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/wild_pea_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.766,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 118,
+        "tris": {
+          "0": 118
+        }
+      }
+    },
+    {
+      "species": "wild_flax",
+      "variant": "a",
+      "output": "game/assets/flora/plants/wild_flax_a.glb",
+      "params": {
+        "species": "wild_flax",
+        "variant": "a",
+        "seed": 10301
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_wild_flax_a",
+          "plant_wild_flax_a_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/wild_flax_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.46,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 66,
+        "tris": {
+          "0": 66
+        }
+      }
+    },
+    {
+      "species": "wild_flax",
+      "variant": "b",
+      "output": "game/assets/flora/plants/wild_flax_b.glb",
+      "params": {
+        "species": "wild_flax",
+        "variant": "b",
+        "seed": 10302
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_wild_flax_b",
+          "plant_wild_flax_b_flowers"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/wild_flax_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.515,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 66,
+        "tris": {
+          "0": 66
+        }
+      }
+    },
+    {
+      "species": "wild_hops",
+      "variant": "a",
+      "output": "game/assets/flora/plants/wild_hops_a.glb",
+      "params": {
+        "species": "wild_hops",
+        "variant": "a",
+        "seed": 10401
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_wild_hops_a",
+          "plant_wild_hops_a_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/wild_hops_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.825,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 144,
+        "tris": {
+          "0": 144
+        }
+      }
+    },
+    {
+      "species": "wild_hops",
+      "variant": "b",
+      "output": "game/assets/flora/plants/wild_hops_b.glb",
+      "params": {
+        "species": "wild_hops",
+        "variant": "b",
+        "seed": 10402
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_wild_hops_b",
+          "plant_wild_hops_b_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/wild_hops_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.923,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 144,
+        "tris": {
+          "0": 144
+        }
+      }
+    },
+    {
+      "species": "wild_strawberry",
+      "variant": "a",
+      "output": "game/assets/flora/plants/wild_strawberry_a.glb",
+      "params": {
+        "species": "wild_strawberry",
+        "variant": "a",
+        "seed": 10501
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_wild_strawberry_a",
+          "plant_wild_strawberry_a_flowers",
+          "plant_wild_strawberry_a_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/wild_strawberry_a.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.181,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 195,
+        "tris": {
+          "0": 195
+        }
+      }
+    },
+    {
+      "species": "wild_strawberry",
+      "variant": "b",
+      "output": "game/assets/flora/plants/wild_strawberry_b.glb",
+      "params": {
+        "species": "wild_strawberry",
+        "variant": "b",
+        "seed": 10502
+      },
+      "check": {
+        "assembled_objects": [
+          "plant_wild_strawberry_b",
+          "plant_wild_strawberry_b_flowers",
+          "plant_wild_strawberry_b_fruit"
+        ],
+        "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/wild_strawberry_b.glb",
+        "budget_class": "shrub",
+        "collision_objects": [],
+        "height_m": 0.202,
+        "materials": [
+          "palette"
+        ],
+        "ok": true,
+        "problems": [],
+        "stored_tris": 195,
+        "tris": {
+          "0": 195
+        }
+      }
+    }
+  ],
+  "visual_review": {
+    "reviewer": "procedural author; owner approval pending",
+    "result": "review_ready",
+    "coverage": "All 70 variants inspected in four-angle contacts and 40m silhouette sheets; 11 botanical closeups plus mushroom underside and berry/calyx closeups.",
+    "corrections": [
+      "Joined compound leaves with rachis stems; no floating leaflets.",
+      "Rounded shrub crown geometry; adjusted seasonal cluster counts within 300 triangles.",
+      "Seeded mushroom patch positions and scales vary between a/b.",
+      "Enlarged five-point persistent nightshade calyx; reviewed against bilberry fruit."
+    ],
+    "botanical_tells": [
+      "Carrot central dark floret and divided leaves; hemlock spotted stem; water-hemlock broad serrated divided foliage.",
+      "Brown field-mushroom underside without cup; white death-cap underside, ring and basal cup.",
+      "Ramsons star umbels; lily arching one-sided white bells.",
+      "Comfrey short drooping bells and hairy accents; foxglove tall tubular-flower spire.",
+      "Low bilberry versus taller nightshade with five-point berry calyx."
+    ],
+    "limitations": [
+      "Palette has no purple/pink; woad/madder approximations documented in SOURCES.md.",
+      "Tiny herbs deliberately become hard to distinguish at 40m; close-up botanical tells preserved.",
+      "Seasonal flowers and fruits coexist in source previews and use separate named meshes for runtime hiding."
+    ],
+    "preview_directory": "art/previews/forage",
+    "content_validation": "dotnet run --no-build --project src/FeudalSim.Headless -- content validate: 50 files OK; hash 15cec35d07a54950"
+  }
+}
