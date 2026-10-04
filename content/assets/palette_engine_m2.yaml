@@ -13,6 +13,14 @@
       "tool": "Godot 4.7.2 glTF import"
     },
     "outputs": [
+      "game/assets/animals/brown_bear_palette.png",
+      "game/assets/animals/fox_palette.png",
+      "game/assets/animals/grey_wolf_palette.png",
+      "game/assets/animals/hare_palette.png",
+      "game/assets/animals/red_deer_hind_palette.png",
+      "game/assets/animals/red_deer_stag_palette.png",
+      "game/assets/animals/wild_boar_palette.png",
+      "game/assets/animals/wild_goat_palette.png",
       "game/assets/buildings/campfire_palette.png",
       "game/assets/buildings/drying_rack_palette.png",
       "game/assets/buildings/hut_palette.png",

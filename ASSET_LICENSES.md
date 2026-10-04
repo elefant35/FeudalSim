@@ -5,6 +5,14 @@
 
 | Asset | Kind | Status | Source | License | Author | Credit |
 |-------|------|--------|--------|---------|--------|--------|
+| `asset.animals.brown_bear` | model | review | generator `art/generators/animals/animals.py` | Proprietary-own-work | FeudalSim | — |
+| `asset.animals.fox` | model | review | generator `art/generators/animals/animals.py` | Proprietary-own-work | FeudalSim | — |
+| `asset.animals.grey_wolf` | model | review | generator `art/generators/animals/animals.py` | Proprietary-own-work | FeudalSim | — |
+| `asset.animals.hare` | model | review | generator `art/generators/animals/animals.py` | Proprietary-own-work | FeudalSim | — |
+| `asset.animals.red_deer_hind` | model | review | generator `art/generators/animals/animals.py` | Proprietary-own-work | FeudalSim | — |
+| `asset.animals.red_deer_stag` | model | review | generator `art/generators/animals/animals.py` | Proprietary-own-work | FeudalSim | — |
+| `asset.animals.wild_boar` | model | review | generator `art/generators/animals/animals.py` | Proprietary-own-work | FeudalSim | — |
+| `asset.animals.wild_goat` | model | review | generator `art/generators/animals/animals.py` | Proprietary-own-work | FeudalSim | — |
 | `asset.animations.combat_basic` | animation | review | generator `art/generators/animations/combat_motion.py` | Proprietary-own-work | FeudalSim | — |
 | `asset.animations.locomotion` | animation | review | generator `art/generators/animations/human_motion_extended.py` | Proprietary-own-work | FeudalSim | — |
 | `asset.animations.needs` | animation | review | generator `art/generators/animations/human_motion_extended.py` | Proprietary-own-work | FeudalSim | — |
@@ -192,6 +200,7 @@
 | `asset.nature.outcrop_b` | model | review | generator `art/generators/nature/nature.py` | Proprietary-own-work | FeudalSim | — |
 | `asset.nature.outcrop_c` | model | review | generator `art/generators/nature/nature.py` | Proprietary-own-work | FeudalSim | — |
 | `asset.nature.outcrop_d` | model | review | generator `art/generators/nature/nature.py` | Proprietary-own-work | FeudalSim | — |
+| `asset.palette.engine_copies_m2` | texture | review | generator `tools/art/sync_palette_derivatives.py` | Proprietary-own-work | FeudalSim | — |
 | `asset.pickups_p1.antler_billet` | model | review | generator `art/generators/pickups/pickups.py` | Proprietary-own-work | FeudalSim | — |
 | `asset.pickups_p1.clay` | model | review | generator `art/generators/pickups/pickups.py` | Proprietary-own-work | FeudalSim | — |
 | `asset.pickups_p1.item_bilberries` | model | review | generator `art/generators/pickups/pickups.py` | Proprietary-own-work | FeudalSim | — |

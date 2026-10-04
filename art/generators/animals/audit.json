@@ -1,0 +1,1122 @@
+{
+  "red_deer_stag": {
+    "assembled_objects": [
+      "animal_red_deer_stag_lod0"
+    ],
+    "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/animals/red_deer_stag.glb",
+    "budget_class": "animal_medium",
+    "collision_objects": [],
+    "height_m": 2.626,
+    "materials": [
+      "palette"
+    ],
+    "ok": true,
+    "problems": [],
+    "stored_tris": 2022,
+    "tris": {
+      "0": 2022
+    },
+    "motion_floor_samples": [
+      {
+        "clip": "walk",
+        "phase": 0,
+        "min_z": -8e-05
+      },
+      {
+        "clip": "walk",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "walk",
+        "phase": 0.5,
+        "min_z": -4e-05
+      },
+      {
+        "clip": "walk",
+        "phase": 0.75,
+        "min_z": -6e-05
+      },
+      {
+        "clip": "run",
+        "phase": 0,
+        "min_z": -0.00445
+      },
+      {
+        "clip": "run",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "run",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "run",
+        "phase": 0.75,
+        "min_z": 0.0
+      },
+      {
+        "clip": "idle",
+        "phase": 0.0,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "alert",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "hit",
+        "phase": 0.5,
+        "min_z": 0.0
+      },
+      {
+        "clip": "death",
+        "phase": 0,
+        "min_z": -0.0
+      },
+      {
+        "clip": "death",
+        "phase": 0.33,
+        "min_z": -0.00079
+      },
+      {
+        "clip": "death",
+        "phase": 0.66,
+        "min_z": 0.0
+      },
+      {
+        "clip": "death",
+        "phase": 1,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.25,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.5,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.75,
+        "min_z": 0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.75,
+        "min_z": -0.0
+      }
+    ]
+  },
+  "red_deer_hind": {
+    "assembled_objects": [
+      "animal_red_deer_hind_lod0"
+    ],
+    "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/animals/red_deer_hind.glb",
+    "budget_class": "animal_medium",
+    "collision_objects": [],
+    "height_m": 1.751,
+    "materials": [
+      "palette"
+    ],
+    "ok": true,
+    "problems": [],
+    "stored_tris": 1634,
+    "tris": {
+      "0": 1634
+    },
+    "motion_floor_samples": [
+      {
+        "clip": "walk",
+        "phase": 0,
+        "min_z": -0.00018
+      },
+      {
+        "clip": "walk",
+        "phase": 0.25,
+        "min_z": 0.0
+      },
+      {
+        "clip": "walk",
+        "phase": 0.5,
+        "min_z": -5e-05
+      },
+      {
+        "clip": "walk",
+        "phase": 0.75,
+        "min_z": -7e-05
+      },
+      {
+        "clip": "run",
+        "phase": 0,
+        "min_z": -0.00182
+      },
+      {
+        "clip": "run",
+        "phase": 0.25,
+        "min_z": 0.0
+      },
+      {
+        "clip": "run",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "run",
+        "phase": 0.75,
+        "min_z": 0.0
+      },
+      {
+        "clip": "idle",
+        "phase": 0.0,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "alert",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "hit",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "death",
+        "phase": 0,
+        "min_z": -0.0
+      },
+      {
+        "clip": "death",
+        "phase": 0.33,
+        "min_z": -0.00069
+      },
+      {
+        "clip": "death",
+        "phase": 0.66,
+        "min_z": 0.0
+      },
+      {
+        "clip": "death",
+        "phase": 1,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.25,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.5,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.75,
+        "min_z": 0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.75,
+        "min_z": -0.0
+      }
+    ]
+  },
+  "wild_boar": {
+    "assembled_objects": [
+      "animal_wild_boar_lod0"
+    ],
+    "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/animals/wild_boar.glb",
+    "budget_class": "animal_medium",
+    "collision_objects": [],
+    "height_m": 1.04,
+    "materials": [
+      "palette"
+    ],
+    "ok": true,
+    "problems": [],
+    "stored_tris": 1899,
+    "tris": {
+      "0": 1899
+    },
+    "motion_floor_samples": [
+      {
+        "clip": "walk",
+        "phase": 0,
+        "min_z": -7e-05
+      },
+      {
+        "clip": "walk",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "walk",
+        "phase": 0.5,
+        "min_z": -5e-05
+      },
+      {
+        "clip": "walk",
+        "phase": 0.75,
+        "min_z": -6e-05
+      },
+      {
+        "clip": "run",
+        "phase": 0,
+        "min_z": -0.00415
+      },
+      {
+        "clip": "run",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "run",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "run",
+        "phase": 0.75,
+        "min_z": -0.0
+      },
+      {
+        "clip": "idle",
+        "phase": 0.0,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "alert",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "hit",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "death",
+        "phase": 0,
+        "min_z": -0.0
+      },
+      {
+        "clip": "death",
+        "phase": 0.33,
+        "min_z": -0.00062
+      },
+      {
+        "clip": "death",
+        "phase": 0.66,
+        "min_z": 0.0
+      },
+      {
+        "clip": "death",
+        "phase": 1,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.25,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.5,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.75,
+        "min_z": 0.0
+      },
+      {
+        "clip": "attack",
+        "phase": 0,
+        "min_z": -0.0
+      },
+      {
+        "clip": "attack",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "attack",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "attack",
+        "phase": 0.75,
+        "min_z": -0.0
+      }
+    ]
+  },
+  "hare": {
+    "assembled_objects": [
+      "animal_hare_lod0"
+    ],
+    "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/animals/hare.glb",
+    "budget_class": "animal_small",
+    "collision_objects": [],
+    "height_m": 0.663,
+    "materials": [
+      "palette"
+    ],
+    "ok": true,
+    "problems": [],
+    "stored_tris": 792,
+    "tris": {
+      "0": 792
+    },
+    "motion_floor_samples": [
+      {
+        "clip": "walk",
+        "phase": 0,
+        "min_z": -5e-05
+      },
+      {
+        "clip": "walk",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "walk",
+        "phase": 0.5,
+        "min_z": -2e-05
+      },
+      {
+        "clip": "walk",
+        "phase": 0.75,
+        "min_z": -2e-05
+      },
+      {
+        "clip": "run",
+        "phase": 0,
+        "min_z": -0.00443
+      },
+      {
+        "clip": "run",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "run",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "run",
+        "phase": 0.75,
+        "min_z": -0.0
+      },
+      {
+        "clip": "idle",
+        "phase": 0.0,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "alert",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "hit",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "death",
+        "phase": 0,
+        "min_z": -0.0
+      },
+      {
+        "clip": "death",
+        "phase": 0.33,
+        "min_z": -0.00032
+      },
+      {
+        "clip": "death",
+        "phase": 0.66,
+        "min_z": 0.0
+      },
+      {
+        "clip": "death",
+        "phase": 1,
+        "min_z": -0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0,
+        "min_z": -0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.75,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.75,
+        "min_z": -0.0
+      }
+    ]
+  },
+  "grey_wolf": {
+    "assembled_objects": [
+      "animal_grey_wolf_lod0"
+    ],
+    "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/animals/grey_wolf.glb",
+    "budget_class": "animal_medium",
+    "collision_objects": [],
+    "height_m": 1.129,
+    "materials": [
+      "palette"
+    ],
+    "ok": true,
+    "problems": [],
+    "stored_tris": 1722,
+    "tris": {
+      "0": 1722
+    },
+    "motion_floor_samples": [
+      {
+        "clip": "walk",
+        "phase": 0,
+        "min_z": -7e-05
+      },
+      {
+        "clip": "walk",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "walk",
+        "phase": 0.5,
+        "min_z": -5e-05
+      },
+      {
+        "clip": "walk",
+        "phase": 0.75,
+        "min_z": -5e-05
+      },
+      {
+        "clip": "run",
+        "phase": 0,
+        "min_z": -0.0045
+      },
+      {
+        "clip": "run",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "run",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "run",
+        "phase": 0.75,
+        "min_z": -0.0
+      },
+      {
+        "clip": "idle",
+        "phase": 0.0,
+        "min_z": 0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "alert",
+        "phase": 0.5,
+        "min_z": 0.0
+      },
+      {
+        "clip": "hit",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "death",
+        "phase": 0,
+        "min_z": -0.0
+      },
+      {
+        "clip": "death",
+        "phase": 0.33,
+        "min_z": -0.0006
+      },
+      {
+        "clip": "death",
+        "phase": 0.66,
+        "min_z": 0.0
+      },
+      {
+        "clip": "death",
+        "phase": 1,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.25,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.5,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.75,
+        "min_z": 0.0
+      },
+      {
+        "clip": "attack",
+        "phase": 0,
+        "min_z": 0.0
+      },
+      {
+        "clip": "attack",
+        "phase": 0.25,
+        "min_z": 0.0
+      },
+      {
+        "clip": "attack",
+        "phase": 0.5,
+        "min_z": 0.0
+      },
+      {
+        "clip": "attack",
+        "phase": 0.75,
+        "min_z": 0.0
+      }
+    ]
+  },
+  "brown_bear": {
+    "assembled_objects": [
+      "animal_brown_bear_lod0"
+    ],
+    "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/animals/brown_bear.glb",
+    "budget_class": "animal_medium",
+    "collision_objects": [],
+    "height_m": 1.219,
+    "materials": [
+      "palette"
+    ],
+    "ok": true,
+    "problems": [],
+    "stored_tris": 2030,
+    "tris": {
+      "0": 2030
+    },
+    "motion_floor_samples": [
+      {
+        "clip": "walk",
+        "phase": 0,
+        "min_z": -0.0001
+      },
+      {
+        "clip": "walk",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "walk",
+        "phase": 0.5,
+        "min_z": -4e-05
+      },
+      {
+        "clip": "walk",
+        "phase": 0.75,
+        "min_z": -5e-05
+      },
+      {
+        "clip": "run",
+        "phase": 0,
+        "min_z": -0.00703
+      },
+      {
+        "clip": "run",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "run",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "run",
+        "phase": 0.75,
+        "min_z": -0.0
+      },
+      {
+        "clip": "idle",
+        "phase": 0.0,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "alert",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "hit",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "death",
+        "phase": 0,
+        "min_z": -0.0
+      },
+      {
+        "clip": "death",
+        "phase": 0.33,
+        "min_z": -0.00059
+      },
+      {
+        "clip": "death",
+        "phase": 0.66,
+        "min_z": 0.0
+      },
+      {
+        "clip": "death",
+        "phase": 1,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.25,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.5,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.75,
+        "min_z": 0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.75,
+        "min_z": -0.0
+      }
+    ]
+  },
+  "fox": {
+    "assembled_objects": [
+      "animal_fox_lod0"
+    ],
+    "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/animals/fox.glb",
+    "budget_class": "animal_medium",
+    "collision_objects": [],
+    "height_m": 0.629,
+    "materials": [
+      "palette"
+    ],
+    "ok": true,
+    "problems": [],
+    "stored_tris": 1722,
+    "tris": {
+      "0": 1722
+    },
+    "motion_floor_samples": [
+      {
+        "clip": "walk",
+        "phase": 0,
+        "min_z": -0.00011
+      },
+      {
+        "clip": "walk",
+        "phase": 0.25,
+        "min_z": 0.0
+      },
+      {
+        "clip": "walk",
+        "phase": 0.5,
+        "min_z": -4e-05
+      },
+      {
+        "clip": "walk",
+        "phase": 0.75,
+        "min_z": -4e-05
+      },
+      {
+        "clip": "run",
+        "phase": 0,
+        "min_z": -0.00128
+      },
+      {
+        "clip": "run",
+        "phase": 0.25,
+        "min_z": 0.0
+      },
+      {
+        "clip": "run",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "run",
+        "phase": 0.75,
+        "min_z": 0.0
+      },
+      {
+        "clip": "idle",
+        "phase": 0.0,
+        "min_z": 0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.25,
+        "min_z": 0.0
+      },
+      {
+        "clip": "alert",
+        "phase": 0.5,
+        "min_z": 0.0
+      },
+      {
+        "clip": "hit",
+        "phase": 0.5,
+        "min_z": 0.0
+      },
+      {
+        "clip": "death",
+        "phase": 0,
+        "min_z": -0.0
+      },
+      {
+        "clip": "death",
+        "phase": 0.33,
+        "min_z": -0.00026
+      },
+      {
+        "clip": "death",
+        "phase": 0.66,
+        "min_z": -0.0
+      },
+      {
+        "clip": "death",
+        "phase": 1,
+        "min_z": -0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.25,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.5,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.75,
+        "min_z": 0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0,
+        "min_z": 0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.25,
+        "min_z": 0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.5,
+        "min_z": 0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.75,
+        "min_z": 0.0
+      }
+    ]
+  },
+  "wild_goat": {
+    "assembled_objects": [
+      "animal_wild_goat_lod0"
+    ],
+    "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/animals/wild_goat.glb",
+    "budget_class": "animal_medium",
+    "collision_objects": [],
+    "height_m": 1.547,
+    "materials": [
+      "palette"
+    ],
+    "ok": true,
+    "problems": [],
+    "stored_tris": 1782,
+    "tris": {
+      "0": 1782
+    },
+    "motion_floor_samples": [
+      {
+        "clip": "walk",
+        "phase": 0,
+        "min_z": -3e-05
+      },
+      {
+        "clip": "walk",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "walk",
+        "phase": 0.5,
+        "min_z": -1e-05
+      },
+      {
+        "clip": "walk",
+        "phase": 0.75,
+        "min_z": -2e-05
+      },
+      {
+        "clip": "run",
+        "phase": 0,
+        "min_z": -0.00103
+      },
+      {
+        "clip": "run",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "run",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "run",
+        "phase": 0.75,
+        "min_z": 0.0
+      },
+      {
+        "clip": "idle",
+        "phase": 0.0,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "alert",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "hit",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "death",
+        "phase": 0,
+        "min_z": -0.0
+      },
+      {
+        "clip": "death",
+        "phase": 0.33,
+        "min_z": -0.00055
+      },
+      {
+        "clip": "death",
+        "phase": 0.66,
+        "min_z": 0.0
+      },
+      {
+        "clip": "death",
+        "phase": 1,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.25,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.5,
+        "min_z": 0.0
+      },
+      {
+        "clip": "sleep_loop",
+        "phase": 0.75,
+        "min_z": 0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.25,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.5,
+        "min_z": -0.0
+      },
+      {
+        "clip": "graze_loop",
+        "phase": 0.75,
+        "min_z": -0.0
+      }
+    ]
+  }
+}

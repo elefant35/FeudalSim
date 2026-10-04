@@ -1,0 +1,420 @@
+{
+  "red_deer_stag": {
+    "ok": true,
+    "bones": 28,
+    "clips": {
+      "alert": {
+        "duration_s": 1.1333,
+        "max_gap_s": 1.1,
+        "loop_error": 0
+      },
+      "death": {
+        "duration_s": 1.7333,
+        "max_gap_s": 1.7,
+        "loop_error": 0
+      },
+      "flee": {
+        "duration_s": 0.6333,
+        "max_gap_s": 0.6,
+        "loop_error": 0
+      },
+      "graze_loop": {
+        "duration_s": 3.2333,
+        "max_gap_s": 3.2,
+        "loop_error": 0
+      },
+      "hit": {
+        "duration_s": 0.7333,
+        "max_gap_s": 0.7,
+        "loop_error": 0
+      },
+      "idle": {
+        "duration_s": 3.0333,
+        "max_gap_s": 3.0,
+        "loop_error": 0
+      },
+      "run": {
+        "duration_s": 0.6333,
+        "max_gap_s": 0.6,
+        "loop_error": 0
+      },
+      "sleep_loop": {
+        "duration_s": 3.6333,
+        "max_gap_s": 3.6000001,
+        "loop_error": 0
+      },
+      "walk": {
+        "duration_s": 1.2333,
+        "max_gap_s": 1.2,
+        "loop_error": 0
+      }
+    }
+  },
+  "red_deer_hind": {
+    "ok": true,
+    "bones": 28,
+    "clips": {
+      "alert": {
+        "duration_s": 1.1333,
+        "max_gap_s": 1.1,
+        "loop_error": 0
+      },
+      "death": {
+        "duration_s": 1.7333,
+        "max_gap_s": 1.7,
+        "loop_error": 0
+      },
+      "flee": {
+        "duration_s": 0.6333,
+        "max_gap_s": 0.6,
+        "loop_error": 0
+      },
+      "graze_loop": {
+        "duration_s": 3.2333,
+        "max_gap_s": 3.2,
+        "loop_error": 0
+      },
+      "hit": {
+        "duration_s": 0.7333,
+        "max_gap_s": 0.7,
+        "loop_error": 0
+      },
+      "idle": {
+        "duration_s": 3.0333,
+        "max_gap_s": 3.0,
+        "loop_error": 0
+      },
+      "run": {
+        "duration_s": 0.6333,
+        "max_gap_s": 0.6,
+        "loop_error": 0
+      },
+      "sleep_loop": {
+        "duration_s": 3.6333,
+        "max_gap_s": 3.6000001,
+        "loop_error": 0
+      },
+      "walk": {
+        "duration_s": 1.2333,
+        "max_gap_s": 1.2,
+        "loop_error": 0
+      }
+    }
+  },
+  "wild_boar": {
+    "ok": true,
+    "bones": 28,
+    "clips": {
+      "alert": {
+        "duration_s": 1.1333,
+        "max_gap_s": 1.1,
+        "loop_error": 0
+      },
+      "attack": {
+        "duration_s": 1.1333,
+        "max_gap_s": 1.1,
+        "loop_error": 0
+      },
+      "death": {
+        "duration_s": 1.7333,
+        "max_gap_s": 1.7,
+        "loop_error": 0
+      },
+      "flee": {
+        "duration_s": 0.6333,
+        "max_gap_s": 0.6,
+        "loop_error": 0
+      },
+      "graze_loop": {
+        "duration_s": 3.2333,
+        "max_gap_s": 3.2,
+        "loop_error": 0
+      },
+      "hit": {
+        "duration_s": 0.7333,
+        "max_gap_s": 0.7,
+        "loop_error": 0
+      },
+      "idle": {
+        "duration_s": 3.0333,
+        "max_gap_s": 3.0,
+        "loop_error": 0
+      },
+      "run": {
+        "duration_s": 0.6333,
+        "max_gap_s": 0.6,
+        "loop_error": 0
+      },
+      "sleep_loop": {
+        "duration_s": 3.6333,
+        "max_gap_s": 3.6000001,
+        "loop_error": 0
+      },
+      "walk": {
+        "duration_s": 1.2333,
+        "max_gap_s": 1.2,
+        "loop_error": 0
+      }
+    }
+  },
+  "hare": {
+    "ok": true,
+    "bones": 28,
+    "clips": {
+      "alert": {
+        "duration_s": 1.1333,
+        "max_gap_s": 1.1,
+        "loop_error": 0
+      },
+      "death": {
+        "duration_s": 1.7333,
+        "max_gap_s": 1.7,
+        "loop_error": 0
+      },
+      "flee": {
+        "duration_s": 0.6333,
+        "max_gap_s": 0.6,
+        "loop_error": 0
+      },
+      "graze_loop": {
+        "duration_s": 3.2333,
+        "max_gap_s": 3.2,
+        "loop_error": 0
+      },
+      "hit": {
+        "duration_s": 0.7333,
+        "max_gap_s": 0.7,
+        "loop_error": 0
+      },
+      "idle": {
+        "duration_s": 3.0333,
+        "max_gap_s": 3.0,
+        "loop_error": 0
+      },
+      "run": {
+        "duration_s": 0.6333,
+        "max_gap_s": 0.6,
+        "loop_error": 0
+      },
+      "sleep_loop": {
+        "duration_s": 3.6333,
+        "max_gap_s": 3.6000001,
+        "loop_error": 0
+      },
+      "walk": {
+        "duration_s": 1.2333,
+        "max_gap_s": 1.2,
+        "loop_error": 0
+      }
+    }
+  },
+  "grey_wolf": {
+    "ok": true,
+    "bones": 28,
+    "clips": {
+      "alert": {
+        "duration_s": 1.1333,
+        "max_gap_s": 1.1,
+        "loop_error": 0
+      },
+      "attack": {
+        "duration_s": 1.1333,
+        "max_gap_s": 1.1,
+        "loop_error": 0
+      },
+      "death": {
+        "duration_s": 1.7333,
+        "max_gap_s": 1.7,
+        "loop_error": 0
+      },
+      "flee": {
+        "duration_s": 0.6333,
+        "max_gap_s": 0.6,
+        "loop_error": 0
+      },
+      "graze_loop": {
+        "duration_s": 3.2333,
+        "max_gap_s": 3.2,
+        "loop_error": 0
+      },
+      "hit": {
+        "duration_s": 0.7333,
+        "max_gap_s": 0.7,
+        "loop_error": 0
+      },
+      "idle": {
+        "duration_s": 3.0333,
+        "max_gap_s": 3.0,
+        "loop_error": 0
+      },
+      "run": {
+        "duration_s": 0.6333,
+        "max_gap_s": 0.6,
+        "loop_error": 0
+      },
+      "sleep_loop": {
+        "duration_s": 3.6333,
+        "max_gap_s": 3.6000001,
+        "loop_error": 0
+      },
+      "walk": {
+        "duration_s": 1.2333,
+        "max_gap_s": 1.2,
+        "loop_error": 0
+      }
+    }
+  },
+  "brown_bear": {
+    "ok": true,
+    "bones": 28,
+    "clips": {
+      "alert": {
+        "duration_s": 1.1333,
+        "max_gap_s": 1.1,
+        "loop_error": 0
+      },
+      "death": {
+        "duration_s": 1.7333,
+        "max_gap_s": 1.7,
+        "loop_error": 0
+      },
+      "flee": {
+        "duration_s": 0.6333,
+        "max_gap_s": 0.6,
+        "loop_error": 0
+      },
+      "graze_loop": {
+        "duration_s": 3.2333,
+        "max_gap_s": 3.2,
+        "loop_error": 0
+      },
+      "hit": {
+        "duration_s": 0.7333,
+        "max_gap_s": 0.7,
+        "loop_error": 0
+      },
+      "idle": {
+        "duration_s": 3.0333,
+        "max_gap_s": 3.0,
+        "loop_error": 0
+      },
+      "run": {
+        "duration_s": 0.6333,
+        "max_gap_s": 0.6,
+        "loop_error": 0
+      },
+      "sleep_loop": {
+        "duration_s": 3.6333,
+        "max_gap_s": 3.6000001,
+        "loop_error": 0
+      },
+      "walk": {
+        "duration_s": 1.2333,
+        "max_gap_s": 1.2,
+        "loop_error": 0
+      }
+    }
+  },
+  "fox": {
+    "ok": true,
+    "bones": 28,
+    "clips": {
+      "alert": {
+        "duration_s": 1.1333,
+        "max_gap_s": 1.1,
+        "loop_error": 0
+      },
+      "death": {
+        "duration_s": 1.7333,
+        "max_gap_s": 1.7,
+        "loop_error": 0
+      },
+      "flee": {
+        "duration_s": 0.6333,
+        "max_gap_s": 0.6,
+        "loop_error": 0
+      },
+      "graze_loop": {
+        "duration_s": 3.2333,
+        "max_gap_s": 3.2,
+        "loop_error": 0
+      },
+      "hit": {
+        "duration_s": 0.7333,
+        "max_gap_s": 0.7,
+        "loop_error": 0
+      },
+      "idle": {
+        "duration_s": 3.0333,
+        "max_gap_s": 3.0,
+        "loop_error": 0
+      },
+      "run": {
+        "duration_s": 0.6333,
+        "max_gap_s": 0.6,
+        "loop_error": 0
+      },
+      "sleep_loop": {
+        "duration_s": 3.6333,
+        "max_gap_s": 3.6000001,
+        "loop_error": 0
+      },
+      "walk": {
+        "duration_s": 1.2333,
+        "max_gap_s": 1.2,
+        "loop_error": 0
+      }
+    }
+  },
+  "wild_goat": {
+    "ok": true,
+    "bones": 28,
+    "clips": {
+      "alert": {
+        "duration_s": 1.1333,
+        "max_gap_s": 1.1,
+        "loop_error": 0
+      },
+      "death": {
+        "duration_s": 1.7333,
+        "max_gap_s": 1.7,
+        "loop_error": 0
+      },
+      "flee": {
+        "duration_s": 0.6333,
+        "max_gap_s": 0.6,
+        "loop_error": 0
+      },
+      "graze_loop": {
+        "duration_s": 3.2333,
+        "max_gap_s": 3.2,
+        "loop_error": 0
+      },
+      "hit": {
+        "duration_s": 0.7333,
+        "max_gap_s": 0.7,
+        "loop_error": 0
+      },
+      "idle": {
+        "duration_s": 3.0333,
+        "max_gap_s": 3.0,
+        "loop_error": 0
+      },
+      "run": {
+        "duration_s": 0.6333,
+        "max_gap_s": 0.6,
+        "loop_error": 0
+      },
+      "sleep_loop": {
+        "duration_s": 3.6333,
+        "max_gap_s": 3.6000001,
+        "loop_error": 0
+      },
+      "walk": {
+        "duration_s": 1.2333,
+        "max_gap_s": 1.2,
+        "loop_error": 0
+      }
+    }
+  }
+}

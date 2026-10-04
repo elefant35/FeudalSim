@@ -1,0 +1,412 @@
+{
+  "brown_bear": {
+    "ok": true,
+    "clips": {
+      "walk": {
+        "min_surface_z_m": -0.000366,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 11
+      },
+      "sleep_loop": {
+        "min_surface_z_m": 0.0,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 31
+      },
+      "run": {
+        "min_surface_z_m": -0.002536,
+        "max_lowest_surface_z_m": 0.004976,
+        "samples": 7
+      },
+      "idle": {
+        "min_surface_z_m": -0.0,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 26
+      },
+      "hit": {
+        "min_surface_z_m": -5.8e-05,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 7
+      },
+      "graze_loop": {
+        "min_surface_z_m": -0.0,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 27
+      },
+      "flee": {
+        "min_surface_z_m": -0.002536,
+        "max_lowest_surface_z_m": 0.004976,
+        "samples": 7
+      },
+      "death": {
+        "min_surface_z_m": -0.000524,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 15
+      },
+      "alert": {
+        "min_surface_z_m": -0.0,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 11
+      }
+    }
+  },
+  "fox": {
+    "ok": true,
+    "clips": {
+      "walk": {
+        "min_surface_z_m": -0.000319,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 11
+      },
+      "sleep_loop": {
+        "min_surface_z_m": 0.0,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 31
+      },
+      "run": {
+        "min_surface_z_m": -0.003061,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 7
+      },
+      "idle": {
+        "min_surface_z_m": 0.0,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 26
+      },
+      "hit": {
+        "min_surface_z_m": -9e-06,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 7
+      },
+      "graze_loop": {
+        "min_surface_z_m": 0.0,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 27
+      },
+      "flee": {
+        "min_surface_z_m": -0.003061,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 7
+      },
+      "death": {
+        "min_surface_z_m": -0.000185,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 15
+      },
+      "alert": {
+        "min_surface_z_m": 0.0,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 11
+      }
+    }
+  },
+  "grey_wolf": {
+    "ok": true,
+    "clips": {
+      "walk": {
+        "min_surface_z_m": -0.000239,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 11
+      },
+      "sleep_loop": {
+        "min_surface_z_m": 0.0,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 31
+      },
+      "run": {
+        "min_surface_z_m": -0.002308,
+        "max_lowest_surface_z_m": 0.002144,
+        "samples": 7
+      },
+      "idle": {
+        "min_surface_z_m": 0.0,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 26
+      },
+      "hit": {
+        "min_surface_z_m": -2.1e-05,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 7
+      },
+      "graze_loop": {
+        "min_surface_z_m": -0.0,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 27
+      },
+      "flee": {
+        "min_surface_z_m": -0.002308,
+        "max_lowest_surface_z_m": 0.002144,
+        "samples": 7
+      },
+      "death": {
+        "min_surface_z_m": -0.00043,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 15
+      },
+      "attack": {
+        "min_surface_z_m": 0.0,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 11
+      },
+      "alert": {
+        "min_surface_z_m": 0.0,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 11
+      }
+    }
+  },
+  "hare": {
+    "ok": true,
+    "clips": {
+      "walk": {
+        "min_surface_z_m": -5.2e-05,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 11
+      },
+      "sleep_loop": {
+        "min_surface_z_m": -0.0,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 31
+      },
+      "run": {
+        "min_surface_z_m": -0.000824,
+        "max_lowest_surface_z_m": 0.001788,
+        "samples": 7
+      },
+      "idle": {
+        "min_surface_z_m": -0.0,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 26
+      },
+      "hit": {
+        "min_surface_z_m": -6e-06,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 7
+      },
+      "graze_loop": {
+        "min_surface_z_m": -0.0,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 27
+      },
+      "flee": {
+        "min_surface_z_m": -0.000824,
+        "max_lowest_surface_z_m": 0.001788,
+        "samples": 7
+      },
+      "death": {
+        "min_surface_z_m": -0.000231,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 15
+      },
+      "alert": {
+        "min_surface_z_m": -0.0,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 11
+      }
+    }
+  },
+  "red_deer_hind": {
+    "ok": true,
+    "clips": {
+      "walk": {
+        "min_surface_z_m": -0.001181,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 11
+      },
+      "sleep_loop": {
+        "min_surface_z_m": 0.0,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 31
+      },
+      "run": {
+        "min_surface_z_m": -0.003407,
+        "max_lowest_surface_z_m": 0.008999,
+        "samples": 7
+      },
+      "idle": {
+        "min_surface_z_m": -0.0,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 26
+      },
+      "hit": {
+        "min_surface_z_m": -3.7e-05,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 7
+      },
+      "graze_loop": {
+        "min_surface_z_m": -0.0,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 27
+      },
+      "flee": {
+        "min_surface_z_m": -0.003407,
+        "max_lowest_surface_z_m": 0.008999,
+        "samples": 7
+      },
+      "death": {
+        "min_surface_z_m": -0.000486,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 15
+      },
+      "alert": {
+        "min_surface_z_m": -0.0,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 11
+      }
+    }
+  },
+  "red_deer_stag": {
+    "ok": true,
+    "clips": {
+      "walk": {
+        "min_surface_z_m": -0.000381,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 11
+      },
+      "sleep_loop": {
+        "min_surface_z_m": 0.0,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 31
+      },
+      "run": {
+        "min_surface_z_m": -0.002488,
+        "max_lowest_surface_z_m": 0.006157,
+        "samples": 7
+      },
+      "idle": {
+        "min_surface_z_m": -0.0,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 26
+      },
+      "hit": {
+        "min_surface_z_m": -3.9e-05,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 7
+      },
+      "graze_loop": {
+        "min_surface_z_m": -0.0,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 27
+      },
+      "flee": {
+        "min_surface_z_m": -0.002488,
+        "max_lowest_surface_z_m": 0.006157,
+        "samples": 7
+      },
+      "death": {
+        "min_surface_z_m": -0.000552,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 15
+      },
+      "alert": {
+        "min_surface_z_m": -0.0,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 11
+      }
+    }
+  },
+  "wild_boar": {
+    "ok": true,
+    "clips": {
+      "walk": {
+        "min_surface_z_m": -0.000209,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 11
+      },
+      "sleep_loop": {
+        "min_surface_z_m": 0.0,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 31
+      },
+      "run": {
+        "min_surface_z_m": -0.002936,
+        "max_lowest_surface_z_m": 0.00709,
+        "samples": 7
+      },
+      "idle": {
+        "min_surface_z_m": -0.0,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 26
+      },
+      "hit": {
+        "min_surface_z_m": -3.3e-05,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 7
+      },
+      "graze_loop": {
+        "min_surface_z_m": -0.0,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 27
+      },
+      "flee": {
+        "min_surface_z_m": -0.002936,
+        "max_lowest_surface_z_m": 0.00709,
+        "samples": 7
+      },
+      "death": {
+        "min_surface_z_m": -0.000444,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 15
+      },
+      "attack": {
+        "min_surface_z_m": -0.0,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 11
+      },
+      "alert": {
+        "min_surface_z_m": -0.0,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 11
+      }
+    }
+  },
+  "wild_goat": {
+    "ok": true,
+    "clips": {
+      "walk": {
+        "min_surface_z_m": -0.000139,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 11
+      },
+      "sleep_loop": {
+        "min_surface_z_m": 0.0,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 31
+      },
+      "run": {
+        "min_surface_z_m": -0.000926,
+        "max_lowest_surface_z_m": 0.004891,
+        "samples": 7
+      },
+      "idle": {
+        "min_surface_z_m": -0.0,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 26
+      },
+      "hit": {
+        "min_surface_z_m": -3e-05,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 7
+      },
+      "graze_loop": {
+        "min_surface_z_m": -0.0,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 27
+      },
+      "flee": {
+        "min_surface_z_m": -0.000926,
+        "max_lowest_surface_z_m": 0.004891,
+        "samples": 7
+      },
+      "death": {
+        "min_surface_z_m": -0.00039,
+        "max_lowest_surface_z_m": 0.0,
+        "samples": 15
+      },
+      "alert": {
+        "min_surface_z_m": -0.0,
+        "max_lowest_surface_z_m": -0.0,
+        "samples": 11
+      }
+    }
+  }
+}

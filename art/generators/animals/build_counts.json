@@ -1,0 +1,124 @@
+{
+  "red_deer_stag": {
+    "triangles": 2022,
+    "bones": 28,
+    "clips": [
+      "alert",
+      "death",
+      "flee",
+      "graze_loop",
+      "hit",
+      "idle",
+      "run",
+      "sleep_loop",
+      "walk"
+    ]
+  },
+  "red_deer_hind": {
+    "triangles": 1634,
+    "bones": 28,
+    "clips": [
+      "alert",
+      "death",
+      "flee",
+      "graze_loop",
+      "hit",
+      "idle",
+      "run",
+      "sleep_loop",
+      "walk"
+    ]
+  },
+  "wild_boar": {
+    "triangles": 1899,
+    "bones": 28,
+    "clips": [
+      "alert",
+      "attack",
+      "death",
+      "flee",
+      "graze_loop",
+      "hit",
+      "idle",
+      "run",
+      "sleep_loop",
+      "walk"
+    ]
+  },
+  "hare": {
+    "triangles": 792,
+    "bones": 28,
+    "clips": [
+      "alert",
+      "death",
+      "flee",
+      "graze_loop",
+      "hit",
+      "idle",
+      "run",
+      "sleep_loop",
+      "walk"
+    ]
+  },
+  "grey_wolf": {
+    "triangles": 1722,
+    "bones": 28,
+    "clips": [
+      "alert",
+      "attack",
+      "death",
+      "flee",
+      "graze_loop",
+      "hit",
+      "idle",
+      "run",
+      "sleep_loop",
+      "walk"
+    ]
+  },
+  "brown_bear": {
+    "triangles": 2030,
+    "bones": 28,
+    "clips": [
+      "alert",
+      "death",
+      "flee",
+      "graze_loop",
+      "hit",
+      "idle",
+      "run",
+      "sleep_loop",
+      "walk"
+    ]
+  },
+  "fox": {
+    "triangles": 1722,
+    "bones": 28,
+    "clips": [
+      "alert",
+      "death",
+      "flee",
+      "graze_loop",
+      "hit",
+      "idle",
+      "run",
+      "sleep_loop",
+      "walk"
+    ]
+  },
+  "wild_goat": {
+    "triangles": 1782,
+    "bones": 28,
+    "clips": [
+      "alert",
+      "death",
+      "flee",
+      "graze_loop",
+      "hit",
+      "idle",
+      "run",
+      "sleep_loop",
+      "walk"
+    ]
+  }
+}

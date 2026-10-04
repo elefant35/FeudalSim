@@ -1,0 +1,114 @@
+# yaml-language-server: $schema=../schemas/asset.schema.json
+# P2 original island fauna; full mesh, own skeleton and required clips in each file.
+- id: asset.animals.red_deer_stag
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/animals/animals.py
+    params: { species: red_deer_stag }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/animals/red_deer_stag.glb]
+  budget_class: animal_medium
+  measured: { tris_lod0: 2022, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Russet stag with branched antlers, leaf-shaped ears, pale rump and cloven hooves. One shared palette material, 28-bone deform rig with fixed floor Root. 9 original 30 fps in-place clips: alert, death, flee, graze_loop, hit, idle, run, sleep_loop, walk. Flee uses run gait. Mesh, palette, silhouette, imported motion and ground-contact evidence in art/previews/animals and art/generators/animals. Status remains review pending owner appearance approval."
+- id: asset.animals.red_deer_hind
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/animals/animals.py
+    params: { species: red_deer_hind }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/animals/red_deer_hind.glb]
+  budget_class: animal_medium
+  measured: { tris_lod0: 1634, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Smaller tan hind without antlers, broad ears, pale rump and cloven hooves. One shared palette material, 28-bone deform rig with fixed floor Root. 9 original 30 fps in-place clips: alert, death, flee, graze_loop, hit, idle, run, sleep_loop, walk. Flee uses run gait. Mesh, palette, silhouette, imported motion and ground-contact evidence in art/previews/animals and art/generators/animals. Status remains review pending owner appearance approval."
+- id: asset.animals.wild_boar
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/animals/animals.py
+    params: { species: wild_boar }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/animals/wild_boar.glb]
+  budget_class: animal_medium
+  measured: { tris_lod0: 1899, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Heavy dark razorback body, forward tapered snout, tusks, bristles, split hooves and dewclaws. Diagonal running contacts and a tusk-driving attack. One shared palette material, 28-bone deform rig with fixed floor Root. 10 original 30 fps in-place clips: alert, attack, death, flee, graze_loop, hit, idle, run, sleep_loop, walk. Flee uses run gait. Mesh, palette, silhouette, imported motion and ground-contact evidence in art/previews/animals and art/generators/animals. Status remains review pending owner appearance approval."
+- id: asset.animals.hare
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/animals/animals.py
+    params: { species: hare }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/animals/hare.glb]
+  budget_class: animal_small
+  measured: { tris_lod0: 792, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Small brown hare with black-tipped long ears, pale belly and bobtail, compact high haunches and long hind feet. Bounding run gait. One shared palette material, 28-bone deform rig with fixed floor Root. 9 original 30 fps in-place clips: alert, death, flee, graze_loop, hit, idle, run, sleep_loop, walk. Flee uses run gait. Mesh, palette, silhouette, imported motion and ground-contact evidence in art/previews/animals and art/generators/animals. Status remains review pending owner appearance approval."
+- id: asset.animals.grey_wolf
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/animals/animals.py
+    params: { species: grey_wolf }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/animals/grey_wolf.glb]
+  budget_class: animal_medium
+  measured: { tris_lod0: 1722, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Grey wolf with a low cervical line, shoulder ruff, dark dorsal saddle, pale muzzle/belly, triangular ears and bushy tail. Jaw opens during the bite attack. One shared palette material, 28-bone deform rig with fixed floor Root. 10 original 30 fps in-place clips: alert, attack, death, flee, graze_loop, hit, idle, run, sleep_loop, walk. Flee uses run gait. Mesh, palette, silhouette, imported motion and ground-contact evidence in art/previews/animals and art/generators/animals. Status remains review pending owner appearance approval."
+- id: asset.animals.brown_bear
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/animals/animals.py
+    params: { species: brown_bear }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/animals/brown_bear.glb]
+  budget_class: animal_medium
+  measured: { tris_lod0: 2030, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Large brown bear with a broad rounded head, small round ears, heavy shoulder/haunch masses and individual pale claws. Fits the conservative animal_medium budget. One shared palette material, 28-bone deform rig with fixed floor Root. 9 original 30 fps in-place clips: alert, death, flee, graze_loop, hit, idle, run, sleep_loop, walk. Flee uses run gait. Mesh, palette, silhouette, imported motion and ground-contact evidence in art/previews/animals and art/generators/animals. Status remains review pending owner appearance approval."
+- id: asset.animals.fox
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/animals/animals.py
+    params: { species: fox }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/animals/fox.glb]
+  budget_class: animal_medium
+  measured: { tris_lod0: 1722, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Smaller russet fox with pale muzzle/belly, black lower legs, triangular ears, shoulder ruff and a broad white tail tip. One shared palette material, 28-bone deform rig with fixed floor Root. 9 original 30 fps in-place clips: alert, death, flee, graze_loop, hit, idle, run, sleep_loop, walk. Flee uses run gait. Mesh, palette, silhouette, imported motion and ground-contact evidence in art/previews/animals and art/generators/animals. Status remains review pending owner appearance approval."
+- id: asset.animals.wild_goat
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/animals/animals.py
+    params: { species: wild_goat }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/animals/wild_goat.glb]
+  budget_class: animal_medium
+  measured: { tris_lod0: 1782, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Grey wild goat with back-swept dark horns, hanging beard, raised short tail and cloven hooves. One shared palette material, 28-bone deform rig with fixed floor Root. 9 original 30 fps in-place clips: alert, death, flee, graze_loop, hit, idle, run, sleep_loop, walk. Flee uses run gait. Mesh, palette, silhouette, imported motion and ground-contact evidence in art/previews/animals and art/generators/animals. Status remains review pending owner appearance approval."
