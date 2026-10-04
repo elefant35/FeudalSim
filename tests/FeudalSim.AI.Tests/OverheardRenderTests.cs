@@ -45,4 +45,21 @@ public sealed class OverheardRenderTests
         messages[0].Content.ShouldContain("only voice it");
         messages[1].Content.ShouldBe(Facts);
     }
+
+    [Fact]
+    public void RealNames_AreCheckedAgainstTheCamp_AndNeverReachThePrompt()
+    {
+        const string facts = """
+            {"setting":"camp","a":{"name":"Joan Bramley"},"b":{"name":"Edmund Pryor"},"kind":"chat","success":true,
+             "names":["Joan Bramley","Edmund Pryor"],"camp_names":["Joan Bramley","Edmund Pryor","Hugh Thatcher","Wenna Holloway"]}
+            """;
+        OverheardRender.Validate(facts, """[{"speaker":"Joan Bramley","line":"Cold night, Edmund."},{"speaker":"Edmund Pryor","line":"Aye."}]""", out var ok).ShouldNotBeNull();
+        ok.ShouldBe("ok");
+        OverheardRender.Validate(facts, """[{"speaker":"Joan Bramley","line":"Hugh Thatcher was out late."},{"speaker":"Edmund Pryor","line":"Was he?"}]""", out var full).ShouldBeNull();
+        full.ShouldBe("invented-name");
+        OverheardRender.Validate(facts, """[{"speaker":"Joan Bramley","line":"Wenna said so."},{"speaker":"Edmund Pryor","line":"Did she?"}]""", out var first).ShouldBeNull();
+        first.ShouldBe("invented-name");
+        OverheardRender.PromptFacts(facts).ShouldNotContain("camp_names");
+        OverheardRender.Messages(facts)[^1].Content.ShouldNotContain("Hugh");
+    }
 }

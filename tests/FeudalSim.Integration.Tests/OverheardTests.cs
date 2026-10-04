@@ -44,7 +44,14 @@ public sealed class OverheardTests
         }
         applied.Count.ShouldBe(requests.Count - w.PendingAiRequests);
         applied.ShouldAllBe(a => a.UsedFallback && a.ProviderTag == "fallback:deadline");
-        applied.ShouldAllBe(a => a.Text.Contains("Settler "));   // a filled template subtitle
+        var names = w.People.Names.ToArray();
+        applied.ShouldAllBe(a => names.Any(n => a.Text.Contains(n)) && !a.Text.Contains('{'));   // a filled template subtitle with camp names
+        foreach (var r in requests)
+        {
+            var facts = System.Text.Json.Nodes.JsonNode.Parse(r.Context)!.AsObject();
+            facts["camp_names"]!.AsArray().Count.ShouldBe(w.People.Count);                      // for the check…
+            FeudalSim.AI.OverheardRender.PromptFacts(r.Context).ShouldNotContain("camp_names");   // …never the prompt
+        }
 
         // At most one overheard render in flight.
         requests.Zip(requests.Skip(1)).ShouldAllBe(p => p.Second.IssuedStep >= p.First.DeadlineStep);

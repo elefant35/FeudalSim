@@ -119,6 +119,11 @@ public sealed record CultureDef
 
     public IReadOnlyDictionary<string, float>? TraitMultipliers { get; init; }
     public string? Description { get; init; }
+
+    /// <summary>Given names drawn for unnamed spawns of this culture (M1-30); with <see cref="FamilyNames"/>.</summary>
+    public IReadOnlyList<string>? GivenNames { get; init; }
+
+    public IReadOnlyList<string>? FamilyNames { get; init; }
 }
 
 /// <summary>A profession (12 §10): the skills a homeland trade turns into (12 §8.5).</summary>

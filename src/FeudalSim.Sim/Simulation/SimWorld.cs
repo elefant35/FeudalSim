@@ -221,7 +221,7 @@ public sealed class SimWorld
                 break;
 
             case SpawnPerson c:
-                if (string.IsNullOrWhiteSpace(c.Name) || !float.IsFinite(c.X) || !float.IsFinite(c.Z))
+                if (c.Name is null || !float.IsFinite(c.X) || !float.IsFinite(c.Z))
                 {
                     Reject(command, "Invalid spawn.");
                     break;
@@ -246,6 +246,8 @@ public sealed class SimWorld
                 var profession = c.Profession is null ? -1 : Content.ProfessionHandle(c.Profession);
                 var age = PersonGenerator.Generate(this, newRow, culture < 0 ? Personality.None : (ushort)culture,
                     profession < 0 ? Personality.None : (ushort)profession, c.AgeYears);
+                var name = string.IsNullOrWhiteSpace(c.Name) ? PersonGenerator.Name(this, id, culture, People.Count) : c.Name;
+                People.Rename(newRow, name);
                 People.Core[newRow].BirthGameMinute = Clock.GameMinute - (age * GameDate.MinutesPerYear);
                 People.Lod[newRow].LastUpdateGameMs = Clock.GameMs - Clock.GameMsPerStep;   // first update integrates one step
                 if (c.IsPlayer)
@@ -256,7 +258,7 @@ public sealed class SimWorld
                     PlayerId = id;
                 }
 
-                Emit(Salience.Minor, id, new PersonSpawned(id, c.Name));
+                Emit(Salience.Minor, id, new PersonSpawned(id, name));
                 break;
 
             case SetLodTier c:

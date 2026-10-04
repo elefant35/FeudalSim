@@ -26,6 +26,7 @@ public static class Salt
     public const uint Initiative = 14;
     public const uint Brawl = 15;
     public const uint LieTest = 16;
+    public const uint PersonName = 17;
 }
 
 /// <summary>SplitMix64 finalizer-based mixing (Steele, Lea &amp; Flood 2014).</summary>

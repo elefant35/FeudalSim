@@ -27,8 +27,17 @@ public static partial class OverheardRender
             "- If \"claim\" is given, the speaker passes it on as hearsay and the listener reacts as \"listener_choice\" says.\n" +
             "- \"success\": false means it went badly (a joke falls flat, a request is refused, an apology is not accepted).\n" +
             $"- Plain, period-appropriate English; no modern idioms; at most 25 words per line; fit each person's temperament and feeling."),
-        new("user", factsJson),
+        new("user", PromptFacts(factsJson)),
     ];
+
+    /// <summary>The facts the model sees: everything but <c>camp_names</c>, which only the check uses.</summary>
+    public static string PromptFacts(string factsJson)
+    {
+        if (!factsJson.Contains("\"camp_names\"", StringComparison.Ordinal)) { return factsJson; }
+        var o = JsonNode.Parse(factsJson)!.AsObject();
+        o.Remove("camp_names");
+        return o.ToJsonString(Readable);
+    }
 
     /// <summary>
     /// Validates a reply against the facts: JSON array of 2–6 {speaker, line}; speakers are a and b; lines non-empty and
@@ -42,6 +51,8 @@ public static partial class OverheardRender
         var b = (string)facts["b"]!["name"]!;
         var allowed = facts["names"]!.AsArray().Select(n => (string)n!).ToHashSet(StringComparer.Ordinal);
         var claimAbout = (string?)facts["claim_about"];
+        // Everyone in the camp (M1-30 real names): a line naming a camp member outside "names" invents a reference.
+        var camp = facts["camp_names"] is JsonArray all ? all.Select(n => (string)n!).Where(n => !allowed.Contains(n)).ToList() : null;
 
         var start = reply.IndexOf('[');
         var end = reply.LastIndexOf(']');
@@ -63,6 +74,11 @@ public static partial class OverheardRender
             if (line.Length == 0) { reason = "empty-line"; return null; }
             if (line.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length > MaxWordsPerLine) { reason = "too-long"; return null; }
             foreach (Match m in SettlerName().Matches(line)) { if (!allowed.Contains(m.Value)) { reason = "invented-name"; return null; } }
+            if (camp is not null && camp.Any(n => Regex.IsMatch(line, $@"\b{Regex.Escape(n)}\b") || (n.Split(' ')[0] is var first && !allowed.Any(x => x.Split(' ')[0] == first) && Regex.IsMatch(line, $@"\b{Regex.Escape(first)}\b"))))
+            {
+                reason = "invented-name";
+                return null;
+            }
             mentioned |= claimAbout is not null && line.Contains(claimAbout, StringComparison.Ordinal);
             output.Add(new JsonObject { ["speaker"] = speaker, ["line"] = line });
         }
@@ -72,7 +88,7 @@ public static partial class OverheardRender
         return output.ToJsonString(Readable);
     }
 
-    /// <summary>Graybox camp names ("Settler 7"); real names (M1-18) extend this check to the settlement's name list.</summary>
+    /// <summary>Numbered placeholder names ("Settler 7"); real names are checked against <c>camp_names</c> (M1-30).</summary>
     [GeneratedRegex(@"\bSettler \d+\b")]
     private static partial Regex SettlerName();
 }

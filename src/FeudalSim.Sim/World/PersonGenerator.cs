@@ -192,4 +192,31 @@ public static class PersonGenerator
     private static int Clamp100(float v) => Math.Clamp((int)MathF.Round(v), 0, 100);
 
     private static float Z(byte facet) => (facet - 50f) / 15f;
+
+    /// <summary>
+    /// M1-30: a name for an unnamed spawn — given + family name from the culture's lists, keyed on the world seed and the
+    /// person's id (deterministic, order-independent of anything else); a full name already in use is redrawn (≤ 32 tries),
+    /// then numbered. Cultures without lists name people "Settler N".
+    /// </summary>
+    public static string Name(SimWorld world, EntityId id, int culture, int ordinal)
+    {
+        var def = culture >= 0 && culture < world.Content.Cultures.Count ? world.Content.Cultures[culture] : null;
+        if (def?.GivenNames is not { Count: > 0 } given || def.FamilyNames is not { Count: > 0 } family) { return $"Settler {ordinal}"; }
+        var rng = new Rng(SplitMix64.Mix(world.WorldSeed, (ulong)RngStream.PersonGen, id.Value, Salt.PersonName, 0));
+        var people = world.People;
+        bool Taken(string n)
+        {
+            for (var i = 0; i < people.Count; i++) { if (string.Equals(people.Names[i], n, StringComparison.Ordinal)) { return true; } }
+            return false;
+        }
+
+        string name = "";
+        for (var tries = 0; tries < 32; tries++)
+        {
+            name = $"{given[rng.Range(0, given.Count)]} {family[rng.Range(0, family.Count)]}";
+            if (!Taken(name)) { return name; }
+        }
+
+        return $"{name} {ordinal}";
+    }
 }

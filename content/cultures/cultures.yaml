@@ -7,21 +7,29 @@
   value_means: { tradition: 60, loyalty: 60, faith: 55 }
   trait_multipliers: { trait.loyal: 1.3, trait.pious: 1.2 }
   description: "Feudal monarchy, orderly and hierarchical — the player's expedition."
+  given_names: [Aldric, Agnes, Alys, Beatrix, Bram, Cecily, Cedric, Edith, Edmund, Elsbeth, Godric, Gilbert, Hawise, Hugh, Isolde, Joan, Mabel, Matilda, Osbert, Piers, Ralf, Rohese, Rowan, Sabine, Simon, Walter, Wenna, Wilmot, Ysolt, Emma, Geoffrey, Margery]
+  family_names: [Ashby, Brook, Carver, Cooper, Dunmore, Fenn, Fletcher, Hale, Holloway, Marsh, Mercer, Reeve, Thatcher, Underhill, Wren, Bramley, Colby, Harrow, Lyle, Pryor]
 - id: culture.osmeri
   name: Osmeri League
   faith: Ember Faith (lax)
   value_means: { wealth: 65, freedom: 55 }
   trait_multipliers: { trait.greedy: 1.4, trait.frugal: 1.3 }
   description: "Mercantile city-states, coin-minded (merchant prestige +15)."
+  given_names: [Alda, Bettina, Cosimo, Donata, Enzo, Fiora, Gaspar, Ilaria, Lapo, Lisetta, Marco, Nella, Orsino, Pia, Renzo, Sandra, Tito, Vanna]
+  family_names: [Abaco, Barberi, Corsi, Dandolo, Ferro, Galli, Lanza, Moro, Orsetti, Pazzi, Rossa, Salvi, Tessi, Vanni]
 - id: culture.brannoch
   name: Brannoch Holds
   faith: Old ways / ancestor rites
   value_means: { family: 65, honor: 65, loyalty: 65 }
   trait_multipliers: { trait.brave: 1.6, trait.clannish: 1.5 }
   description: "Highland clans, kin-loyal and martial (martial prestige +15, merchant −10)."
+  given_names: [Aileas, Brodie, Catriona, Doileag, Ewan, Fionnlagh, Gormal, Iain, Isbeil, Lachlan, Morag, Niall, Oighrig, Ruairi, Seonag, Tormod]
+  family_names: [MacAra, MacBrann, MacCrae, MacDuin, MacFell, MacGorm, MacInnes, MacLear, MacRath, MacTavish, Corrach, Dunleavy]
 - id: culture.ashen_reform
   name: The Ashen Reform
   faith: Ashen Reform (heterodox Ember sect)
   value_means: { faith: 75, fairness: 60, tradition: 35 }
   trait_multipliers: { trait.pious: 2.0, trait.stubborn: 1.4 }
   description: "Religious dissenters fleeing persecution (priest and scribe prestige +10)."
+  given_names: [Abigail, Comfort, Constance, Ezra, Faith, Grace, Honor, Jabez, Mercy, Obadiah, Patience, Prudence, Remember, Silence, Temperance, Thankful]
+  family_names: [Ashwell, Barrow, Cinders, Coldwater, Greythorn, Hollins, Kindle, Pell, Stillman, Tallow, Wick, Yardley]

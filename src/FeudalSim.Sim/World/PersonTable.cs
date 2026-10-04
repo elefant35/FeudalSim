@@ -30,6 +30,9 @@ public sealed class PersonTable
 
     public ReadOnlySpan<EntityId> Ids => _ids.AsSpan(0, Count);
     public ReadOnlySpan<string> Names => _names.AsSpan(0, Count);
+
+    /// <summary>Sets a row's name (spawn only: an unnamed spawn is named from its culture once the culture is rolled).</summary>
+    internal void Rename(int row, string name) => _names[row] = name;
     public Span<PersonCore> Core => _core.AsSpan(0, Count);
     public Span<Transform> Transforms => _transform.AsSpan(0, Count);
     public Span<Needs> Needs => _needs.AsSpan(0, Count);

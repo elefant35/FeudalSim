@@ -42,6 +42,8 @@ public static class Overheard
 
         json.Append(",\"names\":[");
         for (var k = 0; k < names.Count; k++) { if (k > 0) { json.Append(','); } Quote(json, names[k]); }
+        json.Append("],\"camp_names\":[");   // for the check only (stripped from the prompt): naming anyone else invents a reference
+        for (var k = 0; k < people.Count; k++) { if (k > 0) { json.Append(','); } Quote(json, people.Names[k]); }
         json.Append("]}");
 
         return world.RequestAi(AiTaskKind.Overheard, AiPriority.Proximate, Systems.InteractionSystem.OverheardDeadlineSteps,

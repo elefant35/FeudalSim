@@ -29,6 +29,20 @@
       "description": {
         "type": "string",
         "minLength": 1
+      },
+      "given_names": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "family_names": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "required": [

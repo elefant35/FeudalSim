@@ -128,7 +128,7 @@ public sealed record ScenarioDef
         for (var i = 0; i < Settlers; i++)
         {
             var command = new CommandEnvelope(i + 1, 0, CommandSource.Scenario,
-                new SpawnPerson($"Settler {i + 1}", i % 6 * 4f, i / 6 * -4f));
+                new SpawnPerson("", i % 6 * 4f, i / 6 * -4f));   // M1-30: named by the sim from the culture's lists
             world.Enqueue(command);
         }
 
