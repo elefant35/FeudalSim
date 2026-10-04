@@ -173,6 +173,7 @@ public sealed class PersistenceTests : IDisposable
             ["worn"] = (1, "Under:Int16@0|Torso:Int16@2|Legs:Int16@4|Feet:Int16@6|Cloak:Int16@8|Head:Int16@10|Hands:Int16@12|Reserved:Int16@14"),   // M2-05a
             ["body"] = (1, "Wetness:Single@0|Hypothermia:Single@4"),   // M2-05a
             ["stamina"] = (1, "Value:Single@0|Spent:Single@4|LastSpendStep:Int64@8|WindedUntilStep:Int64@16|GaitUntilStep:Int64@24|Gait:Byte@32|Reserved0:Byte@33|Reserved1:Byte@34|Reserved2:Byte@35"),   // M2-05b
+            ["vitals"] = (1, "Blood:Single@0|Bruise:Single@4|Pain:Single@8|Health:Single@12|DownedSinceMin:Int64@16|StableSinceMin:Int64@24|State:VitalState@32|Cause:VitalCause@33|Reserved0:Byte@34|Reserved1:Byte@35"),   // M2-06a
         };
         var types = new Dictionary<string, Type>
         {
@@ -180,7 +181,7 @@ public sealed class PersistenceTests : IDisposable
             ["lod"] = typeof(LodState), ["wander"] = typeof(WanderState),
             ["attributes"] = typeof(Attributes), ["personality"] = typeof(Personality), ["emotions"] = typeof(Emotions), ["mood"] = typeof(Mood),
             ["activity"] = typeof(ActivityState), ["skill_progress"] = typeof(SkillProgress), ["attribute_training"] = typeof(AttributeTraining),
-            ["worn"] = typeof(Worn), ["body"] = typeof(Body), ["stamina"] = typeof(Stamina),
+            ["worn"] = typeof(Worn), ["body"] = typeof(Body), ["stamina"] = typeof(Stamina), ["vitals"] = typeof(FeudalSim.Sim.Health.Vitals),
         };
 
         // Every persisted struct column is fingerprinted here (id and the per-row byte columns excepted).

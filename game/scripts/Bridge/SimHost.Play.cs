@@ -128,7 +128,10 @@ public partial class SimHost
         // Gait (10 §12.1): Shift jogs; Ctrl sprints while the sim says there is stamina (11 §3.1) — Winded drops to a jog.
         var canSprint = !snap.PlayerWinded && snap.PlayerStamina > 0.5f;
         byte gait = Input.IsKeyPressed(Key.Ctrl) && canSprint ? (byte)2 : Input.IsKeyPressed(Key.Shift) || Input.IsKeyPressed(Key.Ctrl) || _autotestCamp ? (byte)1 : (byte)0;
-        var speed = gait switch { 2 => SprintSpeed, 1 => RunSpeed, _ => WalkSpeed };
+        var speed = gait switch { 2 => SprintSpeed, 1 => RunSpeed, _ => WalkSpeed } * snap.PlayerMoveMult;   // 11 §4.3 injuries slow you
+        var vital = (Sim.Health.VitalState)snap.PlayerVital;
+        if (vital is Sim.Health.VitalState.Downed or Sim.Health.VitalState.Dying or Sim.Health.VitalState.Recovering) { (gait, speed) = (0, 0.5f); }   // 11 §14: crawl
+        if (vital == Sim.Health.VitalState.Dead) { input = Vector2.Zero; }
         var moved = input.LengthSquared() > 0;
         if (moved) { _player += input.Normalized() * speed * delta; }
         _playerBody!.Position = new Vector3(_player.X, 0, _player.Y);
@@ -161,7 +164,7 @@ public partial class SimHost
 
             var at = _bodies.TryGetValue(id, out var b) ? b : new Vector2(snap.X[i], snap.Z[i]);
             var step = at - p.Last;
-            var asleep = (snap.ActivityFlags[i] & Sim.World.ActivityState.Asleep) != 0;
+            var asleep = (snap.ActivityFlags[i] & Sim.World.ActivityState.Asleep) != 0 || snap.Vital[i] >= (byte)Sim.Health.VitalState.Downed;   // lying down: asleep, down or dead
             var walking = !asleep && delta > 0 && step.Length() / delta > 0.3f;
             p.Body.Position = new Vector3(at.X, asleep ? 0.15f : 0, at.Y);
             p.Body.Rotation = asleep ? new Vector3(-Mathf.Pi / 2, 0, 0) : new Vector3(0, walking ? Mathf.Atan2(step.X, step.Y) : -snap.Yaw[i], 0);
@@ -169,6 +172,8 @@ public partial class SimHost
             var action = snap.Action[i];
             var doing = action >= 0 && ActivityLook.TryGetValue(_content!.Actions[action].Id, out var look) ? look.Label : "";
             var d = at.DistanceTo(_player);
+            var vitalText = (Sim.Health.VitalState)snap.Vital[i] switch { Sim.Health.VitalState.Dead => "dead", Sim.Health.VitalState.Dying => "dying", Sim.Health.VitalState.Downed or Sim.Health.VitalState.Recovering => "down", _ => "" };
+            if (vitalText.Length > 0) { doing = vitalText; }
             p.Label.Text = $"{_names.GetValueOrDefault(id, "…")}{(doing.Length > 0 ? $"\n{doing}" : "")}";
             p.Label.Visible = d < 25f;
             if (!asleep && d < nearestD) { (nearest, nearestD) = (id, d); }

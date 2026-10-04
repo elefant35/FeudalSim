@@ -5,8 +5,8 @@ namespace FeudalSim.Sim.Systems;
 
 /// <summary>
 /// 11 §9 exposure for the camp (M2-05a): each due person's thermal balance from the weather, wind, the camp's shelter
-/// and fire, their clothing, wetness and activity; then warmth, wetness and hypothermia. Hypothermia's Downed and death
-/// thresholds are M2-06's (incapacitation); here the 50 and 80 crossings raise an event. LOD3 rows: Lod3System.
+/// and fire, their clothing, wetness and activity; then warmth, wetness and hypothermia. Hypothermia's Downed (80) and
+/// death (100) are applied by <see cref="HealthSystem"/> (11 §14); here the 50 and 80 crossings raise an event. LOD3 rows: Lod3System.
 /// </summary>
 public sealed class ExposureSystem : ISimSystem
 {
@@ -38,6 +38,7 @@ public sealed class ExposureSystem : ISimSystem
             var ins = Exposure.Insulation(people.Worn[i], _wear, body.Wetness);
             var c = Exposure.CoreC(x, ins);
             body.Wetness = Exposure.StepWetness(body.Wetness, x, Exposure.RainResist(people.Worn[i], _wear), c, dtH);
+            if (world.IsDown(i) && x.RainBlock < 0.9f && Climate.Weather.Wet(world.WeatherRef)) { body.Wetness = MathF.Min(100f, body.Wetness + (10f * dtH)); }   // 11 §14
             n.Warmth = Exposure.StepWarmth(n.Warmth, c, x.FireDistM <= 3f, x.Vulnerable, dtH);
             var before = body.Hypothermia;
             body.Hypothermia = Exposure.StepHypothermia(before, n.Warmth, c, dtH);

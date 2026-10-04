@@ -58,6 +58,7 @@ public static class SaveCodec
     public const string ConversationsTable = "conversations";
     public const string PlayerTable = "player";
     public const string WeatherTable = "weather";
+    public const string InjuriesTable = "injuries";
     public const string ConfrontationsTable = "confrontations";
     public const string FavorsTable = "favors";
     public const string HoldingsTable = "holdings";
@@ -103,6 +104,15 @@ public static class SaveCodec
     {
         var chunk = new TableChunk { Table = PlayerTable, RowCount = 1 };
         chunk.Columns.Add(new ColumnBlock { Name = "pose", LayoutVersion = 1, ElementSize = Marshal.SizeOf<PlayerState>(), Data = MemoryMarshal.AsBytes(new ReadOnlySpan<PlayerState>(in player)).ToArray() });
+        return chunk;
+    }
+
+    private static TableChunk InjuriesChunk(Health.InjuryStore store)
+    {
+        var (rows, lastId) = store.Export();
+        var chunk = new TableChunk { Table = InjuriesTable, RowCount = rows.Length };
+        chunk.Columns.Add(new ColumnBlock { Name = "rows", LayoutVersion = 1, ElementSize = Marshal.SizeOf<Health.InjuryStore.Row>(), Data = MemoryMarshal.AsBytes(rows.AsSpan()).ToArray() });
+        chunk.Columns.Add(new ColumnBlock { Name = "last_id", LayoutVersion = 1, ElementSize = 8, Data = BitConverter.GetBytes(lastId) });
         return chunk;
     }
 
@@ -190,6 +200,7 @@ public static class SaveCodec
         ("worn", 1, Marshal.SizeOf<Worn>()),                                             // M2-05a
         ("body", 1, Marshal.SizeOf<Body>()),                                             // M2-05a
         ("stamina", 1, Marshal.SizeOf<Stamina>()),                                       // M2-05b
+        ("vitals", 1, Marshal.SizeOf<Health.Vitals>()),                                  // M2-06a
     ];
 
     public static SaveImage Capture(SimWorld world)
@@ -214,6 +225,7 @@ public static class SaveCodec
         people.Columns.Add(Column("worn", (ReadOnlySpan<Worn>)p.Worn));
         people.Columns.Add(Column("body", (ReadOnlySpan<Body>)p.Body));
         people.Columns.Add(Column("stamina", (ReadOnlySpan<Stamina>)p.Stamina));
+        people.Columns.Add(Column("vitals", (ReadOnlySpan<Health.Vitals>)p.Vitals));
         people.Strings.Add(new StringColumn { Name = "name", Values = p.Names.ToArray() });
 
         var counters = new ulong[256];
@@ -233,7 +245,7 @@ public static class SaveCodec
                 LastCommandSeq = world.LastCommandSeq,
             },
             IdCounters = counters,
-            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories), ClaimsChunk(world.Claims), BeliefsChunk(world.Beliefs), RenownChunk(world.Reputation), DecisionsChunk(world.Decisions), AiChunk(world), ConversationsChunk(world.Conversations), PlayerChunk(world.Player), ConfrontationsChunk(world.Confrontations), FavorsChunk(world.Favors), HoldingsChunk(world.Holdings), NegotiationsChunk(world.Negotiations), WeatherChunk(world.WeatherRef)],
+            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories), ClaimsChunk(world.Claims), BeliefsChunk(world.Beliefs), RenownChunk(world.Reputation), DecisionsChunk(world.Decisions), AiChunk(world), ConversationsChunk(world.Conversations), PlayerChunk(world.Player), ConfrontationsChunk(world.Confrontations), FavorsChunk(world.Favors), HoldingsChunk(world.Holdings), NegotiationsChunk(world.Negotiations), WeatherChunk(world.WeatherRef), InjuriesChunk(world.Injuries)],
         };
     }
 
@@ -281,6 +293,7 @@ public static class SaveCodec
         CopyOrDefault(chunk, "worn", p.Worn, notes, static _ => Worn.None);
         CopyOrDefault(chunk, "body", p.Body, notes, static _ => default);
         CopyOrDefault(chunk, "stamina", p.Stamina, notes, static _ => new Stamina { Value = Survival.StaminaRules.Full });
+        CopyOrDefault(chunk, "vitals", p.Vitals, notes, static _ => Health.Vitals.Healthy);
 
         foreach (var c in chunk.Columns.Where(c => PeopleColumns.All(k => k.Name != c.Name)))
         {
@@ -369,6 +382,13 @@ public static class SaveCodec
         {
             if (pose.ElementSize == Marshal.SizeOf<PlayerState>() && pose.Data.Length == pose.ElementSize) { world.Player = MemoryMarshal.Read<PlayerState>(pose.Data); }
             else { notes.Add("Player table has an unknown layout; the player's pose is reset."); }
+        }
+
+        if (image.Tables.FirstOrDefault(t => t.Table == InjuriesTable) is { } inj
+            && inj.Columns.FirstOrDefault(c => c.Name == "rows") is { } irows && inj.Columns.FirstOrDefault(c => c.Name == "last_id") is { } ilast)
+        {
+            if (irows.ElementSize == Marshal.SizeOf<Health.InjuryStore.Row>()) { world.Injuries.Import(MemoryMarshal.Cast<byte, Health.InjuryStore.Row>(irows.Data).ToArray(), BitConverter.ToUInt64(ilast.Data, 0)); }
+            else { notes.Add("Injuries table has an unknown layout; injuries dropped."); }
         }
 
         if (image.Tables.FirstOrDefault(t => t.Table == WeatherTable)?.Columns.FirstOrDefault(c => c.Name == "state") is { } weather)

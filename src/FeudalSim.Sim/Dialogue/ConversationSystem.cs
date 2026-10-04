@@ -39,6 +39,7 @@ public sealed class ConversationSystem : ISimSystem
             var npc = world.People.IndexOf(c.Npc);
             var player = world.People.IndexOf(c.Player);
             if (npc < 0 || player < 0) { (ending ??= []).Add(E(c, "gone")); continue; }
+            if (!world.CanAct(npc) || !world.CanAct(player)) { (ending ??= []).Add(E(c, "down")); continue; }   // 11 §14
             if (world.Camp.Threat >= 1f) { (ending ??= []).Add(E(c, "p0")); continue; }   // 21 §14.6: P0 ends it at once, not a decision
             ref readonly var a = ref world.People.Transforms[npc];
             ref readonly var b = ref world.People.Transforms[player];
@@ -62,6 +63,7 @@ public sealed class ConversationSystem : ISimSystem
         if (player < 0) { problem = "no player character"; }
         else if (npc < 0 || npc == player) { problem = $"no such person {c.Npc}"; }
         else if (world.Conversations.Of(c.Npc) is not null || world.Conversations.Count > 0) { problem = "already in a conversation"; }
+        else if (!world.CanAct(npc) || !world.CanAct(player)) { problem = world.IsDead(npc) ? "dead" : "down"; }
         else if (world.People.Activity[npc].Has(ActivityState.Asleep)) { problem = "asleep"; }
         else
         {

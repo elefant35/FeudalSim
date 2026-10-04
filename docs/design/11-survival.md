@@ -675,8 +675,8 @@ Winter.
 camp. Clothing is content (`content/items/wear.yaml`, a `wear` block per item); each person has a `Worn` record
 (one item per slot) and a `Body` record (Wetness, Hypothermia), both saved and hashed. The scenario's `camp:` block
 carries the shelter (Landfall: `sailcloth_shelter`), the bed's ground insulation, the elevation and coast flag, and the
-kit everyone lands in, the player included. Hypothermia raises an event at 50 and 80; being Downed and dying at 80/100
-are §14's (M2-06). Frostbite (§9.5) is an injury, so it is M2-06's too. Choices the rules left open (Q8):
+kit everyone lands in, the player included. Hypothermia raises an event at 50 and 80; being Downed at 80 and dying at 100
+are handled by §14's `HealthSystem` (M2-06a). Frostbite (§9.5) is an injury, so it is M2-06's too. Choices the rules left open (Q8):
 
 - A **shirt or shift** sits in its own *Under* slot beneath the tunic, so the homeland kit fills six slots (Ins 12.5).
 - A **worn cloak counts once**. The §9.2 bedding row "cloak +3" is a spare cloak used as a blanket. The camp's bough bed
@@ -1033,6 +1033,29 @@ NPCs never receive it. That is the one deliberate parity exception.
 
 Explicit causes here are subtracted from [16](16-social-systems.md) §12.2's background mortality
 during calibration.
+
+*Implemented (M2-06a):*
+- **Data:** `Sim/Health` holds the §4.2 injury records (`InjuryStore`, saved and hashed) and per-person `Vitals`
+  (Blood, Bruise, Pain, Health, the §14 state and its cause).
+- **Trauma:** `HealthRules.Trauma` is the §4.1–4.2 entry point that 18 will call. Scenario and dev use the
+  `InflictTrauma` command; a request from the player is rejected.
+- **`HealthSystem`:** runs per due row (after Exposure). It applies bleeding with clotting by the whole hour, Blood
+  regeneration, the §5.4 daily healing, the Bruise pool, Pain and Health, then the §14 states. Downed is triggered at
+  Health ≤ 0, Blood < 35 or Hypothermia ≥ 80. It turns Dying while bleeding or Freezing. After 2 h stable with no
+  trigger left, the person comes round at Health ≥ 5. Death comes at Blood 0 or Hypothermia 100.
+- **Bodies:** the dead keep their row as their body. The tier schedule skips it, so no system integrates it. The down
+  take no action, join no conversation and witness nothing; their needs still decay, warmth uses rest heat, and lying
+  in the open in the wet adds Wetness +10/h.
+- **Stamina:** uses the §4.3 Breathing and Blood multipliers.
+- **Client:** lays the down and the dead flat. A downed player crawls at 0.5 m/s, and a dead one doesn't move.
+- **Not yet (M2-06b):** infection, treatment, scars and permanent effects (wounds start Clean and untreated, ×0.6).
+- **Other conditions:** drowning, falls, dehydration, starvation and heat stress arrive with their own items.
+- **Gaps in the rules:** Internal's pain and impairment factors, which the §4.3 lists leave out (taken as a
+  puncture's 0.6 / 0.7). Rest for healing is the activity tier (sleep or rest 1.4, light 1.0, moderate 0.75,
+  heavy 0.5). Nutrition comes from Satiety (0 → 0.2, under 20 → 0.75) until §6.3's nutrition states exist.
+
+**Finding (Q9):** an arterial bleed is a Critical cut (severity ≥ 55), so Health ≤ 0 fires before Blood < 35: the
+person is Downed at ≈ 1.4 h, not §2.3's ≈ 1.6 h. Death at ≈ 2.5 h is as written.
 
 ---
 
@@ -1444,6 +1467,9 @@ diagnosis, or how much food a ration holds.
    example a slower soaked-wool loss)? (M2-05a; 31 D40.)
 8. **Q8: exposure modelling choices** (§9.6): the Under slot, the cloak counted once, near a fire = 3 m, rainBlock ≥ 0.9 as
    dry, felt wind for drying, and activity heat in immersion. All are applied (reversible); confirm or override.
+9. **Q9: the arterial-bleed anchor (§2.3).** By §4.1 a Critical arterial cut downs its victim on Health ≤ 0 at
+   ≈ 1.4 h, before Blood < 35 (≈ 1.6 h). Should §2.3 say 1.4 h, or should severity count less toward Health while it
+   bleeds? (M2-06a; 31 D41.)
 
 ## Proposed canon additions
 

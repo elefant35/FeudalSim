@@ -277,7 +277,7 @@ public static class Escalation
         ref readonly var at = ref people.Transforms[b];
         for (var k = 0; k < people.Count; k++)
         {
-            if (k == a || k == b || people.Activity[k].Has(ActivityState.Asleep) || (people.Activity[k].Action < 0 && !world.IsPlayer(k))) { continue; }
+            if (k == a || k == b || !world.CanAct(k) || people.Activity[k].Has(ActivityState.Asleep) || (people.Activity[k].Action < 0 && !world.IsPlayer(k))) { continue; }
             float dx = people.Transforms[k].X - at.X, dz = people.Transforms[k].Z - at.Z;
             if ((dx * dx) + (dz * dz) <= rangeM * rangeM) { n++; }
         }

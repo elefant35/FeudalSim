@@ -9,7 +9,7 @@ namespace FeudalSim.Hosting;
 public sealed record CampDay(
     double IdleRate, double LowNeedShare, double MoodMean, double BreakingShare, double Divergence,
     double Food, double Firewood, double FireShare, double FriendsPerPerson = 0, double EnemiesPerPerson = 0, double MeanOpinion = 0,
-    double MeanWarmth = 0, double ColdShare = 0, double FreezingShare = 0, double WarmingShare = 0, double MeanWetness = 0, double MinWarmth = 100, double MaxHypothermia = 0);
+    double MeanWarmth = 0, double ColdShare = 0, double FreezingShare = 0, double WarmingShare = 0, double MeanWetness = 0, double MinWarmth = 100, double MaxHypothermia = 0, int DeadAtEnd = 0, double DownedShare = 0, int Alive = 0);
 
 /// <summary>
 /// Samples a utility-AI world once per game minute and summarizes each game day per 21 §19: idle rate (share of awake
@@ -25,6 +25,7 @@ public sealed class CampMetrics
     private long _lastMinute = -1;
     private int _minutes, _awake, _idleMinutes, _lowNeed, _agentMinutes, _fireMinutes, _cold, _freezing, _warming;
     private double _warmthSum, _wetSum, _minWarmth = 100, _maxHypo;
+    private int _downed;
     private readonly int _warmUp;
     private double _moodSum;
     private int _moodN;
@@ -56,7 +57,8 @@ public sealed class CampMetrics
         if (world.Camp.FireFuelMin > 0f) { _fireMinutes++; }
         for (var i = 0; i < p.Count; i++)
         {
-            if (world.IsPlayer(i)) { continue; }   // settlers only: the player's character is not on the AI
+            if (world.IsPlayer(i) || world.IsDead(i)) { continue; }   // living settlers only: the player is not on the AI; a body is not a settler
+            if (world.IsDown(i)) { _downed++; }
             var a = p.Activity[i].Action;
             _hist[i][a < 0 ? _actions : a]++;
             _agentMinutes++;
@@ -89,7 +91,7 @@ public sealed class CampMetrics
         var settlers = 0;
         for (var i = 0; i < _dayMood.Length; i++)
         {
-            if (i < p.Count && world.IsPlayer(i)) { continue; }
+            if (i < p.Count && (world.IsPlayer(i) || world.IsDead(i))) { continue; }
             settlers++;
             if (_minutes > 0 && _dayMood[i] / _minutes < -60) { breaking++; }
         }
@@ -105,10 +107,12 @@ public sealed class CampMetrics
             SocialCounts(world).Friends, SocialCounts(world).Enemies, SocialCounts(world).Opinion,
             _agentMinutes == 0 ? 0 : _warmthSum / _agentMinutes, _agentMinutes == 0 ? 0 : _cold / (double)_agentMinutes,
             _agentMinutes == 0 ? 0 : _freezing / (double)_agentMinutes, _awake == 0 ? 0 : _warming / (double)_awake,
-            _agentMinutes == 0 ? 0 : _wetSum / _agentMinutes, _minWarmth, _maxHypo);
+            _agentMinutes == 0 ? 0 : _wetSum / _agentMinutes, _minWarmth, _maxHypo,
+            Enumerable.Range(0, p.Count).Count(i => !world.IsPlayer(i) && world.IsDead(i)), _agentMinutes == 0 ? 0 : _downed / (double)_agentMinutes,
+            Enumerable.Range(0, p.Count).Count(i => !world.IsPlayer(i) && !world.IsDead(i)));
         Days.Add(day);
         (_minutes, _awake, _idleMinutes, _lowNeed, _agentMinutes, _fireMinutes, _moodSum, _moodN) = (0, 0, 0, 0, 0, 0, 0, 0);
-        (_cold, _freezing, _warming, _warmthSum, _wetSum, _minWarmth, _maxHypo) = (0, 0, 0, 0, 0, 100, 0);
+        (_cold, _freezing, _warming, _warmthSum, _wetSum, _minWarmth, _maxHypo, _downed) = (0, 0, 0, 0, 0, 100, 0, 0);
         foreach (var h in _hist) { Array.Clear(h); }
         Array.Clear(_dayMood);
         return day;
@@ -139,7 +143,7 @@ public sealed class CampMetrics
     /// <summary>21 §19 social network: mean friends / enemies per person (tags), and mean opinion over edges. Read-only.</summary>
     private static (double Friends, double Enemies, double Opinion) SocialCounts(SimWorld world)
     {
-        var n = Math.Max(1, world.People.Count);
+        var n = Math.Max(1, Enumerable.Range(0, world.People.Count).Count(i => !world.IsDead(i)));   // per living person
         int friends = 0, enemies = 0, edges = 0;
         double opinion = 0;
         foreach (var ((holder, other), e) in world.Relationships.Edges)

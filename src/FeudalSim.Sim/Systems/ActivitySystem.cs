@@ -72,6 +72,12 @@ public sealed class ActivitySystem : ISimSystem
             var i = due.Rows[k];
             if (i == playerRow) { continue; }   // the human chooses (21 §16)
             ref var act = ref people.Activity[i];
+            if (!world.CanAct(i))
+            {
+                if (act.Action >= 0) { act = new ActivityState { Action = -1, Level = ActivityLevel.Rest }; }   // 11 §14: down — no action
+                continue;
+            }
+
             switch (people.Lod[i].Tier)
             {
                 case LodTier.Lod3:

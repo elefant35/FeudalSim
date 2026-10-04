@@ -26,12 +26,15 @@ public sealed class StaminaSystem : ISimSystem
         var step = ctx.Step;
         for (var i = 0; i < people.Count; i++)
         {
-            if (people.Lod[i].Tier != LodTier.Lod0) { continue; }
+            if (people.Lod[i].Tier != LodTier.Lod0 || world.IsDead(i)) { continue; }
             ref var s = ref people.Stamina[i];
             ref var n = ref people.Needs[i];
-            var max = StaminaRules.Max(Skills.Skills.Attribute(world, i, "end"), _athletics >= 0 ? people.SkillLevels(i)[_athletics] : 0f, n.Energy, n.Satiety);
+            var injuries = world.Injuries.Of(people.Ids[i]);
+            var blood = people.Vitals[i].Blood;
+            var max = StaminaRules.Max(Skills.Skills.Attribute(world, i, "end"), _athletics >= 0 ? people.SkillLevels(i)[_athletics] : 0f, n.Energy, n.Satiety)
+                      * Health.HealthRules.StaminaMaxMult(blood);
             var moving = step <= s.GaitUntilStep;
-            var sprinting = moving && s.Gait == 2 && step >= s.WindedUntilStep;
+            var sprinting = moving && s.Gait == 2 && step >= s.WindedUntilStep && world.CanAct(i);
             if (sprinting)
             {
                 var spend = MathF.Min(s.Value, StaminaRules.SprintPerSecond * dt);
@@ -43,11 +46,11 @@ public sealed class StaminaSystem : ISimSystem
             }
             else if ((step - s.LastSpendStep) * dt >= StaminaRules.RegenDelaySeconds)
             {
-                s.Value += StaminaRules.Regen(n.Energy, n.Warmth, n.Satiety) * dt;
+                s.Value += StaminaRules.Regen(n.Energy, n.Warmth, n.Satiety) * Health.HealthRules.StaminaRegenMult(injuries, blood) * dt;
             }
 
             s.Value = MathF.Min(s.Value, max);
-            if (world.IsPlayer(i))
+            if (world.IsPlayer(i) && world.CanAct(i))
             {
                 people.Activity[i].Level = !moving ? ActivityLevel.Rest : sprinting ? ActivityLevel.Heavy : s.Gait == 1 || s.Gait == 2 ? ActivityLevel.Moderate : ActivityLevel.Light;
             }

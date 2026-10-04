@@ -51,8 +51,10 @@ public sealed class TierSchedule
         _count = _lod2Due = _lod3Due = 0;
         var prev = gameMs - dtGameMs;
         var lod = people.Lod;
+        var vitals = people.Vitals;
         for (var i = 0; i < people.Count; i++)
         {
+            if (vitals[i].Dead) { continue; }   // 11 §14: a body integrates nothing
             ref var l = ref lod[i];
             bool due;
             switch (l.Tier)

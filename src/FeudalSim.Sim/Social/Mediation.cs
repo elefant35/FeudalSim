@@ -26,7 +26,7 @@ public static class Mediation
         var best = 20f;
         for (var k = 0; k < people.Count; k++)
         {
-            if (k == a || k == b || world.IsPlayer(k)) { continue; }
+            if (k == a || k == b || world.IsPlayer(k) || !world.CanAct(k)) { continue; }
             var standing = MathF.Min(rel.Opinion(people.Ids[k], conf.A), rel.Opinion(people.Ids[k], conf.B));
             if (standing >= best && (mediator < 0 || standing > best)) { (mediator, best) = (k, standing); }
         }

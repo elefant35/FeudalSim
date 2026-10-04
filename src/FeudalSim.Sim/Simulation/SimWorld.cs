@@ -40,6 +40,9 @@ public sealed class SimWorld
     /// <summary>Episodic memories (16 §6).</summary>
     public Social.MemoryStore Memories { get; } = new();
 
+    /// <summary>Injury records by person (11 §4.2; M2-06a). Saved and hashed.</summary>
+    public Health.InjuryStore Injuries { get; } = new();
+
     /// <summary>Interned claims (16 §7.1); ground truth via observed events.</summary>
     public Social.ClaimStore Claims { get; } = new();
 
@@ -93,6 +96,15 @@ public sealed class SimWorld
 
     /// <summary>True for the player's character: AI, psychology and NPC↔NPC systems skip it (21 §16).</summary>
     public bool IsPlayer(int row) => (People.Core[row].Flags & PersonFlags.Player) != 0;
+
+    /// <summary>11 §14: dead — the row stays as the body; no system acts for it.</summary>
+    public bool IsDead(int row) => People.Vitals[row].Dead;
+
+    /// <summary>11 §14: Downed, Dying or Recovering — needs still decay, but they take no action and join nothing.</summary>
+    public bool IsDown(int row) => People.Vitals[row].Down;
+
+    /// <summary>Awake to the world: neither down nor dead (the gate for acting, talking, witnessing and partnering).</summary>
+    public bool CanAct(int row) => People.Vitals[row].State is Health.VitalState.Active or Health.VitalState.Impaired;
 
     internal void RestorePlayerId()
     {
@@ -289,6 +301,15 @@ public sealed class SimWorld
                 break;
             }
 
+            case InflictTrauma c:
+            {
+                var row = People.IndexOf(c.Person);
+                if (command.Source is not (CommandSource.Scenario or CommandSource.Dev)) { Reject(command, "Trauma comes from the world, not a request."); break; }
+                if (row < 0 || !float.IsFinite(c.Effective) || c.Effective <= 0f || c.Damage > 3 || c.Region > 5 || c.Source > 3) { Reject(command, "Invalid trauma."); break; }
+                Health.HealthRules.Trauma(this, row, c.Effective, (Health.DamageType)c.Damage, (Health.BodyRegion)c.Region, (Health.TraumaSource)c.Source);
+                break;
+            }
+
             case SetHoldings c:
             {
                 var row = People.IndexOf(c.Person);
@@ -340,6 +361,7 @@ public sealed class SimWorld
 
             case PlayerMoved c:
                 if (!float.IsFinite(c.X) || !float.IsFinite(c.Z)) { Reject(command, "Invalid player pose."); break; }
+                if (PlayerRow is var dr and >= 0 && IsDead(dr)) { Reject(command, "The player's character is dead."); break; }
                 Player = new PlayerState { Present = true, X = c.X, Z = c.Z, Yaw = c.Yaw };
                 if (PlayerRow is var pr and >= 0)
                 {

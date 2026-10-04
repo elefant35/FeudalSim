@@ -51,6 +51,7 @@ public static class Rumors
         var id = world.Claims.Observe(p, people.Ids[actorRow], objRow >= 0 ? people.Ids[objRow] : EntityId.None, magnitude, now);
         for (var k = 0; k < people.Count; k++)
         {
+            if (!world.CanAct(k)) { continue; }   // 11 §14: the down and the dead witness nothing
             var involved = k == actorRow || k == objRow;
             if (!involved && ((people.Activity[k].Action < 0 && !world.IsPlayer(k)) || people.Activity[k].Has(World.ActivityState.Asleep) || !inRange(world, actorRow, k))) { continue; }
             var b = world.Beliefs.GetOrCreate(people.Ids[k], id, now);
@@ -394,7 +395,7 @@ public static class Rumors
         for (var k = 0; k < people.Count; k++) { if (people.Ids[k].Value == subject) { subjectRow = k; break; } }
         for (var k = 0; k < people.Count; k++)
         {
-            if (k == teller || k == listener || k == subjectRow) { continue; }
+            if (k == teller || k == listener || k == subjectRow || !world.CanAct(k)) { continue; }
             if (disliked < 0 && world.Relationships.Opinion(people.Ids[teller], people.Ids[k]) <= -30f) { disliked = k; }
             if (colleague < 0 && subjectRow >= 0 && people.Personality[k].Profession == people.Personality[subjectRow].Profession) { colleague = k; }
         }

@@ -33,6 +33,10 @@ public enum Salience : byte { Trace, Minor, Notable, Major, Historic }
 [Union(24, typeof(TheftCommitted))]
 [Union(25, typeof(HypothermiaRose))]
 [Union(26, typeof(QuarrelMediated))]
+[Union(27, typeof(InjuryTaken))]
+[Union(28, typeof(PersonDowned))]
+[Union(29, typeof(PersonRecovered))]
+[Union(30, typeof(PersonDied))]
 public abstract record DomainEvent;
 
 [MessagePackObject]
@@ -167,10 +171,26 @@ public sealed record TradeSettled([property: Key(0)] ulong Negotiation, [propert
 [MessagePackObject]
 public sealed record NegotiationEnded([property: Key(0)] ulong Negotiation, [property: Key(1)] EntityId Npc, [property: Key(2)] string Reason) : DomainEvent;
 
-/// <summary>11 §9.4: a person's hypothermia crossed 50 (confused) or 80 (Downed — incapacitation is M2-06).</summary>
+/// <summary>11 §9.4: a person's hypothermia crossed 50 (confused) or 80 (Downed: <c>HealthSystem</c> raises <c>PersonDowned</c>).</summary>
 [MessagePackObject]
 public sealed record HypothermiaRose([property: Key(0)] EntityId Person, [property: Key(1)] int Level) : DomainEvent;
 
 /// <summary>16 §9.4: a third party tried to settle a finished quarrel between A and B (M2-26).</summary>
 [MessagePackObject]
 public sealed record QuarrelMediated([property: Key(0)] ulong Confrontation, [property: Key(1)] EntityId Mediator, [property: Key(2)] EntityId A, [property: Key(3)] EntityId B, [property: Key(4)] bool Success) : DomainEvent;
+
+/// <summary>11 §4.2: trauma created an injury record (region and type as their byte values).</summary>
+[MessagePackObject]
+public sealed record InjuryTaken([property: Key(0)] EntityId Person, [property: Key(1)] ulong Injury, [property: Key(2)] byte Region, [property: Key(3)] byte Type, [property: Key(4)] float Severity) : DomainEvent;
+
+/// <summary>11 §14: a person went down (cause as <c>VitalCause</c>).</summary>
+[MessagePackObject]
+public sealed record PersonDowned([property: Key(0)] EntityId Person, [property: Key(1)] byte Cause) : DomainEvent;
+
+/// <summary>11 §14: a downed person came round (stable for 2 h with no trigger left).</summary>
+[MessagePackObject]
+public sealed record PersonRecovered([property: Key(0)] EntityId Person) : DomainEvent;
+
+/// <summary>11 §14: a person died (cause as <c>VitalCause</c>); the row stays as their body.</summary>
+[MessagePackObject]
+public sealed record PersonDied([property: Key(0)] EntityId Person, [property: Key(1)] byte Cause) : DomainEvent;

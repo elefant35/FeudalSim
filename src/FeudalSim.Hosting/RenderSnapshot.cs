@@ -24,6 +24,9 @@ public sealed class RenderSnapshot
     public bool[] IsPlayer = new bool[64];
     public byte[] ActivityFlags = new byte[64];
 
+    /// <summary>11 §14 state per person (<see cref="Sim.Health.VitalState"/> as a byte): the client lays down the downed and the dead.</summary>
+    public byte[] Vital = new byte[64];
+
     /// <summary>Camp stocks (M1 graybox camp): food in Satiety points, firewood bundles, minutes of fire left.</summary>
     public float Food, Firewood, FireFuelMin;
     public bool CampActive;
@@ -35,6 +38,11 @@ public sealed class RenderSnapshot
     public float PlayerStamina, PlayerStaminaMax, PlayerWarmth, PlayerWetness;
 
     public bool PlayerWinded;
+
+    /// <summary>The player's 11 §14 state and §4.3 move-speed multiplier (a downed player crawls; a dead one doesn't move).</summary>
+    public byte PlayerVital;
+
+    public float PlayerMoveMult = 1f, PlayerHealth = 100f, PlayerBlood = 100f;
 
     public void CopyFrom(SimWorld world)
     {
@@ -49,6 +57,7 @@ public sealed class RenderSnapshot
             Action = new short[size];
             IsPlayer = new bool[size];
             ActivityFlags = new byte[size];
+            Vital = new byte[size];
         }
 
         Count = p.Count;
@@ -65,6 +74,7 @@ public sealed class RenderSnapshot
             Action[i] = p.Activity[i].Action;
             IsPlayer[i] = world.IsPlayer(i);
             ActivityFlags[i] = p.Activity[i].Flags;
+            Vital[i] = (byte)p.Vitals[i].State;
         }
 
         CampActive = world.Camp.Active != 0;
@@ -75,6 +85,9 @@ public sealed class RenderSnapshot
             ref readonly var st = ref p.Stamina[pr];
             var athletics = world.Content.SkillHandle("skill.athletics");
             (PlayerStamina, PlayerWarmth, PlayerWetness, PlayerWinded) = (st.Value, n.Warmth, p.Body[pr].Wetness, world.Clock.Step < st.WindedUntilStep);
+            ref readonly var v = ref p.Vitals[pr];
+            (PlayerVital, PlayerHealth, PlayerBlood) = ((byte)v.State, v.Health, v.Blood);
+            PlayerMoveMult = Sim.Health.HealthRules.MoveSpeedMult(world.Injuries.Of(p.Ids[pr]), v.Blood);
             PlayerStaminaMax = Sim.Survival.StaminaRules.Max(Sim.Skills.Skills.Attribute(world, pr, "end"), athletics >= 0 ? p.SkillLevels(pr)[athletics] : 0f, n.Energy, n.Satiety);
         }
         (Food, Firewood, FireFuelMin) = (world.Camp.Food, world.Camp.Firewood, world.Camp.FireFuelMin);

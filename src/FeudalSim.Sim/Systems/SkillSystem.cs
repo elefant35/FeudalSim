@@ -14,6 +14,6 @@ public sealed class SkillSystem : ISimSystem
         var day = ctx.GameMinute / 1440;
         if (day == _lastDay) { return; }
         _lastDay = day;
-        for (var i = 0; i < world.People.Count; i++) { Skills.Skills.DailyRust(world, i); }
+        for (var i = 0; i < world.People.Count; i++) { if (!world.IsDead(i)) { Skills.Skills.DailyRust(world, i); } }
     }
 }

@@ -28,6 +28,7 @@ public enum CommandSource : byte { Player, Embodiment, Ai, Settings, Scenario, D
 [Union(16, typeof(TradeWalkAway))]
 [Union(17, typeof(DialogueLineRendered))]
 [Union(18, typeof(Steal))]
+[Union(19, typeof(InflictTrauma))]
 public abstract record StateCommand;
 
 /// <summary>Changes the real-minutes-per-game-day setting (canon §6). Logged; applies at the next step.</summary>
@@ -103,6 +104,12 @@ public sealed record PlayerUtteranceClassified(
     [property: Key(15)] Core.EntityId ClaimSubject = default,
     [property: Key(16)] Core.EntityId ClaimObject = default,
     [property: Key(17)] bool ClaimFirstHand = false) : StateCommand;
+
+/// <summary>Scenario/dev only (11 §4.1): a hit of <c>Effective</c> damage to one region — Landfall's injured (S3) and
+/// tests; 18's combat calls the same rule directly. Enum values as bytes: <c>Health.DamageType</c>, <c>BodyRegion</c>, <c>TraumaSource</c>.</summary>
+[MessagePackObject]
+public sealed record InflictTrauma([property: Key(0)] Core.EntityId Person, [property: Key(1)] float Effective, [property: Key(2)] byte Damage,
+    [property: Key(3)] byte Region, [property: Key(4)] byte Source) : StateCommand;
 
 /// <summary>Scenario/dev: sets a person's holding of one item (−1 for none) and their coin (farthings). M1 has no other source of goods.</summary>
 [MessagePackObject]

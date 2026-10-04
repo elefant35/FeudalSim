@@ -135,7 +135,7 @@ public sealed class EscalationOwner : IDecisionPointOwner
         var found = new List<int>();
         for (var k = 0; k < people.Count; k++)
         {
-            if (k == r || k == p || world.IsPlayer(k) || people.Activity[k].Has(ActivityState.Asleep) || !Escalation.Within(world, r, k, Escalation.RaisedVoicesM)) { continue; }
+            if (k == r || k == p || world.IsPlayer(k) || !world.CanAct(k) || people.Activity[k].Has(ActivityState.Asleep) || !Escalation.Within(world, r, k, Escalation.RaisedVoicesM)) { continue; }
             if (world.Relationships.Opinion(people.Ids[k], people.Ids[r]) >= 40f) { found.Add(k); }
         }
 
@@ -251,7 +251,7 @@ public sealed class BystanderOwner : IDecisionPointOwner
         var candidates = new List<(int Row, float Step)>();
         for (var k = 0; k < people.Count; k++)
         {
-            if (k == r || k == p || world.IsPlayer(k) || people.Activity[k].Action < 0 || people.Activity[k].Has(ActivityState.Asleep)) { continue; }
+            if (k == r || k == p || world.IsPlayer(k) || !world.CanAct(k) || people.Activity[k].Action < 0 || people.Activity[k].Has(ActivityState.Asleep)) { continue; }
             if (!Escalation.Within(world, r, k, Escalation.RaisedVoicesM) && !Escalation.Within(world, p, k, Escalation.RaisedVoicesM)) { continue; }
             candidates.Add((k, Propensities(world, conf, k).Step));
         }

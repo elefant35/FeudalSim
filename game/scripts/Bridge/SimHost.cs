@@ -282,7 +282,8 @@ public partial class SimHost : Node3D
                         (_aiStatus.Length > 0 ? $" · {_aiStatus}" : "");
         if (_play && snapshot.PlayerStaminaMax > 0f)
         {
-            _overlay.Text += $"\nyou: stamina {snapshot.PlayerStamina:F0}/{snapshot.PlayerStaminaMax:F0}{(snapshot.PlayerWinded ? " (winded)" : "")} · warmth {snapshot.PlayerWarmth:F0} · wet {snapshot.PlayerWetness:F0}";
+            var state = (Sim.Health.VitalState)snapshot.PlayerVital switch { Sim.Health.VitalState.Dead => " · DEAD", Sim.Health.VitalState.Dying => " · DYING", Sim.Health.VitalState.Downed or Sim.Health.VitalState.Recovering => " · DOWN", _ => "" };
+            _overlay.Text += $"\nyou: health {snapshot.PlayerHealth:F0} · blood {snapshot.PlayerBlood:F0} · stamina {snapshot.PlayerStamina:F0}/{snapshot.PlayerStaminaMax:F0}{(snapshot.PlayerWinded ? " (winded)" : "")} · warmth {snapshot.PlayerWarmth:F0} · wet {snapshot.PlayerWetness:F0}{state}";
         }
 
         if (snapshot.CampActive)

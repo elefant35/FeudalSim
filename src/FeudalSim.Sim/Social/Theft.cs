@@ -36,7 +36,7 @@ public static class Theft
         var seen = 0;
         for (var k = 0; k < people.Count; k++)
         {
-            if (k == thief) { continue; }
+            if (k == thief || !world.CanAct(k)) { continue; }
             var d = Distance(world, thief, k);
             if (d > range) { continue; }
             var vDist = d <= 5f ? 1f : MathF.Max(0f, 1f - ((d - 5f) / (range - 5f)));

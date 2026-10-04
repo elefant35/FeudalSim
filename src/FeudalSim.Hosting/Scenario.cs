@@ -81,7 +81,7 @@ public sealed record ScenarioDef
         world.Decisions.Register(new Sim.Social.RequestOwner());
         world.Decisions.Register(new Sim.Social.BeingToldOwner());
         world.Decisions.Register(new Sim.Economy.TradeOwner());
-        return world.AddSystem(new SkillSystem()).AddSystem(new ActivitySystem()).AddSystem(new StaminaSystem()).AddSystem(new ExposureSystem()).AddSystem(new NeedsDecaySystem()).AddSystem(new PsychologySystem())
+        return world.AddSystem(new SkillSystem()).AddSystem(new ActivitySystem()).AddSystem(new StaminaSystem()).AddSystem(new ExposureSystem()).AddSystem(new HealthSystem()).AddSystem(new NeedsDecaySystem()).AddSystem(new PsychologySystem())
             .AddSystem(new Lod3System()).AddSystem(new SocialSystem()).AddSystem(new InteractionSystem());
     }
 
@@ -236,7 +236,8 @@ public sealed record RunResult(long Steps, ulong FinalHash, IReadOnlyList<DayMet
 /// <summary>21 §19 camp metrics over a whole run (means of the daily values; task failure over all activities).</summary>
 public sealed record CampSummary(double IdleRate, double LowNeedShare, double MoodMean, double BreakingShare, double Divergence, double TaskFailure,
     double FinalFood, double FireShare, double FinalFriends = 0, double FinalEnemies = 0, double InteractionsPerDay = 0, IReadOnlyDictionary<string, double>? InteractionMix = null, double[]? InteractionFunnel = null, double[]? FriendGates = null,
-    double MeanWarmth = 0, double ColdShare = 0, double FreezingShare = 0, double WarmingShare = 0, double MeanWetness = 0);
+    double MeanWarmth = 0, double ColdShare = 0, double FreezingShare = 0, double WarmingShare = 0, double MeanWetness = 0,
+    double DeathsPer100PersonYears = 0, double DownedShare = 0);
 
 /// <summary>Runs a scenario at max speed, collecting daily metrics (20 §13).</summary>
 public static class ScenarioRunner
@@ -274,7 +275,9 @@ public static class ScenarioRunner
                 cm.Days.Average(d => d.BreakingShare), cm.Days.Average(d => d.Divergence), CampMetrics.TaskFailure(world), world.Camp.Food, cm.Days.Average(d => d.FireShare),
                 cm.Days[^1].FriendsPerPerson, cm.Days[^1].EnemiesPerPerson, FriendGates: CampMetrics.FriendGates(world),
                 MeanWarmth: cm.Days.Average(d => d.MeanWarmth), ColdShare: cm.Days.Average(d => d.ColdShare), FreezingShare: cm.Days.Average(d => d.FreezingShare),
-                WarmingShare: cm.Days.Average(d => d.WarmingShare), MeanWetness: cm.Days.Average(d => d.MeanWetness));
+                WarmingShare: cm.Days.Average(d => d.WarmingShare), MeanWetness: cm.Days.Average(d => d.MeanWetness),
+                DeathsPer100PersonYears: cm.Days[^1].DeadAtEnd * 100.0 / Math.Max(1, cm.Days[^1].DeadAtEnd + cm.Days[^1].Alive) / (cm.Days.Count / (double)Sim.Time.GameDate.DaysPerYear),
+                DownedShare: cm.Days.Average(d => d.DownedShare));
             if (world.Systems.OfType<InteractionSystem>().FirstOrDefault() is { } ix)
             {
                 var total = ix.Counts.Sum();
