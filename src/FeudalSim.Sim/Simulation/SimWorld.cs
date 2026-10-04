@@ -65,6 +65,9 @@ public sealed class SimWorld
     /// <summary>Open crafting processes and completions (13 §4; M2-10). Saved and hashed.</summary>
     public Crafting.ProcessStore Processes { get; } = new();
 
+    /// <summary>10 §10 personal map knowledge (M2-01c-ii). Saved and hashed.</summary>
+    public World.KnowledgeStore Knowledge { get; } = new();
+
     /// <summary>Open haggles with the player (15 §5).</summary>
     public Economy.NegotiationStore Negotiations { get; } = new();
 

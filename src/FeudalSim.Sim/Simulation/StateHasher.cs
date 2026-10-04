@@ -57,6 +57,7 @@ public static class StateHasher
         world.Holdings.HashInto(h);
         world.Inventory.HashInto(h);
         world.Processes.HashInto(h);
+        world.Knowledge.HashInto(h);
         world.Negotiations.HashInto(h);
         world.Relationships.HashInto(h);
         world.Memories.HashInto(h);

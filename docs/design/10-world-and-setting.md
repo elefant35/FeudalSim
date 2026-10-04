@@ -977,6 +977,13 @@ the sim generates.
 - **Player map UI** ([19](19-player-experience.md)) shows only the player's beliefs. There is no
   omniscient minimap.
 
+*Implemented (M2-01c-ii):*
+- **Store:** `World/Knowledge.cs`, 2 bits per 128 m tile (1 KB a person), saved and hashed. States only rise.
+- **Sight:** `KnowledgeSystem` marks every tile within sight of each person who can act — 150 m, 40 m in fog, halved
+  at night. It is stateless; LOD0/1 people mark once a game minute and LOD2 people when they are due
+  (2.4 µs per step at S6).
+- **Not yet:** survey, getting lost, telling and maps come with the systems that use them.
+
 ---
 
 ## 11. Place naming
@@ -1060,6 +1067,10 @@ apply at every LOD (parity, and seamless promotion per canon §8.2).
 
 *Example:* jogging up a 10% grade through broadleaf forest in daylight →
 `4.0 · 0.65 · exp(−0.525)/exp(−0.175) = 4.0 · 0.65 · 0.705 = 1.83 m/s` ≈ 137 m per game hour.
+
+*Implemented (M2-01c-ii):* `World/Travel.cs` has `Speed(base, biome, surface, mud, grade, slope, night, light)` with the
+§4 biome multipliers, surfaces, Tobler and light; cliffs over 45° are impassable. The worked example (1.83 m/s) is a
+test. Snow comes in M3; trample paths and routing come with M2-21's pathing.
 
 ### 12.3 Paths from foot traffic
 

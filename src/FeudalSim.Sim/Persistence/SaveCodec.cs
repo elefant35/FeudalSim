@@ -61,6 +61,7 @@ public static class SaveCodec
     public const string InjuriesTable = "injuries";
     public const string InventoryTable = "inventory";
     public const string ProcessesTable = "processes";
+    public const string KnowledgeTable = "knowledge";
     public const string ConfrontationsTable = "confrontations";
     public const string FavorsTable = "favors";
     public const string HoldingsTable = "holdings";
@@ -71,6 +72,15 @@ public static class SaveCodec
         var coin = store.Export();
         var chunk = new TableChunk { Table = HoldingsTable, RowCount = coin.Length };
         chunk.Columns.Add(new ColumnBlock { Name = "coin", LayoutVersion = 1, ElementSize = Marshal.SizeOf<Economy.Holdings.CoinRow>(), Data = MemoryMarshal.AsBytes(coin.AsSpan()).ToArray() });
+        return chunk;
+    }
+
+    private static TableChunk KnowledgeChunk(World.KnowledgeStore store)
+    {
+        var (people, bits) = store.Export();
+        var chunk = new TableChunk { Table = KnowledgeTable, RowCount = people.Length };
+        chunk.Columns.Add(new ColumnBlock { Name = "people", LayoutVersion = 1, ElementSize = 8, Data = MemoryMarshal.AsBytes(people.AsSpan()).ToArray() });
+        chunk.Columns.Add(new ColumnBlock { Name = "tiles", LayoutVersion = 1, ElementSize = World.KnowledgeStore.Bytes, Data = bits });
         return chunk;
     }
 
@@ -262,7 +272,7 @@ public static class SaveCodec
                 LastCommandSeq = world.LastCommandSeq,
             },
             IdCounters = counters,
-            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories), ClaimsChunk(world.Claims), BeliefsChunk(world.Beliefs), RenownChunk(world.Reputation), DecisionsChunk(world.Decisions), AiChunk(world), ConversationsChunk(world.Conversations), PlayerChunk(world.Player), ConfrontationsChunk(world.Confrontations), FavorsChunk(world.Favors), HoldingsChunk(world.Holdings), NegotiationsChunk(world.Negotiations), WeatherChunk(world.WeatherRef), InjuriesChunk(world.Injuries), InventoryChunk(world.Inventory), ProcessesChunk(world.Processes)],
+            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories), ClaimsChunk(world.Claims), BeliefsChunk(world.Beliefs), RenownChunk(world.Reputation), DecisionsChunk(world.Decisions), AiChunk(world), ConversationsChunk(world.Conversations), PlayerChunk(world.Player), ConfrontationsChunk(world.Confrontations), FavorsChunk(world.Favors), HoldingsChunk(world.Holdings), NegotiationsChunk(world.Negotiations), WeatherChunk(world.WeatherRef), InjuriesChunk(world.Injuries), InventoryChunk(world.Inventory), ProcessesChunk(world.Processes), KnowledgeChunk(world.Knowledge)],
         };
     }
 
@@ -436,6 +446,12 @@ public static class SaveCodec
         {
             if (coinCol.ElementSize == Marshal.SizeOf<Economy.Holdings.CoinRow>()) { world.Holdings.Import(MemoryMarshal.Cast<byte, Economy.Holdings.CoinRow>(coinCol.Data).ToArray()); }
             else { notes.Add("Holdings table has an unknown layout; coin reset."); }
+        }
+
+        if (image.Tables.FirstOrDefault(t => t.Table == KnowledgeTable) is { } know
+            && know.Columns.FirstOrDefault(c => c.Name == "people") is { } kp && know.Columns.FirstOrDefault(c => c.Name == "tiles") is { ElementSize: World.KnowledgeStore.Bytes } kt)
+        {
+            world.Knowledge.Import(MemoryMarshal.Cast<byte, ulong>(kp.Data).ToArray(), kt.Data);
         }
 
         if (image.Tables.FirstOrDefault(t => t.Table == ProcessesTable)?.Columns.FirstOrDefault(c => c.Name == "state") is { LayoutVersion: 1 } procState)
