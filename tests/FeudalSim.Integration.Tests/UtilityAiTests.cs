@@ -163,3 +163,35 @@ public sealed class CampMetricsTests
         }
     }
 }
+
+/// <summary>M1-03: the DecisionTrace inspector explains the current choice with its 21 §7.2 factors.</summary>
+public sealed class DecisionTraceTests
+{
+    [Fact]
+    public void WhyShowsTheChoiceAndAFactorBreakdownThatMultipliesOut()
+    {
+        var root = new DirectoryInfo(AppContext.BaseDirectory);
+        while (!File.Exists(Path.Combine(root.FullName, "FeudalSim.sln"))) { root = root.Parent!; }
+        var content = ContentCompiler.Compile(Path.Combine(root.FullName, "content")).Database!;
+        var w = ScenarioDef.Load(Path.Combine(root.FullName, "content", "scenarios", "m1_camp.yaml")).CreateWorld(content, SerialJobScheduler.Instance);
+        var target = ((1 * 1440L) + (10 * 60)) * SimClock.MsPerGameMinute;
+        while (w.Clock.GameMs < target) { w.Step(); }
+
+        var ai = w.Systems.OfType<ActivitySystem>().Single();
+        for (var row = 0; row < w.People.Count; row++)
+        {
+            var (head, top) = ai.Trace(row);
+            head.Count.ShouldBeGreaterThan(0);
+            top.Span[0].Score.ShouldBeGreaterThanOrEqualTo(top.Span[^1].Score);   // best first
+            foreach (var c in top.Span) { c.Score.ShouldBe(c.W * c.C * c.PV * c.E * c.S * c.M, 1e-4f); }
+            if (!head.Kept) { w.People.Activity[row].Action.ShouldBe(head.Chosen); }
+        }
+
+        var text = DevCommands.Why(w, w.People.Names[0]);
+        text.ShouldContain(w.People.Names[0]);
+        text.ShouldContain("W ");
+
+        DevCommands.Why(w, "#0").ShouldBe(text);
+        DevCommands.Why(w, "Nobody").ShouldStartWith("no person");
+    }
+}

@@ -27,6 +27,7 @@ public sealed class DevCommands
             ["spawn"] = ("spawn <name> <x> <z> — logged SpawnPerson", a => { _runner.Submit(CommandSource.Dev, new SpawnPerson(a[0], float.Parse(a[1], CultureInfo.InvariantCulture), float.Parse(a[2], CultureInfo.InvariantCulture))); return "queued"; }),
             ["hash"] = ("hash — current state hash", _ => $"hash {_runner.Invoke(StateHasher.Hash).Result:x16}"),
             ["time"] = ("time — current game date and step", _ => _runner.Invoke(w => $"{GameDate.FromGameMs(w.Clock.GameMs)} (step {w.Clock.Step})").Result),
+            ["why"] = ("why <name|#row> — the person's last action decision: top candidates with W·C·P×V·E·S·M (21 §7.2)", a => _runner.Invoke(w => Why(w, string.Join(' ', a))).Result),
             ["stats"] = ("stats — runner statistics", _ => $"steps {_runner.StepsExecuted}, dilation {_runner.TimeDilationEvents}, mode {_runner.Mode}, timescale {_runner.TimeScale}"),
         };
     }
@@ -40,6 +41,26 @@ public sealed class DevCommands
         var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length == 0) { return ""; }
         return _commands.TryGetValue(parts[0], out var c) ? c.Run(parts[1..]) : $"unknown command '{parts[0]}' (try: {string.Join(", ", _commands.Keys.Order(StringComparer.Ordinal))})";
+    }
+
+    /// <summary>Formats the DecisionTrace of one person (M1-03 inspector).</summary>
+    public static string Why(SimWorld world, string who)
+    {
+        var p = world.People;
+        var row = who.StartsWith('#') && int.TryParse(who[1..], CultureInfo.InvariantCulture, out var r) ? r : -1;
+        for (var i = 0; row < 0 && i < p.Count; i++) { if (string.Equals(p.Names[i], who, StringComparison.OrdinalIgnoreCase)) { row = i; } }
+        if (row < 0 || row >= p.Count) { return $"no person '{who}'"; }
+        if (world.Systems.OfType<Sim.Systems.ActivitySystem>().FirstOrDefault() is not { } ai) { return "no utility AI in this world"; }
+        var (head, top) = ai.Trace(row);
+        if (head.Count == 0) { return $"{p.Names[row]}: no decision yet"; }
+        var sb = new System.Text.StringBuilder();
+        sb.Append(CultureInfo.InvariantCulture, $"{p.Names[row]} at {GameDate.FromGameMs(head.GameMs)}: {(head.Kept ? "kept" : "chose")} {ai.ActionAt(head.Chosen).Id} (τ {head.Tau:0.000})");
+        foreach (var c in top.Span)
+        {
+            sb.Append(CultureInfo.InvariantCulture, $"\n  P{c.Class} {ai.ActionAt(c.Action).Id,-22} {c.Score,6:0.000} = W {c.W:0.00} · C {c.C:0.00} · P×V {c.PV:0.00} · E {c.E:0.00} · S {c.S:0.00} · M {c.M:0.00}");
+        }
+
+        return sb.ToString();
     }
 
     private static int ParseInt(string[] args, int index, int fallback)

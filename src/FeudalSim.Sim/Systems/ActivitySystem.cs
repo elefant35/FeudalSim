@@ -16,7 +16,6 @@ public sealed class ActivitySystem : ISimSystem
 {
     public const float WalkSpeedMetresPerSecond = 1.6f;   // canon §10.9
     public const long ReconsiderGameMs = 8 * 60 * 1000;
-    public const float Tau0 = 0.08f;                      // 21 §20
     public const float KIrr = 1.0f;                       // the Drama knob (canon §10.4)
     public const float ArriveM = 1.5f;
 
@@ -25,13 +24,28 @@ public sealed class ActivitySystem : ISimSystem
     private int[] _skillHandle = [];
     private (int From, int To, string Block)[] _schedule = [];
     private float[][] _traitUtility = [];   // [action][trait] multiplier from the action's utility keys
-    private float[] _traitTau = [];
 
     /// <summary>Metrics (21 §19 task failure): activities started, and those that failed because a requirement ran
     /// out mid-task (e.g. the stores emptied during a meal). Interruptions by a more urgent need are not failures. Not state.</summary>
     public long Started { get; private set; }
 
     public long Abandoned { get; private set; }
+
+    /// <summary>One scored candidate in a decision trace: the 21 §7.2 factors and the result.</summary>
+    public readonly record struct TraceCandidate(short Action, byte Class, float Score, float W, float C, float PV, float E, float S, float M);
+
+    /// <summary>The last decision for a row (21 §7.2 "trace: top-5 with factor breakdown"); preallocated, not state.</summary>
+    public readonly record struct DecisionTrace(long GameMs, float Tau, short Chosen, bool Kept, int Count);
+
+    private TraceCandidate[] _trace = [];
+    private DecisionTrace[] _traceHead = [];
+    public const int TraceTop = 5;
+
+    /// <summary>The last decision trace for a row and its top candidates (best first).</summary>
+    public (DecisionTrace Head, ReadOnlyMemory<TraceCandidate> Top) Trace(int row)
+        => row < _traceHead.Length ? (_traceHead[row], _trace.AsMemory(row * TraceTop, _traceHead[row].Count)) : (default, ReadOnlyMemory<TraceCandidate>.Empty);
+
+    public ActionDef ActionAt(int handle) => _actions[handle];
 
     public string Name => "Activity";
     public SimPhase Phase => SimPhase.Decide;
@@ -74,10 +88,11 @@ public sealed class ActivitySystem : ISimSystem
 
         Span<float> score = stackalloc float[_actions.Length];
         Span<int> cls = stackalloc int[_actions.Length];
+        Span<Factors> factors = stackalloc Factors[_actions.Length];
         var bestRank = int.MaxValue;
         for (var k = 0; k < _actions.Length; k++)
         {
-            score[k] = Score(world, i, k, block, current, out cls[k]);
+            score[k] = Score(world, i, k, block, current, out cls[k], out factors[k]);
             if (score[k] >= 0.15f && cls[k] < bestRank) { bestRank = cls[k]; }
         }
 
@@ -85,7 +100,7 @@ public sealed class ActivitySystem : ISimSystem
         var best = 0f;
         for (var k = 0; k < _actions.Length; k++) { if (cls[k] == bestRank && score[k] > best) { best = score[k]; } }
 
-        var tau = Temperature(p, people.Mood[i], e);
+        var tau = Decisions.DecisionNoise.Tau(p, people.Mood[i], e, world.Content, KIrr);
         var bucket = (ulong)(ctx.GameMs / (60 * 60 * 1000));
         var choice = -1;
         var bestKey = float.NegativeInfinity;
@@ -98,7 +113,9 @@ public sealed class ActivitySystem : ISimSystem
             if (key > bestKey) { (bestKey, choice) = (key, k); }
         }
 
-        if (current >= 0 && choice != current && cls[current] == cls[choice] && score[choice] < score[current])
+        var keep = current >= 0 && choice != current && cls[current] == cls[choice] && score[choice] < score[current];
+        RecordTrace(people.Count, i, ctx.GameMs, tau, keep ? (short)current : (short)choice, keep, score, cls, factors);
+        if (keep)
         {
             act.NextDecideGameMs = ctx.GameMs + ReconsiderGameMs;   // momentum: keep (score[current] includes M = 1.15)
             return;
@@ -123,9 +140,35 @@ public sealed class ActivitySystem : ISimSystem
         };
     }
 
-    /// <summary>21 §7.2 for one action; <paramref name="cls"/> is its priority class (P1 when it answers a critical need).</summary>
-    private float Score(SimWorld world, int i, int k, string block, int current, out int cls)
+    private readonly record struct Factors(float W, float C, float PV, float E, float S, float M);
+
+    private void RecordTrace(int rows, int i, long gameMs, float tau, short chosen, bool kept, Span<float> score, Span<int> cls, Span<Factors> f)
     {
+        if (_traceHead.Length < rows)
+        {
+            Array.Resize(ref _traceHead, Math.Max(rows, _traceHead.Length * 2));
+            Array.Resize(ref _trace, _traceHead.Length * TraceTop);
+        }
+
+        // Top-5 by score, without allocating: repeated selection over the small action set.
+        Span<bool> used = stackalloc bool[score.Length];
+        var n = 0;
+        for (; n < TraceTop; n++)
+        {
+            var best = -1;
+            for (var k = 0; k < score.Length; k++) { if (!used[k] && (best < 0 || score[k] > score[best])) { best = k; } }
+            if (best < 0 || score[best] <= 0f) { break; }
+            used[best] = true;
+            _trace[(i * TraceTop) + n] = new TraceCandidate((short)best, (byte)cls[best], score[best], f[best].W, f[best].C, f[best].PV, f[best].E, f[best].S, f[best].M);
+        }
+
+        _traceHead[i] = new DecisionTrace(gameMs, tau, chosen, kept, n);
+    }
+
+    /// <summary>21 §7.2 for one action; <paramref name="cls"/> is its priority class (P1 when it answers a critical need).</summary>
+    private float Score(SimWorld world, int i, int k, string block, int current, out int cls, out Factors factors)
+    {
+        factors = default;
         var def = _actions[k];
         var people = world.People;
         ref readonly var n = ref people.Needs[i];
@@ -188,6 +231,7 @@ public sealed class ActivitySystem : ISimSystem
 
         // M: momentum.
         var m = k == current ? 1.15f : 1f;
+        factors = new Factors(w, cProduct, pv, em, s, m);
         return w * cProduct * pv * em * s * m;
     }
 
@@ -285,21 +329,6 @@ public sealed class ActivitySystem : ISimSystem
     private static bool CriticalElsewhere(in Needs n, in ActivityState act)
         => (n.Satiety < 20f || n.Hydration < 20f || n.Energy < 12f) && act.Phase == 1 && !act.Has(ActivityState.Asleep) && act.Level != ActivityLevel.Rest;
 
-    /// <summary>21 §8.2.</summary>
-    private float Temperature(in Personality p, in Mood mood, in Emotions e)
-    {
-        var tau = Tau0 * KIrr * (1f + (0.35f * Z(p.Volatility)) - (0.25f * Z(p.Diligence)))
-                  * (1f + (0.5f * MathF.Max(0f, -mood.Smoothed) / 100f))
-                  * (1f + (0.5f * e.Fear / 100f));
-        for (var bits = p.Traits; bits != 0; bits &= bits - 1)
-        {
-            var h = System.Numerics.BitOperations.TrailingZeroCount(bits);
-            if (h < _traitTau.Length) { tau += _traitTau[h]; }
-        }
-
-        return Math.Clamp(tau, 0.02f, 0.30f);
-    }
-
     /// <summary>21 §5.1 urgency: logistic on deprivation x = (100 − need)/100.</summary>
     public static float Urgency(string need, float value)
     {
@@ -377,7 +406,6 @@ public sealed class ActivitySystem : ISimSystem
             : [];
         _traitUtility = [.. _actions.Select(a => content.Traits.Select(t =>
             (a.UtilityKeys ?? []).Aggregate(1f, (acc, key) => t.Effects?.Utility is { } u && u.TryGetValue(key, out var v) ? acc * v : acc)).ToArray())];
-        _traitTau = [.. content.Traits.Select(t => t.Effects?.Tau ?? 0f)];
 
         static int Minutes(string hhmm) => (int.Parse(hhmm[..2], System.Globalization.CultureInfo.InvariantCulture) * 60) + int.Parse(hhmm[3..], System.Globalization.CultureInfo.InvariantCulture);
     }
