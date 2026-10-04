@@ -1,0 +1,205 @@
+[
+  {
+    "id": "asset.tools.flint_knife",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/handtools/handtools.py",
+      "params": {
+        "item": "flint_knife",
+        "seed": 301
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/flint_knife.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 632,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "M2 P0 flint knife; worn own-work palette geometry. Palm grip origin at (0,0,0); blade/head/shaft extends +Z. Shared-ring hide cord wraps seat on actual haft/collar; checked 4-angle close-up and silhouette. First-person budget uses contract \u00a73 allowance up to1200 triangles."
+  },
+  {
+    "id": "asset.tools.stone_axe",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/handtools/handtools.py",
+      "params": {
+        "item": "stone_axe",
+        "seed": 301
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/stone_axe.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 840,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "M2 P0 stone axe; worn own-work palette geometry. Palm grip origin at (0,0,0); blade/head/shaft extends +Z. Shared-ring hide cord wraps seat on actual haft/collar; checked 4-angle close-up and silhouette. First-person budget uses contract \u00a73 allowance up to1200 triangles."
+  },
+  {
+    "id": "asset.tools.iron_axe",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/handtools/handtools.py",
+      "params": {
+        "item": "iron_axe",
+        "seed": 301
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/iron_axe.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 730,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "M2 P0 iron axe; worn own-work palette geometry. Palm grip origin at (0,0,0); blade/head/shaft extends +Z. Shared-ring hide cord wraps seat on actual haft/collar; checked 4-angle close-up and silhouette. First-person budget uses contract \u00a73 allowance up to1200 triangles."
+  },
+  {
+    "id": "asset.tools.iron_knife",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/handtools/handtools.py",
+      "params": {
+        "item": "iron_knife",
+        "seed": 301
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/iron_knife.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 458,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "M2 P0 iron knife; worn own-work palette geometry. Palm grip origin at (0,0,0); blade/head/shaft extends +Z. Shared-ring hide cord wraps seat on actual haft/collar; checked 4-angle close-up and silhouette."
+  },
+  {
+    "id": "asset.tools.hammerstone",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/handtools/handtools.py",
+      "params": {
+        "item": "hammerstone",
+        "seed": 301
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/hammerstone.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 100,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "M2 P0 hammerstone; worn own-work palette geometry. Palm grip origin at (0,0,0); blade/head/shaft extends +Z. Shared-ring hide cord wraps seat on actual haft/collar; checked 4-angle close-up and silhouette. First-person budget uses contract \u00a73 allowance up to1200 triangles."
+  },
+  {
+    "id": "asset.tools.flint_nodule",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/handtools/handtools.py",
+      "params": {
+        "item": "flint_nodule",
+        "seed": 301
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/flint_nodule.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 88,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "M2 P0 flint nodule; worn own-work palette geometry. Palm grip origin at (0,0,0); blade/head/shaft extends +Z. Shared-ring hide cord wraps seat on actual haft/collar; checked 4-angle close-up and silhouette."
+  },
+  {
+    "id": "asset.tools.flint_flake",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/handtools/handtools.py",
+      "params": {
+        "item": "flint_flake",
+        "seed": 301
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/flint_flake.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 64,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "M2 P0 flint flake; worn own-work palette geometry. Palm grip origin at (0,0,0); blade/head/shaft extends +Z. Shared-ring hide cord wraps seat on actual haft/collar; checked 4-angle close-up and silhouette."
+  }
+]
