@@ -27,6 +27,15 @@ public sealed class DialogueReplyRouter(IChatProvider? chat, IDecider? verifier,
     public static readonly TimeSpan SpeechCutoff = TimeSpan.FromSeconds(6);
     public static readonly TimeSpan ResolutionWait = TimeSpan.FromSeconds(8);
 
+    /// <summary>22 §3.5: live dialogue fails over when no token arrives within 3 s.</summary>
+    public static readonly TimeSpan TtftTimeout = TimeSpan.FromSeconds(3);
+
+    /// <summary>The TTFT target for the breaker's latency trigger (22 §17.2 #1: p50 &lt; 1.0 s).</summary>
+    public const double TtftTargetMs = 1_000;
+
+    /// <summary>The dialogue model's breaker: an open breaker sends the turn to the policy at once and a template speaks (22 §3.5).</summary>
+    public CircuitBreaker Breaker { get; } = new($"{chat?.Tag ?? "none"}:{config.DialogueModel}");
+
     private readonly ConcurrentDictionary<ulong, TaskCompletionSource<string>> _resolved = new();
 
     public event Action<DecisionMade>? Decided;
@@ -50,12 +59,14 @@ public sealed class DialogueReplyRouter(IChatProvider? chat, IDecider? verifier,
         if (b.Rapport is { } rap) { dps.Add(rap); }
         foreach (var dp in dps) { Waiter(dp.Id); }
 
-        if (chat is null)
+        if (chat is null || !Breaker.TryAcquire())
         {
             foreach (var dp in dps) { Decided?.Invoke(new DecisionMade(dp.Id, dp.MenuHash, null, DeciderKind.Policy, "template", 0, null)); }
-            await VoiceResolvedAsync(b, started, null, "template", ct).ConfigureAwait(false);
+            await VoiceResolvedAsync(b, started, null, "template", ct, chat is null ? null : ["breaker_open"]).ConfigureAwait(false);
             return;
         }
+
+        var firstToken = -1.0;
 
         var submitted = new HashSet<ulong>();
         var header = new Dictionary<string, string?>(StringComparer.Ordinal);
@@ -74,8 +85,17 @@ public sealed class DialogueReplyRouter(IChatProvider? chat, IDecider? verifier,
         {
             var request = new ChatRequest(config.DialogueModel, PromptBuilder.DecisionFirst(b), MaxTokens: 140, Temperature: b.Facts.Temperature,
                 Stop: ["<player_said", $"{b.PlayerName}:"]);   // 22 §4.8 (not "\n\n": S2)
-            await foreach (var piece in chat.StreamAsync(request, deadline.Token).ConfigureAwait(false))
+            using var ttft = new CancellationTokenSource(TtftTimeout);
+            using var streamCut = CancellationTokenSource.CreateLinkedTokenSource(deadline.Token, ttft.Token);
+            await foreach (var piece in chat.StreamAsync(request, streamCut.Token).ConfigureAwait(false))
             {
+                if (firstToken < 0)
+                {
+                    firstToken = started.Elapsed.TotalMilliseconds;
+                    ttft.CancelAfter(Timeout.InfiniteTimeSpan);   // the first token came: no TTFT cut any more
+                    Breaker.RecordLatency(firstToken, TtftTargetMs);
+                }
+
                 buffer.Append(piece);
                 if (primaryChoice is null && !headerFailed && started.Elapsed > DecisionDeadline) { headerFailed = true; flags.Add("header_deadline"); break; }
 
@@ -145,8 +165,11 @@ public sealed class DialogueReplyRouter(IChatProvider? chat, IDecider? verifier,
         }
         catch (Exception ex) when (ex is OperationCanceledException or AiProviderException or HttpRequestException or System.Text.Json.JsonException)
         {
-            flags.Add(ex is OperationCanceledException ? "cutoff" : "provider_error");
+            flags.Add(ex is OperationCanceledException ? firstToken < 0 ? "ttft_timeout" : "cutoff" : "provider_error");
+            if (firstToken < 0 || ex is not OperationCanceledException) { Breaker.RecordFailure(); }
         }
+
+        if (firstToken >= 0 && !flags.Contains("provider_error")) { Breaker.RecordSuccess(); }
 
         // DPs the header never decided go to the policy now.
         foreach (var dp in dps.Where(d => !submitted.Contains(d.Id)))

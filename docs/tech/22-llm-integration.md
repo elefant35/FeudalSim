@@ -350,8 +350,10 @@ successes. While open, traffic routes to the next tier silently; the UI shows a 
 muffled" indicator only if dialogue falls to template.
 *Implemented in M0-18 (`FeudalSim.AI.CircuitBreaker`):* the failure-count trigger, a single in-flight
 probe while half-open (a failed probe re-opens for 30 s), separate breakers for chat and the fast
-decider; an open decider breaker answers DPs "policy, now" at once. The latency (p95 TTFT) trigger
-arrives with S2's latency telemetry in M1. `AI_GATEWAY_MODE` record/replay is
+decider; an open decider breaker answers DPs "policy, now" at once. *M1-14:* the latency trigger — rolling p95 TTFT
+over the last 60 s (≥ 5 samples) above 2× the 1.0 s target, sustained for 2 minutes — and a breaker on the dialogue
+reply route: open → the turn's DPs go to the policy at once and templates speak (no model call); a stream with no token
+in 3 s fails over the same way (`ResilienceTests`). `AI_GATEWAY_MODE` record/replay is
 `FeudalSim.AI.TranscriptHandler`, an HTTP stage under every provider (20 §11).
 
 ### 3.6 Priority queues, concurrency, spend caps

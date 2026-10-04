@@ -4,8 +4,8 @@ namespace FeudalSim.AI;
 /// Per (provider, model) circuit breaker (22 §3.5): opens after 5 failures within 60 s; while open, calls are
 /// refused and traffic falls to the next tier; after 30 s it lets one probe through at a time (half-open) and
 /// closes after 3 consecutive successes — a failed probe re-opens it for another 30 s. HTTP errors (429s included),
-/// timeouts and invalid answers count as failures. The latency trigger (rolling p95 TTFT &gt; 2× target for 2 min)
-/// comes with S2's latency telemetry in M1.
+/// timeouts and invalid answers count as failures. It also opens on latency (M1-14): the rolling p95 time-to-first-token
+/// (last 60 s, at least 5 samples) staying above 2× the target for 2 minutes.
 /// </summary>
 public sealed class CircuitBreaker(string name, Func<long>? nowMs = null)
 {
@@ -13,6 +13,12 @@ public sealed class CircuitBreaker(string name, Func<long>? nowMs = null)
     public const long FailureWindowMs = 60_000;
     public const long ProbeAfterMs = 30_000;
     public const int SuccessesToClose = 3;
+    public const long LatencyWindowMs = 60_000;
+    public const long LatencySustainMs = 120_000;
+    public const int LatencyMinSamples = 5;
+    private long _slowSince = -1;
+
+    private readonly Queue<(long At, double Ms)> _latency = new();
 
     public enum BreakerState { Closed, Open, HalfOpen }
 
@@ -77,6 +83,28 @@ public sealed class CircuitBreaker(string name, Func<long>? nowMs = null)
             _failures.Enqueue(now);
             while (_failures.Count > 0 && now - _failures.Peek() > FailureWindowMs) { _failures.Dequeue(); }
             if (_failures.Count >= FailuresToOpen) { Trip(now); }
+        }
+    }
+
+    /// <summary>Records one call's time to first token; trips when the rolling p95 has exceeded 2× the target for 2 minutes.</summary>
+    public void RecordLatency(double ttftMs, double targetMs)
+    {
+        lock (_lock)
+        {
+            var now = _now();
+            _latency.Enqueue((now, ttftMs));
+            while (_latency.Count > 0 && now - _latency.Peek().At > LatencyWindowMs) { _latency.Dequeue(); }
+            if (_state != BreakerState.Closed || _latency.Count < LatencyMinSamples) { return; }
+            var sorted = _latency.Select(x => x.Ms).OrderBy(x => x).ToArray();
+            var p95 = sorted[(int)Math.Ceiling(0.95 * sorted.Length) - 1];
+            if (p95 <= 2 * targetMs) { _slowSince = -1; return; }
+            if (_slowSince < 0) { _slowSince = now; }
+            if (now - _slowSince >= LatencySustainMs)
+            {
+                Trip(now);
+                (_slowSince, _) = (-1, 0);
+                _latency.Clear();
+            }
         }
     }
 
