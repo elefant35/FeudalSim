@@ -17,6 +17,9 @@ public sealed record CompletabilityReport(IReadOnlyList<GoalResult> Goals, int T
 {
     public IReadOnlyList<string> RejectedReasons { get; init; } = [];
 
+    /// <summary>Waits that ran out (0 in a healthy run: every routed DP was decided and every turn voiced).</summary>
+    public int Timeouts { get; init; }
+
     public bool Passed => Goals.All(g => g.Done) && Decisions == PolicyDecisions && Lines >= Turns && TemplateLines == Lines;
 }
 
@@ -32,9 +35,14 @@ public sealed class CompletabilityRun(ContentDatabase content, ScenarioDef scena
     private readonly ConcurrentQueue<(CommandSource, StateCommand)> _inbox = new();
     private readonly List<StepOutput> _outputs = [];
     private readonly HeadlessBodies _bodies = new();
+    private readonly Dictionary<ulong, int> _lines = [];   // NPC lines the sim has applied, per conversation
+    private readonly HashSet<ulong> _routed = [];
     private SimWorld _w = null!;
     private DialogueHost _host = null!;
-    private int _turns;
+    private int _turns, _timeouts;
+
+    /// <summary>How long the driver waits for something the host owes (a busy machine can starve its thread pool).</summary>
+    public const int WaitMs = 30_000;
 
     /// <summary>The 2 s turn limit runs on this clock: each read moves it 10 s on, so turns never wait.</summary>
     private sealed class FastClock : TimeProvider
@@ -54,7 +62,7 @@ public sealed class CompletabilityRun(ContentDatabase content, ScenarioDef scena
         var lines = _outputs.SelectMany(o => o.AppliedCommands).Select(c => c.Payload).OfType<DialogueLineRendered>().ToList();
         var resolved = events.OfType<DecisionResolved>().ToList();
         return new CompletabilityReport(goals, _turns, lines.Count, lines.Count(l => l.Source == "template"), resolved.Count, resolved.Count(r => r.Decider == DeciderKind.Policy),
-            events.OfType<CommandRejected>().Count(), StateHasher.Hash(_w)) { RejectedReasons = [.. events.OfType<CommandRejected>().Select(r => r.Reason).Distinct()] };
+            events.OfType<CommandRejected>().Count(), StateHasher.Hash(_w)) { RejectedReasons = [.. events.OfType<CommandRejected>().Select(r => r.Reason).Distinct()], Timeouts = _timeouts };
     }
 
     private GoalResult Help(List<int> npcs)
@@ -92,7 +100,7 @@ public sealed class CompletabilityRun(ContentDatabase content, ScenarioDef scena
             Steps(1);
             if (Events<TradeOffered>().LastOrDefault(o => o.Npc == _w.People.Ids[npc]) is not { } ask) { Leave(); continue; }
             Submit(CommandSource.Player, new TradeOffer(ask.Negotiation, (long)(ask.PriceF * 0.85)));   // haggle
-            Settle();
+            Settle(_host.Conversation?.Id ?? 0, _lines.GetValueOrDefault(_host.Conversation?.Id ?? 0) + 1);
             if (_w.Negotiations.Get(ask.Negotiation) is { NpcOffer: > 0 }) { Submit(CommandSource.Player, new TradeAccept(ask.Negotiation)); Steps(2); }
             var settled = Events<TradeSettled>().LastOrDefault(t => t.Negotiation == ask.Negotiation);
             Leave();
@@ -165,7 +173,7 @@ public sealed class CompletabilityRun(ContentDatabase content, ScenarioDef scena
         var c = _host.SayAsync(text).GetAwaiter().GetResult();
         _turns++;
         var before = view.Transcript.Count;
-        Settle();
+        Settle(view.Id, _lines.GetValueOrDefault(view.Id) + 1);
         var conv = _w.Conversations.Get(view.Id);
         log?.WriteLine($"    > {text}  [{c?.Act}]");
         if (conv is not null && conv.Transcript.Count > before + 1) { log?.WriteLine($"    {conv.Transcript[^1]}"); }
@@ -178,31 +186,32 @@ public sealed class CompletabilityRun(ContentDatabase content, ScenarioDef scena
     }
 
     /// <summary>
-    /// Steps until the turn's DPs resolve and its line lands (or the conversation ends). Whenever the host owes the sim
-    /// something — a decision for an open DP, the line for a resolved turn — it waits (wall clock) for that submission
-    /// instead of stepping, so the step count, and with it the run, does not depend on thread timing.
+    /// Steps until the turn is settled: every DP the host took is decided and the turn's line has been rendered (also when
+    /// the answer ended the conversation). While the host owes the sim one of those it waits on the wall clock instead of
+    /// stepping, so the step at which each submission lands — and so the whole run — never depends on thread timing.
     /// </summary>
-    private void Settle()
+    private void Settle(ulong conversation, int lines)
     {
         Steps(1);
         for (var i = 0; i < 400; i++)
         {
-            var open = _w.Conversations.Open.FirstOrDefault(c => c.Player == _w.PlayerId);
-            if (open is null) { Steps(2); return; }
-            var owed = open.Dps.Any(d => _w.Decisions.IsOpen(d)) || !LineLanded(open);
+            var owed = _routed.Any(d => _w.Decisions.IsOpen(d)) || _lines.GetValueOrDefault(conversation) < lines;
             if (!owed && _inbox.IsEmpty) { Steps(2); return; }
-            for (var waited = 0; owed && _inbox.IsEmpty && waited < 3000; waited++) { Thread.Sleep(1); }
+            var start = Environment.TickCount64;
+            while (owed && _inbox.IsEmpty && Environment.TickCount64 - start < WaitMs) { Thread.Sleep(1); }
+            if (owed && _inbox.IsEmpty)
+            {
+                _timeouts++;
+                Console.Error.WriteLine($"completability: wait timed out at step {_w.Clock.Step} — open routed DPs [{string.Join(",", _routed.Where(d => _w.Decisions.IsOpen(d)))}], lines {_lines.GetValueOrDefault(conversation)}/{lines}, conversation {(_w.Conversations.Get(conversation) is null ? "closed" : "open")}");
+            }
             Steps(1);
         }
     }
-
-    private bool LineLanded(Sim.Dialogue.Conversation conv) => conv.Transcript.Count > 0 && !conv.Transcript[^1].StartsWith(_w.People.Names[_w.PlayerRow] + ":", StringComparison.Ordinal);
 
     private void Leave()
     {
         if (_w.Conversations.Open.FirstOrDefault(c => c.Player == _w.PlayerId) is { } conv) { Submit(CommandSource.Player, new EndConversation(conv.Id)); }
         Steps(3);
-        for (var i = 0; i < 100 && !_inbox.IsEmpty; i++) { Thread.Sleep(1); Steps(1); }
     }
 
     private void Submit(CommandSource source, StateCommand c) => _inbox.Enqueue((source, c));
@@ -215,8 +224,10 @@ public sealed class CompletabilityRun(ContentDatabase content, ScenarioDef scena
             foreach (var r in _bodies.Step(_w)) { _w.Enqueue(new CommandEnvelope(_w.LastCommandSeq + 1, 0, CommandSource.Embodiment, r)); }
             var o = _w.Step();
             if (o.Events.Count > 0 || o.AppliedCommands.Count > 0) { _outputs.Add(o); }
+            foreach (var c in o.AppliedCommands) { if (c.Payload is DialogueLineRendered l) { _lines[l.Conversation] = _lines.GetValueOrDefault(l.Conversation) + 1; } }
             foreach (var dp in o.OpenedDecisions) { _w.Enqueue(new CommandEnvelope(_w.LastCommandSeq + 1, 0, CommandSource.Integrity, dp)); }
-            _host.OnStep(_w, o);
+            foreach (var d in _host.OnStep(_w, o)) { _routed.Add(d); }
+            _routed.RemoveWhere(d => !_w.Decisions.IsOpen(d));
         }
     }
 

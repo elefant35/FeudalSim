@@ -24,6 +24,7 @@ public sealed class CompletabilityTests
         a.TemplateLines.ShouldBe(a.Lines);                 // every line a template
         a.Lines.ShouldBeGreaterThanOrEqualTo(a.Turns);     // every player turn answered
         a.Passed.ShouldBeTrue();
+        a.Timeouts.ShouldBe(0);                            // the host answered everything it owed
         new CompletabilityRun(Content, Talk with { Seed = seed }).Run().FinalHash.ShouldBe(a.FinalHash);
     }
 

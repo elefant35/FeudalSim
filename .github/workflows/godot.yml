@@ -84,7 +84,7 @@ jobs:
           grep -q "AUTOTEST PASS" boot.log
           if grep -E '^(ERROR|WARNING|SCRIPT ERROR)' -A3 boot.log; then echo "Godot reported errors or warnings"; exit 1; fi
 
-      - name: Camp autotest (M1-18 play mode: bodies, walk to a settler, [E] talk, [Esc] leave)
+      - name: "Camp autotest (M1-18 play mode: bodies, walk to a settler, [E] talk, [Esc] leave)"
         run: |
           "$GODOT" --headless --max-fps 60 --path game -- --autotest-camp 2>&1 | tee camp.log
           grep -q "CAMP AUTOTEST PASS" camp.log

@@ -30,7 +30,7 @@ public sealed class CompleteCommand : Command<CompleteSettings>
         for (var seed = 1UL; seed <= (ulong)Math.Max(1, settings.Seeds); seed++)
         {
             var report = new CompletabilityRun(content, scenario with { Seed = seed }, settings.Verbose ? Console.Out : null).Run();
-            Console.WriteLine($"seed {seed}: {(report.Passed ? "PASS" : "FAIL")} · {report.Turns} player turns · {report.Lines} NPC lines ({report.TemplateLines} template) · {report.Decisions} decisions ({report.PolicyDecisions} by the policy) · {report.Rejected} rejected · hash {report.FinalHash:x16}");
+            Console.WriteLine($"seed {seed}: {(report.Passed ? "PASS" : "FAIL")} · {report.Turns} player turns · {report.Lines} NPC lines ({report.TemplateLines} template) · {report.Decisions} decisions ({report.PolicyDecisions} by the policy) · {report.Rejected} rejected · {report.Timeouts} wait timeouts · hash {report.FinalHash:x16}");
             foreach (var r in report.RejectedReasons) { Console.WriteLine($"  rejected: {r}"); }
             foreach (var g in report.Goals) { Console.WriteLine($"  {(g.Done ? "PASS" : "FAIL")}  {g.Goal} — {g.Detail} (settlers tried: {g.Attempts})"); }
             if (!report.Passed) { failed++; }
