@@ -12,6 +12,7 @@ public static class Program
         {
             config.SetApplicationName("feudalsim");
             config.AddCommand<SweepCommand>("sweep").WithDescription("Run a scenario over many seeds and check 21 §19 camp metrics against their bands.");
+            config.AddCommand<MinigameCommand>("minigame").WithDescription("M2-11: fit and check the knapping calibration curves (13 §13.3).");
             config.AddCommand<WeatherCommand>("weather").WithDescription("M2-03: run the weather chain (10 §6.3) — shares vs the table, beach temperatures.");
             config.AddCommand<WorldGenCommand>("worldgen").WithDescription("M2-01: generate worlds (10 §3) — asserts, retries, timing; --png preview.");
             config.AddCommand<SocialCommand>("social").WithDescription("M1-22: the camp for 30 days per seed — no deadlocks, ≥ 1 emergent dispute per 10 days.");

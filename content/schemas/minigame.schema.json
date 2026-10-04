@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://feudalsim.dev/schemas/minigame.schema.json",
+  "title": "MinigameDef",
+  "description": "A list of minigame definitions (generated from FeudalSim.Sim.Content.MinigameDef; do not edit).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^minigame(\\.[a-z0-9_]\u002B)\u002B$"
+      },
+      "recipe": {
+        "type": "string",
+        "minLength": 1
+      },
+      "stages": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "stage": {
+              "type": "string",
+              "minLength": 1
+            },
+            "bands": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "required": [
+            "stage",
+            "bands"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": [
+      "id",
+      "recipe",
+      "stages"
+    ],
+    "additionalProperties": false
+  }
+}

@@ -604,6 +604,17 @@ counting against NPCs.
 | Speed | via `WorkRate` and `L_eff` (§3.1) | — |
 | Information tier | Novice/Apprentice **I1**, Journeyman **I2**, Expert **I3**; **I4** only via a capstone/specialization perk in [12](12-skills-and-professions.md) (*Fire-reader*, *Reads the Soil*, *Deep Sense*, *Breeder's Eye*, *Forest-wright*, *Physician*) | — |
 
+*Implemented (M2-11a):*
+- **Primitives:** knapping's `inspect`, `strike` and `trace` are seeded headless functions in
+  `Sim/Crafting/Minigames`. The client plays the same code; the sim receives m through `WorkStage`.
+- **Feel:** grip, tolerance and jitter as above.
+- **Calibration:** quantile matching. Per stage and grip band (five bands), the attentive bot's raw-score quantiles
+  (2.5–97.5 %) give F, and m = logit(F)/3. An attentive player's m therefore has the NPC logistic's shape. The curves
+  ship as content (`content/minigames/knapping.yaml`), generated and checked by `feudalsim minigame` (`--check` in CI,
+  compared within rounding because libm differs across OS).
+- **Structural property:** an `inspect` stage (a discrete choice plus a 1-D mark) responds less to hand error than a
+  3-D `strike`, so skill separates players less there (Q11).
+
 **Information ladder** (same everywhere): **I0** diegetic only (glow, sound, shape) · **I1**
 qualitative cue text ("too cold", "uneven") · **I2** gauge band (heat ribbon, thickness overlay,
 moisture tint) · **I3** precise readout + target markers · **I4** predictive overlay (where the
@@ -704,6 +715,16 @@ w): heat birch tar (`hold_band`), wrap sinew/bast (`rhythm`).
   step fractures → `flaw.blunt_edge` (cap 55). Roughing and thinning are `catastrophic` stages.
 - **50th:** every nodule differs; arrowheads made in sixes (pace-setter on the first); heat-treated
   flint feels different (more predictable).
+- *Implemented (M2-10/11a):* `recipe.flint_knife` (D 20) and `Minigames/Knapping.cs`:
+  - **Choose:** four nodules with predictability 0.3–1.0. The score is 0.3 for the choice (relative to the best)
+    plus 0.7 for marking its platform; predictability carries into the strikes as ×(0.85 + 0.15p).
+  - **Rough out and thin:** six strikes each, scored by `exp(−e²/2)` on the point / angle / force error in tolerance
+    units. A step or hinge leaves a lip (the next tolerance ×0.85). Force more than 3 tolerances over target is an
+    end-shock snap, a catastrophic input.
+  - **Pressure:** a 24-point serration trace.
+  - **Tuning knobs:** the reference tolerances 0.06 / 9° / 0.11 / 0.05.
+  - **Not yet:** `flaw.blunt_edge` (cap 55) attaches on a failed stage rather than from repeated step fractures, and
+    hafting is a later assembly recipe. The bench UI is M2-11b.
 
 ### 8.2 Bowyery & fletching
 
@@ -1738,6 +1759,20 @@ Runs in CI on the pure-C# core ([20](../tech/20-architecture.md)):
 10. **[Resolved — canon v0.2: 12 §6.1 now takes a caller-supplied RNG stream, per-process for crafts]** **RNG plumbing with 12** — 13 requires `Resolve()` to accept a per-process RNG fork (or a seed
    in `CheckRequest`) so batch/NPC/auto outcomes are reproducible after reload regardless of draw
    order elsewhere; 12 §6.1 currently reads a shared `rng.skills` stream. 12 to confirm.
+11. **Q11 — calibration population proxies (M2-11a).** 13 §13.3 names outcomes for attentive, practiced and novice
+    players but does not define the populations. The bots in `Crafting/Minigames/Bots.cs` are proposals:
+    - attentive: hand error 0.05 / 7° / 0.09 force, form σ 0.35;
+    - practiced: ×0.77 error, steadier (form σ 0.05);
+    - novice: ×1.25 error, a slight overstrike, form σ 0.45.
+
+    Under the shipped curve the attentive player meets 12 §6.5 in every band and stage. The proxies, measured:
+    - Pressure meets all three targets.
+    - Roughing and thinning miss only the practiced tail (m ≥ 0.9 in 6.1–6.2 % vs < 5 %; SE ≈ 0.3 %).
+    - Choose misses the practiced median (0.21 vs ≥ 0.25) and the novice median (−0.12 vs ≈ −0.3). `inspect` scores a
+      discrete choice plus a 1-D mark, so hand error moves it far less than a 3-D strike. Its weight is 0.10, so the
+      gap is ≈ 0.18 × 24 × 1.25 × 0.10 ≈ 0.5 Q.
+
+    Accept until playtest telemetry (§20), or define the populations? (31 D43.)
 
 ## Proposed canon additions
 

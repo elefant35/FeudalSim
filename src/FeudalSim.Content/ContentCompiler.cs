@@ -55,6 +55,7 @@ public static class ContentCompiler
         var lines = new List<LineTemplateDef>();
         var worldSpecs = new List<WorldSpecDef>();
         var flaws = new List<FlawDef>();
+        var minigames = new List<MinigameDef>();
         var recipes = new List<(RecipeDef Def, string Rel, Mark Mark)>();
         var repoRoot = Path.GetDirectoryName(Path.GetFullPath(contentRoot).TrimEnd(Path.DirectorySeparatorChar)) ?? contentRoot;
         var seen = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -122,7 +123,15 @@ public static class ContentCompiler
 
                             worldSpecs.Add(w);
                             break;
-                        case RecipeDef r: recipes.Add((r, rel, mark)); break;   // checked once items, skills and flaws are loaded
+                        case RecipeDef r: recipes.Add((r, rel, mark)); break;
+                        case MinigameDef g:
+                            if (g.Stages.Any(s => s.Bands.Count != 5 || s.Bands.Any(b => b.Count != 7 || b.Zip(b.Skip(1)).Any(p => p.First > p.Second))))
+                            {
+                                errors.Add(new(rel, mark.Line, mark.Column, $"{g.Id}: each stage has 5 bands of 7 ascending quantiles."));
+                            }
+
+                            minigames.Add(g);
+                            break;   // checked once items, skills and flaws are loaded
                         case FlawDef f:
                             if (f.Cap is < 0 or > 100 || f.HiddenDifficulty is < 0 or > 100) { errors.Add(new(rel, mark.Line, mark.Column, $"{f.Id}: cap and hidden_difficulty are 0–100.")); }
                             flaws.Add(f);
@@ -166,9 +175,11 @@ public static class ContentCompiler
         foreach (var (r, rel, mark) in recipes) { ValidateRecipe(r, rel, mark, items, skills, flaws, errors); }
         if (errors.Count > 0) { return new Result(null, errors, files); }
         var recipeDefs = recipes.Select(r => r.Def).OrderBy(r => r.Id, StringComparer.Ordinal).ToList();
+        foreach (var g in minigames.Where(g => !recipeDefs.Any(r => r.Id == g.Recipe))) { errors.Add(new("minigames", 0, 0, $"{g.Id}: unknown recipe {g.Recipe}.")); }
+        minigames.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         if (flaws.Count > 64) { errors.Add(new("flaws", 0, 0, "At most 64 flaws (an instance holds them as a bit mask).")); return new Result(null, errors, files); }
-        var hash = Hash(skills, items, needs, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs, worldSpecs, flaws, recipeDefs);
-        return new Result(new ContentDatabase(skills, items, needs, hash, assets, audio, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs, lines, worldSpecs, flaws, recipeDefs), errors, files);
+        var hash = Hash(skills, items, needs, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs, worldSpecs, flaws, recipeDefs);   // minigame curves are presentation calibration: not in the sim hash
+        return new Result(new ContentDatabase(skills, items, needs, hash, assets, audio, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs, lines, worldSpecs, flaws, recipeDefs, minigames), errors, files);
     }
 
     private static IEnumerable<(JsonNode Node, Mark Mark)> ParseFile(string path, string rel, string kind, JsonSchema schema, List<ContentError> errors)
