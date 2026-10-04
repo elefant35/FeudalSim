@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=../schemas/asset.schema.json
+# Complete modular libraries; measured budgets are the largest assembled slot selection.
+- id: asset.characters.body_male
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/settlers/settlers.py
+    params: { sex: male }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/characters/body_male.glb]
+  budget_class: character
+  measured: { tris_lod0: 3600, materials: 2 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "1.72 m adult base; exact common 40-bone hierarchy including Root and two hand sockets. Four heads including an elder, ten expression keys each, six hair styles, three beards, six Varrow garment layers. Upper hood is Headwear_wool_hood for first-person hiding; Cloth_wool_hood is its shoulder cape. Cloak and tunic COLOR_0.R store wind weights. Complete library 5792 tris; one head/hair/beard/hood selected gives worst-case 3600. Palette may import as two material variants for wind data. Face, expression, turntable, silhouette and first-person evidence in art/previews/settlers; work-pose camera checks in art/previews/animations. Original procedural geometry."
+- id: asset.characters.body_female
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/settlers/settlers.py
+    params: { sex: female }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/characters/body_female.glb]
+  budget_class: character
+  measured: { tris_lod0: 3524, materials: 2 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "1.62 m adult base on the common skeleton scaled 1.62/1.72; four heads including an elder, ten expression keys each, six hair styles and six Varrow garment layers with ankle-length wool dress. Upper hood Headwear_wool_hood is first-person hideable; Cloth_wool_hood remains the cape. Cloak and tunic COLOR_0.R store wind weights. Complete library 5580 tris; largest assembled selection 3524. Shared palette exports two material variants for wind data. Review sheets in art/previews/settlers. Original procedural geometry."
