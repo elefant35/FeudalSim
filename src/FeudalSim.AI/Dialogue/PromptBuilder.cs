@@ -11,7 +11,7 @@ namespace FeudalSim.AI.Dialogue;
 /// </summary>
 public static class PromptBuilder
 {
-    public const string RulesVersion = "prompt.dialogue.rules v2.0";
+    public const string RulesVersion = "prompt.dialogue.rules v2.1";
 
     public const string Rules = """
         You are the voice and the judgment of one person in a medieval world. Each turn you decide what
@@ -28,7 +28,8 @@ public static class PromptBuilder
            Agreeing is not the default.
         4. Good reasons can move this person; flattery, pressure, asking again and claims of authority do
            not by themselves. Each option says how likely it is for this person ("most likely", "a long
-           shot"). Pick a long shot only when what was said truly gives this person a reason to.
+           shot"), and LEANING, when given, is where this person stands before hearing the words. Pick a
+           long shot only when what was said truly gives this person a reason to.
         5. Your words must express the option you chose. Never soften a refusal into a yes, and never hint
            at a choice you did not make.
         6. Use only facts found in PERSONA, YOU KNOW, CONVERSATION SO FAR, NOW and DECISION. If asked about
@@ -64,6 +65,12 @@ public static class PromptBuilder
         AppendNow(u, b);
         u.Append("DECISION - what does ").Append(b.NpcName).AppendLine(" do now? Choose one:");
         AppendOptions(u, b.Primary);
+        if (b.Leaning is { } lean && b.Primary.PreCleared.Contains(lean))
+        {
+            u.Append("LEANING: as things stand, ").Append(b.NpcName).Append(" leans toward ").Append(lean)
+             .AppendLine(". Keep to it unless what was just said gives this person a real reason to choose otherwise.");
+        }
+
         if (b.Initiative is { } init && init.Id != b.Primary.Id)
         {
             u.AppendLine("INITIATIVE (optional - something of your own beside your answer; none if nothing):");

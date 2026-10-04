@@ -642,6 +642,10 @@ in B's reply); between NPCs the policy samples the same menu:
 `accept_request` and `accept_with_condition` favor the player: picked at `p < 0.20` they spend the
 pair's long-shot budget.
 
+*Calibration finding (M1-16):* `accept_with_condition`'s `(1 − p)·0.35` does not fall with Opinion, so an NPC who hates
+the asker (Opinion ≤ −60, `p` ≈ 0.04) still agrees on condition about a third of the time; the hours term
+(`0.004·hours·(100 − Diligence)/50`) is also small (≈ 0.03 for 8 hours at Diligence 50). Kept as written; open question 21.
+
 *Implemented (M1-09b):* `RequestOwner` (`request.respond`, content `dp.request`). M1 favors are help at a camp task for
 some hours (the task and hours come from 22's extraction; default: what the NPC was doing, 1 h). The yes propensity is
 22 §6.3's expectation `Yes(A, Margin, L)` over the policy's steps, with A = the formula above without its words term
@@ -1981,3 +1985,6 @@ betray a confidence, an Honest guard asked to ignore a theft) refuse in ≥ 95% 
     player let stand in the intent echo, never the model's severity score.
 20. **Detection is never a decision:** perception, evidence and evidence strength stay deterministic;
     only what a witness does about it is a DP.
+21. **Conditional yes when hostile (M1-16):** should `accept_with_condition` scale with Willingness (e.g. `(1 − p)·0.35·
+    clamp(1 + Opinion/100, 0.2, 1)`) and should long favors cost more? Applied default (reversible): the formula as
+    written; 22's refusal suite counts only the unconditional yes (22 Q17).

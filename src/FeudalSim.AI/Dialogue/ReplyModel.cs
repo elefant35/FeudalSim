@@ -14,11 +14,13 @@ public sealed record PromptFacts(
 /// One NPC turn's decision points, bundled into one decision-first generation (22 §4.1, 21 §14.5): the primary DP (the
 /// response to the player's act, or the initiative DP when the act has none), the initiative DP beside it, and the
 /// conversation's rapport DP when one is open. <c>Slots</c> holds each option's template slot values ({price} …).
+/// <c>Leaning</c> is the policy's pre-drawn pick for the primary DP (22 §7.4 leaning; M1-16 calibration): the model keeps
+/// it unless what was said gives the person a real reason to choose otherwise.
 /// </summary>
 public sealed record TurnBundle(
     ulong Conversation, int Turn, EntityId Npc, string NpcName, string PlayerName, string PlayerLine, string Act,
     DecisionPointOpened Primary, DecisionPointOpened? Initiative, DecisionPointOpened? Rapport, PromptFacts Facts,
-    IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> Slots);
+    IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> Slots, string? Leaning = null);
 
 /// <summary>Gateway → UI only (22 §4.2): the public face of a choice — never the menu, p_i, stakes or decider.</summary>
 public sealed record DecisionSurfaced(ulong Conversation, int TurnIndex, EntityId Chooser, string GestureTag, string? PerceivedEffect);

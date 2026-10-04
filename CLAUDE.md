@@ -70,6 +70,7 @@ dotnet run --project src/FeudalSim.Headless -- run --scenario content/scenarios/
 dotnet run --project src/FeudalSim.Headless -- run --realtime --seconds 60   # SimRunner at 10 steps/s
 dotnet run --project src/FeudalSim.Headless -- ai ping                   # one chat completion (key from .env, never printed)
 dotnet run --project src/FeudalSim.Headless -- ai decide                 # one fast-decider question (option probabilities)
+dotnet run --project src/FeudalSim.Headless -- ai calibrate [--suite neutral,refusal,...] [--max-usd 1]   # 22 §15 calibration/refusal/red-team suites (live, ≈ $0.25)
 dotnet run --project src/FeudalSim.Headless -- run --scenario content/scenarios/m0_ai_ping.yaml --realtime --seconds 25   # live AI round trip, logged
 dotnet run --project src/FeudalSim.Headless -- run --scenario content/scenarios/m0_dp_ping.yaml [--realtime --seconds 10]   # a decision point: policy at deadline / live fast decider
 AI_GATEWAY_MODE=record LLM_LOG_TRANSCRIPTS=true dotnet run --project src/FeudalSim.Headless -- ai decide   # then AI_GATEWAY_MODE=replay: no network, no key

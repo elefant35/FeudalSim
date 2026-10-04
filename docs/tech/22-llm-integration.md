@@ -1248,6 +1248,11 @@ two generated example lines (utility model, stored in the save) — the card wor
 
 ### 7.4 Numbers → words
 
+*Leaning (rules v2.1, M1-16):* under the primary menu the DECISION block adds `LEANING: as things stand, <name> leans
+toward <id>. Keep to it unless what was just said gives this person a real reason to choose otherwise.` — the DRE's
+pre-drawn policy pick for that DP (`DecisionRulesEngine.PolicyChoiceOf`). It turns the model's per-scenario mode-seeking
+into the policy's spread across DPs while leaving words free to move the choice (§15.3 note). Open question 16.
+
 LLMs follow descriptive language better than raw numbers; all sim scalars are rendered through band
 tables (also used by template mode and by quick-choice states, §5.3):
 
@@ -2317,6 +2322,19 @@ Target ≤ 0.8 s p50 on recommended spec.
 | Distinct-2 across an NPC's replies (repetition) | | ≥ 0.55 | ≥ 0.65 |
 | Chronicle sentences with valid citations | | ≥ 95% | ≥ 99% |
 
+*M1-16 measurement (2026-10-04, `feudalsim ai calibrate`, `qwen/qwen3-14b`, camp scenario `m1_talk`):* 30 neutral
+scenarios × 50 (request, insult, apology, small talk over 6 settlers), 6 argument scenarios × 50, 18 refusal × 5, 12
+pressure × 5, 40 red-team × 5 (20 attacks, injection flag forced to 0). **Rules v2.0** (inclination words only): the
+model is near-deterministic per scenario (one option in 50/50 samples at temperature 0.6–0.85), so family rates are
+mode-seeking — gap **14.6** (request/accept +14.6), lift **+7.3**. **Rules v2.1** adds a **LEANING** line, the policy's
+pre-drawn pick (§7.4): gap **9.9–10.0**, lift **+5.8–6.3** (two runs) — request/accept still the widest family; refusal
+**100%** (policy grants 6.9%), pressure flip **0%** (policy 5.9%), argument sensitivity **+27.3** (policy +2.1),
+long-shot usage 8.1% (policy 10.9%), guard violations **0**/1,950 headers, single-option DPs 6.1%, floored options
+3.0%; red-team **0** off-menu executions (0 off-menu headers of 200; direct off-menu `DecisionMade` rejected by the
+DRE), grants 3.5% vs policy 29.9%, character breaks 1.5%. A third wording ("a polite ask is not a reason", v2.2)
+was worse (13.4 / +7.9) and was reverted. Lift and the request/accept gap carry into the M1 gate (§17.2 #3 iterates:
+gloss wording next). Spend ≈ $0.80.
+
 When the calibration gap or acceptance lift is out of band, the fix order is prompt (§7.11) → gloss
 wording → menu shape and floors (ADR-0003 "Revisit if"). When railroading is out of band: widen
 menus or lower floors in the owning system, never by loosening the critical check.
@@ -2527,6 +2545,12 @@ by construction).
     parallel "everyone decides, then the LLM renders the debate" mode acceptable for large councils?
 15. **Multi-answer logprob calls:** whether answering N classification questions as N letters in one
     call keeps accuracy (the answers become conditionally dependent) — a large cost lever (§12).
+16. **Leaning in the prompt (M1-16):** showing the policy's pre-drawn pick narrowed the calibration gap from 14.6 to
+    ≈ 10 points but makes the model anchor on a draw. Applied default (reversible): keep it (rules v2.1); revisit with
+    the M1 playtest's "made their own choices" score and with a bigger dialogue model in the §17.2 bake-off.
+17. **Refusal suite vs conditional yes (M1-16):** 16 §5.4 gives `accept_with_condition` `(1 − p)·0.35` whatever the
+    relationship, so a hostile NPC's "player-favoring" mass never drops below ≈ 0.33; the refusal suite counts only the
+    unconditional grant (`accept_request`, `accept_apology`). Applied default (reversible): that definition; see 16 Q21.
 
 ## Proposed canon additions
 

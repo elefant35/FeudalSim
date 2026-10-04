@@ -162,7 +162,7 @@ public static class TurnBundleBuilder
         }
 
         return new TurnBundle(conv.Id, conv.Turn, conv.Npc, npcName, playerName, playerLine, conv.LastAct, primary,
-            initiative ?? primary, rapport, PersonaFacts.For(world, npc, player, conv), slots);
+            initiative ?? primary, rapport, PersonaFacts.For(world, npc, player, conv), slots, world.Decisions.PolicyChoiceOf(primary.Id));
     }
 
     /// <summary>A bundle for a turn already decided inline: synthetic one-option menus from content glosses (no DP went out).</summary>
