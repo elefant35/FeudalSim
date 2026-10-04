@@ -959,6 +959,15 @@ Modifiers are in §7.4: Contaminated sources, upstream cases, carcasses. Livesto
 the true folk belief "bad water brings the flux". Whether they bother to boil depends on Diligence,
 fuel and pots ([21](../tech/21-npc-ai.md)).
 
+*Implementation notes (M2-07c, `Survival/Water.cs`):* the camp's source kind comes from what the anchor snapped to
+(a brook counts as a stream; `camp.water_source` overrides). A death within 30 m of the water place taints it for 3
+days (+0.3). Settlers boil what they drink when the camp has a pot (the ship's kettle, `camp.pots: 1`) and a lit fire,
+with p = 0.2 + 0.6 × Diligence/100 per drinking hour (a proposed reading of "whether they bother": 21 owns the choice
+later). The player drinks with [E] at the camp's water, by any spring, stream, river or lake shore within reach, or
+from the sea (net −10). §7.4's background Flux rolls once a day per person from the camp's Sanitation (`camp.sanitation`,
+40 until a latrine exists). Not yet: carrying water (skins and buckets, §11.2), ale ×0.1 (no brewing yet), upstream
+latrines, livestock and rotting heaps near water (they need 14's buildings and husbandry).
+
 ### 11.2 Drinking & carrying
 
 - **Drink:** +40 Hydration per litre. Drinking from a source takes 0.25 L per game minute.

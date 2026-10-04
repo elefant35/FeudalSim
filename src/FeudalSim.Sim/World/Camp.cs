@@ -30,6 +30,15 @@ public struct CampRecord
 
     /// <summary>11 §10.5 the store's ration: percent of a full ration (95 Sat a day) each person may draw; 0 or 100 = no limit.</summary>
     public byte RationPct;
+
+    /// <summary>11 §11.1 boiling (M2-07c): cooking pots at the camp (the ship's kettle); 0 = nothing to boil water in.</summary>
+    public byte Pots;
+
+    /// <summary>11 §7.4 / 14 Sanitation 0–100 (0 = unset → 40, a camp without a latrine).</summary>
+    public byte Sanitation;
+
+    /// <summary>11 §7.4: the water place is tainted (+0.3 c_src) until this minute — a corpse fell in or lies at the bank.</summary>
+    public long WaterTaintUntilMin;
     public float ShelterAreaM2;
 
     public readonly (float X, float Z) Place(PlaceKind kind) => kind switch

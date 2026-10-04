@@ -20,7 +20,8 @@ public static class CampAnchor
     /// <summary>10 §3.9's landing guarantee is fresh water ≤ 400 m from the beach; the camp sits a little inland of it.</summary>
     public const float WaterSnapM = 600f;
 
-    public sealed record Result(float Dx, float Dz, float FireX, float FireZ, float ElevationM, Dictionary<string, float[]> Places, bool WaterSnapped);
+    /// <param name="WaterKind">11 §11.1 source kind of the snapped water (spring, stream, river, lake; a brook counts as a stream).</param>
+    public sealed record Result(float Dx, float Dz, float FireX, float FireZ, float ElevationM, Dictionary<string, float[]> Places, bool WaterSnapped, string WaterKind = "stream");
 
     public static Result? Resolve(WorldMap map, CampDef camp)
     {
@@ -41,13 +42,15 @@ public static class CampAnchor
         }
 
         var snapped = false;
+        var kind = "stream";
         if ((NearestFresh(g, fx, fz) ?? NearestBrook(g, fx, fz)) is { } water)
         {
             places["water"] = [water.X, water.Z];
             snapped = true;
+            kind = Sim.Survival.Water.KindAt(g, water.X, water.Z) ?? "stream";
         }
 
-        return new Result(dx, dz, fx, fz, MathF.Max(0.5f, g.Height[fireCell]), places, snapped);
+        return new Result(dx, dz, fx, fz, MathF.Max(0.5f, g.Height[fireCell]), places, snapped, kind);
     }
 
     /// <summary>

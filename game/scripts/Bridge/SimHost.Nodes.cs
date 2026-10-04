@@ -22,6 +22,7 @@ public partial class SimHost
     private double _lastAwayNote = -100;
     private Vector2 _coverAt = new(float.NaN, float.NaN);
     private int _windSecond = -1;
+    private int _drank;
 
     private void InitNodes()
     {
@@ -61,6 +62,7 @@ public partial class SimHost
         }
 
         AutoWork(snap);
+        _waterHere = WaterHere();
         if ((int)_clock != _windSecond) { _windSecond = (int)_clock; World.NodeDressing.SetWind(snap.Weather.WindMs); }
     }
 
@@ -82,6 +84,22 @@ public partial class SimHost
     }
 
     private List<(int, int, byte)>? _pendingStates;
+    private string? _waterHere;
+
+    /// <summary>What water the player stands by (the sim decides; this only names it for the prompt): camp water, a brook, the sea.</summary>
+    private string? WaterHere()
+    {
+        if (_island is null) { return null; }
+        var g = _island.Map.Grid;
+        if (new Vector2(_campRecord.WaterX, _campRecord.WaterZ).DistanceTo(_player) <= Sim.Survival.Water.ReachM - 0.5f) { return "the brook"; }
+        for (var a = 0; a < 8; a++)
+        {
+            var (ox, oz) = (Mathf.Cos(a * Mathf.Pi / 4) * 2.5f, Mathf.Sin(a * Mathf.Pi / 4) * 2.5f);
+            if (Sim.Survival.Water.KindAt(g, _player.X + ox, _player.Y + oz) is { } k) { return k switch { "lake" => "the lake", "river" => "the river", "spring" => "the spring", _ => "the stream" }; }
+        }
+
+        return _island.HeightAt(_player.X, _player.Y) < 0.6f && Hosting.CampAnchor.Cell(g, _player.X, _player.Y) is var c and >= 0 && g.CoastDistM[c] < 12f ? "the sea" : null;
+    }
 
     /// <summary>Applies states that arrived from the sim thread (on the main thread).</summary>
     private void ApplyStates()
@@ -122,9 +140,15 @@ public partial class SimHost
         };
     }
 
-    /// <summary>[E]: talk to a person, fell a tree, gather a plant.</summary>
+    /// <summary>[E]: talk to a person, fell a tree, gather a plant — or, looking at nothing by water, drink.</summary>
     private void Interact()
     {
+        if (_look is null && _waterHere is not null)
+        {
+            _runner!.Submit(CommandSource.Player, new Drink(_runner.Snapshots.ReadLatest().PlayerId));
+            return;
+        }
+
         if (_look is not { } t) { return; }
         if (t.Kind == "person") { TryTalk(); return; }
         var (chunk, index) = ((int)(t.Id >> 20), (int)(t.Id & 0xFFFFF));
@@ -193,6 +217,13 @@ public partial class SimHost
             case Sim.Events.ProcessCompleted:
                 _statesDirty = true;
                 return false;
+            case Sim.Events.Drank d when d.Drinker == _runner!.Snapshots.ReadLatest().PlayerId:
+                _drank++;
+                Say(d.Source == "sea" ? "Salt water — it only makes you thirstier." : $"You drink from the {(d.Source == "camp" ? "brook" : d.Source)} (+{d.Hydration:0} Hydration).");
+                return true;
+            case Sim.Events.CommandRejected r when r.Reason.StartsWith("Drink:", StringComparison.Ordinal):
+                Say(r.Reason[6..].Trim());
+                return true;
             case Sim.Events.CommandRejected r when r.Reason.StartsWith("Forage", StringComparison.Ordinal) || (r.Reason.StartsWith("StartProcess", StringComparison.Ordinal) && !Knapping):
                 Say(r.Reason[(r.Reason.IndexOf(':') + 1)..].Trim());
                 return true;

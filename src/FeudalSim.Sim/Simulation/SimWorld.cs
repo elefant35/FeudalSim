@@ -380,6 +380,14 @@ public sealed class SimWorld
                 Survival.Eating.Command(this, command, c);
                 break;
 
+            case Drink c:
+            {
+                var row = People.IndexOf(c.Drinker);
+                if (row < 0 || (command.Source == CommandSource.Player && row != PlayerRow)) { Reject(command, "Drink: the player drinks as themselves."); break; }
+                if (Survival.Water.Drink(this, row) is { } why) { Reject(command, $"Drink: {why}."); }
+                break;
+            }
+
             case TreatWound c:
                 Health.Treatment.Command(this, command, c);
                 break;

@@ -311,6 +311,7 @@ public partial class SimHost
         // The prompt; the dialogue panel (M1-19) takes over while a conversation is open.
         _panel!.Text = _dialogue?.Conversation is not null || Knapping ? ""
             : _look is { } thing ? LookPromptFor(thing)
+            : _waterHere is { } water ? $"[E] drink from {water}"
             : $"{(_firstPerson ? "[V] third person" : "[V] first person")}   ·   [Tab] free the mouse   ·   [P] people";
         UpdateDialogue(delta);
         if (_autotestCamp) { CampAutotest(delta); }

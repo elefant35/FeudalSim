@@ -21,6 +21,7 @@ public sealed class ContagionSystem : ISimSystem
     public void Run(in StepContext ctx, SimWorld world)
     {
         if (world.Camp.Active == 0 || ctx.GameMinute / 60 == (ctx.GameMs - ctx.DtGameMs) / Time.SimClock.MsPerGameHour) { return; }
+        if (ctx.GameMinute / 1440 != (ctx.GameMs - ctx.DtGameMs) / Time.SimClock.MsPerGameDay) { Background(ctx, world); }
         var people = world.People;
         var content = world.Content;
         var sleeps = Math.Max(1, (int)world.Camp.ShelterSleeps);
@@ -45,6 +46,21 @@ public sealed class ContagionSystem : ISimSystem
                     if (rng.Chance(p)) { Health.Conditions.Infect(world, j, d, (ulong)i); }
                 }
             }
+        }
+    }
+
+    /// <summary>11 §7.4: once a day, each living person catches the Flux with p = 0.002 × (1 + (60 − Sanitation)/30) below 60.</summary>
+    private static void Background(in StepContext ctx, SimWorld world)
+    {
+        var p = Survival.Water.BackgroundFluxPerDay(world.Camp.Sanitation == 0 ? 40 : world.Camp.Sanitation);
+        var flux = world.Content.DiseaseHandle("disease.flux");
+        if (p <= 0f || flux < 0) { return; }
+        var day = (ulong)(ctx.GameMinute / 1440);
+        for (var i = 0; i < world.People.Count; i++)
+        {
+            if (world.IsDead(i)) { continue; }
+            var rng = new Core.Rng(Core.SplitMix64.Mix(world.WorldSeed, (ulong)Core.RngStream.Health, world.People.Ids[i].Value, day, Core.Salt.Contagion ^ 0x5A17));
+            if (rng.Chance(p)) { Health.Conditions.Infect(world, i, flux, day); }
         }
     }
 

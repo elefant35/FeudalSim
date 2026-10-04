@@ -24,7 +24,7 @@ tools/play.sh
 | Mouse | Look (captured while you walk) |
 | W A S D | Walk where you look |
 | Shift / Ctrl | Jog / sprint (sprint uses stamina) |
-| E | Interact with what you look at: talk to a settler, fell a tree, gather a plant |
+| E | Interact with what you look at: talk to a settler, fell a tree, gather a plant; by water (looking at nothing), drink |
 | V | First person ↔ third person (wheel sets the distance in third person) |
 | Tab | Free the mouse (a click takes it back) |
 | K | Knap a flint knife (the bench minigame) |
@@ -59,7 +59,7 @@ What you fell or pick stays felled or picked.
 
 ## Known gaps (so you don't have to report them)
 
-- You can eat what you gather ([I]) but can't yet drink, sleep or build as the player (the settlers can). Swimming isn't in, so the sea stops you at
+- You can eat what you gather ([I]) and drink at water ([E]) but can't yet sleep or build as the player (the settlers can). Swimming isn't in, so the sea stops you at
   about chest depth.
 - Felling has no minigame yet: the stages resolve on their own. Gathering is instant.
 - Settlers fetch wood and food from abstract camp places (the "woods" and "forage ground"), not from the trees and

@@ -322,6 +322,21 @@ public partial class SimHost : Node3D
                 break;
             case 8 when _eaten > 0 || t > 10:
                 Expect("ate it ([Enter] → Eat → Ate)", _eaten, 1, null);
+                if (InventoryOpen) { ToggleInventory(); }
+                (_autotestWalkTo, _autotestLookY) = (new Vector2(_campRecord.WaterX, _campRecord.WaterZ), 8f);   // to the brook, looking up (no target)
+                (_autotestPhase, _islandMark) = (20, _clock);
+                break;
+            case 20 when _waterHere is not null && _look is null && new Vector2(_campRecord.WaterX, _campRecord.WaterZ).DistanceTo(_player) < 2.5f:
+                Expect($"by the brook the prompt offers a drink (from {_waterHere})", 1, 1, 0);
+                Interact();
+                (_autotestPhase, _islandMark) = (21, _clock);
+                break;
+            case 20 when t > 150:
+                Expect("reached the brook", 0, 1, 0);
+                _autotestPhase = 9;
+                break;
+            case 21 when _drank > 0 || t > 10:
+                Expect("drank ([E] → Drink → Drank)", _drank, 1, null);
                 _autotestPhase = 9;
                 break;
             case 9:

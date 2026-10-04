@@ -37,6 +37,7 @@ public enum CommandSource : byte { Player, Embodiment, Ai, Settings, Scenario, D
 [Union(25, typeof(Forage))]
 [Union(26, typeof(InspectItem))]
 [Union(27, typeof(Eat))]
+[Union(28, typeof(Drink))]
 public abstract record StateCommand;
 
 /// <summary>Changes the real-minutes-per-game-day setting (canon §6). Logged; applies at the next step.</summary>
@@ -152,6 +153,10 @@ public sealed record Forage([property: Key(0)] Core.EntityId Worker, [property: 
 /// item as seen; a mislabelled stack is eaten for what it truly is).</summary>
 [MessagePackObject]
 public sealed record Eat([property: Key(0)] Core.EntityId Eater, [property: Key(1)] string Item) : StateCommand;
+
+/// <summary>11 §11 (M2-07c): drink where you stand — the camp's water, a brook, river, lake or spring within reach, or the sea.</summary>
+[MessagePackObject]
+public sealed record Drink([property: Key(0)] Core.EntityId Drinker) : StateCommand;
 
 /// <summary>11 §8.2 second chances: <c>Inspector</c> looks over what <c>Container</c> holds as <c>Item</c> (the label).</summary>
 [MessagePackObject]

@@ -133,7 +133,7 @@ public sealed record ScenarioDef
         if (utility)
         {
             var campDef = Camp ?? new CampDef();
-            if (anchor is not null) { campDef = campDef with { Places = anchor.Places, ElevationM = anchor.ElevationM, Coastal = true }; }
+            if (anchor is not null) { campDef = campDef with { Places = anchor.Places, ElevationM = anchor.ElevationM, Coastal = true, WaterSource = campDef.WaterSource ?? anchor.WaterKind }; }
             world.Camp = campDef.ToRecord(content);
             AddCampSystems(world);
         }
@@ -211,7 +211,13 @@ public sealed record CampDef
     public int Ration { get; init; } = 100;
 
     /// <summary>11 §11.1: the camp's water place — spring, stream, river, lake or marsh (c_src 0 / 0.02 / 0.04 / 0.05 / 0.30).</summary>
-    public string WaterSource { get; init; } = "stream";
+    public string? WaterSource { get; init; }
+
+    /// <summary>11 §11.1: pots to boil water in (the ship's kettle at Landfall).</summary>
+    public int Pots { get; init; } = 1;
+
+    /// <summary>11 §7.4: the camp's Sanitation (14; 40 = no latrine yet).</summary>
+    public int Sanitation { get; init; } = 40;
     public bool Coastal { get; init; } = true;           // within 500 m of the sea (coastF 0.7)
 
     /// <summary>What everyone wears on landing (11 §9.2 homeland kit, Ins 12.5).</summary>
@@ -245,7 +251,8 @@ public sealed record CampDef
             Active = 1, Food = Food, Firewood = Firewood, FireFuelMin = FireFuelMin, Bedding = Bedding,
             BeddingInsulation = BeddingInsulation, ShelterWindBlock = Shelter.WindBlock, ShelterRainBlock = Shelter.RainBlock,
             ShelterInsulation = Shelter.Insulation, ShelterSleeps = (byte)Math.Clamp(Shelter.Sleeps, 1, 255), RationPct = (byte)Math.Clamp(Ration, 0, 100), ShelterAreaM2 = Shelter.AreaM2, ElevationM = ElevationM, Coastal = Coastal ? (byte)1 : (byte)0, Kit = KitOf(content),
-            WaterContamination = WaterSource switch { "spring" or "rain" => 0f, "well" => 0.01f, "river" => 0.04f, "lake" => 0.05f, "marsh" => 0.30f, _ => 0.02f },
+            WaterContamination = Sim.Survival.Water.SourceContamination(WaterSource ?? "stream"),
+            Pots = (byte)Math.Clamp(Pots, 0, 255), Sanitation = (byte)Math.Clamp(Sanitation, 1, 100),
             Schedule = handle < 0 ? (ushort)0xFFFF : (ushort)handle,
             FireX = P("fire").X, FireZ = P("fire").Z, StoresX = P("stores").X, StoresZ = P("stores").Z,
             ShelterX = P("shelter").X, ShelterZ = P("shelter").Z, WaterX = P("water").X, WaterZ = P("water").Z,

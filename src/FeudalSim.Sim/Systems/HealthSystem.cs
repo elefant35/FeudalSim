@@ -121,6 +121,7 @@ public sealed class HealthSystem : ISimSystem
         (v.State, v.Cause) = (VitalState.Dead, cause);
         world.People.Activity[i] = new ActivityState { Action = -1, Level = ActivityLevel.Rest };
         world.Emit(Events.Salience.Major, id, new Events.PersonDied(id, (byte)cause));
+        Survival.Water.OnDeath(world, i);   // 11 §7.4: a body at the water taints it
     }
 
     /// <summary>
