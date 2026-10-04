@@ -39,6 +39,15 @@ public sealed class Holdings
         return true;
     }
 
+    /// <summary>Moves goods without payment (a theft, 16 §10). False if the holder lacks them.</summary>
+    internal bool Take(EntityId from, EntityId to, int item, int qty)
+    {
+        if (qty <= 0 || Goods(from, item) < qty) { return false; }
+        Add(from, item, -qty);
+        Add(to, item, qty);
+        return true;
+    }
+
     private void Add(EntityId person, int item, int delta)
     {
         var q = Goods(person, item) + delta;

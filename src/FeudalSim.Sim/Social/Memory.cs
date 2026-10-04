@@ -3,7 +3,7 @@ using FeudalSim.Sim.Core;
 
 namespace FeudalSim.Sim.Social;
 
-public enum MemoryKind : ushort { Chat, Joke, Praise, Comfort, Help, Refused, Argue, Insult, Apology, Gift, Threat, Assault, Told, Warned }
+public enum MemoryKind : ushort { Chat, Joke, Praise, Comfort, Help, Refused, Argue, Insult, Apology, Gift, Threat, Assault, Told, Warned, Stole }
 
 /// <summary>An episodic memory (16 §3.1, §6). Times in game minutes; valence from the owner's point of view.</summary>
 public struct MemoryRecord

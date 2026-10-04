@@ -27,6 +27,7 @@ public enum CommandSource : byte { Player, Embodiment, Ai, Settings, Scenario, D
 [Union(15, typeof(TradeAccept))]
 [Union(16, typeof(TradeWalkAway))]
 [Union(17, typeof(DialogueLineRendered))]
+[Union(18, typeof(Steal))]
 public abstract record StateCommand;
 
 /// <summary>Changes the real-minutes-per-game-day setting (canon §6). Logged; applies at the next step.</summary>
@@ -158,3 +159,10 @@ public readonly record struct CommandEnvelope(
     [property: Key(1)] long ApplyStep,
     [property: Key(2)] CommandSource Source,
     [property: Key(3)] StateCommand Payload);
+
+/// <summary>
+/// M1-29 placeholder theft (16 §10): the player takes an item from a person's holdings within arm's reach. Bystanders
+/// may see it (§10.1); what they believe spreads as rumor, and believers grow wary.
+/// </summary>
+[MessagePackObject]
+public sealed record Steal([property: Key(0)] Core.EntityId From, [property: Key(1)] string Item, [property: Key(2)] int Qty) : StateCommand;

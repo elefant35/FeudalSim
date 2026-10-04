@@ -1335,6 +1335,14 @@ Which acts are **crimes** is decided by each settlement's law (17). This section
 boundary moving) — before any law exists (Era 0–1) people still witness, disapprove, gossip and
 confront.
 
+*Implemented (M1-29, placeholder):* `Sim/Social/Theft.cs` — the player's `Steal` command (an item from a person within
+2.5 m) moves the goods, rolls §10.1 per awake person (LOS 1 on the open camp; R by hour; A_w by activity, "watching the
+actor" when the victim is talking with you; C_actor from Stealth), gives each who sees it a first-hand `stole` belief at
+`id_conf × clarity`, `stole_from_me` (0.5–2× by value) and trust −15 to the victim if they saw it, and trust −10 to
+every believer at c ≥ 0.6 (§10.6 "wary", also shown as the dialogue cue). The rumor then spreads by ordinary gossip:
+at the evening fire 8 of 24 saw a knife taken; two days later 13 of 24 believed it (`TheftTests`). Suspicion,
+accusations, missing-goods discovery, NPC thieves and law are M3–M5.
+
 ### 10.1 Perception
 
 ```

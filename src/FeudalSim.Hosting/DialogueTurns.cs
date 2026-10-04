@@ -91,7 +91,7 @@ public static class DialogueTurns
         if (level > 40) { cues.Add(emotion); }
         var n = people.Needs[npc];
         if (n.Energy < 30) { cues.Add("tired"); } else if (n.Satiety < 30) { cues.Add("hungry"); }
-        if (world.Relationships.Fear(conv.Npc, conv.Player) > 50) { cues.Add("wary"); }
+        if (world.Relationships.Fear(conv.Npc, conv.Player) > 50 || Sim.Social.Theft.Wary(world, conv.Npc, conv.Player)) { cues.Add("wary"); }   // §6.5; 16 §10.6
         return string.Join(", ", familiarity < 20 ? cues.Take(1) : cues);
     }
 }

@@ -304,6 +304,10 @@ public sealed class SimWorld
                 Economy.TradeOwner.WalkAway(this, command, c);
                 break;
 
+            case Steal c:
+                Social.Theft.Commit(this, command, c);
+                break;
+
             case StartConversation c:
                 Dialogue.ConversationSystem.Start(this, command, c);
                 break;

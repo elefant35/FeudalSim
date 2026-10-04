@@ -43,6 +43,7 @@
 - { id: opinion.cheated_me,             number: 37, value: -15, half_life_days: 24, stacking: add,      cap: -40 }
 - { id: opinion.broke_promise,          number: 38, value: -8,  half_life_days: 16, stacking: add,      cap: -40, notes: "× stakes 1–3" }
 - { id: opinion.lied_to_me,             number: 39, value: -10, half_life_days: 24, stacking: add,      cap: -40 }
+- { id: opinion.stole_from_me,          number: 40, value: -20, half_life_days: 48, stacking: add,      cap: -60, notes: "16 §10 theft: −10…−40 by value (the caller passes 0.5–2 for 0–72f); household extension waits for 11" }
 - { id: opinion.warmed_to_me,           number: 58, value: 1,   half_life_days: 6,  stacking: saturate, cap: 20,  notes: "Rapport DP; value = Familiarity step 1–4; counts toward +10 Opinion/day from words", words: true }
 - { id: opinion.cooled_on_me,           number: 59, value: -1,  half_life_days: 6,  stacking: saturate, cap: -20, notes: "Rapport DP; value = −(Familiarity step 1–4)" }
 - { id: opinion.lowballed_me,           number: 60, value: -5,  half_life_days: 8,  stacking: add,      cap: -30, notes: "15 §5.4: −(5 + 20·(g − τ)) for an offer past the insult tolerance; the caller passes the multiplier" }

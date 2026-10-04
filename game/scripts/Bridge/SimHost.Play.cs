@@ -192,6 +192,22 @@ public partial class SimHost
         GD.Print($"SimHost: talk → {_names.GetValueOrDefault(_talkTarget, _talkTarget.ToString(System.Globalization.CultureInfo.InvariantCulture))}");
     }
 
+    /// <summary>[T] (M1-29): take something a nearby settler holds — 16 §10's theft, seen or not by whoever is around.</summary>
+    private void TrySteal()
+    {
+        var target = _dialogue?.Conversation?.Npc.Value ?? _talkTarget;
+        if (target == 0) { return; }
+        var id = new EntityId(target);
+        _ = _runner!.Invoke(w =>
+        {
+            for (var item = 0; item < w.Content.Items.Count; item++) { if (w.Holdings.Goods(id, item) > 0) { return w.Content.Items[item].Id; } }
+            return null;
+        }).ContinueWith(t =>
+        {
+            if (t.Result is { } item) { _runner.Submit(CommandSource.Player, new Steal(id, item, 1)); GD.Print($"SimHost: steal {item} from {_names.GetValueOrDefault(target, "?")}"); }
+        }, TaskScheduler.Default);
+    }
+
     private void Leave()
     {
         if (_dialogue?.Conversation is { } c) { _runner!.Submit(CommandSource.Player, new EndConversation(c.Id)); }

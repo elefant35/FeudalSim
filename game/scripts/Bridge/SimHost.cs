@@ -257,7 +257,7 @@ public partial class SimHost : Node3D
 
         var date = Sim.Time.GameDate.FromGameMs(snapshot.GameMs);
         _overlay.Text = $"FeudalSim · {_scenarioId} · {date} · step {snapshot.Step} · {_stepsPerSecond:F1} steps/s · ×{_timeScale} · {_runner.Mode}\n" +
-                        $"{snapshot.Count - (snapshot.IsPlayer.AsSpan(0, snapshot.Count).Contains(true) ? 1 : 0)} settlers · [Space] pause · [1][2][4][8] speed · {(_play ? "WASD walk · Shift run · [E] talk · [Esc] leave" : "WASD/arrows pan")} · wheel zoom" +
+                        $"{snapshot.Count - (snapshot.IsPlayer.AsSpan(0, snapshot.Count).Contains(true) ? 1 : 0)} settlers · [Space] pause · [1][2][4][8] speed · {(_play ? "WASD walk · Shift run · [E] talk · [Esc] leave · [T] take" : "WASD/arrows pan")} · wheel zoom" +
                         (_aiStatus.Length > 0 ? $" · {_aiStatus}" : "");
         if (snapshot.CampActive)
         {
@@ -457,6 +457,7 @@ public partial class SimHost : Node3D
             case Key.E when _play: TryTalk(); break;
             case Key.Escape when _play: Leave(); break;
             case Key.P when _play: TogglePeople(); break;
+            case Key.T when _play: TrySteal(); break;
         }
     }
 

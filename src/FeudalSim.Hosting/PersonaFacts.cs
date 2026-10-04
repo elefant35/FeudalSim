@@ -161,6 +161,6 @@ public static class PersonaFacts
         MemoryKind.Comfort => "comforted them", MemoryKind.Help => "helped them", MemoryKind.Refused => "refused them a favor",
         MemoryKind.Argue => "argued with them", MemoryKind.Insult => "insulted them", MemoryKind.Apology => "apologized to them",
         MemoryKind.Gift => "gave them a gift", MemoryKind.Threat => "threatened them", MemoryKind.Assault => "fought them",
-        MemoryKind.Told => "told them some news", _ => "warned them",
+        MemoryKind.Told => "told them some news", MemoryKind.Stole => "stole from them", _ => "warned them",
     };
 }

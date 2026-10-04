@@ -30,6 +30,7 @@ public enum Salience : byte { Trace, Minor, Notable, Major, Historic }
 [Union(21, typeof(TradeOffered))]
 [Union(22, typeof(TradeSettled))]
 [Union(23, typeof(NegotiationEnded))]
+[Union(24, typeof(TheftCommitted))]
 public abstract record DomainEvent;
 
 [MessagePackObject]
@@ -144,6 +145,10 @@ public sealed record RequestAnswered([property: Key(0)] EntityId Helper, [proper
 /// <summary>An agreed favor was carried out.</summary>
 [MessagePackObject]
 public sealed record FavorDone([property: Key(0)] EntityId Doer, [property: Key(1)] EntityId For, [property: Key(2)] short Task) : DomainEvent;
+
+/// <summary>A theft happened (16 §10): who took what from whom, and how many saw it (ground truth; beliefs are separate).</summary>
+[MessagePackObject]
+public sealed record TheftCommitted([property: Key(0)] EntityId Thief, [property: Key(1)] EntityId Victim, [property: Key(2)] int Item, [property: Key(3)] int Qty, [property: Key(4)] int Seen) : DomainEvent;
 
 /// <summary>A listener caught a lie (16 §5.2): <c>lied_to_me</c>, trust lost; no being-told DP.</summary>
 [MessagePackObject]
