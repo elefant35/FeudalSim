@@ -24,6 +24,10 @@ public sealed class TalkSettings : CommandSettings
     [Description("A line the player says (repeat for several turns).")]
     public string[] Say { get; init; } = ["Good evening. Hard day at the woodpile?", "I could use a hand gathering firewood tomorrow, if you're willing.", "You're a lazy fool and everyone knows it."];
 
+    [CommandOption("--log <PATH>")]
+    [Description("Write the session's input log (replay it with `feudalsim replay`).")]
+    public string? Log { get; init; }
+
     [CommandOption("--turn-timeout <S>")]
     public double TurnTimeout { get; init; } = 12;
 }
@@ -45,7 +49,8 @@ public sealed class TalkCommand : Command<TalkSettings>
         var world = scenario.CreateWorld(content, jobs);
         using var stack = AiStack.Create(config);
         using var gateway = stack.CreateGateway();
-        using var runner = new SimRunner(world, null, RunMode.Running, gateway);
+        using var log = settings.Log is null ? null : InputLogFile.OpenOrCreate(settings.Log);
+        using var runner = new SimRunner(world, log, RunMode.Running, gateway);
         var host = new DialogueHost(runner.Submit, stack.Chat, stack.Decider, config, content);
         runner.Dialogue = host;
         var clock = Stopwatch.StartNew();
@@ -93,6 +98,10 @@ public sealed class TalkCommand : Command<TalkSettings>
             Thread.Sleep(2_100);   // the 2 s turn limit
         }
 
+        runner.Pause();
+        Thread.Sleep(300);
+        var (endStep, endHash) = runner.Invoke(w => (w.Clock.Step, FeudalSim.Sim.StateHasher.Hash(w))).GetAwaiter().GetResult();
+        Console.WriteLine($"talk: final step {endStep} hash {endHash:x16}{(settings.Log is null ? "" : $" · log {settings.Log}")}");
         double P50(IEnumerable<double?> xs) { var v = xs.Where(x => x.HasValue).Select(x => x!.Value).OrderBy(x => x).ToArray(); return v.Length == 0 ? double.NaN : v[v.Length / 2]; }
         Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
             $"\ntalk: {rows.Count} turns · p50 classify {P50(rows.Select(r => (double?)r.Classify)):F0} ms · gesture {P50(rows.Select(r => r.Gesture)):F0} ms · first words {P50(rows.Select(r => r.Words)):F0} ms · line {P50(rows.Select(r => r.Final)):F0} ms · dialogue spend ${host.SpentUsd:F4} (+ gateway ${gateway.SpentUsd:F4})"));
