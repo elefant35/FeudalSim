@@ -1,0 +1,8 @@
+<Project>
+  <!-- The Godot SDK adds its own versioned package references, so central package management is off
+       here; everything else (nullable, warnings as errors, analyzers) comes from the repo root. -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+</Project>

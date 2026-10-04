@@ -1,0 +1,21 @@
+; Engine configuration file. FeudalSim client (Godot 4.7 .NET). See docs/tech/20-architecture.md §12.
+config_version=5
+
+[application]
+
+config/name="FeudalSim"
+config/description="M0 client: boots the simulation and renders it."
+run/main_scene="res://scenes/boot/Boot.tscn"
+config/features=PackedStringArray("4.7", "C#", "Forward Plus")
+
+[dotnet]
+
+project/assembly_name="FeudalSim.Game"
+
+[physics]
+
+3d/physics_engine="Jolt Physics"
+
+[rendering]
+
+renderer/rendering_method="forward_plus"

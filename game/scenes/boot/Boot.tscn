@@ -1,0 +1,50 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/Bridge/SimHost.cs" id="1_simhost"]
+
+[sub_resource type="Environment" id="Env_1"]
+background_mode = 1
+background_color = Color(0.62, 0.72, 0.82, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.7, 0.72, 0.75, 1)
+ambient_light_energy = 0.6
+
+[sub_resource type="PlaneMesh" id="Ground_1"]
+size = Vector2(120, 120)
+
+[sub_resource type="StandardMaterial3D" id="GroundMat_1"]
+albedo_color = Color(0.42, 0.52, 0.28, 1)
+
+[sub_resource type="StandardMaterial3D" id="SettlerMat_1"]
+albedo_color = Color(0.85, 0.72, 0.56, 1)
+
+[node name="Boot" type="Node3D"]
+script = ExtResource("1_simhost")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env_1")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.383, 0.3214, 0, 0.6428, 0.766, -0.5, -0.6634, 0.5567, 0, 20, 0)
+shadow_enabled = true
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+mesh = SubResource("Ground_1")
+surface_material_override/0 = SubResource("GroundMat_1")
+
+[node name="Settlers" type="MultiMeshInstance3D" parent="."]
+material_override = SubResource("SettlerMat_1")
+
+[node name="Camera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.8192, 0.5736, 0, -0.5736, 0.8192, 10, 28, 30)
+current = true
+
+[node name="Overlay" type="CanvasLayer" parent="."]
+
+[node name="Label" type="Label" parent="Overlay"]
+offset_left = 12.0
+offset_top = 10.0
+offset_right = 1200.0
+offset_bottom = 70.0
+theme_override_colors/font_color = Color(0.1, 0.08, 0.06, 1)
+text = "FeudalSim — booting…"

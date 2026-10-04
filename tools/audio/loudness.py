@@ -29,7 +29,8 @@ def integrated_lufs(channels, fs=48_000):
     weighted = [_biquad(_biquad(np.asarray(c, dtype=np.float64), *SHELF), *HIGHPASS) for c in channels]
     block, hop = int(0.400 * fs), int(0.100 * fs)
     n = len(weighted[0])
-    if n < block:   # short SFX: one block over the whole sound
+    if n < block:   # short SFX (< 400 ms): BS.1770 is undefined here (ffmpeg ebur128 reports -70);
+                    # we report a single-block estimate over the whole sound so short SFX still get a number
         starts, block = [0], n
     else:
         starts = range(0, n - block + 1, hop)
