@@ -68,6 +68,8 @@ dotnet run --project src/FeudalSim.Headless -- run --scenario content/scenarios/
 dotnet run --project src/FeudalSim.Headless -- run --realtime --seconds 60   # SimRunner at 10 steps/s
 dotnet run --project src/FeudalSim.Headless -- ai ping                   # one chat completion (key from .env, never printed)
 dotnet run --project src/FeudalSim.Headless -- ai decide                 # one fast-decider question (option probabilities)
+dotnet run --project src/FeudalSim.Headless -- run --scenario content/scenarios/m0_ai_ping.yaml --realtime --seconds 25   # live AI round trip, logged
+dotnet run --project src/FeudalSim.Headless -- log inputs|events <file.fslog> [--filter X]   # inspect logs
 dotnet run --project tests/FeudalSim.Benchmarks -c Release -- --filter '*'
 ```
 

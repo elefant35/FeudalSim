@@ -16,6 +16,9 @@ public static class LogCodec
     public static void WriteCommand(Stream destination, in CommandEnvelope command)
         => WriteRecord(destination, MessagePackSerializer.Serialize(command));
 
+    public static void WriteEvent(Stream destination, in Events.EventEnvelope e)
+        => WriteRecord(destination, MessagePackSerializer.Serialize(e));
+
     public static void WriteRecord(Stream destination, ReadOnlySpan<byte> payload)
     {
         Span<byte> header = stackalloc byte[HeaderSize];
@@ -26,9 +29,13 @@ public static class LogCodec
     }
 
     /// <summary>Reads commands until the end or the first torn record. <paramref name="validLength"/> is the byte length of the good prefix.</summary>
-    public static List<CommandEnvelope> ReadCommands(Stream source, out long validLength)
+    public static List<CommandEnvelope> ReadCommands(Stream source, out long validLength) => Read<CommandEnvelope>(source, out validLength);
+
+    public static List<Events.EventEnvelope> ReadEvents(Stream source, out long validLength) => Read<Events.EventEnvelope>(source, out validLength);
+
+    private static List<T> Read<T>(Stream source, out long validLength)
     {
-        var commands = new List<CommandEnvelope>();
+        var commands = new List<T>();
         validLength = 0;
         Span<byte> header = stackalloc byte[HeaderSize];
         while (true)
@@ -39,7 +46,7 @@ public static class LogCodec
             if (length > 64 * 1024 * 1024) { return commands; }
             var payload = new byte[length];
             if (!TryReadExactly(source, payload) || Crc32.HashToUInt32(payload) != crc) { return commands; }
-            commands.Add(MessagePackSerializer.Deserialize<CommandEnvelope>(payload));
+            commands.Add(MessagePackSerializer.Deserialize<T>(payload));
             validLength += HeaderSize + length;
         }
     }

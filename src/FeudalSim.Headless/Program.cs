@@ -18,6 +18,12 @@ public static class Program
                 ai.AddCommand<AiPingCommand>("ping").WithDescription("One chat completion from LLM_DIALOGUE_MODEL.");
                 ai.AddCommand<AiDecideCommand>("decide").WithDescription("One fast-decider choice question (normalized option probabilities).");
             });
+            config.AddBranch("log", log =>
+            {
+                log.SetDescription("Inspect input and event logs (.fslog).");
+                log.AddCommand<LogInputsCommand>("inputs").WithDescription("Print logged commands.");
+                log.AddCommand<LogEventsCommand>("events").WithDescription("Print logged domain events.");
+            });
             config.AddBranch("content", content =>
             {
                 content.SetDescription("Validate and compile game content (YAML).");

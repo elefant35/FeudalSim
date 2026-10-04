@@ -1,0 +1,8 @@
+# M0 exit check: a real OpenRouter call made from inside the running sim is recorded in the input log.
+id: scenario.m0_ai_ping
+seed: 42
+start: Y0 Spring 1 05:30
+days: 1
+settlers: 24
+ai_ping_step: 20          # 2 s into the run
+ai_ping_deadline_steps: 200

@@ -18,6 +18,12 @@ public sealed record ScenarioDef
     public int Settlers { get; init; } = 24;
     public int DayLengthMinutes { get; init; } = SimClock.DefaultDayLengthMinutes;
 
+    /// <summary>If set, the first settler requests one AI line at this step (M0 end-to-end check).</summary>
+    public long? AiPingStep { get; init; }
+
+    /// <summary>Deadline for the AI ping, in steps (10 steps = 1 s).</summary>
+    public int AiPingDeadlineSteps { get; init; } = 150;
+
     public static ScenarioDef Load(string path)
     {
         var yaml = new DeserializerBuilder().WithNamingConvention(UnderscoredNamingConvention.Instance).Build();
@@ -43,6 +49,7 @@ public sealed record ScenarioDef
         var world = new SimWorld(Seed, StartGameMs(), DayLengthMinutes) { Content = content, Jobs = jobs }
             .AddSystem(new WanderSystem())
             .AddSystem(new NeedsDecaySystem());
+        if (AiPingStep is { } at) { world.AddSystem(new AiPingSystem(at, AiPingDeadlineSteps)); }
         for (var i = 0; i < Settlers; i++)
         {
             var command = new CommandEnvelope(i + 1, 0, CommandSource.Scenario,
@@ -63,7 +70,7 @@ public sealed record RunResult(long Steps, ulong FinalHash, IReadOnlyList<DayMet
 /// <summary>Runs a scenario at max speed, collecting daily metrics (20 §13).</summary>
 public static class ScenarioRunner
 {
-    public static RunResult Run(ScenarioDef scenario, ContentDatabase content, int threads, InputLogFile? inputLog = null)
+    public static RunResult Run(ScenarioDef scenario, ContentDatabase content, int threads, InputLogFile? inputLog = null, Stream? eventLog = null)
     {
         using var jobs = new JobRunner(threads);
         var world = scenario.CreateWorld(content, jobs);
@@ -78,6 +85,7 @@ public static class ScenarioRunner
                 var output = world.Step();
                 events += output.Events.Count;
                 if (inputLog is not null) { foreach (var c in output.AppliedCommands) { inputLog.Append(c); } }
+                if (eventLog is not null) { foreach (var e in output.Events) { Sim.Persistence.LogCodec.WriteEvent(eventLog, e); } }
             }
 
             days.Add(Measure(world, day, events));

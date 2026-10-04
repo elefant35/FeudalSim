@@ -40,6 +40,10 @@ public sealed class RunSettings : CommandSettings
     [DefaultValue(60)]
     public int Seconds { get; init; } = 60;
 
+    [CommandOption("--write-events")]
+    [Description("Also write every domain event to events.fslog (CRC'd MessagePack records).")]
+    public bool WriteEvents { get; init; }
+
     [CommandOption("--verify-determinism")]
     [Description("Run again (in-process, and with 1 thread if --threads > 1) and require identical hashes.")]
     public bool VerifyDeterminism { get; init; }
@@ -66,8 +70,9 @@ public sealed class RunCommand : Command<RunSettings>
 
         RunResult result;
         using (var log = InputLogFile.OpenOrCreate(Path.Combine(dir, "inputs.fslog")))
+        using (var events = settings.WriteEvents ? File.Create(Path.Combine(dir, "events.fslog")) : null)
         {
-            result = ScenarioRunner.Run(scenario, compiled.Database!, settings.Threads, log);
+            result = ScenarioRunner.Run(scenario, compiled.Database!, settings.Threads, log, events);
         }
 
         var verified = (bool?)null;
@@ -105,26 +110,53 @@ public sealed class RunCommand : Command<RunSettings>
 
     private static int RunRealtime(ScenarioDef scenario, FeudalSim.Sim.Content.ContentDatabase content, RunSettings settings)
     {
+        var dir = Path.Combine(settings.Out, $"{scenario.Id.Replace("scenario.", "", StringComparison.Ordinal)}-realtime-{DateTime.UtcNow:yyyyMMdd-HHmmss}");
+        Directory.CreateDirectory(dir);
         using var jobs = new JobRunner(settings.Threads);
         var world = scenario.CreateWorld(content, jobs);
-        using var runner = new SimRunner(world);
-        var sw = System.Diagnostics.Stopwatch.StartNew();
-        var lastReport = 0L;
-        while (sw.Elapsed.TotalSeconds < settings.Seconds)
+        using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+        FeudalSim.AI.AiGateway? gateway = null;
+        if (scenario.AiPingStep is not null)
         {
-            Thread.Sleep(1_000);
-            var steps = runner.StepsExecuted;
-            if (sw.Elapsed.TotalSeconds >= lastReport + 10)
-            {
-                lastReport = (long)sw.Elapsed.TotalSeconds;
-                Console.WriteLine($"realtime: t={sw.Elapsed.TotalSeconds:F0}s steps={steps}");
-            }
+            var config = FeudalSim.AI.AiConfig.Load(FeudalSim.AI.AiConfig.FindEnvFile(Directory.GetCurrentDirectory()));
+            Console.WriteLine($"ai: key {(config.ChatKey.IsSet ? "set" : "missing")}, mode {(config.TemplateMode ? "template" : "live")}, model {config.DialogueModel}");
+            gateway = new FeudalSim.AI.AiGateway(config, new FeudalSim.AI.OpenAiCompatibleChatProvider(http, config.ChatBaseUrl, config.ChatKey));
         }
 
-        var rate = runner.StepsExecuted / sw.Elapsed.TotalSeconds;
-        var ok = Math.Abs(rate - 10.0) <= 0.2;
-        Console.WriteLine($"realtime: {runner.StepsExecuted} steps in {sw.Elapsed.TotalSeconds:F1} s = {rate:F2} steps/s (target 10.0 ± 0.2) → {(ok ? "OK" : "OUT OF RANGE")}; dilation events {runner.TimeDilationEvents}");
-        return ok ? 0 : 3;
+        var events = new List<FeudalSim.Sim.Events.EventEnvelope>();
+        using (var log = InputLogFile.OpenOrCreate(Path.Combine(dir, "inputs.fslog")))
+        using (var runner = new SimRunner(world, log, RunMode.Running, gateway))
+        {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var lastReport = 0L;
+            while (sw.Elapsed.TotalSeconds < settings.Seconds)
+            {
+                Thread.Sleep(1_000);
+                while (runner.Events.TryPop(out var e)) { events.Add(e); }
+                if (sw.Elapsed.TotalSeconds >= lastReport + 10)
+                {
+                    lastReport = (long)sw.Elapsed.TotalSeconds;
+                    Console.WriteLine($"realtime: t={sw.Elapsed.TotalSeconds:F0}s steps={runner.StepsExecuted}");
+                }
+            }
+
+            runner.Pause();
+            Thread.Sleep(200);
+            while (runner.Events.TryPop(out var e)) { events.Add(e); }
+            var rate = runner.StepsExecuted / sw.Elapsed.TotalSeconds;
+            var ok = Math.Abs(rate - 10.0) <= 0.2;
+            Console.WriteLine($"realtime: {runner.StepsExecuted} steps in {sw.Elapsed.TotalSeconds:F1} s = {rate:F2} steps/s (target 10.0 ± 0.2) → {(ok ? "OK" : "OUT OF RANGE")}; dilation events {runner.TimeDilationEvents}");
+            foreach (var e in events.Where(e => e.Payload is FeudalSim.Sim.Events.AiResultApplied or FeudalSim.Sim.Events.CommandRejected))
+            {
+                Console.WriteLine($"event @step {e.Step}: {e.Payload}");
+            }
+
+            using var eventLog = File.Create(Path.Combine(dir, "events.fslog"));
+            foreach (var e in events) { FeudalSim.Sim.Persistence.LogCodec.WriteEvent(eventLog, e); }
+            gateway?.Dispose();
+            Console.WriteLine($"realtime: wrote {dir}/inputs.fslog, events.fslog");
+            return ok ? 0 : 3;
+        }
     }
 
     private static void WriteCsv(string path, IReadOnlyList<DayMetrics> days)
