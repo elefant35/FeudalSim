@@ -41,6 +41,7 @@ public static class StateHasher
         h.Append(people.SkillLevelsAll);
         h.Append(people.SkillAptitudeAll);
         world.Decisions.HashInto(h);
+        world.HashAiInto(h);
         world.Relationships.HashInto(h);
         world.Memories.HashInto(h);
         world.Claims.HashInto(h);

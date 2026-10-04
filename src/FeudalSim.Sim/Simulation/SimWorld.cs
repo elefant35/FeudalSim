@@ -313,6 +313,30 @@ public sealed class SimWorld
 
     public int PendingAiRequests => _aiPending.Count;
 
+    /// <summary>Pending AI requests (saved, hashed) and the last issued request id.</summary>
+    internal (AiRequest[] Pending, long Seq) ExportAi() => ([.. _aiPending.Values], _aiRequestSeq);
+
+    internal void ImportAi(AiRequest[] pending, long seq)
+    {
+        _aiPending.Clear();
+        foreach (var r in pending) { _aiPending.Add(r.RequestId, r); }
+        _aiRequestSeq = seq;
+    }
+
+    internal void HashAiInto(System.IO.Hashing.XxHash64 h)
+    {
+        Span<byte> b = stackalloc byte[8];
+        BitConverter.TryWriteBytes(b, _aiRequestSeq);
+        h.Append(b);
+        foreach (var (id, r) in _aiPending)
+        {
+            BitConverter.TryWriteBytes(b, id);
+            h.Append(b);
+            BitConverter.TryWriteBytes(b, r.DeadlineStep);
+            h.Append(b);
+        }
+    }
+
     public bool IsAiPending(long requestId) => _aiPending.ContainsKey(requestId);
 
     private void SweepAiDeadlines(long step)

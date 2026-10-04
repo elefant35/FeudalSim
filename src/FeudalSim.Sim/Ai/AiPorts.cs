@@ -15,9 +15,11 @@ public enum AiTaskKind : byte { Ping, Dialogue, Bark, Chronicle, Overheard }
 public enum AiOutcome : byte { Ok, Timeout, ProviderError, Refused, Cancelled, Unavailable }
 
 /// <summary>A request the sim puts in its outbox. Missing <see cref="DeadlineStep"/> → the sim applies <see cref="FallbackText"/>.</summary>
+[MessagePackObject]
 public sealed record AiRequest(
-    long RequestId, AiTaskKind Kind, AiPriority Priority, long IssuedStep, long DeadlineStep,
-    EntityId Speaker, EntityId Listener, string Context, string FallbackText);
+    [property: Key(0)] long RequestId, [property: Key(1)] AiTaskKind Kind, [property: Key(2)] AiPriority Priority,
+    [property: Key(3)] long IssuedStep, [property: Key(4)] long DeadlineStep,
+    [property: Key(5)] EntityId Speaker, [property: Key(6)] EntityId Listener, [property: Key(7)] string Context, [property: Key(8)] string FallbackText);
 
 /// <summary>A gateway result, returned to the sim as a logged command. The sim validates it.</summary>
 [MessagePackObject]

@@ -32,6 +32,59 @@ public sealed class PersistenceTests : IDisposable
         for (var i = 0; i < steps; i++) { world.Step(); }
     }
 
+    /// <summary>
+    /// M1-04a: a save taken while a decision point is open and an AI request is pending restores both — the DP's menu,
+    /// pre-drawn policy pick and deadline, and the request's deadline and fallback — so the run continues identically.
+    /// </summary>
+    [Fact]
+    public void Save_with_an_open_decision_point_and_a_pending_AI_request_continues_identically()
+    {
+        var content = Sim.Content.ContentDatabase.Empty;
+        SimWorld Build(SimWorld w)
+        {
+            w.Decisions.Register(new DecisionPingOwner());
+            return w.AddSystem(new LodSystem()).AddSystem(new WanderSystem()).AddSystem(new NeedsDecaySystem())
+                .AddSystem(new AiPingSystem(20, 200)).AddSystem(new DecisionPingSystem(20, Sim.Decisions.DeciderKind.Llm, 40));
+        }
+
+        static List<string> RunCollect(SimWorld w, long untilStep)
+        {
+            var seen = new List<string>();
+            while (w.Clock.Step < untilStep)
+            {
+                var output = w.Step();
+                ScenarioRunner.LogOpened(w, output);
+                foreach (var e in output.Events)
+                {
+                    if (e.Payload is Sim.Events.DecisionResolved or Sim.Events.AiResultApplied) { seen.Add($"{e.Step}:{e.Payload}"); }
+                }
+            }
+
+            return seen;
+        }
+
+        var straight = Build(new SimWorld(42));
+        for (var i = 0; i < 3; i++) { straight.Enqueue(new CommandEnvelope(i + 1, 0, CommandSource.Scenario, new SpawnPerson($"S{i}", i, 0))); }
+        RunCollect(straight, 30);
+        straight.Decisions.OpenCount.ShouldBe(1);
+        straight.PendingAiRequests.ShouldBe(1);
+
+        var path = Path.Combine(_dir, "pending.fssave");
+        Directory.CreateDirectory(_dir);
+        SaveFiles.WriteSnapshotAtomic(path, SaveCodec.Capture(straight));
+        var after = RunCollect(straight, 260);
+
+        var restored = Build(SaveCodec.Restore(SaveFiles.ReadSnapshot(path), out var warnings));
+        warnings.ShouldBeEmpty();
+        restored.Decisions.OpenCount.ShouldBe(1);
+        restored.PendingAiRequests.ShouldBe(1);
+        var afterRestored = RunCollect(restored, 260);
+
+        afterRestored.ShouldBe(after);
+        after.Count.ShouldBe(2);   // the DP at its deadline (step 61), the AI fallback at its deadline (step 221)
+        StateHasher.Hash(restored).ShouldBe(StateHasher.Hash(straight));
+    }
+
     [Fact]
     public void Save_and_load_mid_run_matches_a_straight_run()
     {

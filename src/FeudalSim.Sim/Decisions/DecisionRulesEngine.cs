@@ -27,8 +27,7 @@ public sealed class DecisionRulesEngine
     private readonly SimWorld _world;
     private readonly SortedDictionary<string, IDecisionPointOwner> _owners = new(StringComparer.Ordinal);
 
-    // State: hashed by StateHasher. Not yet saved — persisted together with the pending AI requests in M1
-    // (33-progress discovered work); until then a save taken while a DP is open loses it.
+    // State: hashed by StateHasher and saved (the "decisions" table, M1-04a).
     private readonly SortedDictionary<ulong, DecisionPoint> _open = [];
     private readonly SortedDictionary<(ulong Chooser, ulong Counterpart), (long Day, int Used)> _longShots = [];
     private long _ordinalStep = -1;
@@ -191,6 +190,40 @@ public sealed class DecisionRulesEngine
 
         Append(h, b, _ordinalStep);
         Append(h, b, _ordinal);
+    }
+
+    /// <summary>A saved open DP: the logged record plus the policy's pre-drawn pick.</summary>
+    [MessagePack.MessagePackObject]
+    public sealed record SavedDp([property: MessagePack.Key(0)] DecisionPointOpened Opened, [property: MessagePack.Key(1)] string PolicyChoice);
+
+    /// <summary>Long-shot budget use per (chooser, counterpart) and game day (blittable save rows).</summary>
+    public struct LongShotRow
+    {
+        public ulong Chooser, Counterpart;
+        public long Day;
+        public int Used;
+    }
+
+    internal (SavedDp[] Open, LongShotRow[] LongShots, long OrdinalStep, int Ordinal) Export()
+        => ([.. _open.Values.Select(dp => new SavedDp(new DecisionPointOpened(dp.Id, dp.Owner, dp.Context, dp.MenuHash, dp.Menu, dp.PreCleared, dp.OpenStep, dp.DeadlineStep, dp.MaxDecider), dp.PolicyChoice))],
+            [.. _longShots.Select(kv => new LongShotRow { Chooser = kv.Key.Chooser, Counterpart = kv.Key.Counterpart, Day = kv.Value.Day, Used = kv.Value.Used })],
+            _ordinalStep, _ordinal);
+
+    internal void Import(SavedDp[] open, LongShotRow[] longShots, long ordinalStep, int ordinal)
+    {
+        _open.Clear();
+        _longShots.Clear();
+        foreach (var (o, policy) in open)
+        {
+            _open.Add(o.Id, new DecisionPoint
+            {
+                Id = o.Id, Owner = o.Owner, Context = o.Context, Menu = o.Options, MenuHash = o.MenuHash, PreCleared = o.PreCleared,
+                MaxDecider = o.MaxDecider, OpenStep = o.OpenStep, DeadlineStep = o.DeadlineStep, PolicyChoice = policy,
+            });
+        }
+
+        foreach (var r in longShots) { _longShots[(r.Chooser, r.Counterpart)] = (r.Day, r.Used); }
+        (_ordinalStep, _ordinal) = (ordinalStep, ordinal);
     }
 
     /// <summary>XxHash64 of the canonical menu: options in id order, sorted params, P and PCrit quantized to 1e-4 (20 §11).</summary>

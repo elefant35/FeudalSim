@@ -31,6 +31,30 @@ public static class SaveCodec
     public const string BeliefsTable = "beliefs";
     public const string RenownTable = "renown";
 
+    public const string DecisionsTable = "decisions";
+    public const string AiTable = "ai";
+
+    /// <summary>Open DPs (MessagePack: menus carry strings), long-shot counters (blittable) and the DP ordinal.</summary>
+    private static TableChunk DecisionsChunk(Decisions.DecisionRulesEngine dre)
+    {
+        var (open, longShots, ordinalStep, ordinal) = dre.Export();
+        var chunk = new TableChunk { Table = DecisionsTable, RowCount = open.Length };
+        chunk.Columns.Add(new ColumnBlock { Name = "open", LayoutVersion = 1, ElementSize = 0, Data = MessagePackSerializer.Serialize(open) });
+        chunk.Columns.Add(new ColumnBlock { Name = "long_shots", LayoutVersion = 1, ElementSize = Marshal.SizeOf<Decisions.DecisionRulesEngine.LongShotRow>(), Data = MemoryMarshal.AsBytes(longShots.AsSpan()).ToArray() });
+        chunk.Columns.Add(new ColumnBlock { Name = "ordinal", LayoutVersion = 1, ElementSize = 12, Data = [.. BitConverter.GetBytes(ordinalStep), .. BitConverter.GetBytes(ordinal)] });
+        return chunk;
+    }
+
+    /// <summary>Pending AI requests (MessagePack) and the request counter (31 R27: a save normally waits for none in flight).</summary>
+    private static TableChunk AiChunk(SimWorld world)
+    {
+        var (pending, seq) = world.ExportAi();
+        var chunk = new TableChunk { Table = AiTable, RowCount = pending.Length };
+        chunk.Columns.Add(new ColumnBlock { Name = "pending", LayoutVersion = 1, ElementSize = 0, Data = MessagePackSerializer.Serialize(pending) });
+        chunk.Columns.Add(new ColumnBlock { Name = "seq", LayoutVersion = 1, ElementSize = 8, Data = BitConverter.GetBytes(seq) });
+        return chunk;
+    }
+
     private static TableChunk RenownChunk(Social.ReputationStore store)
     {
         var rows = store.Export();
@@ -132,7 +156,7 @@ public static class SaveCodec
                 LastCommandSeq = world.LastCommandSeq,
             },
             IdCounters = counters,
-            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories), ClaimsChunk(world.Claims), BeliefsChunk(world.Beliefs), RenownChunk(world.Reputation)],
+            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories), ClaimsChunk(world.Claims), BeliefsChunk(world.Beliefs), RenownChunk(world.Reputation), DecisionsChunk(world.Decisions), AiChunk(world)],
         };
     }
 
@@ -226,6 +250,28 @@ public static class SaveCodec
         {
             if (rrows.ElementSize == Marshal.SizeOf<Social.ReputationStore.Row>()) { world.Reputation.Import(MemoryMarshal.Cast<byte, Social.ReputationStore.Row>(rrows.Data).ToArray()); }
             else { notes.Add("Renown table has an unknown layout; renown recomputes tonight."); }
+        }
+
+        if (image.Tables.FirstOrDefault(t => t.Table == DecisionsTable) is { } dec)
+        {
+            var open = dec.Columns.FirstOrDefault(c => c.Name == "open");
+            var shots = dec.Columns.FirstOrDefault(c => c.Name == "long_shots");
+            var ord = dec.Columns.FirstOrDefault(c => c.Name == "ordinal");
+            if (open is { LayoutVersion: 1 } && shots is { ElementSize: var ss } && ss == Marshal.SizeOf<Decisions.DecisionRulesEngine.LongShotRow>() && ord is { Data.Length: 12 })
+            {
+                world.Decisions.Import(MessagePackSerializer.Deserialize<Decisions.DecisionRulesEngine.SavedDp[]>(open.Data),
+                    MemoryMarshal.Cast<byte, Decisions.DecisionRulesEngine.LongShotRow>(shots.Data).ToArray(), BitConverter.ToInt64(ord.Data, 0), BitConverter.ToInt32(ord.Data, 8));
+            }
+            else { notes.Add("Decisions table has an unknown layout; open decision points dropped."); }
+        }
+
+        if (image.Tables.FirstOrDefault(t => t.Table == AiTable) is { } ai)
+        {
+            if (ai.Columns.FirstOrDefault(c => c.Name == "pending") is { LayoutVersion: 1 } pending && ai.Columns.FirstOrDefault(c => c.Name == "seq") is { Data.Length: 8 } seq)
+            {
+                world.ImportAi(MessagePackSerializer.Deserialize<Ai.AiRequest[]>(pending.Data), BitConverter.ToInt64(seq.Data, 0));
+            }
+            else { notes.Add("AI table has an unknown layout; pending AI requests dropped."); }
         }
 
         warnings = notes;
