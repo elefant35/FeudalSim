@@ -96,8 +96,8 @@ Every feature must serve at least one pillar. Features that serve none are cut.
 
 | Topic | Decision | Notes / ADR |
 |-------|----------|-------------|
-| Genre | Third-person survival → social/settlement simulation → feudal politics & war RPG | — |
-| Dimension & camera | **3D, third-person over-the-shoulder.** Close-up "bench camera" for crafting minigames; optional first-person toggle. | — |
+| Genre | First-person survival → social/settlement simulation → feudal politics & war RPG | — |
+| Dimension & camera | **3D, first-person** (body-aware: the camera sits at the player's eyes on the same character body NPCs use). Third-person over-the-shoulder is an optional toggle. Close-up "bench camera" for crafting minigames. | — |
 | Art style | **Stylized low-poly**, painterly lighting and fog (Valheim-adjacent). Chosen for production feasibility and to render 150–300 characters at once. | [02-game-overview §Art](02-game-overview.md) |
 | Players | **Single-player only.** Multiplayer is an explicit non-goal for v1. | [ADR-0004](adr/0004-single-player-scope.md) |
 | Platforms | **PC: Windows, macOS (Apple Silicon first-class), Linux.** Keyboard & mouse first; controller support later. | — |
@@ -819,3 +819,4 @@ Each concept is **defined** in exactly one document; others reference it.
 | 2026-10-03 | v0.2 — folded in accepted proposals from every subsystem doc: .NET 10 migration path, 100 ms sim step, data layout, determinism scope, embodiment boundary, terrain choice; 8,192 m region, deposits, ship-borne livestock and horses, salvage quantities, Charter details, arrival windows; day-of-year index, calendar days (quarter/court/council/market), harvest window, campaign season, focus time (12:1), time-scale policy; LOD hysteresis, LOD0-B battle tier, near region, edge cap; local model sizing (8B default); skill tree, Rust, know-how levels, trait catalog size, orientation gate, Drama knob, mood bands, emotion half-lives; status bands, legitimacy, governance forms, faith names; `Resolve()`, quality grades; health model, food unit, movement speeds; economic constants; 10 backgrounds, point-buy, standing-orders parity exception; LLM operational rules; id and spatial conventions; ownership-map clarifications. |
 | 2026-10-03 | v0.3 — owner direction: **language decides, systems resolve.** LLMs may make real choices for characters through decision points (menus built by deterministic systems, guards, deterministic execution). Rewrote tenet 1 and §13; the ±15% clamp became menu width; fast-decider role defined with a working OpenRouter provider (Jev pending direct access); dev key is `OPENROUTER_KEY` in `.env`. |
 | 2026-10-04 | v0.3.1 — .NET version: projects target `net10.0` (ADR-0010 step 3, M1-25 spike: Godot 4.7.2 runs it; tests, determinism hashes and the Godot checks unchanged). |
+| 2026-10-04 | v0.3.2 — owner direction: the default camera is **first person**; third person becomes the toggle. |

@@ -11,7 +11,7 @@
 
 ## Current milestone
 
-**M2 — Landfall** · started: 2026-10-04 · target exit: all M2 items `[x]` and the exit criteria in
+**M2 — Landfall** · started: 2026-10-04 · **now: the first playable (M2-FP1…FP5), owner direction 2026-10-04** · target exit: all M2 items `[x]` and the exit criteria in
 [30-roadmap §5 (M2)](30-roadmap.md#m2--landfall) verified.
 
 Previous: **M1 — Talking Camp — complete except owner items, 2026-10-04** (transition checks at a445365; gate
@@ -77,6 +77,19 @@ Generated 2026-10-04 from [30 §5 M2](30-roadmap.md#m2--landfall), the owning do
 22) and [32 §16](32-art-and-audio-production.md#16-production-schedule-by-milestone). Risk-retiring work first; art
 and audio produce `status: review` assets for the owner.
 
+**Order (owner, 2026-10-04): first playable first.** The code agent does **FP-1 → FP-5** next, then returns to the
+remaining items in table order. The art items M2-28…M2-31 go to a separate **art agent** working from
+[art-briefs/](art-briefs/README.md) (progress in [art-briefs/STATUS.md](art-briefs/STATUS.md)); the code side wires
+their files in as they land (FP-4). Each later batch of gameplay items ends with a playable build for the owner.
+
+| ID | First playable (owner direction, 2026-10-04) | Status | Evidence |
+|----|----------------------------------------------|--------|----------|
+| M2-FP1 | The client on the real island: generated terrain through Terrain3D (heights, biome splat layers; ADR-0009), the player and the camp at the landing, the sea at sea level, the wreck placed on its reef | [ ] | |
+| M2-FP2 | First-person camera by default (canon v0.3.2): eyes on the player's own body with head parts hidden, mouse look, third-person toggle [V]; look-at interaction prompts (talk, forage, chop, pick up) replacing walk-up triggers | [ ] | |
+| M2-FP3 | World dressing from the sim's nodes: trees, bushes, rocks and plants streamed per 64 m chunk around the player (MultiMesh per type and variant, variant by hash, size class by scale), harvested and felled states from node deltas; graybox stand-ins wherever an art file is missing; grass and fern scatter | [ ] | |
+| M2-FP4 | Asset wiring as art lands: the art contract's paths and clip names (art-briefs §5–§6), modular characters (mix heads/hair/clothing per settler), animation set by activity, held items on `RightHandProp`, foliage wind and season shader (vertex colour R), fire and smoke VFX, sky, fog and water shaders | [ ] | |
+| M2-FP5 | First playable build for the owner: a short play guide, a checklist of what to try, a feedback form in the tracker; owner playtest | [ ] | |
+
 | ID | Item (owning doc) | Status | Evidence |
 |----|-------------------|--------|----------|
 | M2-01a-i | World generation v1 (i): WorldSpec as content, `Sim/WorldGen`, stage 1 landmass + stage 2 relief, retries, preview (10) | [x] | `content/world/worldspec.yaml` (kind **worldspec**, schema, in the content hash) · `Sim/WorldGen/WorldNoise.cs` (keyed value noise, fBm, ridged, warp) · `WorldGenerator` stage 1 (archetype by weight, rotation/mirror, warped fBm under a superellipse falloff, offshore islet field, sea level by bisection to a drawn land-area target, sea border) and stage 2 (chamfer coast distance; spine / massif / twin-ridge fields × ridged noise + hills + coastal plain; peak normalised to a drawn target) on the 8 m grid (1,025²), per-row on the job scheduler; W1/W5 validation with `seed' = Hash(seed, attempt)` retries (≤ 16). `Hosting/WorldPreview` (PNG) + **`feudalsim worldgen`** (+ CI, 20 seeds). **30/30 seeds valid** (most on attempt 0–2; ≈ 0.2 s per attempt, p50 0.38 s per world, max 2.6 s with retries — budget 1 s + 2 s); islets 4–10; previews reviewed. **`WorldGenTests`** 2 (bit-identical serial vs parallel, bands on 3 seeds). 253 tests. 0b02d23 |
@@ -122,10 +135,10 @@ and audio produce `status: review` assets for the owner.
 | M2-26a | NPC↔NPC escalation calibration, documented rules (31 D36): 16 §9.4 hard end, mediation after the fact, and quarrel expiry | [x] | **Diagnosis first:** the sweep CSV now carries per-seed social columns (friends, enemies, interactions, argue and insult shares, opinion p50/p90/max, warmth). Of 100 seeds the 17 with no friends had about the same arguments as the rest, but joined with `feudalsim social`'s fights (60 seeds) they had **2× the fights (24.9 vs 13.0) and more insults**; corr(fights, friends) −0.31. So escalation drives it (D36). **Fix: two rules 16 §9.4 already specifies**, plus a bug. The hard end (NPC↔NPC: E < θ_current − 10 ends the exchange). `Social/Mediation.cs`: once a quarrel that reached an argument is over, the best-placed third party (min Op ≥ 20 to both) rolls P = 0.3 + Lead/200 + Pers/400 − 0.2/Stubborn; success gives Anger −30, grievance slots ×0.7, and `opinion.reconciled` +5 (#62). The bug: `Confrontations.Expire` sat inside `SocialSystem`'s shipmate-seeding block, so idle quarrels never expired. `Confrontation.Peak` (saved, hashed); `QuarrelMediated` event (union 26); `Salt.Mediation` 25. **`EscalationTests` +4:** quarrel expiry (fails on the old code, checked), the mediation formula, mediation effects and the rung-2 gate, a calm responder walking away. **Result:** sweep 100 × 30 friends **91%** of seeds in band (was 83% at HEAD and after M2-05a); 20 × 30 (CI) 95%, all bands; `social` 20 × 30 brawls **306 → 195**, no deadlocks; completability PASS. 295 tests; determinism (threads 4) identical; Godot autotest PASS |
 | M2-26b | Brawl rate vs 18 §16: 0.33 per camp-day after M2-26a, ≈ 3–11× the scaled target | [ ] **awaiting owner** | Needs a choice (31 D36, 16 Q22): accept until 17's authority/status terms land (M4–M5, recommended), or apply a later lever now (argue weight, ε) |
 | M2-27 | Single-call multi-answer classification variant (22 §17.2; informs 31 D37) | [ ] | |
-| M2-28 | Art: coast terrain layers, flora v1 (8 tree families), rocks (32 §16) | [ ] | |
-| M2-29 | Art: the wreck and its sections, campfire, lean-to and hut, knapping/carving close-ups (32 §16) | [ ] | |
-| M2-30 | Art: settler bodies v1 (2 bases, 6 heads, 3 clothing sets) — blockouts; looks need the owner / a character artist (32 §7) | [ ] | |
-| M2-31 | Art: 6 wild animals + goats/chickens; locomotion + ~40 social/gathering/craft clips; basic combat clips (32 §7.3: CC0/licensed sources need the owner's D32 call) | [ ] | |
+| M2-28 | Art: coast terrain layers, flora v1 (8 tree families), rocks (32 §16) | [ ] **art agent** | Brief: [art-briefs](art-briefs/02-first-playable-assets.md) P0.3–P0.6, P1 |
+| M2-29 | Art: the wreck and its sections, campfire, lean-to and hut, knapping/carving close-ups (32 §16) | [ ] **art agent** | Brief: P0.7–P0.9, P1 |
+| M2-30 | Art: settler bodies v1 (2 bases, 6 heads, 3 clothing sets) — blockouts; looks need the owner / a character artist (32 §7) | [ ] **art agent** | Brief: P0.1 (skeleton and modular parts per the contract §6) |
+| M2-31 | Art: 6 wild animals + goats/chickens; locomotion + ~40 social/gathering/craft clips; basic combat clips (32 §7.3: CC0/licensed sources need the owner's D32 call) | [ ] **art agent** | Brief: P0.2 clips, P2 animals and combat |
 | M2-32 | Audio: coast/forest/meadow ambience, weather, footsteps, fire, chopping, knapping, animal calls; music sketches (32 §16) | [ ] | |
 | M2-33 | Exported build check (.NET 10 export templates; ADR-0010) | [ ] | |
 | M2-34 | Exit: ≥ 90% of settlers survive Y0 Spring–Summer with the player idle, 20 headless seeds | [ ] | |

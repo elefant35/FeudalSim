@@ -281,7 +281,7 @@ The conversation experience is the game's signature and its biggest risk. Target
 
 | Game | We take | We avoid |
 |------|---------|----------|
-| **Valheim** | Third-person survival feel, stylized look, readable combat, building-as-shelter | Boss-progression structure; monsters |
+| **Valheim** | Survival feel, stylized look, readable combat, building-as-shelter | Boss-progression structure; monsters |
 | **Medieval Dynasty** | Survival → village growth with NPC villagers; seasons; aging & heirs | NPCs as shallow workers; menu-driven crafting |
 | **Kenshi** | "Be anyone" sandbox; you're not special; the world doesn't wait | Opaque UX; brutal onboarding |
 | **Mount & Blade II: Bannerlord** | From nobody to lord; battles with real stakes; parties & armies | Static, numbers-only diplomacy; disposable soldiers |

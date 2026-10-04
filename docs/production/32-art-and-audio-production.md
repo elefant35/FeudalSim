@@ -446,6 +446,8 @@ on every push.
 
 ## 16. Production schedule by milestone
 
+*M2 first playable (2026-10-04):* the art for M2 is briefed for a separate art agent in [art-briefs/](art-briefs/README.md). Its technical contract (skeleton bone names, clip names, file paths, first-person rules) is the binding subset of this doc for that work.
+
 | Milestone | Art deliverables | Audio deliverables |
 |-----------|------------------|--------------------|
 | **M0** | Pipeline skeleton: Git LFS on, palette v0, `export/check/preview` scripts, the test pine end-to-end into Godot, manifest schema | ffmpeg installed; `synth/check` scripts; one SFX end-to-end into Godot; `content/audio/*.yaml` schema |
