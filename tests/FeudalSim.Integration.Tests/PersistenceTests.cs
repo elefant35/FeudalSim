@@ -168,13 +168,15 @@ public sealed class PersistenceTests : IDisposable
             ["emotions"] = (1, "Anger:Single@0|Fear:Single@4|Grief:Single@8|Joy:Single@12|Shame:Single@16|Jealousy:Single@20|AngerTarget:EntityId@24|FearSource:EntityId@32|JealousyTarget:EntityId@40|ShameAudience:EntityId@48|UpdatedGameMs:Int64@56"),
             ["mood"] = (1, "Value:Single@0|Smoothed:Single@4"),
             ["activity"] = (1, "Action:Int16@0|Phase:Byte@2|Level:ActivityLevel@3|Flags:Byte@4|StartedGameMs:Int64@8|EndGameMs:Int64@16|NextDecideGameMs:Int64@24|Score:Single@32|TargetX:Single@36|TargetZ:Single@40"),
+            ["skill_progress"] = (1, "Xp:Single@0|DayXp:Single@4|Day:UInt16@8|LastPracticeDay:UInt16@10|RustDay:UInt16@12|Rust:Byte@14"),   // M2-04, 28 per row
+            ["attribute_training"] = (1, "Strength:Single@0|Endurance:Single@4|Dexterity:Single@8|Perception:Single@12|Intellect:Single@16|Charisma:Single@20"),
         };
         var types = new Dictionary<string, Type>
         {
             ["core"] = typeof(PersonCore), ["transform"] = typeof(Transform), ["needs"] = typeof(Needs),
             ["lod"] = typeof(LodState), ["wander"] = typeof(WanderState),
             ["attributes"] = typeof(Attributes), ["personality"] = typeof(Personality), ["emotions"] = typeof(Emotions), ["mood"] = typeof(Mood),
-            ["activity"] = typeof(ActivityState),
+            ["activity"] = typeof(ActivityState), ["skill_progress"] = typeof(SkillProgress), ["attribute_training"] = typeof(AttributeTraining),
         };
 
         // Every persisted struct column is fingerprinted here (id and the per-row byte columns excepted).

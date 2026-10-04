@@ -28,6 +28,9 @@
       "description": {
         "type": "string",
         "minLength": 1
+      },
+      "attributes": {
+        "type": "object"
       }
     },
     "required": [

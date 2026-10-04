@@ -41,6 +41,8 @@ public static class StateHasher
         h.Append(MemoryMarshal.AsBytes(new ReadOnlySpan<PlayerState>(in world.Player)));
         h.Append(people.SkillLevelsAll);
         h.Append(people.SkillAptitudeAll);
+        h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<SkillProgress>)people.SkillProgressAll));
+        h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<AttributeTraining>)people.Training));
         world.Decisions.HashInto(h);
         world.HashAiInto(h);
         world.Conversations.HashInto(h);

@@ -91,7 +91,14 @@ public static class ContentCompiler
 
                     switch (def)
                     {
-                        case SkillDef s: skills.Add(s); break;
+                        case SkillDef s:
+                            if (s.Attributes is { } wts && (wts.Keys.Any(k => k is not ("str" or "end" or "dex" or "per" or "int" or "cha")) || Math.Abs(wts.Values.Sum() - 1f) > 0.01f))
+                            {
+                                errors.Add(new(rel, mark.Line, mark.Column, $"{s.Id}: attribute weights use str/end/dex/per/int/cha and sum to 1 (12 §4.2)."));
+                            }
+
+                            skills.Add(s);
+                            break;
                         case ItemDef i: ValidateItem(i, rel, mark, errors); items.Add(i); break;
                         case NeedDef n: ValidateNeed(n, rel, mark, errors); needs.Add(n); break;
                         case AssetDef a: ValidateAsset(a, rel, mark, repoRoot, errors); assets.Add(a); break;

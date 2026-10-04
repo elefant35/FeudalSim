@@ -389,6 +389,15 @@ Farstrand-born second generation.
 
 ## 6. Skill checks — the shared resolution function
 
+*Implemented (M2-04):* `Sim/Skills/Skills.cs` — `Attribute()` (potential + §3.3 training + §3.4 age), `XpRequired` /
+`XpCumulative` (§5.1), `AwardXp` (§5.2 DF, outcome, aptitude, age, teacher; §5.3's 150/day cap; level-ups; children
+capped at 25; practice clears rust; §3.3 training by load hours), `DailyRust` (§5.6, idempotent per day via a saved
+stamp; run by `SkillSystem`), `Effective()` (§6.2: level − rust, attribute weights from content, tool tier/quality,
+energy/satiety/warmth/light/rain/mood/rushing) and `Resolve()` (§6.3 logistic noise or the minigame's 24·m, outcome
+bands, PS, §6.4 work rate). Camp work earns 10 XP per labour-hour at D 20 for every actor. Not yet: know-how,
+specializations/perks, helpers, repetition by action key, the craft-and-salvage and same-target rules — they arrive
+with the systems that call them (13, 16). Per-skill progress and training are saved and hashed.
+
 `Resolve()` is the **contract** between this doc and every outcome-owning system. NPCs never play
 minigames; they call `Resolve()` with RNG noise. The player's minigame (owned by
 [13](13-crafting-and-minigames.md)) replaces the noise term inside a bounded window, so both draw

@@ -13,6 +13,9 @@ public sealed record SkillDef
     public required string Name { get; init; }
     public required SkillDomain Domain { get; init; }
     public string? Description { get; init; }
+
+    /// <summary>12 §4.2 attribute weights (str, end, dex, per, int, cha), summing to 1: ±3 effective skill per point from 5.</summary>
+    public IReadOnlyDictionary<string, float>? Attributes { get; init; }
 }
 
 public enum ItemCategory { Raw, Metal, Food, Drink, Tool, Weapon, Clothing, Container, Misc }

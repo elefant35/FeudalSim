@@ -44,6 +44,23 @@ public struct Attributes
     public float Strength, Endurance, Dexterity, Perception, Intellect, Charisma;
 }
 
+/// <summary>12 §3.3 training by use, per attribute (−1 … +2); added to the generated potential in checks.</summary>
+public struct AttributeTraining
+{
+    public float Strength, Endurance, Dexterity, Perception, Intellect, Charisma;
+}
+
+/// <summary>
+/// Per person per skill (12 §5): XP toward the next level, today's XP (the 150/day cap), the day it counts for, the last
+/// day practised (rust grace) and Rust (a temporary penalty; the level itself never drops, 12 §5.6).
+/// </summary>
+public struct SkillProgress
+{
+    public float Xp, DayXp;
+    public ushort Day, LastPracticeDay, RustDay;   // RustDay: the last day rust was evaluated (idempotent across save/load)
+    public byte Rust;
+}
+
 /// <summary>The nine values (canon §10.4), importance 0–100.</summary>
 public struct ValueBlock
 {

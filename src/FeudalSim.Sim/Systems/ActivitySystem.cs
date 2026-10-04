@@ -392,6 +392,12 @@ public sealed class ActivitySystem : ISimSystem
             foreach (var (stock, perHour) in stocks) { world.Camp.AddStock(stock, perHour * dtH * (perHour > 0f ? yield : 1f)); }
         }
 
+        // 12 §5.2: learn by doing — 10 XP per labour-hour of the action's skill (camp work at difficulty 20), for every actor alike.
+        if (def.Skill is not null && _skillHandle[act.Action] >= 0)
+        {
+            Skills.Skills.AwardXp(world, i, _skillHandle[act.Action], 10f * dtH, CampWorkDifficulty, Skills.Outcome.Success, dtH);
+        }
+
         if (def.Purposeful)
         {
             var primary = PrimarySkillMatches(world, i, def);
@@ -414,6 +420,9 @@ public sealed class ActivitySystem : ISimSystem
         }
         if (finished) { act.EndGameMs = ctx.GameMs; }
     }
+
+    /// <summary>The difficulty of routine camp work (gathering, tending the fire) for XP's difficulty factor (12 §5.2).</summary>
+    public const float CampWorkDifficulty = 20f;
 
     private bool PrimarySkillMatches(SimWorld world, int i, ActionDef def)
     {
