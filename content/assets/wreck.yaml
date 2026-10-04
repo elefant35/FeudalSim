@@ -1,0 +1,142 @@
+# yaml-language-server: $schema=../schemas/asset.schema.json
+# P0 Wending Star wreck; checks and visual evidence in art/generators/wreck and art/previews/wreck.
+- id: asset.wreck.hull_bow
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/wreck/wreck.py
+    params: { item: hull_bow, seed: 700 }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/wreck/hull_bow.glb]
+  budget_class: building_medium
+  measured: { tris_lod0: 3252, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Clinker planks overlap with solid lap edges, damaged amidships ends, exposed frames, incomplete deck, keel, stem and forward mast stump. 25 degree baked port heel. Waterline z=0, not ground. Hull and deck share hollow triangle collision. Place local origin at y=-5.5 relative to ship centre; together with stern gives approximately22m hull. Turntable and40m silhouette inspected; original procedural geometry using the shared palette."
+- id: asset.wreck.hull_stern
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/wreck/wreck.py
+    params: { item: hull_stern, seed: 700 }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/wreck/hull_stern.glb]
+  budget_class: building_medium
+  measured: { tris_lod0: 3400, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Clinker stern half, raised quarterdeck, exposed ribs, cargo coaming, aft mast stump, side steering oar. 25 degree baked port heel, sea surface z=0. Hollow hull/deck collision. Place local origin at y=+5.5 with bow at-5.5 and identical headings. Turntable and40m silhouette inspected; original procedural geometry using the shared palette."
+- id: asset.wreck.mast_broken
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/wreck/wreck.py
+    params: { item: mast_broken, seed: 700 }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/wreck/mast_broken.glb]
+  budget_class: workstation
+  measured: { tris_lod0: 1492, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Toppled splintered mast and broken spar with sagged, torn double-surface sail panels, junction lashings and trailing lines; wind R from anchors to free sail hems. Detailed assembly uses workstation budget. Turntable and40m silhouette inspected; original procedural geometry using the shared palette."
+- id: asset.wreck.rigging_tangle
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/wreck/wreck.py
+    params: { item: rigging_tangle, seed: 700 }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/wreck/rigging_tangle.glb]
+  budget_class: workstation
+  measured: { tris_lod0: 1584, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Eight irregular tangled hemp rope runs with salvaged wooden deadeyes. Continuous rope topology keeps the silhouette within workstation budget. Turntable and40m silhouette inspected; original procedural geometry using the shared palette."
+- id: asset.wreck.reef_rocks
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/wreck/wreck.py
+    params: { item: reef_rocks, seed: 700 }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/wreck/reef_rocks.glb]
+  budget_class: rock
+  measured: { tris_lod0: 320, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Four dark faceted rock masses; four independent convex collision meshes. Ground-plane origin lets placement choose local submersion around the wreck. Turntable and40m silhouette inspected; original procedural geometry using the shared palette."
+- id: asset.wreck.flotsam_planks
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/wreck/wreck.py
+    params: { item: flotsam_planks, seed: 700 }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/wreck/flotsam_planks.glb]
+  budget_class: prop_handheld
+  measured: { tris_lod0: 192, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Eight sea-stained crossed boards with splintered pieces; beach-ground origin. Turntable and40m silhouette inspected; original procedural geometry using the shared palette."
+- id: asset.wreck.flotsam_barrel
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/wreck/wreck.py
+    params: { item: flotsam_barrel, seed: 700 }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/wreck/flotsam_barrel.glb]
+  budget_class: prop_handheld
+  measured: { tris_lod0: 200, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Coopered salvaged barrel lies on its side with iron hoops and a loose stave. Turntable and40m silhouette inspected; original procedural geometry using the shared palette."
+- id: asset.wreck.flotsam_crate
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/wreck/wreck.py
+    params: { item: flotsam_crate, seed: 700 }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/wreck/flotsam_crate.glb]
+  budget_class: prop_handheld
+  measured: { tris_lod0: 324, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Sea-stained plank crate with bracing, split lid seams and a displaced loose board. Turntable and40m silhouette inspected; original procedural geometry using the shared palette."
+- id: asset.wreck.rope_coil
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/wreck/wreck.py
+    params: { item: rope_coil, seed: 700 }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/wreck/rope_coil.glb]
+  budget_class: prop_handheld
+  measured: { tris_lod0: 520, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Three overlapping hemp rope turns with loose tail; continuous quad strips preserve shape at low cost. Turntable and40m silhouette inspected; original procedural geometry using the shared palette."
+- id: asset.wreck.sail_heap
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/wreck/wreck.py
+    params: { item: sail_heap, seed: 700 }
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/wreck/sail_heap.glb]
+  budget_class: prop_handheld
+  measured: { tris_lod0: 264, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Nine damp folded sail panels with seams; solid thin geometry makes both sides visible. Turntable and40m silhouette inspected; original procedural geometry using the shared palette."

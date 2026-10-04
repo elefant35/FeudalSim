@@ -1,0 +1,52 @@
+{
+  "hull_bow": {
+    "tris": 3252,
+    "budget_class": "building_medium",
+    "materials": 1
+  },
+  "hull_stern": {
+    "tris": 3400,
+    "budget_class": "building_medium",
+    "materials": 1
+  },
+  "mast_broken": {
+    "tris": 1492,
+    "budget_class": "workstation",
+    "materials": 1
+  },
+  "rigging_tangle": {
+    "tris": 1584,
+    "budget_class": "workstation",
+    "materials": 1
+  },
+  "reef_rocks": {
+    "tris": 320,
+    "budget_class": "rock",
+    "materials": 1
+  },
+  "flotsam_planks": {
+    "tris": 192,
+    "budget_class": "prop_handheld",
+    "materials": 1
+  },
+  "flotsam_barrel": {
+    "tris": 200,
+    "budget_class": "prop_handheld",
+    "materials": 1
+  },
+  "flotsam_crate": {
+    "tris": 324,
+    "budget_class": "prop_handheld",
+    "materials": 1
+  },
+  "rope_coil": {
+    "tris": 520,
+    "budget_class": "prop_handheld",
+    "materials": 1
+  },
+  "sail_heap": {
+    "tris": 264,
+    "budget_class": "prop_handheld",
+    "materials": 1
+  }
+}

@@ -1,0 +1,191 @@
+{
+  "hull_bow": {
+    "assembled_objects": [
+      "wreck_hull_bow_a"
+    ],
+    "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/wreck/hull_bow.glb",
+    "budget_class": "building_medium",
+    "collision_objects": [
+      "wreck_hull_bow_a-colonly"
+    ],
+    "height_m": 4.922,
+    "materials": [
+      "palette"
+    ],
+    "ok": true,
+    "problems": [],
+    "stored_tris": 3252,
+    "tris": {
+      "0": 3252
+    }
+  },
+  "hull_stern": {
+    "assembled_objects": [
+      "wreck_hull_stern_a"
+    ],
+    "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/wreck/hull_stern.glb",
+    "budget_class": "building_medium",
+    "collision_objects": [
+      "wreck_hull_stern_a-colonly"
+    ],
+    "height_m": 5.646,
+    "materials": [
+      "palette"
+    ],
+    "ok": true,
+    "problems": [],
+    "stored_tris": 3400,
+    "tris": {
+      "0": 3400
+    }
+  },
+  "mast_broken": {
+    "assembled_objects": [
+      "wreck_mast_broken_a"
+    ],
+    "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/wreck/mast_broken.glb",
+    "budget_class": "workstation",
+    "collision_objects": [],
+    "height_m": 0.789,
+    "materials": [
+      "palette"
+    ],
+    "ok": true,
+    "problems": [],
+    "stored_tris": 1492,
+    "tris": {
+      "0": 1492
+    }
+  },
+  "rigging_tangle": {
+    "assembled_objects": [
+      "wreck_rigging_tangle_a"
+    ],
+    "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/wreck/rigging_tangle.glb",
+    "budget_class": "workstation",
+    "collision_objects": [],
+    "height_m": 0.257,
+    "materials": [
+      "palette"
+    ],
+    "ok": true,
+    "problems": [],
+    "stored_tris": 1584,
+    "tris": {
+      "0": 1584
+    }
+  },
+  "reef_rocks": {
+    "assembled_objects": [
+      "wreck_reef_rocks_a"
+    ],
+    "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/wreck/reef_rocks.glb",
+    "budget_class": "rock",
+    "collision_objects": [
+      "wreck_reef_rocks_0-convcolonly",
+      "wreck_reef_rocks_1-convcolonly",
+      "wreck_reef_rocks_2-convcolonly",
+      "wreck_reef_rocks_3-convcolonly"
+    ],
+    "height_m": 2.2,
+    "materials": [
+      "palette"
+    ],
+    "ok": true,
+    "problems": [],
+    "stored_tris": 320,
+    "tris": {
+      "0": 320
+    }
+  },
+  "flotsam_planks": {
+    "assembled_objects": [
+      "wreck_flotsam_planks_a"
+    ],
+    "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/wreck/flotsam_planks.glb",
+    "budget_class": "prop_handheld",
+    "collision_objects": [],
+    "height_m": 0.266,
+    "materials": [
+      "palette"
+    ],
+    "ok": true,
+    "problems": [],
+    "stored_tris": 192,
+    "tris": {
+      "0": 192
+    }
+  },
+  "flotsam_barrel": {
+    "assembled_objects": [
+      "wreck_flotsam_barrel_a"
+    ],
+    "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/wreck/flotsam_barrel.glb",
+    "budget_class": "prop_handheld",
+    "collision_objects": [],
+    "height_m": 0.68,
+    "materials": [
+      "palette"
+    ],
+    "ok": true,
+    "problems": [],
+    "stored_tris": 200,
+    "tris": {
+      "0": 200
+    }
+  },
+  "flotsam_crate": {
+    "assembled_objects": [
+      "wreck_flotsam_crate_a"
+    ],
+    "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/wreck/flotsam_crate.glb",
+    "budget_class": "prop_handheld",
+    "collision_objects": [],
+    "height_m": 0.64,
+    "materials": [
+      "palette"
+    ],
+    "ok": true,
+    "problems": [],
+    "stored_tris": 324,
+    "tris": {
+      "0": 324
+    }
+  },
+  "rope_coil": {
+    "assembled_objects": [
+      "wreck_rope_coil_a"
+    ],
+    "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/wreck/rope_coil.glb",
+    "budget_class": "prop_handheld",
+    "collision_objects": [],
+    "height_m": 0.062,
+    "materials": [
+      "palette"
+    ],
+    "ok": true,
+    "problems": [],
+    "stored_tris": 520,
+    "tris": {
+      "0": 520
+    }
+  },
+  "sail_heap": {
+    "assembled_objects": [
+      "wreck_sail_heap_a"
+    ],
+    "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/wreck/sail_heap.glb",
+    "budget_class": "prop_handheld",
+    "collision_objects": [],
+    "height_m": 0.416,
+    "materials": [
+      "palette"
+    ],
+    "ok": true,
+    "problems": [],
+    "stored_tris": 264,
+    "tris": {
+      "0": 264
+    }
+  }
+}
