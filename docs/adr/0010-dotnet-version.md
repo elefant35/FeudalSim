@@ -37,7 +37,8 @@
   `--report-xunit-trx --results-directory TestResults`.
 - Evidence: Release build 0 warnings; 58/58 tests; content validate/schemas/licenses OK; smoke run
   final hash **8bea5171cd1c0ad3**, identical to the SDK 8 build; the Godot game builds and both
-  headless Godot checks pass. `JsonSchema.Net.Generation` stays dropped (our generator is smaller and
+  headless Godot checks pass; CI green on ubuntu + macOS and `godot.yml` at 2b7c10f (runs 37165483972,
+  37165483955). `JsonSchema.Net.Generation` stays dropped (our generator is smaller and
   deterministic).
 
 ## Revisit if

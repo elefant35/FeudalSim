@@ -13,7 +13,9 @@ yet available.
 | Headless smoke + determinism | `dotnet run --project src/FeudalSim.Headless -- run --scenario content/scenarios/m0_smoke.yaml --verify-determinism` | exit 0; identical hashes |
 | AI gateway (chat) | `dotnet run --project src/FeudalSim.Headless -- ai ping` | Prints a completion + latency, or `fallback: template` without a key |
 | Fast decider | `dotnet run --project src/FeudalSim.Headless -- ai decide` | Prints normalized option probabilities summing to 1 |
-| Godot build | `dotnet build game/FeudalSim.Game.csproj` | 0 errors |
+| Godot build | `dotnet build game/FeudalSim.Game.csproj` | 0 errors, 0 warnings |
+| Godot boot smoke | `/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --path game -- --autotest` | `AUTOTEST PASS`, exit 0, no `ERROR`/`WARNING` lines |
+| Godot ↔ sim replay | `tools/godot/embodiment_check.sh` | `PASS` (Godot session hash = headless replay hash) |
 | Art checks | `/Applications/Blender.app/Contents/MacOS/Blender -b --factory-startup -P tools/art/check.py -- <asset>` | `RESULT ok` within budget class |
 | Art preview | `… -P tools/art/preview.py -- <asset.glb> art/previews/<name>.png` | PNG written; Read it and judge it |
 | Audio checks | `python3 tools/audio/check.py <files>` | Format, sample rate, loudness within 32 §12 |
