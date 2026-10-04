@@ -18,6 +18,9 @@ public sealed class WorldGrid(int size, float cellM)
     /// <summary>Distance to the shoreline in metres (land and sea), from stage 2.</summary>
     public float[] CoastDistM { get; } = new float[size * size];
 
+    /// <summary>Stage 4 province per cell (<see cref="WorldGen.Lithology"/>).</summary>
+    public byte[] Lithology { get; } = new byte[size * size];
+
     public float X(int col) => (col * CellM) - ((Size - 1) * CellM / 2f);
 
     public float Z(int row) => (row * CellM) - ((Size - 1) * CellM / 2f);
@@ -96,6 +99,15 @@ public static class WorldGenerator
             var k = peakTarget / top;
             for (var i = 0; i < grid.Height.Length; i++) { if (grid.Land[i] == 1) { grid.Height[i] = MathF.Max(0.5f, grid.Height[i] * k); } }
         }
+
+        // Stage 3 — erosion (serial: droplets are ordered), then stage 4 — lithology.
+        Erosion.Hydraulic(grid, SplitMix64.Mix(s, (ulong)RngStream.WorldGen, Salt.WorldGenErosion, 0, 0));
+        Erosion.Thermal(grid);
+        var eroded = 0f;
+        for (var i = 0; i < grid.Height.Length; i++) { if (grid.Land[i] == 1 && grid.Height[i] > eroded) { eroded = grid.Height[i]; } }
+        var renorm = eroded > 0f ? peakTarget / eroded : 1f;   // erosion wears the peak down: keep the drawn target
+        for (var i = 0; i < grid.Height.Length; i++) { if (grid.Land[i] == 1) { grid.Height[i] = MathF.Max(0.5f, grid.Height[i] * renorm); } }
+        Lithologies.Assign(grid, SplitMix64.Mix(s, (ulong)RngStream.WorldGen, Salt.WorldGenLithology, 0, 0), jobs);
 
         // Validation (10 §3.11): W1 land area and islets, W5 peak.
         var land = 0;

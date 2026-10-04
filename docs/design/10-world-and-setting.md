@@ -227,6 +227,11 @@ and on highland scarps.
 
 ### 3.4 Lithology
 
+*Implemented (M2-01a-ii):* `Lithologies.Assign` — 420 domain-warped Voronoi provinces, each labelled from the terrain at
+its site (province-scale slope over ±64 m): granite above 62% of the peak, a metamorphic margin within 900 m of granite,
+one chalk band on a seeded stretch of coast, alluvium on flat lowland, sandstone/shale elsewhere. Peat needs hydrology's
+wetness and is assigned in stage 5 (M2-01a-iii).
+
 Geology drives where resources are, so placement reads as plausible ("copper near the granite
 edge, like at home").
 
