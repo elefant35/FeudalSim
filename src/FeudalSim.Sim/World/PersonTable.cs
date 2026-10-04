@@ -24,6 +24,8 @@ public sealed class PersonTable
     private byte[] _skillAptitude = new byte[64 * SkillCount];     // hidden aptitude × 100 (50–150), 12 §5.4
     private SkillProgress[] _skillProgress = new SkillProgress[64 * SkillCount];   // 12 §5 (M2-04)
     private AttributeTraining[] _training = new AttributeTraining[64];             // 12 §3.3 (M2-04)
+    private Worn[] _worn = new Worn[64];                                           // 11 §9.2 (M2-05a)
+    private Body[] _body = new Body[64];                                           // 11 §9.3–9.4 (M2-05a)
 
     /// <summary>Skills per person (canon §10.2); skill handles are content order (ordinal id).</summary>
     public const int SkillCount = 28;
@@ -61,6 +63,10 @@ public sealed class PersonTable
 
     public Span<AttributeTraining> Training => _training.AsSpan(0, Count);
 
+    public Span<Worn> Worn => _worn.AsSpan(0, Count);
+
+    public Span<Body> Body => _body.AsSpan(0, Count);
+
     public int Add(EntityId id, string name, in PersonCore core, in Transform transform, in Needs needs)
     {
         if (id.Kind != EntityKind.Person) { throw new ArgumentException("Not a person id.", nameof(id)); }
@@ -80,6 +86,8 @@ public sealed class PersonTable
         _wander[i] = new WanderState { HomeX = transform.X, HomeZ = transform.Z };
         _attributes[i] = default;
         _training[i] = default;
+        _worn[i] = World.Worn.None;
+        _body[i] = default;
         _skillProgress.AsSpan(i * SkillCount, SkillCount).Clear();
         _personality[i] = new Personality { Culture = World.Personality.None, Profession = World.Personality.None };
         _emotions[i] = default;
@@ -103,7 +111,7 @@ public sealed class PersonTable
         EnsureCapacity(ids.Length);
         Array.Clear(_core); Array.Clear(_transform); Array.Clear(_needs); Array.Clear(_lod); Array.Clear(_wander);
         Array.Clear(_attributes); Array.Clear(_personality); Array.Clear(_emotions); Array.Clear(_mood); Array.Clear(_activity);
-        Array.Clear(_skillLevels); Array.Clear(_skillAptitude); Array.Clear(_skillProgress); Array.Clear(_training);
+        Array.Clear(_skillLevels); Array.Clear(_skillAptitude); Array.Clear(_skillProgress); Array.Clear(_training); Array.Clear(_worn); Array.Clear(_body);
         ids.CopyTo(_ids, 0);
         names.CopyTo(_names, 0);
         Count = ids.Length;
@@ -132,5 +140,7 @@ public sealed class PersonTable
         Array.Resize(ref _skillAptitude, size * SkillCount);
         Array.Resize(ref _skillProgress, size * SkillCount);
         Array.Resize(ref _training, size);
+        Array.Resize(ref _worn, size);
+        Array.Resize(ref _body, size);
     }
 }

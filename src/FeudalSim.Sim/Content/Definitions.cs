@@ -34,6 +34,21 @@ public sealed record ItemDef
     public required int BaseValueF { get; init; }
     public int? Durability { get; init; }
     public IReadOnlyList<string>? Aliases { get; init; }
+
+    /// <summary>Clothing only (11 §9.2): how the item is worn and what it does against cold and rain.</summary>
+    public WearDef? Wear { get; init; }
+}
+
+/// <summary>11 §9.2 slots; a shirt or shift sits under the tunic (Under), so the homeland kit fills six slots.</summary>
+public enum WearSlot { Under, Torso, Legs, Feet, Cloak, Head, Hands }
+
+/// <summary>11 §9.2 clothing values: insulation (°C), the share of it kept when soaked, and rain resistance (cloak slot).</summary>
+public sealed record WearDef
+{
+    public required WearSlot Slot { get; init; }
+    public required float Ins { get; init; }
+    public required float WetRetention { get; init; }
+    public required float RainResist { get; init; }
 }
 
 public enum NeedKind { Physical, Psychological }

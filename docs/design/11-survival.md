@@ -660,6 +660,30 @@ count as Ins 0. Rewarming must be gradual: warming at a fire at < 1 m adds a Bur
 at ≥ 55 leads to digit loss (§5.5). It is rare at sea level and common on highland expeditions in
 Winter.
 
+
+### 9.6 Implementation notes (M2-05a)
+
+`Sim/Survival/Exposure.cs` holds the §9.1–9.4 rules as pure functions; `ExposureSystem` applies them per person in the
+camp. Clothing is content (`content/items/wear.yaml`, a `wear` block per item); each person has a `Worn` record
+(one item per slot) and a `Body` record (Wetness, Hypothermia), both saved and hashed. The scenario's `camp:` block
+carries the shelter (Landfall: `sailcloth_shelter`), the bed's ground insulation, the elevation and coast flag, and the
+kit everyone lands in, the player included. Hypothermia raises an event at 50 and 80; being Downed and dying at 80/100
+are §14's (M2-06). Frostbite (§9.5) is an injury, so it is M2-06's too. Choices the rules left open (Q8):
+
+- A **shirt or shift** sits in its own *Under* slot beneath the tunic, so the homeland kit fills six slots (Ins 12.5).
+- A **worn cloak counts once**. The §9.2 bedding row "cloak +3" is a spare cloak used as a blanket. The camp's bough bed
+  gives only its ground insulation (+3).
+- **"Near a fire"** in the §9.1 warmth rule means within 3 m of a lit fire (the +6 ring and closer).
+- **Out of the rain** includes a shelter with rainBlock ≥ 0.9, which dries as if dry. Lower blocks only scale the gain.
+- **Drying uses the felt wind** (wind × (1 − windBlock)).
+- **Immersion adds activity heat**. §9.1's −20/h in 8 °C sea comes out for a soaked, clothed swimmer at moderate effort.
+- **Hot meals and drinks** (+5/+4 Warmth) wait for cooking (13).
+
+The camp sweep (100 seeds × 30 days from Spring 1) stays comfortable: mean Warmth 94, no agent-hours below 40 over the
+year's mean. A 32-day run shows the dip in Winter: Winter 5–6 mean 54, minimum 34, 2% of agent-hours Cold.
+The camp is provisioned (a fire lit 100% of the time, sailcloth shelters, bough beds, dry kit), so exposure only
+bites when Landfall's S3 state (Wetness 50–100, Warmth 55–70) and the wreck work arrive (M2's Landfall beats).
+
 ---
 
 ## 10. Food, nutrition & spoilage
@@ -1406,6 +1430,12 @@ diagnosis, or how much food a ration holds.
    Referenced here as assumed.
 6. **Disabled persons' roles:** should permanent injuries open specific professions or perks (e.g.
    a one-legged steward), rather than only penalties?
+7. **Q7: the soaked-kit anchor (§2.3).** By §9.1–9.4 the soaked homeland kit asleep from dusk at ≈ 1 °C, wind 3, reaches
+   Freezing near 22:00, not ≈ 02:00, and Hypothermia ≈ 74 at dawn, not ≈ 50 (wet wool keeps 6.9 of 12.5; drying is
+   ≈ 6.8/h). The conclusion holds: survivable only if they wake and move. Should the prose change, or the rules (for
+   example a slower soaked-wool loss)? (M2-05a; 31 D40.)
+8. **Q8: exposure modelling choices** (§9.6): the Under slot, the cloak counted once, near a fire = 3 m, rainBlock ≥ 0.9 as
+   dry, felt wind for drying, and activity heat in immersion. All are applied (reversible); confirm or override.
 
 ## Proposed canon additions
 

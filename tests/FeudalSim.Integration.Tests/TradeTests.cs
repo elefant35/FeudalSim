@@ -162,7 +162,9 @@ public sealed class TradeTests
         var w = h.W;
         h.Submit(new TradeOpen(w.People.Ids[npc], "item.iron_knife", 1, PlayerSells: false));
         var opening = h.Events<TradeOffered>().Single();
-        opening.PriceF.ShouldBeGreaterThan(14L);   // the deterministic opening ask is above value (Asp)
+        // The deterministic opening ask is Asp, above the NPC's own appraisal (15 §2.4) — not necessarily above the base value
+        // of 14f, since the appraisal carries error (σ up to 0.28) keyed on the item handle, which shifts as content grows.
+        opening.PriceF.ShouldBeGreaterThan((long)MathF.Floor(w.Negotiations.Get(opening.Negotiation)!.Pv));
         h.Submit(new TradeOffer(opening.Negotiation, 12));
         var dp = h.LastDp;
         while (h.W.Clock.Step <= dp.DeadlineStep) { h.Step(); }

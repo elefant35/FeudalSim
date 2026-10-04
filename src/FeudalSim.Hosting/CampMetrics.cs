@@ -8,7 +8,8 @@ namespace FeudalSim.Hosting;
 /// <summary>One game day of 21 §19 camp metrics (headless, policy-only).</summary>
 public sealed record CampDay(
     double IdleRate, double LowNeedShare, double MoodMean, double BreakingShare, double Divergence,
-    double Food, double Firewood, double FireShare, double FriendsPerPerson = 0, double EnemiesPerPerson = 0, double MeanOpinion = 0);
+    double Food, double Firewood, double FireShare, double FriendsPerPerson = 0, double EnemiesPerPerson = 0, double MeanOpinion = 0,
+    double MeanWarmth = 0, double ColdShare = 0, double FreezingShare = 0, double WarmingShare = 0, double MeanWetness = 0, double MinWarmth = 100, double MaxHypothermia = 0);
 
 /// <summary>
 /// Samples a utility-AI world once per game minute and summarizes each game day per 21 §19: idle rate (share of awake
@@ -22,7 +23,9 @@ public sealed class CampMetrics
     private readonly int _actions;
     private readonly int _idle, _rest, _sleep;
     private long _lastMinute = -1;
-    private int _minutes, _awake, _idleMinutes, _lowNeed, _agentMinutes, _fireMinutes;
+    private int _minutes, _awake, _idleMinutes, _lowNeed, _agentMinutes, _fireMinutes, _cold, _freezing, _warming;
+    private double _warmthSum, _wetSum, _minWarmth = 100, _maxHypo;
+    private readonly int _warmUp;
     private double _moodSum;
     private int _moodN;
     private float[][] _hist = [];
@@ -32,7 +35,7 @@ public sealed class CampMetrics
     {
         _actions = content.Actions.Count;
         int H(string id) => ContentDatabase.HandleOf(content.Actions, id, a => a.Id);
-        (_idle, _rest, _sleep) = (H("action.idle"), H("action.rest"), H("action.sleep"));
+        (_idle, _rest, _sleep, _warmUp) = (H("action.idle"), H("action.rest"), H("action.sleep"), H("action.warm_up"));
     }
 
     public List<CampDay> Days { get; } = [];
@@ -58,11 +61,18 @@ public sealed class CampMetrics
             _hist[i][a < 0 ? _actions : a]++;
             _agentMinutes++;
             var n = p.Needs[i];
-            if (n.Satiety < 15f || n.Hydration < 15f || n.Energy < 15f) { _lowNeed++; }
+            if (n.Satiety < 15f || n.Hydration < 15f || n.Energy < 15f || n.Warmth < 15f) { _lowNeed++; }   // any physical need (21 §19)
+            _warmthSum += n.Warmth;
+            _wetSum += p.Body[i].Wetness;
+            if (n.Warmth < 40f) { _cold++; }
+            _minWarmth = Math.Min(_minWarmth, n.Warmth);
+            _maxHypo = Math.Max(_maxHypo, p.Body[i].Hypothermia);
+            if (n.Warmth < 25f) { _freezing++; }
             if (a != _sleep)
             {
                 _awake++;
                 if (a == _idle || a == _rest) { _idleMinutes++; }
+                if (a == _warmUp && a >= 0) { _warming++; }
             }
 
             _dayMood[i] += p.Mood[i].Smoothed;
@@ -92,9 +102,13 @@ public sealed class CampMetrics
             Divergence(p),
             world.Camp.Food, world.Camp.Firewood,
             _minutes == 0 ? 0 : _fireMinutes / (double)_minutes,
-            SocialCounts(world).Friends, SocialCounts(world).Enemies, SocialCounts(world).Opinion);
+            SocialCounts(world).Friends, SocialCounts(world).Enemies, SocialCounts(world).Opinion,
+            _agentMinutes == 0 ? 0 : _warmthSum / _agentMinutes, _agentMinutes == 0 ? 0 : _cold / (double)_agentMinutes,
+            _agentMinutes == 0 ? 0 : _freezing / (double)_agentMinutes, _awake == 0 ? 0 : _warming / (double)_awake,
+            _agentMinutes == 0 ? 0 : _wetSum / _agentMinutes, _minWarmth, _maxHypo);
         Days.Add(day);
         (_minutes, _awake, _idleMinutes, _lowNeed, _agentMinutes, _fireMinutes, _moodSum, _moodN) = (0, 0, 0, 0, 0, 0, 0, 0);
+        (_cold, _freezing, _warming, _warmthSum, _wetSum, _minWarmth, _maxHypo) = (0, 0, 0, 0, 0, 100, 0);
         foreach (var h in _hist) { Array.Clear(h); }
         Array.Clear(_dayMood);
         return day;

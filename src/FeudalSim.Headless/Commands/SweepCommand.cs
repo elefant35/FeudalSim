@@ -70,6 +70,8 @@ public sealed class SweepCommand : Command<SweepSettings>
         var food = summaries.Select(x => x.S.FinalFood).ToArray();
         Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
             $"  camp: final food mean {food.Average():F0} (min {food.Min():F0}) · fire burning {summaries.Average(x => x.S.FireShare):P0} of the time · seeds with food left {food.Count(f => f > 0) / (double)food.Length:P0}"));
+        Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+            $"  exposure (11 §9): mean warmth {summaries.Average(x => x.S.MeanWarmth):F1} · cold (< 40) {summaries.Average(x => x.S.ColdShare):P1} · freezing (< 25) {summaries.Average(x => x.S.FreezingShare):P2} of agent-hours · warming up {summaries.Average(x => x.S.WarmingShare):P1} of awake time · mean wetness {summaries.Average(x => x.S.MeanWetness):F1}"));
 
         if (summaries.Any(x => x.S.InteractionMix is not null))
         {

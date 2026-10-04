@@ -373,7 +373,7 @@ public sealed class ActivitySystem : ISimSystem
             foreach (var (need, perHour) in gains)
             {
                 var rate = perHour;
-                if (need == "energy" && def.Activity == ActivityLevel.Sleep) { rate *= world.Camp.Bedding; }
+                if (need == "energy" && def.Activity == ActivityLevel.Sleep) { rate *= world.Camp.Bedding * Survival.Exposure.SleepWarmthFactor(n.Warmth); }   // 11 §3.2
                 if (def.Social && socialCount < 2 && !act.Has(ActivityState.Conversing)) { rate *= 0.25f; }   // nobody else to talk to
                 var gain = MathF.Min(rate * dtH, 100f - Need(n, need));
                 if (def.Consumes is { } cons && gain > 0f)
@@ -418,6 +418,7 @@ public sealed class ActivitySystem : ISimSystem
                 if (world.Camp.Stock(stock) < min) { finished = true; Abandoned++; }
             }
         }
+        if (def.Activity == ActivityLevel.Sleep && n.Warmth < 20f) { finished = true; }   // 11 §3.2: the cold wakes them
         if (finished) { act.EndGameMs = ctx.GameMs; }
     }
 

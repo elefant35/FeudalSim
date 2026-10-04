@@ -44,6 +44,8 @@ public static class StateHasher
         h.Append(people.SkillAptitudeAll);
         h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<SkillProgress>)people.SkillProgressAll));
         h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<AttributeTraining>)people.Training));
+        h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<Worn>)people.Worn));
+        h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<Body>)people.Body));
         world.Decisions.HashInto(h);
         world.HashAiInto(h);
         world.Conversations.HashInto(h);

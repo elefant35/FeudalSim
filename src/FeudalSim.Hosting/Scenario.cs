@@ -81,7 +81,7 @@ public sealed record ScenarioDef
         world.Decisions.Register(new Sim.Social.RequestOwner());
         world.Decisions.Register(new Sim.Social.BeingToldOwner());
         world.Decisions.Register(new Sim.Economy.TradeOwner());
-        return world.AddSystem(new SkillSystem()).AddSystem(new ActivitySystem()).AddSystem(new NeedsDecaySystem()).AddSystem(new PsychologySystem())
+        return world.AddSystem(new SkillSystem()).AddSystem(new ActivitySystem()).AddSystem(new ExposureSystem()).AddSystem(new NeedsDecaySystem()).AddSystem(new PsychologySystem())
             .AddSystem(new Lod3System()).AddSystem(new SocialSystem()).AddSystem(new InteractionSystem());
     }
 
@@ -169,12 +169,35 @@ public sealed record CampDef
     public float Firewood { get; init; } = 10f;
     public float FireFuelMin { get; init; } = 240f;
     public float Bedding { get; init; } = 0.85f;         // bough bed (11 §3.2)
+    public float BeddingInsulation { get; init; } = 3f;  // bough/bracken bed ground insulation (11 §9.2)
+
+    /// <summary>11 §13 shelter at the camp's shelter place: Landfall's sailcloth shelters (windBlock 0.8, rainBlock 0.9, +2 °C).</summary>
+    public ShelterDef Shelter { get; init; } = new();
+
+    public float ElevationM { get; init; } = 3f;         // the beach (10 §6.2 worked example)
+    public bool Coastal { get; init; } = true;           // within 500 m of the sea (coastF 0.7)
+
+    /// <summary>What everyone wears on landing (11 §9.2 homeland kit, Ins 12.5).</summary>
+    public List<string> Kit { get; init; } = ["item.linen_shirt", "item.wool_tunic", "item.wool_hose", "item.turnshoes", "item.wool_cloak", "item.wool_hood"];
     public string Schedule { get; init; } = "schedule.landfall_communal";
     public Dictionary<string, float[]> Places { get; init; } = new()
     {
         ["fire"] = [10, -6], ["stores"] = [14, -2], ["shelter"] = [2, -16],
         ["water"] = [-25, 12], ["woods"] = [45, -35], ["forage_ground"] = [-35, -30],
     };
+
+    private Sim.World.Worn KitOf(ContentDatabase content)
+    {
+        var worn = Sim.World.Worn.None;
+        foreach (var id in Kit)
+        {
+            var handle = ContentDatabase.HandleOf(content.Items, id, i => i.Id);
+            if (handle < 0 || content.Items[handle].Wear is not { } wear) { throw new FormatException($"camp kit: '{id}' is not a wearable item."); }
+            worn.Set((int)wear.Slot, (short)handle);
+        }
+
+        return worn;
+    }
 
     public Sim.World.CampRecord ToRecord(ContentDatabase content)
     {
@@ -183,12 +206,23 @@ public sealed record CampDef
         return new Sim.World.CampRecord
         {
             Active = 1, Food = Food, Firewood = Firewood, FireFuelMin = FireFuelMin, Bedding = Bedding,
+            BeddingInsulation = BeddingInsulation, ShelterWindBlock = Shelter.WindBlock, ShelterRainBlock = Shelter.RainBlock,
+            ShelterInsulation = Shelter.Insulation, ElevationM = ElevationM, Coastal = Coastal ? (byte)1 : (byte)0, Kit = KitOf(content),
             Schedule = handle < 0 ? (ushort)0xFFFF : (ushort)handle,
             FireX = P("fire").X, FireZ = P("fire").Z, StoresX = P("stores").X, StoresZ = P("stores").Z,
             ShelterX = P("shelter").X, ShelterZ = P("shelter").Z, WaterX = P("water").X, WaterZ = P("water").Z,
             WoodsX = P("woods").X, WoodsZ = P("woods").Z, ForageX = P("forage_ground").X, ForageZ = P("forage_ground").Z,
         };
     }
+}
+
+/// <summary>11 §13 shelter values (scenario YAML <c>camp.shelter</c>).</summary>
+public sealed record ShelterDef
+{
+    public string Kind { get; init; } = "sailcloth_shelter";
+    public float WindBlock { get; init; } = 0.8f;
+    public float RainBlock { get; init; } = 0.9f;
+    public float Insulation { get; init; } = 2f;
 }
 
 /// <summary>One row of <c>metrics_daily.csv</c>.</summary>
@@ -201,7 +235,8 @@ public sealed record RunResult(long Steps, ulong FinalHash, IReadOnlyList<DayMet
 
 /// <summary>21 §19 camp metrics over a whole run (means of the daily values; task failure over all activities).</summary>
 public sealed record CampSummary(double IdleRate, double LowNeedShare, double MoodMean, double BreakingShare, double Divergence, double TaskFailure,
-    double FinalFood, double FireShare, double FinalFriends = 0, double FinalEnemies = 0, double InteractionsPerDay = 0, IReadOnlyDictionary<string, double>? InteractionMix = null, double[]? InteractionFunnel = null, double[]? FriendGates = null);
+    double FinalFood, double FireShare, double FinalFriends = 0, double FinalEnemies = 0, double InteractionsPerDay = 0, IReadOnlyDictionary<string, double>? InteractionMix = null, double[]? InteractionFunnel = null, double[]? FriendGates = null,
+    double MeanWarmth = 0, double ColdShare = 0, double FreezingShare = 0, double WarmingShare = 0, double MeanWetness = 0);
 
 /// <summary>Runs a scenario at max speed, collecting daily metrics (20 §13).</summary>
 public static class ScenarioRunner
@@ -237,7 +272,9 @@ public static class ScenarioRunner
         {
             summary = new CampSummary(cm.Days.Average(d => d.IdleRate), cm.Days.Average(d => d.LowNeedShare), cm.Days.Average(d => d.MoodMean),
                 cm.Days.Average(d => d.BreakingShare), cm.Days.Average(d => d.Divergence), CampMetrics.TaskFailure(world), world.Camp.Food, cm.Days.Average(d => d.FireShare),
-                cm.Days[^1].FriendsPerPerson, cm.Days[^1].EnemiesPerPerson, FriendGates: CampMetrics.FriendGates(world));
+                cm.Days[^1].FriendsPerPerson, cm.Days[^1].EnemiesPerPerson, FriendGates: CampMetrics.FriendGates(world),
+                MeanWarmth: cm.Days.Average(d => d.MeanWarmth), ColdShare: cm.Days.Average(d => d.ColdShare), FreezingShare: cm.Days.Average(d => d.FreezingShare),
+                WarmingShare: cm.Days.Average(d => d.WarmingShare), MeanWetness: cm.Days.Average(d => d.MeanWetness));
             if (world.Systems.OfType<InteractionSystem>().FirstOrDefault() is { } ix)
             {
                 var total = ix.Counts.Sum();

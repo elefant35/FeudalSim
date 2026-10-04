@@ -141,3 +141,16 @@
   chosen_by_system: true
   # 21 §14.4: a conversation with the player holds the NPC here (LOD0) until it ends; the scorer never picks it, but its
   # score is the "stay" side of the end_conversation propensity.
+- id: action.warm_up
+  name: Warm up at the fire
+  class: p3
+  weight_need: warmth
+  place: fire
+  duration_min: 30
+  activity: rest
+  requires: { fire_fuel_min: 1 }
+  until_need: { warmth: 85 }
+  start_below: { warmth: 55 }
+  schedule_block: any
+  utility_keys: [rest]
+  # 11 §9.1 (M2-05a): the fire's bonus and drying do the work (ExposureSystem); sitting within 3 m warms +10/h.

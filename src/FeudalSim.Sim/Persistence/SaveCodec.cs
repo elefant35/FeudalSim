@@ -187,6 +187,8 @@ public static class SaveCodec
         ("skill_aptitude", 1, PersonTable.SkillCount),
         ("skill_progress", 1, PersonTable.SkillCount * Marshal.SizeOf<SkillProgress>()),   // M2-04
         ("attribute_training", 1, Marshal.SizeOf<AttributeTraining>()),                 // M2-04
+        ("worn", 1, Marshal.SizeOf<Worn>()),                                             // M2-05a
+        ("body", 1, Marshal.SizeOf<Body>()),                                             // M2-05a
     ];
 
     public static SaveImage Capture(SimWorld world)
@@ -208,6 +210,8 @@ public static class SaveCodec
         people.Columns.Add(Column("skill_aptitude", (ReadOnlySpan<byte>)p.SkillAptitudeAll));
         people.Columns.Add(Column("skill_progress", (ReadOnlySpan<SkillProgress>)p.SkillProgressAll));
         people.Columns.Add(Column("attribute_training", (ReadOnlySpan<AttributeTraining>)p.Training));
+        people.Columns.Add(Column("worn", (ReadOnlySpan<Worn>)p.Worn));
+        people.Columns.Add(Column("body", (ReadOnlySpan<Body>)p.Body));
         people.Strings.Add(new StringColumn { Name = "name", Values = p.Names.ToArray() });
 
         var counters = new ulong[256];
@@ -272,6 +276,8 @@ public static class SaveCodec
         CopyBytesOrDefault(chunk, "skill_aptitude", p.SkillAptitudeAll, notes, 100);
         CopyOrDefault(chunk, "skill_progress", p.SkillProgressAll, notes, static _ => default);
         CopyOrDefault(chunk, "attribute_training", p.Training, notes, static _ => default);
+        CopyOrDefault(chunk, "worn", p.Worn, notes, static _ => Worn.None);
+        CopyOrDefault(chunk, "body", p.Body, notes, static _ => default);
 
         foreach (var c in chunk.Columns.Where(c => PeopleColumns.All(k => k.Name != c.Name)))
         {

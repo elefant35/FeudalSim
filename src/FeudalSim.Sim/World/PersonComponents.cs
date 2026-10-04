@@ -22,6 +22,37 @@ public struct Transform
     public float X, Y, Z, Yaw;
 }
 
+/// <summary>11 §9.2 worn clothing: one item handle per slot (−1 = none). Slots follow <see cref="Content.WearSlot"/> (M2-05a).</summary>
+public struct Worn
+{
+    public const int SlotCount = 7;
+    public short Under, Torso, Legs, Feet, Cloak, Head, Hands, Reserved;
+
+    public static Worn None => new() { Under = -1, Torso = -1, Legs = -1, Feet = -1, Cloak = -1, Head = -1, Hands = -1, Reserved = -1 };
+
+    public readonly short Slot(int slot) => slot switch { 0 => Under, 1 => Torso, 2 => Legs, 3 => Feet, 4 => Cloak, 5 => Head, _ => Hands };
+
+    public void Set(int slot, short item)
+    {
+        switch (slot)
+        {
+            case 0: Under = item; break;
+            case 1: Torso = item; break;
+            case 2: Legs = item; break;
+            case 3: Feet = item; break;
+            case 4: Cloak = item; break;
+            case 5: Head = item; break;
+            default: Hands = item; break;
+        }
+    }
+}
+
+/// <summary>11 §9.3–9.4 exposure state: Wetness 0–100 and Hypothermia 0–100 (M2-05a).</summary>
+public struct Body
+{
+    public float Wetness, Hypothermia;
+}
+
 /// <summary>Needs, 0–100 where 100 = fully satisfied (canon §10.5).</summary>
 public struct Needs
 {

@@ -49,6 +49,8 @@ public sealed class NeedsDecaySystem : ISimSystem
             en[level] = Rate(content, "need.energy", (ActivityLevel)level, DefaultEnergyPerHour);
         }
 
+        // 11 §2.1 modifiers (M2-05a): cold raises Satiety and Energy use; air above 22 °C raises Hydration use.
+        var hot = Climate.Weather.AirTempC(world.WeatherRef, ctx.GameMinute, world.Camp.ElevationM, world.Camp.Coastal != 0) > 22f ? 1.3f : 1f;
         for (var k = 0; k < due.Count; k++)
         {
             var i = due.Rows[k];
@@ -56,9 +58,9 @@ public sealed class NeedsDecaySystem : ISimSystem
             var dtH = due.Dt(k) / (float)Time.SimClock.MsPerGameHour;
             ref var n = ref people.Needs[i];
             var level = (int)people.Activity[i].Level;
-            n.Satiety = MathF.Max(0, n.Satiety - (sat[level] * dtH));
-            n.Hydration = MathF.Max(0, n.Hydration - (hyd[level] * dtH));
-            n.Energy = MathF.Max(0, n.Energy - (en[level] * dtH));
+            n.Satiety = MathF.Max(0, n.Satiety - (sat[level] * Survival.Exposure.SatietyColdFactor(n.Warmth) * dtH));
+            n.Hydration = MathF.Max(0, n.Hydration - (hyd[level] * hot * dtH));
+            n.Energy = MathF.Max(0, n.Energy - (en[level] * Survival.Exposure.EnergyColdFactor(n.Warmth) * dtH));
         }
     }
 

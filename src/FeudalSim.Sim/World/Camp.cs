@@ -14,6 +14,11 @@ public struct CampRecord
     public ushort Schedule;                             // schedule handle
     public float FireX, FireZ, WaterX, WaterZ, StoresX, StoresZ, ShelterX, ShelterZ, WoodsX, WoodsZ, ForageX, ForageZ;
 
+    // 11 §13 / §9 exposure (M2-05a): the camp's shelter, the bed's ground insulation, where the camp lies, what settlers wear.
+    public float ShelterWindBlock, ShelterRainBlock, ShelterInsulation, BeddingInsulation, ElevationM;
+    public byte Coastal;
+    public Worn Kit;
+
     public readonly (float X, float Z) Place(PlaceKind kind) => kind switch
     {
         PlaceKind.Fire => (FireX, FireZ),

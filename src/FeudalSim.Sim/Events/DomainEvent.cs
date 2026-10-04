@@ -31,6 +31,7 @@ public enum Salience : byte { Trace, Minor, Notable, Major, Historic }
 [Union(22, typeof(TradeSettled))]
 [Union(23, typeof(NegotiationEnded))]
 [Union(24, typeof(TheftCommitted))]
+[Union(25, typeof(HypothermiaRose))]
 public abstract record DomainEvent;
 
 [MessagePackObject]
@@ -164,3 +165,7 @@ public sealed record TradeSettled([property: Key(0)] ulong Negotiation, [propert
 
 [MessagePackObject]
 public sealed record NegotiationEnded([property: Key(0)] ulong Negotiation, [property: Key(1)] EntityId Npc, [property: Key(2)] string Reason) : DomainEvent;
+
+/// <summary>11 §9.4: a person's hypothermia crossed 50 (confused) or 80 (Downed — incapacitation is M2-06).</summary>
+[MessagePackObject]
+public sealed record HypothermiaRose([property: Key(0)] EntityId Person, [property: Key(1)] int Level) : DomainEvent;

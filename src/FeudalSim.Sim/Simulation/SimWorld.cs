@@ -259,6 +259,7 @@ public sealed class SimWorld
                 People.Rename(newRow, name);
                 People.Core[newRow].BirthGameMinute = Clock.GameMinute - (age * GameDate.MinutesPerYear);
                 People.Lod[newRow].LastUpdateGameMs = Clock.GameMs - Clock.GameMsPerStep;   // first update integrates one step
+                if (Camp.Active != 0) { People.Worn[newRow] = Camp.Kit; }                // 11 §9.2: everyone (player too) lands in the camp's kit
                 if (c.IsPlayer)
                 {
                     People.Core[newRow].Flags |= PersonFlags.Player;

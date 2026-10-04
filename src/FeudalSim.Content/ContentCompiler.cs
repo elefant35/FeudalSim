@@ -204,6 +204,14 @@ public static class ContentCompiler
         if (i.MassKg <= 0) { errors.Add(new(rel, (int)m.Line, (int)m.Column, $"{i.Id}: mass_kg must be > 0.")); }
         if (i.BaseValueF < 0) { errors.Add(new(rel, (int)m.Line, (int)m.Column, $"{i.Id}: base_value_f must be ≥ 0 farthings.")); }
         if (i.Durability is <= 0) { errors.Add(new(rel, (int)m.Line, (int)m.Column, $"{i.Id}: durability must be > 0 when set.")); }
+        if (i.Wear is { } wear)
+        {
+            if (i.Category != ItemCategory.Clothing) { errors.Add(new(rel, (int)m.Line, (int)m.Column, $"{i.Id}: only clothing can be worn.")); }
+            if (wear.Ins is < 0f or > 20f || wear.WetRetention is < 0f or > 1f || wear.RainResist is < 0f or > 1f)
+            {
+                errors.Add(new(rel, (int)m.Line, (int)m.Column, $"{i.Id}: wear needs ins 0–20 and wet_retention / rain_resist 0–1."));
+            }
+        }
     }
 
     private static void ValidateAsset(AssetDef a, string rel, Mark m, string repoRoot, List<ContentError> errors)

@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=../schemas/item.schema.json
+# Clothing — named to sort after the other item files so existing item handles stay put (saves, keyed RNG). 11 §9.2: ins = insulation °C at quality 50; wet_retention = share of ins kept when
+# soaked; rain_resist counts on the cloak slot. Prices: 15 §3 rows 50–51 (tunic 41, shoes 10); the rest are estimates (proposed).
+- { id: item.linen_shirt,     name: Linen shirt,          category: clothing, tier: t1, trade_unit: each, mass_kg: 0.3, base_value_f: 12, wear: { slot: under, ins: 1,   wet_retention: 0.2, rain_resist: 0 } }
+- { id: item.wool_tunic,      name: Wool tunic,           category: clothing, tier: t1, trade_unit: each, mass_kg: 1.0, base_value_f: 41, wear: { slot: torso, ins: 4,   wet_retention: 0.6, rain_resist: 0.1 } }
+- { id: item.wool_hose,       name: Wool hose,            category: clothing, tier: t1, trade_unit: each, mass_kg: 0.5, base_value_f: 15, wear: { slot: legs,  ins: 2,   wet_retention: 0.6, rain_resist: 0.1 } }
+- { id: item.turnshoes,       name: Leather turnshoes,    category: clothing, tier: t1, trade_unit: pair, mass_kg: 0.5, base_value_f: 10, wear: { slot: feet,  ins: 1,   wet_retention: 0.4, rain_resist: 0.3 } }
+- { id: item.wool_cloak,      name: Wool cloak,           category: clothing, tier: t1, trade_unit: each, mass_kg: 2.0, base_value_f: 36, wear: { slot: cloak, ins: 3,   wet_retention: 0.6, rain_resist: 0.3 } }
+- { id: item.wool_hood,       name: Wool hood,            category: clothing, tier: t1, trade_unit: each, mass_kg: 0.3, base_value_f: 8,  wear: { slot: head,  ins: 1.5, wet_retention: 0.6, rain_resist: 0.2 } }
+- { id: item.wool_mittens,    name: Wool mittens,         category: clothing, tier: t1, trade_unit: pair, mass_kg: 0.2, base_value_f: 6,  wear: { slot: hands, ins: 1,   wet_retention: 0.5, rain_resist: 0 } }
+- { id: item.hide_jerkin,     name: Hide jerkin,          category: clothing, tier: t0, trade_unit: each, mass_kg: 2.0, base_value_f: 24, wear: { slot: torso, ins: 3,   wet_retention: 0.5, rain_resist: 0.5 } }
+- { id: item.fur_cloak,       name: Fur cloak,            category: clothing, tier: t0, trade_unit: each, mass_kg: 4.0, base_value_f: 60, wear: { slot: cloak, ins: 7,   wet_retention: 0.5, rain_resist: 0.5 } }
+- { id: item.fur_hat,         name: Fur hat,              category: clothing, tier: t0, trade_unit: each, mass_kg: 0.4, base_value_f: 12, wear: { slot: head,  ins: 2.5, wet_retention: 0.5, rain_resist: 0.4 } }
+- { id: item.fur_boots,       name: Fur-lined boots,      category: clothing, tier: t0, trade_unit: pair, mass_kg: 1.2, base_value_f: 20, wear: { slot: feet,  ins: 3,   wet_retention: 0.5, rain_resist: 0.4 } }
+- { id: item.oiled_cloak,     name: Oiled cloak,          category: clothing, tier: t1, trade_unit: each, mass_kg: 2.2, base_value_f: 40, wear: { slot: cloak, ins: 2,   wet_retention: 0.7, rain_resist: 0.8 } }
+- { id: item.sailcloth_poncho, name: Sailcloth poncho,    category: clothing, tier: t1, trade_unit: each, mass_kg: 1.5, base_value_f: 15, wear: { slot: cloak, ins: 1,   wet_retention: 0.3, rain_resist: 0.7 } }
+- { id: item.grass_wrap,      name: Grass or bark wrap,   category: clothing, tier: t0, trade_unit: each, mass_kg: 0.8, base_value_f: 1,  wear: { slot: torso, ins: 1,   wet_retention: 0.2, rain_resist: 0.2 } }
+- { id: item.gambeson,        name: Gambeson,             category: clothing, tier: t2, trade_unit: each, mass_kg: 3.5, base_value_f: 90, wear: { slot: torso, ins: 6,   wet_retention: 0.4, rain_resist: 0.2 } }

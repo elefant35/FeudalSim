@@ -59,6 +59,39 @@
           "type": "string",
           "minLength": 1
         }
+      },
+      "wear": {
+        "type": "object",
+        "properties": {
+          "slot": {
+            "type": "string",
+            "enum": [
+              "under",
+              "torso",
+              "legs",
+              "feet",
+              "cloak",
+              "head",
+              "hands"
+            ]
+          },
+          "ins": {
+            "type": "number"
+          },
+          "wet_retention": {
+            "type": "number"
+          },
+          "rain_resist": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "slot",
+          "ins",
+          "wet_retention",
+          "rain_resist"
+        ],
+        "additionalProperties": false
       }
     },
     "required": [

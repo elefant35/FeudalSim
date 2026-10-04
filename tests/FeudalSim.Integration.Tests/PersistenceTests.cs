@@ -170,6 +170,8 @@ public sealed class PersistenceTests : IDisposable
             ["activity"] = (1, "Action:Int16@0|Phase:Byte@2|Level:ActivityLevel@3|Flags:Byte@4|StartedGameMs:Int64@8|EndGameMs:Int64@16|NextDecideGameMs:Int64@24|Score:Single@32|TargetX:Single@36|TargetZ:Single@40"),
             ["skill_progress"] = (1, "Xp:Single@0|DayXp:Single@4|Day:UInt16@8|LastPracticeDay:UInt16@10|RustDay:UInt16@12|Rust:Byte@14"),   // M2-04, 28 per row
             ["attribute_training"] = (1, "Strength:Single@0|Endurance:Single@4|Dexterity:Single@8|Perception:Single@12|Intellect:Single@16|Charisma:Single@20"),
+            ["worn"] = (1, "Under:Int16@0|Torso:Int16@2|Legs:Int16@4|Feet:Int16@6|Cloak:Int16@8|Head:Int16@10|Hands:Int16@12|Reserved:Int16@14"),   // M2-05a
+            ["body"] = (1, "Wetness:Single@0|Hypothermia:Single@4"),   // M2-05a
         };
         var types = new Dictionary<string, Type>
         {
@@ -177,6 +179,7 @@ public sealed class PersistenceTests : IDisposable
             ["lod"] = typeof(LodState), ["wander"] = typeof(WanderState),
             ["attributes"] = typeof(Attributes), ["personality"] = typeof(Personality), ["emotions"] = typeof(Emotions), ["mood"] = typeof(Mood),
             ["activity"] = typeof(ActivityState), ["skill_progress"] = typeof(SkillProgress), ["attribute_training"] = typeof(AttributeTraining),
+            ["worn"] = typeof(Worn), ["body"] = typeof(Body),
         };
 
         // Every persisted struct column is fingerprinted here (id and the per-row byte columns excepted).
