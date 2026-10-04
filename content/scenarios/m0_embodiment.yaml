@@ -1,0 +1,6 @@
+# M0-13 (20 §20 step 13): a few sim-driven settlers near the player for the embodiment boundary test.
+id: scenario.m0_embodiment
+seed: 7
+start: Y0 Spring 1 08:00
+days: 1
+settlers: 3

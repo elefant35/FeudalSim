@@ -12,6 +12,10 @@ public sealed class RenderSnapshot
     public float[] X = new float[64];
     public float[] Z = new float[64];
     public float[] Yaw = new float[64];
+    public byte[] Tier = new byte[64];
+    public float[] TargetX = new float[64];
+    public float[] TargetZ = new float[64];
+    public bool[] HasTarget = new bool[64];
 
     public void CopyFrom(SimWorld world)
     {
@@ -22,6 +26,7 @@ public sealed class RenderSnapshot
         {
             var size = Math.Max(p.Count, Ids.Length * 2);
             Ids = new ulong[size]; X = new float[size]; Z = new float[size]; Yaw = new float[size];
+            Tier = new byte[size]; TargetX = new float[size]; TargetZ = new float[size]; HasTarget = new bool[size];
         }
 
         Count = p.Count;
@@ -31,6 +36,10 @@ public sealed class RenderSnapshot
             X[i] = p.Transforms[i].X;
             Z[i] = p.Transforms[i].Z;
             Yaw[i] = p.Transforms[i].Yaw;
+            Tier[i] = (byte)p.Lod[i].Tier;
+            TargetX[i] = p.Wander[i].TargetX;
+            TargetZ[i] = p.Wander[i].TargetZ;
+            HasTarget[i] = p.Wander[i].HasTarget;
         }
     }
 }

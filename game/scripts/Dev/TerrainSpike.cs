@@ -27,84 +27,17 @@ public partial class TerrainSpike : Node3D
         var heights = Heightfield.Generate(42, Size, Spacing);
         var genMs = sw.Elapsed.TotalMilliseconds;
         sw.Restart();
-        AddChild(BuildMesh(heights));
+        AddChild(TerrainBuilder.BuildMesh(heights, Size, Spacing));
         var meshMs = sw.Elapsed.TotalMilliseconds;
         sw.Restart();
-        AddChild(BuildCollision(heights));
+        AddChild(TerrainBuilder.BuildCollision(heights, Size, Spacing));
         var colMs = sw.Elapsed.TotalMilliseconds;
         GD.Print($"TerrainSpike: {Size}x{Size} @ {Spacing} m = {(Size - 1) * Spacing} m; heights {genMs:F0} ms, mesh {meshMs:F0} ms, collision {colMs:F0} ms; tris {(Size - 1) * (Size - 1) * 2}");
 
         _player = GetNode<CharacterBody3D>("Player");
         _cameraPivot = GetNode<Node3D>("Player/CameraPivot");
-        _player.Position = new Vector3(0, SampleHeight(heights, 0, 0) + 3, 0);
+        _player.Position = new Vector3(0, TerrainBuilder.SampleHeight(heights, Size, Spacing, 0, 0) + 3, 0);
         if (_autowalk) { DisplayServer.WindowSetVsyncMode(DisplayServer.VSyncMode.Disabled); }
-    }
-
-    private static MeshInstance3D BuildMesh(float[] h)
-    {
-        var half = (Size - 1) * Spacing / 2f;
-        var verts = new Vector3[Size * Size];
-        var normals = new Vector3[Size * Size];
-        var colors = new Color[Size * Size];
-        for (var z = 0; z < Size; z++)
-        {
-            for (var x = 0; x < Size; x++)
-            {
-                var i = (z * Size) + x;
-                verts[i] = new Vector3((x * Spacing) - half, h[i], (z * Spacing) - half);
-                var hl = h[(z * Size) + Math.Max(0, x - 1)];
-                var hr = h[(z * Size) + Math.Min(Size - 1, x + 1)];
-                var hd = h[(Math.Max(0, z - 1) * Size) + x];
-                var hu = h[(Math.Min(Size - 1, z + 1) * Size) + x];
-                var n = new Vector3(hl - hr, 2 * Spacing, hd - hu).Normalized();
-                normals[i] = n;
-                // Palette swatches (art/palettes): sand low, grass, moss, rock on steep/high ground.
-                colors[i] = n.Y < 0.82f || h[i] > 27 ? new Color("7a7a80") : h[i] < 1.5f ? new Color("c8b48a") : h[i] < 14 ? new Color("6f8f3a") : new Color("5a6b2e");
-            }
-        }
-
-        var indices = new int[(Size - 1) * (Size - 1) * 6];
-        var k = 0;
-        for (var z = 0; z < Size - 1; z++)
-        {
-            for (var x = 0; x < Size - 1; x++)
-            {
-                var a = (z * Size) + x;
-                var b = a + 1;
-                var c = a + Size;
-                var d = c + 1;
-                indices[k++] = a; indices[k++] = b; indices[k++] = c;
-                indices[k++] = b; indices[k++] = d; indices[k++] = c;
-            }
-        }
-
-        var arrays = new Godot.Collections.Array();
-        arrays.Resize((int)Mesh.ArrayType.Max);
-        arrays[(int)Mesh.ArrayType.Vertex] = verts;
-        arrays[(int)Mesh.ArrayType.Normal] = normals;
-        arrays[(int)Mesh.ArrayType.Color] = colors;
-        arrays[(int)Mesh.ArrayType.Index] = indices;
-        var mesh = new ArrayMesh();
-        mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
-        mesh.SurfaceSetMaterial(0, new StandardMaterial3D { VertexColorUseAsAlbedo = true, VertexColorIsSrgb = true, Roughness = 0.95f });
-        return new MeshInstance3D { Mesh = mesh, Name = "TerrainMesh" };
-    }
-
-    private static StaticBody3D BuildCollision(float[] h)
-    {
-        var shape = new HeightMapShape3D { MapWidth = Size, MapDepth = Size, MapData = h };
-        var body = new StaticBody3D { Name = "TerrainBody" };
-        // HeightMapShape3D samples are 1 unit apart and centred; scale X/Z to the vertex spacing.
-        body.AddChild(new CollisionShape3D { Shape = shape, Scale = new Vector3(Spacing, 1, Spacing) });
-        return body;
-    }
-
-    private static float SampleHeight(float[] h, float wx, float wz)
-    {
-        var half = (Size - 1) * Spacing / 2f;
-        var x = Math.Clamp((int)MathF.Round((wx + half) / Spacing), 0, Size - 1);
-        var z = Math.Clamp((int)MathF.Round((wz + half) / Spacing), 0, Size - 1);
-        return h[(z * Size) + x];
     }
 
     public override void _PhysicsProcess(double delta)

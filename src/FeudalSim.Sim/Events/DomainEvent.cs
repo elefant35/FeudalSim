@@ -11,6 +11,8 @@ public enum Salience : byte { Trace, Minor, Notable, Major, Historic }
 [Union(2, typeof(PersonSpawned))]
 [Union(3, typeof(DayStarted))]
 [Union(4, typeof(AiResultApplied))]
+[Union(5, typeof(LodChanged))]
+[Union(6, typeof(Embodied))]
 public abstract record DomainEvent;
 
 [MessagePackObject]
@@ -33,6 +35,13 @@ public sealed record AiResultApplied(
     [property: Key(1)] bool UsedFallback,
     [property: Key(2)] string Text,
     [property: Key(3)] string ProviderTag) : DomainEvent;
+
+[MessagePackObject]
+public sealed record LodChanged([property: Key(0)] EntityId Person, [property: Key(1)] World.LodTier From, [property: Key(2)] World.LodTier To) : DomainEvent;
+
+/// <summary>The first body report after promotion; <c>SnapDistance</c> is how far the body landed from the sim's pose (m).</summary>
+[MessagePackObject]
+public sealed record Embodied([property: Key(0)] EntityId Person, [property: Key(1)] float SnapDistance) : DomainEvent;
 
 [MessagePackObject]
 public readonly record struct EventEnvelope(

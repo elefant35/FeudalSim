@@ -11,6 +11,9 @@ public sealed class WanderSystem : ISimSystem
     public const float WalkSpeedMetresPerSecond = 1.6f;   // canon §10.9
     public const float WanderRadiusMetres = 30f;
 
+    /// <summary>An embodied body counts as arrived within this distance of its target (navmesh paths stop short).</summary>
+    public const float ArrivalToleranceM = 0.75f;
+
     public string Name => "Wander";
     public SimPhase Phase => SimPhase.Decide;
 
@@ -25,6 +28,7 @@ public sealed class WanderSystem : ISimSystem
         var ids = world.People.Ids;
         var transforms = world.People.Transforms;
         var wander = world.People.Wander;
+        var lod = world.People.Lod;
         var stepDistance = WalkSpeedMetresPerSecond * ctx.DtEmbodiedSeconds;
 
         for (var i = start; i < end; i++)
@@ -46,10 +50,16 @@ public sealed class WanderSystem : ISimSystem
             var dx = w.TargetX - t.X;
             var dz = w.TargetZ - t.Z;
             var remaining = MathF.Sqrt((dx * dx) + (dz * dz));
-            if (remaining <= stepDistance)
+            var embodied = lod[i].Tier == World.LodTier.Lod0;
+            if (embodied && remaining > ArrivalToleranceM) { continue; }   // the client's body is walking there (ADR-0007)
+            if (remaining <= stepDistance || embodied)
             {
-                t.X = w.TargetX;
-                t.Z = w.TargetZ;
+                if (!embodied)
+                {
+                    t.X = w.TargetX;
+                    t.Z = w.TargetZ;
+                }
+
                 w.HasTarget = false;
                 var pause = SimRandom.For(ctx, RngStream.Ai, ids[i], Salt.WanderPause);
                 w.PauseUntilStep = ctx.Step + pause.Range(50, 300);

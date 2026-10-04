@@ -35,6 +35,12 @@ public struct LodState
 {
     public LodTier Tier;
     public long LastUpdateGameMs;
+
+    /// <summary>LOD0 only: false from promotion until the client's first body report (pending embodiment).</summary>
+    public bool Embodied;
+
+    /// <summary>LOD0 only: the step at which the person was first seen beyond the demotion radius (0 = not far).</summary>
+    public long FarSinceStep;
 }
 
 /// <summary>M0 toy behavior state for <c>WanderSystem</c>; replaced by the NPC AI in M1.</summary>

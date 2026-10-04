@@ -35,6 +35,7 @@ public static class SaveFiles
 public sealed class InputLogFile : IDisposable
 {
     private readonly FileStream _stream;
+    private bool _disposed;
 
     private InputLogFile(FileStream stream, IReadOnlyList<CommandEnvelope> existing, long truncatedBytes)
     {
@@ -72,6 +73,8 @@ public sealed class InputLogFile : IDisposable
 
     public void Dispose()
     {
+        if (_disposed) { return; }
+        _disposed = true;
         _stream.Flush(flushToDisk: true);
         _stream.Dispose();
     }

@@ -47,6 +47,7 @@ public sealed record ScenarioDef
     public SimWorld CreateWorld(ContentDatabase content, IJobScheduler jobs, Action<CommandEnvelope>? log = null)
     {
         var world = new SimWorld(Seed, StartGameMs(), DayLengthMinutes) { Content = content, Jobs = jobs }
+            .AddSystem(new LodSystem())
             .AddSystem(new WanderSystem())
             .AddSystem(new NeedsDecaySystem());
         if (AiPingStep is { } at) { world.AddSystem(new AiPingSystem(at, AiPingDeadlineSteps)); }

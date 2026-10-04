@@ -12,6 +12,8 @@ public enum CommandSource : byte { Player, Embodiment, Ai, Settings, Scenario, D
 [Union(0, typeof(SetDayLength))]
 [Union(1, typeof(SpawnPerson))]
 [Union(2, typeof(Ai.AiResultCommand))]
+[Union(3, typeof(PlayerMoved))]
+[Union(4, typeof(EmbodimentReport))]
 public abstract record StateCommand;
 
 /// <summary>Changes the real-minutes-per-game-day setting (canon §6). Logged; applies at the next step.</summary>
@@ -24,6 +26,21 @@ public sealed record SpawnPerson(
     [property: Key(0)] string Name,
     [property: Key(1)] float X,
     [property: Key(2)] float Z) : StateCommand;
+
+/// <summary>The player's body position as reported by the client each step (the player is always embodied).</summary>
+[MessagePackObject]
+public sealed record PlayerMoved([property: Key(0)] float X, [property: Key(1)] float Z, [property: Key(2)] float Yaw) : StateCommand;
+
+/// <summary>
+/// The embodiment boundary (ADR-0007, 20 §3): for an LOD0 person, the client's physics body is authoritative
+/// for pose. Godot reports where the body ended up; the sim adopts it. Logged, so replays reproduce LOD0 sessions.
+/// </summary>
+[MessagePackObject]
+public sealed record EmbodimentReport(
+    [property: Key(0)] Core.EntityId Person,
+    [property: Key(1)] float X,
+    [property: Key(2)] float Z,
+    [property: Key(3)] float Yaw) : StateCommand;
 
 /// <summary>A command as logged: host-assigned <c>Seq</c>, and the step at which the sim applied it.</summary>
 [MessagePackObject]

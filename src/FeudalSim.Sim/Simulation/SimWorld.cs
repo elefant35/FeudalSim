@@ -33,6 +33,9 @@ public sealed class SimWorld
     public EntityIdAllocator Ids { get; } = new();
     public PersonTable People { get; } = new();
 
+    /// <summary>The player's last reported pose (set by logged <see cref="PlayerMoved"/> commands).</summary>
+    public PlayerState Player;
+
     /// <summary>Compiled content (definitions and tuning). Its hash is recorded in saves and run outputs.</summary>
     public Content.ContentDatabase Content { get; set; } = FeudalSim.Sim.Content.ContentDatabase.Empty;
 
@@ -143,6 +146,36 @@ public sealed class SimWorld
                     new Transform { X = c.X, Z = c.Z }, Needs.Full);
                 Emit(Salience.Minor, id, new PersonSpawned(id, c.Name));
                 break;
+
+            case PlayerMoved c:
+                if (!float.IsFinite(c.X) || !float.IsFinite(c.Z)) { Reject(command, "Invalid player pose."); break; }
+                Player = new PlayerState { Present = true, X = c.X, Z = c.Z, Yaw = c.Yaw };
+                break;
+
+            case EmbodimentReport c:
+            {
+                var row = People.IndexOf(c.Person);
+                if (row < 0 || People.Lod[row].Tier != LodTier.Lod0 || !float.IsFinite(c.X) || !float.IsFinite(c.Z))
+                {
+                    Reject(command, $"Embodiment report for {c.Person}, which is not embodied.");
+                    break;
+                }
+
+                ref var t = ref People.Transforms[row];
+                ref var l = ref People.Lod[row];
+                if (!l.Embodied)
+                {
+                    var dx = c.X - t.X;
+                    var dz = c.Z - t.Z;
+                    l.Embodied = true;
+                    Emit(Salience.Trace, c.Person, new Embodied(c.Person, MathF.Sqrt((dx * dx) + (dz * dz))));
+                }
+
+                t.X = c.X;
+                t.Z = c.Z;
+                t.Yaw = c.Yaw;
+                break;
+            }
 
             case AiResultCommand c:
                 if (!_aiPending.TryGetValue(c.RequestId, out var pending))

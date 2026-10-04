@@ -23,7 +23,7 @@ public static class SaveCodec
         ("core", 1, Marshal.SizeOf<PersonCore>()),
         ("transform", 1, Marshal.SizeOf<Transform>()),
         ("needs", 1, Marshal.SizeOf<Needs>()),
-        ("lod", 1, Marshal.SizeOf<LodState>()),
+        ("lod", 2, Marshal.SizeOf<LodState>()),   // v2: Embodied, FarSinceStep (M0-13)
         ("wander", 1, Marshal.SizeOf<WanderState>()),
     ];
 

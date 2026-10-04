@@ -108,7 +108,7 @@ public sealed class PersistenceTests : IDisposable
             ["core"] = (1, "BirthGameMinute:Int64@0|Sex:Byte@8|LifeStage:Byte@9|Flags:UInt32@12"),
             ["transform"] = (1, "X:Single@0|Y:Single@4|Z:Single@8|Yaw:Single@12"),
             ["needs"] = (1, "Satiety:Single@0|Hydration:Single@4|Energy:Single@8|Warmth:Single@12|Social:Single@16|Comfort:Single@20|Safety:Single@24|Purpose:Single@28|Status:Single@32"),
-            ["lod"] = (1, "Tier:LodTier@0|LastUpdateGameMs:Int64@8"),
+            ["lod"] = (2, "Tier:LodTier@0|LastUpdateGameMs:Int64@8|Embodied:Boolean@16|FarSinceStep:Int64@24"),
             ["wander"] = (1, "HomeX:Single@0|HomeZ:Single@4|TargetX:Single@8|TargetZ:Single@12|PauseUntilStep:Int64@16|HasTarget:Boolean@24"),
         };
         var types = new Dictionary<string, Type>

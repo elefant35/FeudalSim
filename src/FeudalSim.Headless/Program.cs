@@ -11,6 +11,7 @@ public static class Program
         app.Configure(config =>
         {
             config.SetApplicationName("feudalsim");
+            config.AddCommand<ReplayCommand>("replay").WithDescription("Replay a recorded input log headless and print the final state hash.");
             config.AddCommand<RunCommand>("run").WithDescription("Run a scenario headless at max speed and write metrics.");
             config.AddBranch("ai", ai =>
             {

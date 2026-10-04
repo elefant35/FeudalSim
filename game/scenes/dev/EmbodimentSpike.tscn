@@ -1,0 +1,45 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/Dev/EmbodimentSpike.cs" id="1_emb"]
+
+[sub_resource type="CapsuleShape3D" id="Capsule_1"]
+radius = 0.35
+height = 1.75
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_1"]
+radius = 0.35
+height = 1.75
+
+[sub_resource type="Environment" id="Env_1"]
+background_mode = 1
+background_color = Color(0.62, 0.72, 0.82, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.7, 0.72, 0.75, 1)
+
+[node name="EmbodimentSpike" type="Node3D"]
+script = ExtResource("1_emb")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env_1")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.383, 0.3214, 0, 0.6428, 0.766, -0.5, -0.6634, 0.5567, 0, 40, 0)
+
+[node name="Navigation" type="NavigationRegion3D" parent="."]
+
+[node name="Bodies" type="Node3D" parent="."]
+
+[node name="Puppets" type="MultiMeshInstance3D" parent="."]
+
+[node name="Player" type="CharacterBody3D" parent="."]
+
+[node name="Collision" type="CollisionShape3D" parent="Player"]
+shape = SubResource("Capsule_1")
+
+[node name="Body" type="MeshInstance3D" parent="Player"]
+mesh = SubResource("CapsuleMesh_1")
+
+[node name="Camera" type="Camera3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 0.9063, 0.4226, 0, -0.4226, 0.9063, 0, 4, 9)
+far = 600.0
+current = true
