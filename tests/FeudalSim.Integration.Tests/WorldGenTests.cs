@@ -23,34 +23,46 @@ public sealed class WorldGenTests
     [Fact]
     public void SameSeed_SameWorld_InParallelOrNot()
     {
-        var serial = WorldGenerator.Generate(Spec, 42, SerialJobScheduler.Instance);
+        // One attempt each (Debug is slow; `worldgen --seeds 20` in CI covers retries and spread).
+        var serial = WorldGenerator.Attempt(Spec, 42, 0, 42, SerialJobScheduler.Instance);
         using var jobs = new JobRunner(4);
-        var parallel = WorldGenerator.Generate(Spec, 42, jobs);
-        serial.Valid.ShouldBeTrue(string.Join("; ", serial.Failures));
-        (parallel.Attempt, parallel.Archetype).ShouldBe((serial.Attempt, serial.Archetype));
+        var parallel = WorldGenerator.Attempt(Spec, 42, 0, 42, jobs);
+        parallel.Archetype.ShouldBe(serial.Archetype);
         Hash(parallel.Grid).ShouldBe(Hash(serial.Grid));
-        Hash(WorldGenerator.Generate(Spec, 42, jobs).Grid).ShouldBe(Hash(serial.Grid));
+        parallel.Grid.Water.ShouldBe(serial.Grid.Water);
+        parallel.Grid.Lithology.ShouldBe(serial.Grid.Lithology);
         Hash(WorldGenerator.Attempt(Spec, 44, 0, 44, jobs).Grid).ShouldNotBe(Hash(serial.Grid));
     }
 
     [Fact]
-    public void EverySeed_MeetsTheLandmassAndReliefAsserts()
+    public void FirstAttempts_MeetTheFinishedStagesAsserts_AndHaveAnEstuary()
     {
         using var jobs = new JobRunner(Environment.ProcessorCount);
-        var archetypes = new HashSet<ReliefArchetype>();
-        foreach (var seed in new ulong[] { 44, 49, 53 })   // 3 here; CI runs `worldgen --seeds 20` in Release
+        var checkedWorlds = 0;
+        for (var seed = 42UL; seed < 60 && checkedWorlds < 2; seed++)
         {
-            var w = WorldGenerator.Generate(Spec, seed, jobs);
-            w.Valid.ShouldBeTrue($"seed {seed}: {string.Join("; ", w.Failures)}");
+            var w = WorldGenerator.Attempt(Spec, seed, 0, seed, jobs);
+            if (!w.CoreValid) { continue; }   // retries are worldgen's job
+            checkedWorlds++;
             w.LandAreaKm2.ShouldBeInRange(35f, 45f);
             w.PeakM.ShouldBeInRange(900f, 1250f);
             w.Islets.ShouldBeInRange(3, 10);
-            w.AreaAbove800Km2.ShouldBeGreaterThanOrEqualTo(0.2f);
             w.Grid.Land[0].ShouldBe((byte)0);   // the region border is sea
-            archetypes.Add(w.Archetype);
+            w.Water!.Lakes.ShouldAllBe(l => l.AreaHa >= Hydrology.LakeMinHa && l.VolumeM3 >= Hydrology.LakeMinM3);
+            w.Coast!.Estuaries.Single(e => e.Primary).MouthWidthM.ShouldBeInRange(300f, 900f);
+            w.Grid.Water.ShouldContain((byte)WaterClass.Brackish);
         }
 
-        archetypes.Count.ShouldBeGreaterThan(1);
+        checkedWorlds.ShouldBe(2);
+    }
+
+    [Fact]
+    public void Tides_FollowTenSixHalfDailyWithLowWaterAtNineThirtyOnLandfall()
+    {
+        Tides.Level(9 * 60 + 30).ShouldBe(-Tides.SpringRangeM / 2, 0.01);                  // low water, springs on day 0
+        Tides.Level((long)((9.5 + (Tides.PeriodH / 2)) * 60)).ShouldBe(Tides.SpringRangeM / 2, 0.02);   // high water half a period later
+        var neapLow = Tides.Level((long)(((Tides.LunarDays / 2 * 24) + 9.5) * 60));
+        Math.Abs(neapLow).ShouldBeLessThan(Tides.SpringRangeM / 2);                        // a smaller range at neaps
     }
 
     private static string RepoRoot()

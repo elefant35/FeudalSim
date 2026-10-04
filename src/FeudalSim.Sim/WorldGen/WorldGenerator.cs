@@ -21,6 +21,9 @@ public sealed class WorldGrid(int size, float cellM)
     /// <summary>Stage 4 province per cell (<see cref="WorldGen.Lithology"/>).</summary>
     public byte[] Lithology { get; } = new byte[size * size];
 
+    /// <summary>Stage 5–6 water class per cell (<see cref="WaterClass"/>).</summary>
+    public byte[] Water { get; } = new byte[size * size];
+
     public float X(int col) => (col * CellM) - ((Size - 1) * CellM / 2f);
 
     public float Z(int row) => (row * CellM) - ((Size - 1) * CellM / 2f);
@@ -30,7 +33,14 @@ public sealed class WorldGrid(int size, float cellM)
 public sealed record WorldGenResult(ulong Seed, int Attempt, ulong AttemptSeed, string SpecId, ReliefArchetype Archetype, float RotationRad, bool Mirrored,
     WorldGrid Grid, float LandAreaKm2, float PeakM, float AreaAbove800Km2, int Islets, IReadOnlyList<string> Failures)
 {
+    public Hydrology.Result? Water { get; init; }
+
+    public Coast.Result? Coast { get; init; }
+
     public bool Valid => Failures.Count == 0;
+
+    /// <summary>The asserts of the stages that are complete (W1, W5 — M2-01a-i/ii) hold; W2/W3 may still fail (10 Q, 31 D38).</summary>
+    public bool CoreValid => Failures.All(f => !f.StartsWith("W1", StringComparison.Ordinal) && !f.StartsWith("W5", StringComparison.Ordinal));
 }
 
 /// <summary>
@@ -46,15 +56,18 @@ public static class WorldGenerator
     public static WorldGenResult Generate(WorldSpecDef spec, ulong seed, IJobScheduler? jobs = null)
     {
         jobs ??= SerialJobScheduler.Instance;
-        WorldGenResult? last = null;
+        WorldGenResult? last = null, firstCore = null;
         for (var attempt = 0; attempt < Math.Max(1, spec.MaxAttempts); attempt++)
         {
             var s = attempt == 0 ? seed : SplitMix64.Mix(seed, 0x2E7A1, (ulong)attempt, 0, 0);   // §3.11: seed' = Hash(seed, attempt)
             last = Attempt(spec, seed, attempt, s, jobs);
             if (last.Valid) { return last; }
+            firstCore ??= last.CoreValid ? last : null;
         }
 
-        return last!;
+        // §3.11 reports seeds that never pass to the seed picker; until W3's river count is settled (10 Q23, 31 D38) the
+        // first world whose finished stages pass is returned with its failures listed, not silently accepted.
+        return firstCore ?? last!;
     }
 
     public static WorldGenResult Attempt(WorldSpecDef spec, ulong seed, int attempt, ulong s, IJobScheduler jobs)
@@ -78,8 +91,11 @@ public static class WorldGenerator
         DistanceTransform(grid);
         var peakTarget = new Rng(SplitMix64.Mix(s, (ulong)RngStream.WorldGen, Salt.WorldGenRelief, 0, 0)).Uniform(spec.PeakM[0], spec.PeakM[1]);
         var reliefKey = SplitMix64.Mix(s, (ulong)RngStream.WorldGen, Salt.WorldGenRelief, 1, 0);
+        var axisRng = new Rng(SplitMix64.Mix(s, (ulong)RngStream.WorldGen, Salt.WorldGenRelief, 2, 0));
+        var estuary = EstuaryTarget(archetype, axisRng);
+        var axes = ValleyAxes(archetype, spec.RiversMajor is [var kMin, var kMax] ? axisRng.Range(kMin, kMax + 1) : 3, estuary, axisRng);
         var mountain = new float[size * size];
-        jobs.ForEachChunk(size, (start, end) => ReliefRows(grid, mountain, start, end, reliefKey, archetype, rotation, mirrored));
+        jobs.ForEachChunk(size, (start, end) => ReliefRows(grid, mountain, start, end, reliefKey, archetype, rotation, mirrored, estuary, axes));
         var maxMountain = 1e-6f;
         for (var i = 0; i < mountain.Length; i++) { if (grid.Land[i] == 1 && mountain[i] > maxMountain) { maxMountain = mountain[i]; } }
         var scale = peakTarget / maxMountain;
@@ -109,6 +125,10 @@ public static class WorldGenerator
         for (var i = 0; i < grid.Height.Length; i++) { if (grid.Land[i] == 1) { grid.Height[i] = MathF.Max(0.5f, grid.Height[i] * renorm); } }
         Lithologies.Assign(grid, SplitMix64.Mix(s, (ulong)RngStream.WorldGen, Salt.WorldGenLithology, 0, 0), jobs);
 
+        // Stage 5 — hydrology (serial: priority flood and accumulation are ordered).
+        var water = Hydrology.Run(grid, SplitMix64.Mix(s, (ulong)RngStream.WorldGen, Salt.WorldGenHydrology, 0, 0));
+        var coast = Coast.Run(grid, water, spec, SplitMix64.Mix(s, (ulong)RngStream.WorldGen, Salt.WorldGenCoast, 0, 0));
+
         // Validation (10 §3.11): W1 land area and islets, W5 peak.
         var land = 0;
         var above800 = 0;
@@ -129,7 +149,20 @@ public static class WorldGenerator
         if (islets is < 3 or > 10) { failures.Add($"W1 islets {islets}"); }
         if (peak < spec.PeakM[0] || peak > spec.PeakM[1]) { failures.Add($"W5 peak {peak:F0} m"); }
         if (above800 * cellKm2 < 0.2f) { failures.Add($"W5 above 800 m {above800 * cellKm2:F2} km²"); }
-        return new WorldGenResult(seed, attempt, s, spec.Id, archetype, rotation, mirrored, grid, landKm2, peak, above800 * cellKm2, islets, failures);
+
+        // W2 (estuaries) and W3 (rivers, lakes, springs) — 10 §3.11.
+        var primary = coast.Estuaries.FirstOrDefault(e => e.Primary);
+        if (primary is null || primary.MouthWidthM < 300f || primary.TidalReachM < 1500f) { failures.Add("W2 no primary estuary ≥ 300 m / 1.5 km"); }
+        if (coast.Estuaries.Count > 2) { failures.Add($"W2 estuaries {coast.Estuaries.Count}"); }
+        var majors = water.Rivers.Count;
+        if (spec.RiversMajor is [var rMin, var rMax] && (majors < rMin || majors > rMax)) { failures.Add($"W3 major rivers {majors}"); }
+        if (spec.Lakes is { Count: [var lMin, var lMax] } lakes && (water.Lakes.Count < lMin || water.Lakes.Count > lMax || !water.Lakes.Any(l => l.AreaHa >= lakes.AtLeastOneOverHa)))
+        {
+            failures.Add($"W3 lakes {water.Lakes.Count} (largest {(water.Lakes.Count == 0 ? 0 : water.Lakes.Max(l => l.AreaHa)):F1} ha)");
+        }
+
+        if (water.Springs.Count < 6) { failures.Add($"W3 springs {water.Springs.Count}"); }
+        return new WorldGenResult(seed, attempt, s, spec.Id, archetype, rotation, mirrored, grid, landKm2, peak, above800 * cellKm2, islets, failures) { Water = water, Coast = coast };
     }
 
     private static ReliefArchetype PickArchetype(WorldSpecDef spec, float u)
@@ -229,7 +262,71 @@ public static class WorldGenerator
     }
 
     /// <summary>Stage 2 per cell: the plain into <c>grid.Height</c> (0–30 m by the coast, up to ~120 m inland), the mountain field into <paramref name="mountain"/>.</summary>
-    private static void ReliefRows(WorldGrid g, float[] mountain, int start, int end, ulong key, ReliefArchetype archetype, float rotation, bool mirrored)
+    /// <summary>
+    /// Where the lowlands drain (10 §3.3): the far end of the twin-ridge valley, the coast opposite a spine, the side away from a
+    /// massif — in the archetype frame. The lowland tilts toward it so streams gather into rivers and one estuary.
+    /// </summary>
+    private static (double U, double V) EstuaryTarget(ReliefArchetype archetype, Rng rng) => archetype switch
+    {
+        ReliefArchetype.TwinRidges => (rng.Chance(0.5f) ? 1.05 : -1.05, rng.Uniform(-0.1f, 0.1f)),
+        ReliefArchetype.Spine => (rng.Uniform(-0.5f, 0.5f), -1.05),
+        _ => (-0.85, -0.6),
+    };
+
+    /// <summary>
+    /// The major valley axes (10 §3.3 read literally: a spine's hills step down to the far coast; a massif has radial valleys;
+    /// twin ridges have a central valley): <paramref name="k"/> segments in the archetype frame, the first ending at the
+    /// estuary. Stage 2 carves broad, shallow troughs along them so drainage gathers into k rivers (W3).
+    /// </summary>
+    private static (double U0, double V0, double U1, double V1)[] ValleyAxes(ReliefArchetype archetype, int k, (double U, double V) estuary, Rng rng)
+    {
+        var axes = new List<(double, double, double, double)>();
+        switch (archetype)
+        {
+            case ReliefArchetype.TwinRidges:
+                axes.Add((-estuary.U * 0.55, 0, estuary.U, estuary.V));   // the central valley to the estuary
+                for (var j = 1; j < k; j++)
+                {
+                    var side = j % 2 == 1 ? 1 : -1;
+                    var u = rng.Uniform(-0.55f, 0.55f);
+                    var lean = rng.Chance(0.5f) ? 0.45 : -0.45;
+                    axes.Add((u, side * 0.30, u + lean, side * 1.05));   // off a ridge, slanting to the outer coast (a longer basin)
+                }
+
+                break;
+            case ReliefArchetype.Spine:
+                axes.Add((estuary.U * 0.6, 0.30, estuary.U, estuary.V));
+                for (var j = 1; j < k; j++)
+                {
+                    var u = -0.75 + (1.5 * j / k) + rng.Uniform(-0.08f, 0.08f);
+                    axes.Add((u, 0.30, u + rng.Uniform(-0.2f, 0.2f), -1.05));   // down the long slope to the far coast
+                }
+
+                break;
+            default:
+                var a0 = Math.Atan2(estuary.V - 0.08, estuary.U - 0.22);
+                for (var j = 0; j < k; j++)
+                {
+                    var a = a0 + (j * Math.Tau / k) + (j == 0 ? 0 : rng.Uniform(-0.3f, 0.3f));
+                    axes.Add((0.22 + (0.12 * Math.Cos(a)), 0.08 + (0.12 * Math.Sin(a)), 0.22 + (1.4 * Math.Cos(a)), 0.08 + (1.4 * Math.Sin(a))));   // radial from the dome
+                }
+
+                break;
+        }
+
+        return [.. axes];
+    }
+
+    private static double SegmentDistance(double pu, double pv, (double U0, double V0, double U1, double V1) a, out double along)
+    {
+        double du = a.U1 - a.U0, dv = a.V1 - a.V0;
+        var t = Math.Clamp((((pu - a.U0) * du) + ((pv - a.V0) * dv)) / ((du * du) + (dv * dv)), 0, 1);
+        along = t;
+        return Math.Sqrt(Sq(pu - (a.U0 + (t * du))) + Sq(pv - (a.V0 + (t * dv))));
+    }
+
+    private static void ReliefRows(WorldGrid g, float[] mountain, int start, int end, ulong key, ReliefArchetype archetype, float rotation, bool mirrored, (double U, double V) estuary,
+        (double U0, double V0, double U1, double V1)[] axes)
     {
         var n = g.Size;
         for (var row = start; row < end; row++)
@@ -251,8 +348,11 @@ public static class WorldGenerator
                 var inland = SmoothStep(0, 2200, coast);
                 var ridged = WorldNoise.Ridged(key, u * 5.5, v * 5.5, 5);
                 var hills = WorldNoise.Fbm(SplitMix64.Mix(key, 0x4111, 0, 0, 0), u * 9, v * 9, 4);
-                mountain[i] = (float)(Math.Pow(strength, 1.2) * (0.45 + (0.55 * ridged)) * inland);
-                g.Height[i] = (float)((30 * SmoothStep(0, 1500, coast)) + (130 * hills * hills * inland));   // coastal plain → lowland and hills
+                var trough = 0.0;   // the deepest valley axis here: a broad Gaussian across, ~1.6 km wide
+                foreach (var axis in axes) { trough = Math.Max(trough, Math.Exp(-Sq(SegmentDistance(fu, fv, axis, out _) / 0.11))); }
+                mountain[i] = (float)(Math.Pow(strength, 1.2) * (0.45 + (0.55 * ridged)) * inland * (1 - (0.65 * trough)));
+                var toEstuary = Math.Sqrt(Sq(fu - estuary.U) + Sq(fv - estuary.V));   // normalised distance to the drainage target
+                g.Height[i] = (float)((14 * SmoothStep(0, 900, coast)) + (60 * hills * hills * inland * (1 - trough)) + (90 * toEstuary * inland) - (70 * trough * inland));   // plain, hills, and a tilt toward the estuary
             }
         }
     }

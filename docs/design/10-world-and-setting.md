@@ -263,7 +263,21 @@ edge, like at home").
   `spring`, `stream`, `river`, `lake`, `marsh_pool`, `brackish` (estuary below the tidal limit,
   undrinkable), `sea`.
 
+*Implemented (M2-01a-iii, in progress):* `Sim/WorldGen/Hydrology.cs` — priority-flood fill (lakes kept at ≥ 2 ha and
+≥ 20,000 m³, the rest filled), an ε-filled surface for routing, D8 and accumulation, streams (≥ 0.5 km²) and rivers
+(≥ 4 km²) carved at §3.5's width and depth, fords on 0.3–1.5% reaches ≥ 300 m apart, 6–15 springs at concave slope
+breaks on permeable rock, water classes, and **peat where the topographic wetness index is high** (§3.4). Stage 2
+gained the archetype's major valley axes (k from `rivers_major`; spine: down to the far coast; massif: radial; twin
+ridges: the central valley plus slanting flank valleys) as broad troughs, and a tilt of the lowlands toward the estuary.
+**Finding (Q16):** W3's 2–4 rivers of ≥ 4 km² are met by spines but rarely by massif and twin-ridge islands — 20 seeds:
+12/20 pass every assert, all spines; without the axes ~70% of the land drained through outlets < 1 km².
+
 ### 3.6 Coast, estuary & tides
+
+*Implemented (M2-01a-iii):* `Sim/WorldGen/Coast.cs` — the primary estuary on the largest-catchment river (a second with
+the spec's 0.3 chance), flared over the drawn tidal reach to the drawn mouth width (brackish water, mudflat/marsh fringe);
+shores classified (dunes facing the westerlies, sandy beach, shingle under chalk, rocky under granite/slate, cliffs past
+45°); `Tides.Level` (12.42 h, 3.2 / 1.6 m spring/neap, low water ≈ 09:30 on Y0 Spring 1).
 
 - **Primary estuary:** the river with the largest catchment. Over its last 1.5–3 km it flares to a
   300–900 m mouth with intertidal mudflats, salt marsh and a tidal limit. A smaller second estuary
@@ -1521,3 +1535,9 @@ place *is*: a character may choose whether to share what they believe, never wha
 15. **Place-knowledge disclosure DP** (canon v0.3): asking someone what they know of a place opens a
     decision point `tell_all · tell_some · withhold · sell_for · guide` (§17); the choice is the
     character's, the transferred beliefs are exactly the ones they hold.
+16. **W3 river count vs island archetype (M2-01a-iii):** on a 35–45 km² island with a 900–1,250 m peak, radial drainage
+    gives one river of ≥ 4 km²; authored valley axes bring spines to 2–3 but massif and twin-ridge islands rarely pass,
+    so retries select spines (12/20 seeds pass every assert, all spines). Options: per-archetype valley layouts (longer
+    flank basins), "major" defined at a lower catchment for small islands, or `rivers_major` [1, 4]. Applied default
+    (reversible): keep W3 as written and enforced by retries; `worldgen` enforces W1/W5 in CI and reports W2/W3; the
+    generator returns the first world passing the finished stages if no attempt passes all (31 D38).

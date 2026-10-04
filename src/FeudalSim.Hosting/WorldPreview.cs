@@ -25,6 +25,11 @@ public static class WorldPreview
                     (cr, cg, cb) = (cr * shade, cg * shade, cb * shade);
                 }
 
+                var wc = (Sim.WorldGen.WaterClass)g.Water[i];
+                if (wc is Sim.WorldGen.WaterClass.River or Sim.WorldGen.WaterClass.Lake) { (cr, cg, cb) = (30, 80, 200); }
+                else if (wc == Sim.WorldGen.WaterClass.Stream) { (cr, cg, cb) = (80, 140, 230); }
+                else if (wc is Sim.WorldGen.WaterClass.Spring) { (cr, cg, cb) = (255, 60, 60); }
+                else if (wc == Sim.WorldGen.WaterClass.MarshPool) { (cr, cg, cb) = (90, 130, 120); }
                 var o = ((r * w) + c) * 3;
                 (rgb[o], rgb[o + 1], rgb[o + 2]) = ((byte)Math.Clamp(cr, 0, 255), (byte)Math.Clamp(cg, 0, 255), (byte)Math.Clamp(cb, 0, 255));
             }
