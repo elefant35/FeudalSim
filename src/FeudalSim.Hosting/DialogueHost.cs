@@ -43,7 +43,7 @@ public sealed class DialogueHost
         _router = new DialogueReplyRouter(config.TemplateMode ? null : chat, config.TemplateMode ? null : decider, config, new TemplateBank(content));
         _limiter = new TurnRateLimiter(clock ?? TimeProvider.System);
         _router.Decided += d => _submit(CommandSource.Ai, d);
-        _router.Line += l => _submit(CommandSource.Ai, l);
+        _router.Line += l => { _submit(CommandSource.Ai, l); Rendered?.Invoke(l); };
         _router.Partial += p => Partial?.Invoke(p);
         _router.Surfaced += s => Surfaced?.Invoke(s);
         _router.Spent += c => Spend(c);
@@ -66,6 +66,12 @@ public sealed class DialogueHost
 
     /// <summary>Raised when a classified turn has been submitted (UI: the intent echo, 22 §4.1).</summary>
     public event Action<Classification>? Classified;
+
+    /// <summary>The reply route's breaker (22 §12.5): Open means the dialogue model is not being asked.</summary>
+    public CircuitBreaker.BreakerState ReplyBreaker => _router.Breaker.State;
+
+    /// <summary>A finished NPC line as submitted to the sim (source: llm / regenerated / template; flags).</summary>
+    public event Action<DialogueLineRendered>? Rendered;
 
     public ConversationView? Conversation => _view;
 

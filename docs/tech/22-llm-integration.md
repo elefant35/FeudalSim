@@ -2064,7 +2064,15 @@ trimming classification packs for the `openrouter-llm` provider, a single-call m
 variant of the logprob technique (§17.2), and Laya. Local mode: $0. The default session cap
 ($1.00) covers ~30 typical or ~11 heavy hours.
 
+*Measured (M1-23, `feudalsim session`, 2 × 40 turns):* $0.00031 per turn (classification $0.00018), background
+$0.012 per hour → light **$0.017**, typical **$0.025**, heavy **$0.050** per play-hour — inside both targets with a 2×
+margin. See [m1-23-cost-latency](../spikes/m1-23-cost-latency.md).
+
 ### 12.4 Latency targets
+
+*Measured (M1-23, cloud):* classification p50/p95 0.73–0.91 / 1.6–1.9 s, gesture 1.48–1.59 / 2.3–2.6 s, first words
+1.70–1.90 / 3.0 s, deadline expiries 2.5–3.4% — **above target**, bound by the 12-question classification (the slowest
+of 12 parallel calls). Carried to the M1 gate (§17.2 #1).
 
 | Metric | Cloud p50 / p95 | Local p50 / p95 (recommended spec) |
 |--------|-----------------|-------------------------------------|
