@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../schemas/node.schema.json
+# 10 §7.1 trees: biomes from the table; densities are stems per hectare (proposed: a mature broadleaf stand ≈ 220 stems/ha,
+# 150–300 m³/ha per 10 §5.1). Sizes: sapling, pole, timber, veteran weights. Wood properties 1–10: strength, toughness,
+# rot, workability, fuel.
+- { id: node.oak,    name: Oak,        kind: tree, density: { broadleaf: 60, river_valley: 25, meadow: 1.5 }, sizes: [0.2, 0.3, 0.38, 0.12], wood: { strength: 9, toughness: 6, rot: 9, work: 4, fuel: 9 } }
+- { id: node.ash,    name: Ash,        kind: tree, density: { broadleaf: 35, river_valley: 20 }, sizes: [0.25, 0.35, 0.35, 0.05], wood: { strength: 7, toughness: 9, rot: 3, work: 7, fuel: 8 } }
+- { id: node.elm,    name: Elm,        kind: tree, density: { river_valley: 30 }, sizes: [0.2, 0.3, 0.4, 0.1], wood: { strength: 7, toughness: 7, rot: 8, work: 4, fuel: 6 } }
+- { id: node.yew,    name: Yew,        kind: tree, density: { broadleaf: 8, hills_moor: 0.5 }, lithology: chalk, sizes: [0.25, 0.3, 0.3, 0.15], wood: { strength: 7, toughness: 10, rot: 10, work: 6, fuel: 5 }, toxic: true, notes: "Foliage and seeds toxic (11); staves only from mature trees" }
+- { id: node.scots_pine, name: Scots pine, kind: tree, density: { pine: 180, hills_moor: 15, highland: 4 }, sizes: [0.2, 0.3, 0.42, 0.08], wood: { strength: 5, toughness: 5, rot: 6, work: 8, fuel: 6 } }
+- { id: node.birch,  name: Birch,      kind: tree, density: { pine: 40, hills_moor: 25, broadleaf: 10, wetland: 6 }, sizes: [0.3, 0.4, 0.27, 0.03], wood: { strength: 4, toughness: 5, rot: 2, work: 8, fuel: 7 } }
+- { id: node.willow, name: Willow,     kind: tree, density: { wetland: 60, river_valley: 40 }, sizes: [0.3, 0.4, 0.27, 0.03], wood: { strength: 2, toughness: 8, rot: 2, work: 9, fuel: 3 } }
+- { id: node.alder,  name: Alder,      kind: tree, density: { wetland: 50, river_valley: 40 }, sizes: [0.25, 0.4, 0.3, 0.05], wood: { strength: 3, toughness: 4, rot: 9, work: 7, fuel: 7 } }
+- { id: node.beech,  name: Beech,      kind: tree, density: { broadleaf: 35 }, sizes: [0.2, 0.3, 0.4, 0.1], wood: { strength: 7, toughness: 6, rot: 2, work: 7, fuel: 9 } }
+- { id: node.lime,   name: Lime,       kind: tree, density: { broadleaf: 20 }, sizes: [0.25, 0.35, 0.33, 0.07], wood: { strength: 3, toughness: 4, rot: 2, work: 10, fuel: 4 } }

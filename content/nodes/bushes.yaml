@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=../schemas/node.schema.json
+# 10 §7.1 / §7.4 shrubs and fruiting bushes (per hectare, proposed). Edge-only bushes grow where two biomes meet.
+- { id: node.hazel,      name: Hazel,       kind: bush, density: { broadleaf: 80, river_valley: 15 }, seasons: [autumn], notes: "Coppice 5–7 y; hazelnuts in autumn" }
+- { id: node.hawthorn,   name: Hawthorn,    kind: bush, density: { meadow: 60, broadleaf: 40, hills_moor: 20 }, edge_only: true, seasons: [autumn], notes: "Haws; stock-proof hedges" }
+- { id: node.blackthorn, name: Blackthorn,  kind: bush, density: { meadow: 40, broadleaf: 25 }, edge_only: true, seasons: [autumn], notes: "Sloes" }
+- { id: node.bramble,    name: Bramble,     kind: bush, density: { broadleaf: 30, meadow: 30, river_valley: 10 }, seasons: [autumn], notes: "Blackberries" }
+- { id: node.elder,      name: Elder,       kind: bush, density: { broadleaf: 25, meadow: 20, river_valley: 15 }, edge_only: true, seasons: [summer, autumn], notes: "Flower (summer), berry (autumn): winter-cough course −20 % (10 §7.3)" }
+- { id: node.crab_apple, name: Crab apple,  kind: bush, density: { broadleaf: 6, meadow: 8 }, edge_only: true, seasons: [autumn] }
+- { id: node.bilberry,   name: Bilberry,    kind: bush, density: { pine: 150, hills_moor: 80 }, seasons: [summer] }
+- { id: node.gorse,      name: Gorse,       kind: bush, density: { hills_moor: 60, coast_dunes: 20 } }
+- { id: node.juniper,    name: Juniper,     kind: bush, density: { pine: 15, hills_moor: 5 } }
+- { id: node.dog_rose,   name: Dog rose,    kind: bush, density: { meadow: 10, broadleaf: 10 }, edge_only: true, seasons: [winter], notes: "Rosehips (winter)" }

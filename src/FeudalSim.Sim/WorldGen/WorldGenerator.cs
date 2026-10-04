@@ -48,6 +48,9 @@ public sealed record WorldGenResult(ulong Seed, int Attempt, ulong AttemptSeed, 
 
     public Biomes.Result? Biomes { get; init; }
 
+    /// <summary>T0 deposits (10 §3.8; M2-01b-ii). Nodes are not stored: <see cref="NodeScatter"/> regenerates any chunk from <c>AttemptSeed</c>.</summary>
+    public IReadOnlyList<Deposit> Deposits { get; init; } = [];
+
     public bool Valid => Failures.Count == 0;
 
     /// <summary>The asserts of the stages that are complete (W1, W5 — M2-01a-i/ii) hold; W2/W3 may still fail (10 Q, 31 D38).</summary>
@@ -144,6 +147,9 @@ public static class WorldGenerator
         // Stages 7–8 — climate fields, soils and biomes (M2-01b-i).
         var biomes = Biomes.Run(grid, water, coast, SplitMix64.Mix(s, (ulong)RngStream.WorldGen, Salt.WorldGenBiomes, 0, 0));
 
+        // Stage 9 (part) — T0 deposits; nodes scatter on demand per chunk (M2-01b-ii).
+        var deposits = WorldGen.Deposits.Place(grid, SplitMix64.Mix(s, (ulong)RngStream.WorldGen, Salt.WorldGenDeposits, 0, 0));
+
         // Validation (10 §3.11): W1 land area and islets, W5 peak.
         var land = 0;
         var above800 = 0;
@@ -186,7 +192,7 @@ public static class WorldGenerator
             if (b == Biome.None || band.Count != 2 || share < band[0] || share > band[1]) { failures.Add($"W4 {key} {share:P1}"); }
         }
 
-        return new WorldGenResult(seed, attempt, s, spec.Id, archetype, rotation, mirrored, grid, landKm2, peak, above800 * cellKm2, islets, failures) { Water = water, Coast = coast, Biomes = biomes };
+        return new WorldGenResult(seed, attempt, s, spec.Id, archetype, rotation, mirrored, grid, landKm2, peak, above800 * cellKm2, islets, failures) { Water = water, Coast = coast, Biomes = biomes, Deposits = deposits };
     }
 
     /// <summary>

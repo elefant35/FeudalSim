@@ -27,6 +27,10 @@ public sealed class WorldGenSettings : CommandSettings
     [Description("Fail on any 10 §3.11 assert (default: the completed stages' W1/W5; W2/W3 are reported).")]
     public bool Strict { get; init; }
 
+    [CommandOption("--nodes")]
+    [Description("Scatter every chunk's resource nodes and report totals (M2-01b-ii).")]
+    public bool Nodes { get; init; }
+
     [CommandOption("--png <PATH>")]
     [Description("Write a preview of the first world.")]
     public string? Png { get; init; }
@@ -52,6 +56,19 @@ public sealed class WorldGenCommand : Command<WorldGenSettings>
             if (w.Valid) { full++; }
             var lith = Enumerable.Range(0, 7).Select(l => w.Grid.Lithology.Count(b => b == l)).ToArray();
             var landCells = Math.Max(1, lith.Skip(1).Sum());
+            Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"   deposits: {string.Join(" · ", w.Deposits.GroupBy(d => d.Kind).OrderBy(gr => gr.Key).Select(gr => $"{gr.Key} {gr.Count()}"))}"));
+            if (settings.Nodes)
+            {
+                var table = new NodeScatter.Table(content);
+                var per = NodeScatter.ChunksPerSide(w.Grid);
+                var buffer = new List<ResourceNode>();
+                var byKind = new long[4];
+                var nsw = Stopwatch.StartNew();
+                for (var cz = 0; cz < per; cz++) { for (var cx = 0; cx < per; cx++) { NodeScatter.Chunk(w.Grid, w.AttemptSeed, table, cx, cz, buffer); foreach (var nd in buffer) { byKind[(int)table.Kinds[nd.Type]]++; } } }
+                var forestHa = w.Grid.Biome.Count(b => (Biome)b is Biome.Broadleaf or Biome.Pine) * w.Grid.CellM * w.Grid.CellM / 1e4;
+                Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"   nodes: trees {byKind[0]:N0} · bushes {byKind[1]:N0} · rocks {byKind[2]:N0} · patches {byKind[3]:N0} · total {byKind.Sum():N0} ({nsw.Elapsed.TotalMilliseconds:F0} ms for {per * per:N0} chunks) · forest {forestHa:F0} ha"));
+            }
+
             if (w.Water is { } hy)
             {
                 var outlets = hy.Rivers.Select(r => r.CatchmentKm2).OrderDescending().ToList();

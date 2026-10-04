@@ -28,6 +28,7 @@ public static class SchemaGenerator
         ("lines", "line", typeof(LineTemplateDef)),
         ("minigames", "minigame", typeof(MinigameDef)),
         ("needs", "need", typeof(NeedDef)),
+        ("nodes", "node", typeof(NodeDef)),
         ("professions", "profession", typeof(ProfessionDef)),
         ("recipes", "recipe", typeof(RecipeDef)),
         ("schedules", "schedule", typeof(ScheduleDef)),

@@ -367,6 +367,20 @@ then POIs (§9) by the same pattern; then node scattering (trees, bushes, rocks,
 biome density tables, chunk-seeded so any chunk can be regenerated independently.
 ```
 
+*Implemented (M2-01b-ii):*
+- **Node types:** content kind **node** (`content/nodes/*.yaml`): 10 trees, 10 bushes, 4 rock kinds, 28 plant patches
+  from §7.1–7.4. Densities per hectare by biome are proposals, since the tables give none; a mature broadleaf stand is
+  ≈ 220 stems/ha. Types can be edge-only or rock-bound (yew on chalk); toxic plants and the §7.3 lookalike pairs are
+  recorded for foraging ID.
+- **Scattering:** `NodeScatter` builds 8-byte nodes per 64 m chunk with integer-only hashing over the saved byte
+  grids. Each 8 m cell expects `density × 0.0064` of each type in 16.16 fixed point. Positions are in 1/1024 m and
+  size classes are weighted. About 0.9 M nodes per world, scattered in ≈ 0.1 s.
+- **W14 helper:** `NodeScatter.Around` counts harvestable trees (pole and up) and forage patches around a point.
+- **Deposits:** `Deposits.Place` places the T0 deposits (flint beds 3–8 on chalk, clay pits 4–10 on valley banks and
+  wetland edges, quarries 2–5 on steep sandstone or chalk) by rule, score + 0.2 noise and spacing.
+- **Not yet:** node deltas (felled, harvested) live with the world in the save (M2-02); metal deposits come with
+  mining (M3–M4); the landing's W14 check comes with the landing (M2-01c).
+
 **Contested-resource rule:** at least one high-value item (tin, hill iron, galena or the best
 old-growth oak stand) must lie in a **between zone**. That means its path distance to the player's
 landing and to some expedition candidate site differ by a ratio of no more than 1.25. Scarcity

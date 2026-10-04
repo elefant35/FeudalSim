@@ -35,6 +35,8 @@ public static class Salt
     public const uint WorldGenHydrology = 23;
     public const uint WorldGenCoast = 24;
     public const uint WorldGenBiomes = 32;
+    public const uint WorldGenNodes = 33;
+    public const uint WorldGenDeposits = 34;
     public const uint Mediation = 25;
     public const uint Trauma = 26;
     public const uint Infection = 27;

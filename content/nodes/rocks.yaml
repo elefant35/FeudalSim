@@ -1,0 +1,7 @@
+# yaml-language-server: $schema=../schemas/node.schema.json
+# Loose stone, flint and driftwood (10 §4–5; per hectare, proposed). Bedrock deposits (flint beds, clay pits, quarries)
+# are placed as deposits, not nodes.
+- { id: node.fieldstone,    name: Fieldstone,     kind: rock, density: { meadow: 4, hills_moor: 15, river_valley: 3, broadleaf: 2 } }
+- { id: node.boulder,       name: Boulder,        kind: rock, density: { highland: 40, hills_moor: 8 } }
+- { id: node.flint_scatter, name: Flint nodules,  kind: rock, density: { coast_dunes: 6, meadow: 4, broadleaf: 2 }, lithology: chalk, notes: "Chalk-country flint and shingle (10 §5.1)" }
+- { id: node.driftwood,     name: Driftwood,      kind: rock, density: { coast_dunes: 8 } }
