@@ -832,6 +832,12 @@ If the player asks again after a refusal, the `accept` family mass halves (0.22 
 Anger rises (canon §13.4). If Edda asks Bram the same thing off-screen, the same menu and propensities
 apply and the policy samples.
 
+*Implemented (M1-03, 2026-10-04):* `FeudalSim.Sim.Decisions.Propensity.Compute(world, chooser, options, families, opinionOfSpeaker, kIrr)`
+returns `MenuPropensities(Ids, P, KeyFactors, T)`; owners describe options with `PropensityInput` (family, action
+group, facet, value tags, direction, need, schedule fit, outlet) and families with `FamilyBase` (B_f, `Includes`,
+repetition). The worked example above is a unit test (`PropensityTests`). Owners compute `PCrit` by calling it with
+`L_words` held neutral in their base.
+
 ---
 
 ## 8. Irrationality
