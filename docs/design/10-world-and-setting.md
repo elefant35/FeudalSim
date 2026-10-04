@@ -225,6 +225,15 @@ Elevation bands: sea floor to −40 m; coastal plain 0–30 m; lowland and valle
 150–450 m; highland 450 m up to the peak. Cliffs (slope > 45°) occur on 10–25% of the coastline
 and on highland scarps.
 
+*Hypsometry (M2-01b-i):* after erosion, land heights are quantile-remapped (rank → height; ties by index).
+- **Anchors:** P(h < 180 m) ∈ [0.78, 0.86], P(h < 450 m) ∈ [0.93, 0.96], P(h < 800 m) ∈ [0.985, 0.992], all drawn per
+  seed, with the drawn peak kept.
+- **Low ground:** the lowland segment is convex (t^1.6), giving a coastal plain.
+- **Ordering:** the remap is monotone, so drainage order and depressions survive and the W1/W5 pass rates are
+  unchanged.
+- **Side effect:** shallower lowland depressions cost two seeds a lake in W3's count (lakes failing 4 → 6 of 20;
+  rivers unchanged).
+
 ### 3.4 Lithology
 
 *Implemented (M2-01a-ii):* `Lithologies.Assign` — 420 domain-warped Voronoi provinces, each labelled from the terrain at
@@ -313,6 +322,19 @@ smoothing and the minimum patch size.
 | 6 | Pine Forest | Podzol or sandy soils, or north-facing slopes 100–500 m, or old dune ridges |
 | 7 | Meadow/Grassland | Well-drained lowland where the tree-establishment index is below 0.35 (noise + chalk + pre-human windthrow/deer-grazing seeds) |
 | 8 | Broadleaf Forest | Everything else below 300 m |
+
+*Implemented (M2-01b-i), `Sim/WorldGen/Biomes.cs`:*
+- **Grid:** stage 7–8 grids on `WorldGrid` (slope, biome, soil, fertility, exposure, rain shadow, climate flags).
+- **Biomes:** the priority table in order — coast before wetland, with only salt marsh sent to Wetland. Pine's sandy
+  soils are noise-gated patches over sandstone, not the whole province; north-facing means slope ≥ 8° with aspect
+  within ±45° of north. Two 3×3 majority passes, then patches under 0.5 ha merge into their commonest neighbour.
+- **Soils and fertility:** soils by biome and rock, with fertility inside each soil's band set by low-frequency
+  noise. The breadbasket is reported.
+- **Climate fields:** exposure from local relief and the coast (forest halves it), rain shadow from the
+  west/south-west, frost hollows on valley floors.
+- **Hypsometry:** the share bands and the 180 / 450 m thresholds together imply the island's hypsometry. Stage 2
+  therefore ends with a monotone quantile remap of land heights (§3.3 note). W4 is checked and reported (Q18).
+- **Preview:** `feudalsim worldgen --png out.png` also writes `out.biomes.png`.
 
 **Soils:** each 8 m cell gets a type, a **fertility 0–1**, a drainage class and a depth.
 [13](13-crafting-and-minigames.md) owns how soil changes under cultivation.
@@ -1502,6 +1524,22 @@ place *is*: a character may choose whether to share what they believe, never wha
    distorts [15](15-economy-and-trade.md)'s coinage. Keep it out?
 8. **Q17 — Dry-summer persistence** (§6.3–6.4, M2-03): keep Clear p_stay 0.75 in Dry summers (applied), or soften
    Dry to Clear +15?
+9. **Q16 — W3 river count vs island archetype (M2-01a-iii):** on a 35–45 km² island with a 900–1,250 m peak, radial drainage
+   gives one river of ≥ 4 km²; authored valley axes bring spines to 2–3 but massif and twin-ridge islands rarely pass,
+   so retries select spines (12/20 seeds pass every assert, all spines). Options: per-archetype valley layouts (longer
+   flank basins), "major" defined at a lower catchment for small islands, or `rivers_major` [1, 4]. Applied default
+   (reversible): keep W3 as written and enforced by retries; `worldgen` enforces W1/W5 in CI and reports W2/W3; the
+   generator returns the first world passing the finished stages if no attempt passes all (31 D38).
+10. **Q18 — W4 biome shares (M2-01b-i).** After the hypsometry remap (§3.3 note), 20 seeds put highland (16/20) and
+    pine (13/20) mostly in band. These remain outside:
+    - **coast_dunes ≈ 11 %** (band 5–9): a 150 m strip on this much coastline (coves, islets) is geometry, not a rule.
+    - **wetland ≈ 0.3 %** (band 5–10): flats under 2° are rare at 8 m on noise relief.
+    - **river_valley ≈ 1 %** (band 7–12): tied to the W3 river count (Q16).
+    - **meadow ≈ 8 %** (band 12–20) and therefore **broadleaf ≈ 39 %** (band 22–32): the tree-establishment index's
+      scale is unspecified.
+
+    Should W4 bind (and which lever moves first — coast geometry, wetland flats, the index scale), or are the bands
+    looser in practice? W4 is reported, not enforced (31 D44).
 
 ## Proposed canon additions
 
@@ -1547,9 +1585,3 @@ place *is*: a character may choose whether to share what they believe, never wha
 15. **Place-knowledge disclosure DP** (canon v0.3): asking someone what they know of a place opens a
     decision point `tell_all · tell_some · withhold · sell_for · guide` (§17); the choice is the
     character's, the transferred beliefs are exactly the ones they hold.
-16. **W3 river count vs island archetype (M2-01a-iii):** on a 35–45 km² island with a 900–1,250 m peak, radial drainage
-    gives one river of ≥ 4 km²; authored valley axes bring spines to 2–3 but massif and twin-ridge islands rarely pass,
-    so retries select spines (12/20 seeds pass every assert, all spines). Options: per-archetype valley layouts (longer
-    flank basins), "major" defined at a lower catchment for small islands, or `rivers_major` [1, 4]. Applied default
-    (reversible): keep W3 as written and enforced by retries; `worldgen` enforces W1/W5 in CI and reports W2/W3; the
-    generator returns the first world passing the finished stages if no attempt passes all (31 D38).

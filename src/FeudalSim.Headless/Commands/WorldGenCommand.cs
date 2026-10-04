@@ -69,7 +69,7 @@ public sealed class WorldGenCommand : Command<WorldGenSettings>
             }
         }
 
-        Console.WriteLine($"worldgen: {ok}/{settings.Seeds} pass {(settings.Strict ? "all asserts" : "W1/W5 (stages 1–4)")} · {full}/{settings.Seeds} pass every assert incl. W2/W3");
+        Console.WriteLine($"worldgen: {ok}/{settings.Seeds} pass {(settings.Strict ? "all asserts" : "W1/W5 (stages 1–4)")} · {full}/{settings.Seeds} pass every assert incl. W2/W3/W4");
         return ok == settings.Seeds ? 0 : 1;
     }
 }
