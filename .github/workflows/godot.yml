@@ -1,0 +1,87 @@
+name: godot
+
+# 20 §20 step 14: build the Godot client and smoke-test it headless with the pinned engine.
+# Boot autotest: settlers move by sim commands; pause and time scale work (M0 exit criterion).
+# Embodiment check: LOD0 bodies ↔ puppets, and the client session replays headless to the same hash (M0-13).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: godot-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  godot:
+    name: game build & headless smoke (ubuntu)
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_NOLOGO: "1"
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+      LLM_MODE: template
+    defaults:
+      run:
+        shell: bash   # -eo pipefail
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Read the pinned Godot version
+        run: echo "GODOT_RELEASE=$(cut -d. -f1-3 game/GODOT_VERSION)" >> "$GITHUB_ENV"   # 4.7.2
+
+      - name: Cache Godot
+        id: godot-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_RELEASE }}-stable-mono-linux-x86_64
+
+      - name: Download Godot (official .NET build)
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot && cd ~/godot
+          curl -fsSL -o godot.zip "https://github.com/godotengine/godot-builds/releases/download/${GODOT_RELEASE}-stable/Godot_v${GODOT_RELEASE}-stable_mono_linux_x86_64.zip"
+          unzip -q godot.zip && rm godot.zip
+
+      - name: Check the engine matches game/GODOT_VERSION
+        run: |
+          GODOT="$(ls ~/godot/Godot_v*/Godot_v*.x86_64)"
+          echo "GODOT=$GODOT" >> "$GITHUB_ENV"
+          actual="$("$GODOT" --headless --version | tail -1)"
+          echo "engine $actual · pinned $(cat game/GODOT_VERSION)"
+          [[ "$actual" == "$(cat game/GODOT_VERSION)" ]]
+
+      - name: Build the game (warnings are errors)
+        run: dotnet build game/FeudalSim.Game.csproj
+
+      - name: Import assets
+        # Godot has crashed in thread cleanup at exit after a first import (seen locally on 4.7.2); one retry.
+        run: |
+          "$GODOT" --headless --path game --import || "$GODOT" --headless --path game --import
+          test -d game/.godot/imported
+
+      - name: Boot smoke (movement, pause, time scale)
+        run: |
+          "$GODOT" --headless --max-fps 60 --path game -- --autotest 2>&1 | tee boot.log
+          grep -q "AUTOTEST PASS" boot.log
+          if grep -E '^(ERROR|WARNING|SCRIPT ERROR)' -A3 boot.log; then echo "Godot reported errors or warnings"; exit 1; fi
+
+      - name: Embodiment check (LOD0 bodies, headless replay of the client session)
+        run: GODOT="$GODOT" tools/godot/embodiment_check.sh
+
+      - name: Upload logs and session
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: godot-smoke
+          path: |
+            boot.log
+            sim_runs/
+          if-no-files-found: ignore
