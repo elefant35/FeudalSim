@@ -16,6 +16,8 @@ public enum Salience : byte { Trace, Minor, Notable, Major, Historic }
 [Union(7, typeof(DecisionResolved))]
 [Union(8, typeof(DecisionPointCancelled))]
 [Union(9, typeof(IntegrityMismatch))]
+[Union(10, typeof(InteractionResolved))]
+[Union(11, typeof(GossipExchanged))]
 public abstract record DomainEvent;
 
 [MessagePackObject]
@@ -74,3 +76,21 @@ public readonly record struct EventEnvelope(
     [property: Key(3)] Salience Salience,
     [property: Key(4)] EntityId Primary,
     [property: Key(5)] DomainEvent Payload);
+
+/// <summary>An NPC↔NPC interaction resolved (16 §5; ground truth for claims, hook for overheard talk).</summary>
+[MessagePackObject]
+public sealed record InteractionResolved(
+    [property: Key(0)] EntityId Actor,
+    [property: Key(1)] EntityId Target,
+    [property: Key(2)] string Kind,
+    [property: Key(3)] bool Success) : DomainEvent;
+
+/// <summary>A claim passed from teller to listener (16 §7.5). <c>Root</c> is the original claim a variant derives from.</summary>
+[MessagePackObject]
+public sealed record GossipExchanged(
+    [property: Key(0)] EntityId Teller,
+    [property: Key(1)] EntityId Listener,
+    [property: Key(2)] int Claim,
+    [property: Key(3)] int Root,
+    [property: Key(4)] bool Mutated,
+    [property: Key(5)] Social.ToldOption Option) : DomainEvent;

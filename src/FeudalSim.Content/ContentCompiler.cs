@@ -48,6 +48,7 @@ public static class ContentCompiler
         var actions = new List<ActionDef>();
         var actionMarks = new List<(ActionDef Def, string Rel, Mark Mark)>();
         var opinionMods = new List<OpinionModifierDef>();
+        var claims = new List<(ClaimPredicateDef Def, string Rel, Mark Mark)>();
         var schedules = new List<ScheduleDef>();
         var repoRoot = Path.GetDirectoryName(Path.GetFullPath(contentRoot).TrimEnd(Path.DirectorySeparatorChar)) ?? contentRoot;
         var seen = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -97,6 +98,7 @@ public static class ContentCompiler
                         case ActionDef a: actionMarks.Add((a, rel, mark)); actions.Add(a); break;   // validated after skills load
                         case ScheduleDef d: ValidateSchedule(d, rel, mark, errors); schedules.Add(d); break;
                         case OpinionModifierDef o: ValidateOpinionModifier(o, rel, mark, errors); opinionMods.Add(o); break;
+                        case ClaimPredicateDef c: claims.Add((c, rel, mark)); break;   // the ladder is checked once all are loaded
                     }
                 }
             }
@@ -106,6 +108,7 @@ public static class ContentCompiler
         CheckCanonical("needs", CanonLists.NeedIds, needs.Select(n => n.Id), errors);
         var symmetricTraits = ValidatePeople(traits, cultures, professions, skills, errors);
         foreach (var (a, rel, mark) in actionMarks) { ValidateAction(a, rel, mark, skills, errors); }
+        foreach (var (c, rel, mark) in claims) { ValidateClaim(c, rel, mark, claims.Select(x => x.Def.Id).ToHashSet(StringComparer.Ordinal), errors); }
         if (errors.Count > 0) { return new Result(null, errors, files); }
 
         skills.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
@@ -119,8 +122,9 @@ public static class ContentCompiler
         actions.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         opinionMods.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         schedules.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
-        var hash = Hash(skills, items, needs, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods);
-        return new Result(new ContentDatabase(skills, items, needs, hash, assets, audio, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods), errors, files);
+        var claimDefs = claims.Select(c => c.Def).OrderBy(c => c.Id, StringComparer.Ordinal).ToList();
+        var hash = Hash(skills, items, needs, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs);
+        return new Result(new ContentDatabase(skills, items, needs, hash, assets, audio, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs), errors, files);
     }
 
     private static IEnumerable<(JsonNode Node, Mark Mark)> ParseFile(string path, string rel, string kind, JsonSchema schema, List<ContentError> errors)
@@ -226,7 +230,7 @@ public static class ContentCompiler
 
     private static ulong Hash(IEnumerable<SkillDef> skills, IEnumerable<ItemDef> items, IEnumerable<NeedDef> needs,
         IEnumerable<TraitDef> traits, IEnumerable<CultureDef> cultures, IEnumerable<ProfessionDef> professions,
-        IEnumerable<ActionDef> actions, IEnumerable<ScheduleDef> schedules, IEnumerable<OpinionModifierDef> opinionMods)
+        IEnumerable<ActionDef> actions, IEnumerable<ScheduleDef> schedules, IEnumerable<OpinionModifierDef> opinionMods, IEnumerable<ClaimPredicateDef> claims)
     {
         var h = new XxHash64();
         foreach (var d in skills) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
@@ -240,6 +244,7 @@ public static class ContentCompiler
         foreach (var d in actions) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
         foreach (var d in schedules) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
         foreach (var d in opinionMods) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
+        foreach (var d in claims) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
         return h.GetCurrentHashAsUInt64();
     }
 
@@ -278,6 +283,13 @@ public static class ContentCompiler
         if (o.Stacking is OpinionStacking.Add or OpinionStacking.Saturate && o.Cap is null) { errors.Add(new(rel, m.Line, m.Column, $"{o.Id}: {o.Stacking} needs a cap.")); }
         if (o.FloorFraction is < 0 or > 1) { errors.Add(new(rel, m.Line, m.Column, $"{o.Id}: floor_fraction must be 0–1.")); }
         foreach (var k in o.ExtendsTo?.Keys ?? []) { if (k is not ("household" or "kin" or "spouse")) { errors.Add(new(rel, m.Line, m.Column, $"{o.Id}: extends_to '{k}' must be household, kin or spouse.")); } }
+    }
+
+    private static void ValidateClaim(ClaimPredicateDef c, string rel, Mark m, IReadOnlySet<string> ids, List<ContentError> errors)
+    {
+        if (c.Juiciness is < 0 or > 1 || c.JuicinessIfMarried is < 0 or > 1) { errors.Add(new(rel, m.Line, m.Column, $"{c.Id}: juiciness must be 0–1.")); }
+        foreach (var k in c.Axes?.Keys ?? []) { if (!CanonLists.ReputationAxes.Contains(k)) { errors.Add(new(rel, m.Line, m.Column, $"{c.Id}: unknown axis '{k}' ({string.Join(", ", CanonLists.ReputationAxes)}).")); } }
+        if (c.EscalatesTo is { } next && (!ids.Contains(next) || next == c.Id)) { errors.Add(new(rel, m.Line, m.Column, $"{c.Id}: escalates_to '{next}' is not another claim.")); }
     }
 
     private static void ValidateSchedule(ScheduleDef d, string rel, Mark m, List<ContentError> errors)

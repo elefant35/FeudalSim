@@ -43,6 +43,8 @@ public static class StateHasher
         world.Decisions.HashInto(h);
         world.Relationships.HashInto(h);
         world.Memories.HashInto(h);
+        world.Claims.HashInto(h);
+        world.Beliefs.HashInto(h);
         return h.GetCurrentHashAsUInt64();
     }
 }

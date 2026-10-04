@@ -99,6 +99,7 @@ public sealed class SocialSystem : ISimSystem
         }
 
         world.Memories.Compact(world.Clock.GameMinute);
+        world.Beliefs.Forget();
         world.Relationships.DailyUpdate();
     }
 }

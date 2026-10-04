@@ -39,6 +39,12 @@ public sealed class SimWorld
     /// <summary>Episodic memories (16 §6).</summary>
     public Social.MemoryStore Memories { get; } = new();
 
+    /// <summary>Interned claims (16 §7.1); ground truth via observed events.</summary>
+    public Social.ClaimStore Claims { get; } = new();
+
+    /// <summary>Beliefs per person (16 §7).</summary>
+    public Social.BeliefStore Beliefs { get; } = new();
+
     /// <summary>Relationships (16 §4): opinion, trust, familiarity, fear, tags.</summary>
     public Social.RelationshipStore Relationships { get; }
 

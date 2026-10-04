@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=../schemas/claim.schema.json
+# Claim vocabulary (16 §7.3). juiciness J (0–1) is the base pull in conversation; juiciness_if_married overrides it when
+# subject or object is married. axes: reputation impact per unit magnitude (16 §8.1; axes honesty, lawfulness,
+# peaceableness, courage, generosity, piety, competence). valence: how the claim reflects on its subject (bias and
+# mutation rules, 16 §7.2/§7.6). escalates_to: the next rung of the mutation ladder. accusation: accusation-grade when
+# about a named person (16 §7.10 stakes). moral: a priest's word weighs more (speaker factor, 16 §7.2).
+- { id: claim.stole,             juiciness: 0.7, valence: negative, axes: { honesty: -12, lawfulness: -15 }, escalates_to: claim.stole_repeatedly, accusation: true, moral: true }
+- { id: claim.stole_repeatedly,  juiciness: 0.8, valence: negative, axes: { honesty: -18, lawfulness: -20 }, accusation: true, moral: true }
+- { id: claim.cheated,           juiciness: 0.5, valence: negative, axes: { honesty: -10 }, escalates_to: claim.stole, moral: true }
+- { id: claim.lied,              juiciness: 0.4, valence: negative, axes: { honesty: -8 }, moral: true }
+- { id: claim.insulted,          juiciness: 0.4, valence: negative, axes: { peaceableness: -4 }, escalates_to: claim.threatened }
+- { id: claim.threatened,        juiciness: 0.5, valence: negative, axes: { peaceableness: -8 }, escalates_to: claim.assaulted }
+- { id: claim.assaulted,         juiciness: 0.7, valence: negative, axes: { peaceableness: -15, lawfulness: -8 }, escalates_to: claim.wounded, accusation: true }
+- { id: claim.wounded,           juiciness: 0.8, valence: negative, axes: { peaceableness: -25, lawfulness: -15 }, escalates_to: claim.killed, accusation: true }
+- { id: claim.killed,            juiciness: 1.0, valence: negative, axes: { peaceableness: -40, lawfulness: -30 }, accusation: true, moral: true }
+- { id: claim.fled,              juiciness: 0.5, valence: negative, axes: { courage: -15 } }
+- { id: claim.brave,             juiciness: 0.5, valence: positive, axes: { courage: 12 } }
+- { id: claim.saved,             juiciness: 0.7, valence: positive, axes: { courage: 15, generosity: 5 } }
+- { id: claim.gave,              juiciness: 0.3, valence: positive, axes: { generosity: 6 } }
+- { id: claim.helped,            juiciness: 0.2, valence: positive, axes: { generosity: 3 } }
+- { id: claim.hoarded,           juiciness: 0.5, valence: negative, axes: { generosity: -10 } }
+- { id: claim.courting,          juiciness: 0.4, valence: neutral,  escalates_to: claim.slept_with }
+- { id: claim.slept_with,        juiciness: 0.4, juiciness_if_married: 0.9, valence: negative, axes: { honesty: -8, piety: -8 }, accusation: true, moral: true }
+- { id: claim.pregnant,          juiciness: 0.5, valence: neutral }
+- { id: claim.blasphemed,        juiciness: 0.6, valence: negative, axes: { piety: -15 }, moral: true }
+- { id: claim.devout,            juiciness: 0.2, valence: positive, axes: { piety: 6 }, moral: true }
+- { id: claim.heretic,           juiciness: 0.6, valence: negative, axes: { piety: -10 }, moral: true }
+- { id: claim.converted,         juiciness: 0.6, valence: neutral }
+- { id: claim.skilled,           juiciness: 0.2, valence: positive, axes: { competence: 4 } }
+- { id: claim.shoddy_work,       juiciness: 0.3, valence: negative, axes: { competence: -8 } }
+- { id: claim.absurd,            juiciness: 0.5, valence: neutral }
+- { id: claim.drunk,             juiciness: 0.3, valence: negative }
+- { id: claim.dead,              juiciness: 0.9, valence: neutral }
+- { id: claim.sick,              juiciness: 0.5, valence: neutral, escalates_to: claim.contagious }
+- { id: claim.contagious,        juiciness: 0.7, valence: negative }
+- { id: claim.plotting,          juiciness: 0.8, valence: negative, accusation: true }
+- { id: claim.owes,              juiciness: 0.3, valence: negative, axes: { honesty: -6 } }
+- { id: claim.made_amends,       juiciness: 0.3, valence: positive, axes: { honesty: 4 } }

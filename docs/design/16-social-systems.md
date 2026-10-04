@@ -961,6 +961,45 @@ when the player asked for discretion): picked at `p < 0.20` they spend the pair'
 What the listener later retells still mutates only by §7.6's deterministic rules — no model ever
 alters a claim.
 
+*Implemented (M1-07a, 2026-10-04):* `content/social/claim_predicates.yaml` (§7.3: 32 predicates with J, axes, valence,
+ladder, accusation/moral flags; schema `claim.schema.json`). `Sim/Social/Claims.cs`: interned claims (`world.Claims`,
+ids in insertion order) whose truth comes from observed events (a variant is true only if an observed claim matches
+it: magnitude within 10 %, same time unless blurred), and beliefs (`world.Beliefs`: c, first-hand floor, hop, source,
+nov, eager/quiet windows, ToldTo). Both are saved (claims and beliefs tables) and hashed. `Sim/Social/Rumors.cs`
+covers §7.2 credibility and update, §7.4 tellability and P_share, §7.6 mutation (all seven kinds; ineligible ones drop
+out of the draw) and the §7.10 policy (`BeingToldMasses`, a pure function M1-09 builds its menu from). `Witness` gives
+the people involved c 1.0 and awake bystanders in range c 0.9. In the camp, granted requests are witnessed as
+`helped`, insults as `insulted` and accepted apologies as `made_amends`.
+
+Choices and deviations:
+
+- **Gossip rides on friendly interactions,** as §7.5's pseudocode says (`if rng > P_share: return`), not as a
+  separate softmax type. In the §5.6 mix, a chat that carried news counts as gossip.
+- **Renown** is computed on demand over the whole camp as one community (§8.2 `knows`, w_m = 1), and `plaus` = 1.
+  M1-07b adds opinion-leader weights, R-based plausibility and caching.
+- **Doubt** leaves c unchanged and records a `Told` memory. Each later hearing from a new source is an independent
+  draw, which is how a second source compounds.
+- **Belief cap:** 256 per person, weakest evicted; §6.3 sets none.
+- **Warn:** the listener hears the claim from the warner and trusts them more (+2), and remembers the warning.
+  §5.2 names no modifier for it.
+- **Not yet applied:** the "Honest listeners −1" Gossip effect (no catalog modifier yet).
+
+**Measured (100 seeds, `feudalsim rumor`):** §7.8's toy setup (3 witnesses, day 2 at 08:00). Heard = witnessed or
+told (any variant, the doubt band included); held = c ≥ 0.5.
+
+| Claim class | t50 / t90 (heard) | Day 3 heard / held | Final (10 d) heard / held | Variants at t50 |
+|-------------|-------------------|--------------------|---------------------------|-----------------|
+| Mundane (`helped`, J 0.2) | never / never | 16 % / 14 % | 17 % / 14 % | 0 % |
+| Notable (`cheated`, J 0.5) | 2.4 d / 6.0 d | 55 % / 34 % | 85 % / 60 % | 8 % |
+| Juicy (`assaulted` 0.7 · `dead` 0.9) | 1.5 / 4.2 d · 1.2 / 3.0 d | 73 / 47 % · 85 / 58 % | 99 / 89 % · 100 / 96 % | 7 % |
+
+These run 2–3× slower than the targets. The cause is acceptance: listeners take 31–40 % of tellings, while the toy
+assumed ≈ 0.7. At camp trust (T ≈ 45–50, hop 1) §7.2's `cred` is ≈ 0.45. Mundane news rarely spreads because it
+competes with the camp's many other `helped` claims for the teller's best topic. Variant share at t50 (7–8 %) sits
+below 15–35 % because early holders are mostly witnesses. The **M1 exit criterion holds for a grounded public
+event**: an assault at the evening fire (13.4 witnesses on average) is heard by ≥ 80 % of the camp within 3 days in
+99 % of seeds (98 % mean; 89 % hold it). `RumorTests` checks this. §7.2 is unchanged; see Q16.
+
 ---
 
 ## 8. Reputation & Renown
@@ -1817,6 +1856,9 @@ betray a confidence, an Honest guard asked to ignore a theft) refuse in ≥ 95% 
 13. How many bystander DPs per exchange can the fast decider afford in a crowded tavern (cap 3 now),
     and should called allies always get one?
 14. Should the player be told (UI) when a pick was blocked by a guard, or should it stay invisible?
+16. **§7.8 vs §7.2.** At camp trust, §7.2's credibility gives ≈ 0.35–0.40 acceptance, but §7.8's speeds assume ≈ 0.7,
+    so a 3-witness juicy claim takes 1.2–1.5 d to t50, not 0.5 d (§7.10 note). Keep §7.2 and restate the §7.8 targets,
+    or raise `cred`'s intercept (e.g. 0.15 → 0.35)? The M1 exit criterion passes either way, measured as *heard*.
 15. **Friendship formation rate.** The M1 camp makes 0.09 friends / person by day 30 with no rapport DPs and no
     gossip yet. What target (e.g. 1–2 friends / person by day 30) should the 21 §19 sweep enforce? It interacts
     with Q12.

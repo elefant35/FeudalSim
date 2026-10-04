@@ -1,5 +1,6 @@
 using FeudalSim.Sim.Content;
 using FeudalSim.Sim.Core;
+using FeudalSim.Sim.Events;
 using FeudalSim.Sim.Social;
 using FeudalSim.Sim.World;
 
@@ -14,12 +15,12 @@ namespace FeudalSim.Sim.Systems;
 /// </summary>
 public sealed class InteractionSystem : ISimSystem
 {
-    public enum Kind : byte { Chat, Joke, Praise, Comfort, Request, Argue, Insult, Apologize }
+    public enum Kind : byte { Chat, Joke, Praise, Comfort, Request, Argue, Insult, Apologize, Gossip, Warn }
 
     private static readonly Kind[] Kinds = Enum.GetValues<Kind>();
     private static readonly string[] Forgivable = ["opinion.insulted_me", "opinion.argued_with_me", "opinion.mocked_me", "opinion.rude_to_me"];
     private ContentDatabase? _cachedFor;
-    private int _hotTempered = -1, _stubborn = -1, _charitable = -1, _honest = -1, _vengeful = -1, _healing = -1, _persuasion = -1;
+    private int _gossip = -1, _hotTempered = -1, _stubborn = -1, _charitable = -1, _honest = -1, _vengeful = -1, _healing = -1, _persuasion = -1;
 
     /// <summary>Counts per kind (metrics: 16 §5.6 frequency targets). Not state.</summary>
     public long[] Counts { get; } = new long[Kinds.Length];
@@ -32,6 +33,11 @@ public sealed class InteractionSystem : ISimSystem
     /// ~28 % of draws find no one in range), so this is calibrated by the camp sweep to realize ≈ I (16 §5.1).
     /// </summary>
     public const float BudgetQuarters = 32f;
+
+    // The topic chosen with the type (not state: set and used within one initiation).
+    private Belief? _warning;
+
+    private static readonly Func<SimWorld, int, int, bool> Range = static (w, x, y) => InRange(w, x, y);
 
     public string Name => "Interactions";
     public SimPhase Phase => SimPhase.World;
@@ -48,6 +54,7 @@ public sealed class InteractionSystem : ISimSystem
             _cachedFor = world.Content;
             (_hotTempered, _stubborn, _charitable, _honest) = (world.Content.TraitHandle("trait.hot_tempered"), world.Content.TraitHandle("trait.stubborn"),
                 world.Content.TraitHandle("trait.charitable"), world.Content.TraitHandle("trait.honest"));
+            _gossip = world.Content.TraitHandle("trait.gossip");
             (_vengeful, _healing, _persuasion) = (world.Content.TraitHandle("trait.vengeful"), world.Content.SkillHandle("skill.healing"), world.Content.SkillHandle("skill.persuasion"));
         }
 
@@ -117,6 +124,10 @@ public sealed class InteractionSystem : ISimSystem
         weight[(int)Kind.Insult] = op <= -20f || e.Anger >= 40f ? p.Volatility / 50f * (p.HasTrait(_hotTempered) ? 2f : 1f) * (1f + (e.Anger / 50f)) : 0f;
         weight[(int)Kind.Apologize] = OwesApology(world, i, j) ? 3f : 0f;
 
+        // Warn: Op(listener) ≥ 40 and a held negative claim about the listener they haven't been told yet.
+        _warning = op >= 40f ? WarningFor(world, i, j) : null;
+        weight[(int)Kind.Warn] = _warning is not null ? 3f * (0.5f + (p.Values.Loyalty / 100f)) : 0f;
+
         // Softmax at temperature 0.5 + Vo/100 (volatile people pick less "sensibly"), over log-weights.
         var temperature = 0.5f + (p.Volatility / 100f);
         Span<float> soft = stackalloc float[Kinds.Length];
@@ -142,12 +153,30 @@ public sealed class InteractionSystem : ISimSystem
         EntityId a = people.Ids[i], b = people.Ids[j];
         var opBa = rel.Opinion(b, a);
         CountToday(world, i, j);
+        // Gossip rides on friendly talk (16 §7.4–7.5): the initiator shares with P_share, the topic with Tell/(Tell + 0.6);
+        // the responder may share back at half the base rate. A chat that carried news counts as gossip in the §5.6 mix.
+        var gossiped = kind is Kind.Chat or Kind.Joke or Kind.Praise or Kind.Comfort or Kind.Request && Gossip(world, i, j, 1f, ref rng);
+        if (kind is Kind.Chat or Kind.Joke or Kind.Praise or Kind.Comfort or Kind.Request) { gossiped |= Gossip(world, j, i, 0.5f, ref rng); }
+        if (gossiped && kind == Kind.Chat) { kind = Kind.Gossip; }
         Counts[(int)kind]++;
         rel.Contact(a, b, 3f, social: true);
+        var success = true;
         switch (kind)
         {
+            case Kind.Gossip:
+                goto case Kind.Chat;
+
+            case Kind.Warn:
+                // The listener learns what is said about them (16 §5.2): the claim at the warner's word, and a loyal act.
+                _warning!.ToldTo.Add(b.Value);
+                Rumors.Hear(world, j, i, _warning.Claim, _warning.C, _warning.Hop + 1, ref rng);
+                rel.TrustEvidence(b, a, 2f);
+                mem.Remember(b, MemoryKind.Warned, a, b, now, 20, 1f, 0f, 30);
+                break;
+
             case Kind.Chat:
-                if (rng.Chance(0.75f + (0.002f * opBa)))
+                success = rng.Chance(0.75f + (0.002f * opBa));
+                if (success)
                 {
                     var lonelyA = people.Needs[i].Social < 40f ? 1.5f : 1f;
                     var lonelyB = people.Needs[j].Social < 40f ? 1.5f : 1f;
@@ -164,7 +193,8 @@ public sealed class InteractionSystem : ISimSystem
 
             case Kind.Joke:
                 var cha = people.Attributes[i].Charisma;
-                if (rng.Chance(0.5f + (0.03f * (cha - 5f)) + (0.002f * opBa)))
+                success = rng.Chance(0.5f + (0.03f * (cha - 5f)) + (0.002f * opBa));
+                if (success)
                 {
                     rel.ApplyModifier(a, b, "opinion.joked_together");
                     rel.ApplyModifier(b, a, "opinion.joked_together");
@@ -185,7 +215,8 @@ public sealed class InteractionSystem : ISimSystem
                 break;
 
             case Kind.Comfort:
-                if (rng.Chance(0.5f + (0.004f * opBa) + (people.SkillLevels(i)[_healing] / 400f)))
+                success = rng.Chance(0.5f + (0.004f * opBa) + (people.SkillLevels(i)[_healing] / 400f));
+                if (success)
                 {
                     ref var em = ref people.Emotions[j];
                     if (em.Grief >= em.Fear && em.Grief >= em.Shame) { em.Grief = MathF.Max(0f, em.Grief - 15f); }
@@ -198,8 +229,10 @@ public sealed class InteractionSystem : ISimSystem
                 break;
 
             case Kind.Request:
-                if (rng.Chance(Willingness(world, j, i)))
+                success = rng.Chance(Willingness(world, j, i));
+                if (success)
                 {
+                    Rumors.Witness(world, "claim.helped", j, i, 1f, Range);
                     rel.ApplyModifier(a, b, "opinion.granted_my_request");
                     rel.ApplyModifier(a, b, "opinion.helped_my_work");
                     rel.Contact(a, b, 3f, social: false);
@@ -226,6 +259,7 @@ public sealed class InteractionSystem : ISimSystem
                 rel.ApplyModifier(b, a, "opinion.insulted_me", isPublic: witnesses >= 3);
                 Anger(world, j, i, 25f * (witnesses >= 3 ? 1.4f : 1f), honorTouched: true);
                 mem.Remember(b, MemoryKind.Insult, a, b, now, 30, 1f, 25f, -60);
+                Rumors.Witness(world, "claim.insulted", i, j, 1f, Range);
                 break;
 
             case Kind.Apologize:
@@ -233,8 +267,10 @@ public sealed class InteractionSystem : ISimSystem
                     - (people.Personality[j].HasTrait(_stubborn) ? 0.20f : 0f) - (people.Personality[j].HasTrait(_vengeful) ? 0.25f : 0f)
                     + (0.15f * 0.57f * (0.5f + (0.5f * people.SkillLevels(i)[_persuasion] / 100f)) * Math.Clamp(people.Emotions[i].Shame / 100f, -0.5f, 1f)),
                     0.05f, 0.95f);
-                if (rng.Chance(pAccept))
+                success = rng.Chance(pAccept);
+                if (success)
                 {
+                    Rumors.Witness(world, "claim.made_amends", i, j, 1f, Range);
                     var keep = people.Personality[j].HasTrait(_stubborn) ? 0.75f : 0.5f;
                     foreach (var mod in Forgivable) { rel.ScaleModifier(b, a, mod, keep); }
                     people.Emotions[j].Anger = MathF.Max(0f, people.Emotions[j].Anger - 30f);
@@ -244,6 +280,39 @@ public sealed class InteractionSystem : ISimSystem
 
                 break;
         }
+
+        world.Emit(Salience.Trace, a, new InteractionResolved(a, b, KindNames[(int)kind], success));
+    }
+
+    /// <summary>One side of §7.5's exchange: P_share × rate, then the best topic with Tell/(Tell + 0.6). True if a claim passed.</summary>
+    private bool Gossip(SimWorld world, int teller, int listener, float rate, ref Rng rng)
+    {
+        var (topic, tell) = Rumors.BestTellable(world, teller, listener);
+        if (topic is null) { return false; }
+        ref readonly var claim = ref world.Claims[topic.Claim];
+        var jNov = world.Content.ClaimPredicates[claim.Predicate].Juiciness * Rumors.Nov(world, topic, claim);
+        if (!rng.Chance(rate * Rumors.PShare(world, teller, jNov)) || !rng.Chance(tell / (tell + 0.6f))) { return false; }
+        Rumors.Exchange(world, teller, listener, topic, ref rng);
+        ref readonly var pl = ref world.People.Personality[listener];
+        if (pl.HasTrait(_gossip) || pl.Sociability >= 65) { world.Relationships.ApplyModifier(world.People.Ids[listener], world.People.Ids[teller], "opinion.chatted"); }
+        return true;
+    }
+
+    private static readonly string[] KindNames = [.. Enum.GetNames<Kind>().Select(n => n.ToLowerInvariant())];
+
+    /// <summary>A held (c ≥ 0.5) negative claim about the listener that this warner hasn't passed to them yet.</summary>
+    private static Belief? WarningFor(SimWorld world, int warner, int listener)
+    {
+        var about = world.People.Ids[listener].Value;
+        foreach (var b in world.Beliefs.Span(world.People.Ids[warner]))
+        {
+            if (b.C < BeliefStore.Hold) { continue; }
+            ref readonly var c = ref world.Claims[b.Claim];
+            if (c.Subject != about || world.Content.ClaimPredicates[c.Predicate].Valence != ClaimValence.Negative || b.ToldTo.Contains(about)) { continue; }
+            return b;
+        }
+
+        return null;
     }
 
     /// <summary>16 §5.4 without the words term (NPC↔NPC requests draw it with neutral words).</summary>
@@ -322,7 +391,7 @@ public sealed class InteractionSystem : ISimSystem
         => a >= 0 && b >= 0 && world.Content.Actions[a].Place == world.Content.Actions[b].Place && world.Content.Actions[a].Place != PlaceKind.Home;
 
     /// <summary>16 §5.1 social opportunity: the same task site (fire, stores, water, woods…), or within speaking range (≤ 4 m).</summary>
-    private static bool InRange(SimWorld world, int i, int j)
+    public static bool InRange(SimWorld world, int i, int j)
     {
         var people = world.People;
         if (people.Activity[i].Phase == 1 && people.Activity[j].Phase == 1 && SamePlace(world, people.Activity[i].Action, people.Activity[j].Action)) { return true; }

@@ -27,6 +27,25 @@ public static class SaveCodec
     }
 
     public const string MemoriesTable = "memories";
+    public const string ClaimsTable = "claims";
+    public const string BeliefsTable = "beliefs";
+
+    private static TableChunk ClaimsChunk(Social.ClaimStore store)
+    {
+        var rows = store.Export();
+        var chunk = new TableChunk { Table = ClaimsTable, RowCount = rows.Length };
+        chunk.Columns.Add(new ColumnBlock { Name = "rows", LayoutVersion = 1, ElementSize = Marshal.SizeOf<Social.Claim>(), Data = MemoryMarshal.AsBytes(rows.AsSpan()).ToArray() });
+        return chunk;
+    }
+
+    private static TableChunk BeliefsChunk(Social.BeliefStore store)
+    {
+        var (rows, told) = store.Export();
+        var chunk = new TableChunk { Table = BeliefsTable, RowCount = rows.Length };
+        chunk.Columns.Add(new ColumnBlock { Name = "rows", LayoutVersion = 1, ElementSize = Marshal.SizeOf<Social.BeliefStore.Row>(), Data = MemoryMarshal.AsBytes(rows.AsSpan()).ToArray() });
+        chunk.Columns.Add(new ColumnBlock { Name = "told_to", LayoutVersion = 1, ElementSize = 8, Data = MemoryMarshal.AsBytes(told.AsSpan()).ToArray() });
+        return chunk;
+    }
 
     private static TableChunk MemoriesChunk(Social.MemoryStore store)
     {
@@ -104,7 +123,7 @@ public static class SaveCodec
                 LastCommandSeq = world.LastCommandSeq,
             },
             IdCounters = counters,
-            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories)],
+            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories), ClaimsChunk(world.Claims), BeliefsChunk(world.Beliefs)],
         };
     }
 
@@ -179,6 +198,19 @@ public static class SaveCodec
         {
             if (mrows.ElementSize == Marshal.SizeOf<Social.MemoryStore.Row>()) { world.Memories.Import(MemoryMarshal.Cast<byte, Social.MemoryStore.Row>(mrows.Data).ToArray()); }
             else { notes.Add("Memories table has an unknown layout; memories reset."); }
+        }
+
+        var claims = image.Tables.FirstOrDefault(t => t.Table == ClaimsTable);
+        var beliefs = image.Tables.FirstOrDefault(t => t.Table == BeliefsTable);
+        if (claims?.Columns.FirstOrDefault(c => c.Name == "rows") is { } crows && beliefs?.Columns.FirstOrDefault(c => c.Name == "rows") is { } brows
+            && beliefs.Columns.FirstOrDefault(c => c.Name == "told_to") is { } told)
+        {
+            if (crows.ElementSize == Marshal.SizeOf<Social.Claim>() && brows.ElementSize == Marshal.SizeOf<Social.BeliefStore.Row>())
+            {
+                world.Claims.Import(MemoryMarshal.Cast<byte, Social.Claim>(crows.Data).ToArray());
+                world.Beliefs.Import(MemoryMarshal.Cast<byte, Social.BeliefStore.Row>(brows.Data).ToArray(), MemoryMarshal.Cast<byte, ulong>(told.Data).ToArray());
+            }
+            else { notes.Add("Claims/beliefs tables have an unknown layout; rumors reset."); }
         }
 
         warnings = notes;

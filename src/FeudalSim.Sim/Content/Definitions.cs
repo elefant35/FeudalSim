@@ -232,6 +232,34 @@ public sealed record OpinionModifierDef
     public string? Notes { get; init; }
 }
 
+public enum ClaimValence { Negative, Neutral, Positive }
+
+/// <summary>A claim predicate (16 §7.3): juiciness, reputation axis impacts, mutation ladder.</summary>
+public sealed record ClaimPredicateDef
+{
+    public required string Id { get; init; }
+
+    /// <summary>J (0–1): the base pull of the claim in conversation (16 §7.4).</summary>
+    public required float Juiciness { get; init; }
+
+    /// <summary>J when subject or object is married (an affair); null = <see cref="Juiciness"/>.</summary>
+    public float? JuicinessIfMarried { get; init; }
+
+    public required ClaimValence Valence { get; init; }
+
+    /// <summary>Reputation impact per unit magnitude by axis (16 §8.1).</summary>
+    public IReadOnlyDictionary<string, float>? Axes { get; init; }
+
+    /// <summary>Next rung of the mutation ladder (16 §7.6 "escalate predicate").</summary>
+    public string? EscalatesTo { get; init; }
+
+    /// <summary>Accusation-grade when about a named person (16 §7.10 stakes).</summary>
+    public bool Accusation { get; init; }
+
+    /// <summary>A moral claim: a priest's word weighs more (16 §7.2 speaker factor).</summary>
+    public bool Moral { get; init; }
+}
+
 public enum AssetKind { Model, Animation, Texture, Vfx, Ui, Sfx, Ambience, Music, Vocal }
 
 public enum AssetStatus { Placeholder, Draft, Review, Approved, Final }
@@ -318,6 +346,9 @@ public static class CanonLists
 
     public static readonly IReadOnlyList<string> Facets = ["curiosity", "diligence", "sociability", "warmth", "volatility"];
 
+    /// <summary>Reputation axes (16 §8.1).</summary>
+    public static readonly IReadOnlyList<string> ReputationAxes = ["honesty", "lawfulness", "peaceableness", "courage", "generosity", "piety", "competence"];
+
     public static readonly IReadOnlyList<string> Values = ["family", "wealth", "status", "honor", "tradition", "faith", "fairness", "freedom", "loyalty"];
 
     public static readonly IReadOnlyList<string> Emotions = ["anger", "fear", "grief", "joy", "shame", "jealousy"];
@@ -336,8 +367,9 @@ public sealed class ContentDatabase
         IReadOnlyList<AssetDef>? assets = null, IReadOnlyList<AudioEventDef>? audio = null,
         IReadOnlyList<TraitDef>? traits = null, IReadOnlyList<CultureDef>? cultures = null, IReadOnlyList<ProfessionDef>? professions = null,
         IReadOnlyList<ActionDef>? actions = null, IReadOnlyList<ScheduleDef>? schedules = null,
-        IReadOnlyList<OpinionModifierDef>? opinionModifiers = null)
+        IReadOnlyList<OpinionModifierDef>? opinionModifiers = null, IReadOnlyList<ClaimPredicateDef>? claimPredicates = null)
     {
+        ClaimPredicates = claimPredicates ?? [];
         OpinionModifiers = opinionModifiers ?? [];
         Actions = actions ?? [];
         Schedules = schedules ?? [];
@@ -374,6 +406,11 @@ public sealed class ContentDatabase
     public IReadOnlyList<OpinionModifierDef> OpinionModifiers { get; }
 
     public int OpinionModifierHandle(string id) => HandleOf(OpinionModifiers, id, o => o.Id);
+
+    /// <summary>Claim predicates in handle order (ordinal id).</summary>
+    public IReadOnlyList<ClaimPredicateDef> ClaimPredicates { get; }
+
+    public int ClaimHandle(string id) => HandleOf(ClaimPredicates, id, c => c.Id);
 
     /// <summary>Handle of a definition id in a sorted list, or −1.</summary>
     public static int HandleOf<T>(IReadOnlyList<T> defs, string id, Func<T, string> idOf)

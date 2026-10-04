@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://feudalsim.dev/schemas/claim.schema.json",
+  "title": "ClaimPredicateDef",
+  "description": "A list of claim definitions (generated from FeudalSim.Sim.Content.ClaimPredicateDef; do not edit).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^claim(\\.[a-z0-9_]\u002B)\u002B$"
+      },
+      "juiciness": {
+        "type": "number"
+      },
+      "juiciness_if_married": {
+        "type": "number"
+      },
+      "valence": {
+        "type": "string",
+        "enum": [
+          "negative",
+          "neutral",
+          "positive"
+        ]
+      },
+      "axes": {
+        "type": "object"
+      },
+      "escalates_to": {
+        "type": "string",
+        "minLength": 1
+      },
+      "accusation": {
+        "type": "boolean"
+      },
+      "moral": {
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "id",
+      "juiciness",
+      "valence"
+    ],
+    "additionalProperties": false
+  }
+}
