@@ -205,7 +205,14 @@ def clothing(rig,sex,scale):
  female=sex=='female'; result=[]
  def garment(name,rows,col,n=16,wind=False):
   m=Mesh('Cloth_'+name,rig,scale)
-  m.rings(rows,n=n,color=col,bone=lambda j,i: 'Hips' if rows[j][2]<1.03 else 'Spine' if rows[j][2]<1.2 else 'UpperChest',caps=False,wind=(lambda j,i: min(1,max(0,(1.22-rows[j][2])/(1.22-rows[0][2])))) if wind else None)
+  def garment_weights(j,i):
+   z=rows[j][2]; side='Left' if math.sin(i*math.tau/n)>=0 else 'Right'
+   if name=='wool_tunic' and z<1.0:
+    amount=min(.70,max(0,(1.0-z)/.60))
+    leg=side+('LowerLeg' if female and z<.4 else 'UpperLeg')
+    return {'Hips':1-amount,leg:amount}
+   return 'Hips' if z<1.03 else 'Spine' if z<1.2 else 'UpperChest'
+  m.rings(rows,n=n,color=col,bone=garment_weights,caps=False,wind=(lambda j,i: min(1,max(0,(1.22-rows[j][2])/(1.22-rows[0][2])))) if wind else None)
   return m
  shirt=garment('linen_shirt',[(0,0,.86,.16,.105),(0,0,1.03,.145,.10),(0,0,1.24,.188,.113),(0,0,1.38,.187,.102),(0,0,1.455,.069,.065)],'linen')
  for side in ['Left','Right']: shoulder_arm(shirt,side,'linen',radius=.068)
@@ -215,7 +222,11 @@ def clothing(rig,sex,scale):
  for side in ['Left','Right']:
   # Wool sleeves finish before linen cuffs; the hands remain clean separate skin.
   s=1 if side=='Left' else -1
-  tunic.tube([(.168*s,0,1.40),(.25*s,0,1.32),(.365*s,0,1.205),(.465*s,-.002,1.095),(.505*s,-.005,1.05)],[.111,.098,.085,.074,.059],lambda j:side+('UpperArm' if j<2 else 'LowerArm'),'russet' if female else 'woad',n=10)
+  tunic.tube([(.168*s,0,1.40),(.25*s,0,1.32),(.365*s,0,1.205),(.465*s,-.002,1.095),(.505*s,-.005,1.05)],[.111,.098,.085,.074,.059],lambda j:[{'UpperChest':.5,side+'UpperArm':.5},{'UpperChest':.1,side+'UpperArm':.9},{side+'UpperArm':.5,side+'LowerArm':.5},side+'LowerArm',side+'LowerArm'][j],'russet' if female else 'woad',n=10)
+ # Broad shoulder yokes bridge the rotating sleeve root under the collar.
+ # They follow the chest predominantly; the underlying sleeve remains free to swing.
+ for side,s in [('Left',1),('Right',-1)]:
+  tunic.rings([(s*.17,0,1.35,.085,.078),(s*.17,0,1.415,.106,.096),(s*.17,0,1.454,.045,.052)],n=8,color='russet' if female else 'woad',bone={'UpperChest':.75,side+'UpperArm':.25})
  # Belt lies within the tunic object, with an unpolished tied end and a brass pin.
  tunic.rings([(0,0,1.012,.151,.111),(0,0,1.038,.153,.112)],n=16,color='wool_brown',bone='Spine',caps=False)
  tunic.patch([(-.026,-.115,1.037),(.011,-.119,1.031),(.017,-.123,.86),(-.004,-.121,.83)],'wool_brown','Hips')
