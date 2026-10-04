@@ -14,6 +14,8 @@ public enum CommandSource : byte { Player, Embodiment, Ai, Settings, Scenario, D
 [Union(2, typeof(Ai.AiResultCommand))]
 [Union(3, typeof(PlayerMoved))]
 [Union(4, typeof(EmbodimentReport))]
+[Union(5, typeof(Decisions.DecisionPointOpened))]
+[Union(6, typeof(Decisions.DecisionMade))]
 public abstract record StateCommand;
 
 /// <summary>Changes the real-minutes-per-game-day setting (canon §6). Logged; applies at the next step.</summary>

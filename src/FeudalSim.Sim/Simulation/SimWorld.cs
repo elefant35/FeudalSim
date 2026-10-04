@@ -1,6 +1,7 @@
 using FeudalSim.Sim.Ai;
 using FeudalSim.Sim.Commands;
 using FeudalSim.Sim.Core;
+using FeudalSim.Sim.Decisions;
 using FeudalSim.Sim.Events;
 using FeudalSim.Sim.Time;
 using FeudalSim.Sim.World;
@@ -26,12 +27,16 @@ public sealed class SimWorld
     {
         WorldSeed = worldSeed;
         Clock = new SimClock(startGameMs, dayLengthMinutes);
+        Decisions = new DecisionRulesEngine(this);
     }
 
     public ulong WorldSeed { get; }
     public SimClock Clock { get; }
     public EntityIdAllocator Ids { get; } = new();
     public PersonTable People { get; } = new();
+
+    /// <summary>Decision points: menus, guards, the policy and the DP watchdog (canon §13.1, 22 §6).</summary>
+    public DecisionRulesEngine Decisions { get; }
 
     /// <summary>The player's last reported pose (set by logged <see cref="PlayerMoved"/> commands).</summary>
     public PlayerState Player;
@@ -88,9 +93,10 @@ public sealed class SimWorld
             Emit(Salience.Minor, EntityId.None, new DayStarted(newDay));
         }
 
-        // Phase 1 — Commands, in Seq order, then the AI deadline sweep.
+        // Phase 1 — Commands, in Seq order, then the AI and decision-point deadline sweeps.
         var applied = ApplyCommands(ctx);
         SweepAiDeadlines(ctx.Step);
+        Decisions.SweepDeadlines(ctx.Step);
 
         // Phases 2–5 — systems.
         foreach (var phase in (ReadOnlySpan<SimPhase>)[SimPhase.Sense, SimPhase.Decide, SimPhase.Resolve, SimPhase.World])
@@ -106,8 +112,13 @@ public sealed class SimWorld
         _events.Clear();
         var outbox = _aiOutbox.ToArray();
         _aiOutbox.Clear();
+        var opened = Decisions.DrainOutbox();
         var hash = HashEveryNSteps > 0 && Clock.Step % HashEveryNSteps == 0 ? StateHasher.Hash(this) : 0UL;
-        return new StepOutput { Step = Clock.Step, GameMs = Clock.GameMs, AppliedCommands = applied, Events = events, AiRequests = outbox, StateHash = hash };
+        return new StepOutput
+        {
+            Step = Clock.Step, GameMs = Clock.GameMs, AppliedCommands = applied, Events = events, AiRequests = outbox,
+            OpenedDecisions = opened, StateHash = hash,
+        };
     }
 
     private CommandEnvelope[] ApplyCommands(in StepContext ctx)
@@ -189,6 +200,14 @@ public sealed class SimWorld
                 Emit(Salience.Trace, pending.Speaker, new AiResultApplied(c.RequestId, !ok, ok ? c.Text : pending.FallbackText, ok ? c.ProviderTag : "fallback"));
                 break;
 
+            case DecisionPointOpened c:
+                Decisions.VerifyOpened(command, c);
+                break;
+
+            case DecisionMade c:
+                Decisions.ApplyDecision(command, c);
+                break;
+
             default:
                 Reject(command, $"Unknown command {command.Payload?.GetType().Name ?? "null"}.");
                 break;
@@ -226,6 +245,8 @@ public sealed class SimWorld
             Emit(Salience.Trace, request.Speaker, new AiResultApplied(id, true, request.FallbackText, "fallback:deadline"));
         }
     }
+
+    internal void RejectCommand(in CommandEnvelope command, string reason) => Reject(command, reason);
 
     private void Reject(in CommandEnvelope command, string reason)
         => Emit(Salience.Trace, EntityId.None, new CommandRejected(command.Seq, reason));

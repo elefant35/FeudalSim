@@ -32,6 +32,7 @@ public static class StateHasher
         h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<Needs>)people.Needs));
         h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<LodState>)people.Lod));
         h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<WanderState>)people.Wander));
+        world.Decisions.HashInto(h);
         return h.GetCurrentHashAsUInt64();
     }
 }

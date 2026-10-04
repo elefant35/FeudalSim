@@ -141,6 +141,7 @@ public sealed class SimRunner : IDisposable
         foreach (var c in output.AppliedCommands) { _log?.Append(c); }
         foreach (var e in output.Events) { Events.Push(e); }
         foreach (var r in output.AiRequests) { _gateway?.Submit(r); }
+        foreach (var dp in output.OpenedDecisions) { Submit(CommandSource.Integrity, dp); }   // logged + verified next step, live and in replay
         Snapshots.Back.CopyFrom(_world);
         Snapshots.Publish();
         Interlocked.Increment(ref _steps);

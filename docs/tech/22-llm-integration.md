@@ -884,6 +884,15 @@ public sealed record DecisionResolved(           // logged by the sim; recompute
     GuardOutcome Guard, string? RejectedOptionId, RiskTier Tier, long AtTick);
 ```
 
+**Implementation names (M0-16, 2026-10-04).** The code follows 20 §11 for records that are logged:
+`DecisionSubmitted` above **is** `DecisionMade` (a `StateCommand`), and an open `DecisionPoint` is logged
+as the integrity command `DecisionPointOpened`; `DecisionResolved` and `DecisionPointCancelled` are domain
+events. `MenuOption` carries the fields above except `SayFacts` (M1, with decision-first dialogue);
+`Params` is a sorted `OptionParam[]`. The DRE is `FeudalSim.Sim.Decisions.DecisionRulesEngine`
+(`world.Decisions`): `Open` → guard pre-clear + policy draw; phase 1 applies `DecisionMade` against the
+rebuilt menu and runs the DP watchdog. Until M1's decision-first route exists, a DP whose `MaxDecider`
+is `Llm` is answered by the fast decider, then "policy, now".
+
 **Stakes** (canon §13.1) set the guard floor and the risk tier:
 
 | Stakes | Typical options | Floor | Tier | Extra check |
@@ -2291,7 +2300,7 @@ hard-coded consumer and a sub-second budget.
 
 | Milestone | LLM & fast-decider scope |
 |-----------|--------------------------|
-| **M0 Foundations** | Gateway skeleton: `IChatGenerator` (OpenRouter), `IDecider` on the System One contract with the `openrouter-llm` adapter (logprob technique) and a heuristic stub, scheduler, timeouts, breaker, spend accounting, recorder (`AI_GATEWAY_MODE`), config/env, keychain storage; **DP records** (`DecisionPoint`, `MenuOption`, `DecisionSubmitted`, `DecisionResolved`), `IDecisionPointOwner`, the policy decider and the DP watchdog |
+| **M0 Foundations** | Gateway skeleton: `IChatGenerator` (OpenRouter), `IDecider` on the System One contract with the `openrouter-llm` adapter (logprob technique) and a heuristic stub, scheduler, timeouts, breaker, spend accounting, recorder (`AI_GATEWAY_MODE`), config/env; **DP records** (`DecisionPoint`, `MenuOption`, `DecisionSubmitted`, `DecisionResolved`), `IDecisionPointOwner`, the policy decider and the DP watchdog. *(OS keychain storage dropped 2026-10-04 by the owner: keys stay in `.env`; revisit only if the game ships to players.)* |
 | **M1 Talking Camp** | **Decision points end-to-end** in conversation: decision-first dialogue pipeline, guards, owner execution, recording (§17.2); fast-decider bake-off; calibration and refusal suites |
 | **M2 Landfall** | Bark pools; approach opening lines at scale; place-name grammars; combat bark authoring rule; **combat yield/mercy quick-choice DP** (fast decider ≤ 500 ms, policy fallback) with 18 |
 | **M3 Hamlet** | Promise and obligation DPs end-to-end with 16; full trade menus (15 §5) replacing the M1 stub; apprenticeship DP (12); rolling summaries and gists; persona exemplars |

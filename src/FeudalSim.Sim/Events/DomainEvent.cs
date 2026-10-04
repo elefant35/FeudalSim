@@ -13,6 +13,9 @@ public enum Salience : byte { Trace, Minor, Notable, Major, Historic }
 [Union(4, typeof(AiResultApplied))]
 [Union(5, typeof(LodChanged))]
 [Union(6, typeof(Embodied))]
+[Union(7, typeof(DecisionResolved))]
+[Union(8, typeof(DecisionPointCancelled))]
+[Union(9, typeof(IntegrityMismatch))]
 public abstract record DomainEvent;
 
 [MessagePackObject]
@@ -42,6 +45,26 @@ public sealed record LodChanged([property: Key(0)] EntityId Person, [property: K
 /// <summary>The first body report after promotion; <c>SnapDistance</c> is how far the body landed from the sim's pose (m).</summary>
 [MessagePackObject]
 public sealed record Embodied([property: Key(0)] EntityId Person, [property: Key(1)] float SnapDistance) : DomainEvent;
+
+/// <summary>How a decision point ended: who chose, which option, and the guard's verdict (22 §6). <c>Rejected</c> is the
+/// decider's choice when a guard turned it down and the policy chose instead.</summary>
+[MessagePackObject]
+public sealed record DecisionResolved(
+    [property: Key(0)] ulong Dp,
+    [property: Key(1)] string Owner,
+    [property: Key(2)] EntityId Chooser,
+    [property: Key(3)] string Chosen,
+    [property: Key(4)] Decisions.DeciderKind Decider,
+    [property: Key(5)] Decisions.GuardOutcome Guard,
+    [property: Key(6)] string? Rejected,
+    [property: Key(7)] string ProviderTag) : DomainEvent;
+
+[MessagePackObject]
+public sealed record DecisionPointCancelled([property: Key(0)] ulong Dp, [property: Key(1)] string Reason) : DomainEvent;
+
+/// <summary>A logged integrity record did not match what the sim recomputed (20 §8.5) — a desync.</summary>
+[MessagePackObject]
+public sealed record IntegrityMismatch([property: Key(0)] long Seq, [property: Key(1)] string Reason) : DomainEvent;
 
 [MessagePackObject]
 public readonly record struct EventEnvelope(

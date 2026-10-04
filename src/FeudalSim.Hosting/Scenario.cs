@@ -24,6 +24,14 @@ public sealed record ScenarioDef
     /// <summary>Deadline for the AI ping, in steps (10 steps = 1 s).</summary>
     public int AiPingDeadlineSteps { get; init; } = 150;
 
+    /// <summary>If set, the first settler faces a decision point at this step (M0 decision-point check, 22 §17.1).</summary>
+    public long? DecisionPingStep { get; init; }
+
+    /// <summary>Who may decide the ping DP: <c>policy</c> (inline), <c>fast</c> or <c>llm</c> (M0 routes llm to the fast decider).</summary>
+    public string DecisionPingDecider { get; init; } = "llm";
+
+    public int DecisionPingDeadlineSteps { get; init; } = Sim.Decisions.DecisionRulesEngine.ConversationDeadlineSteps;
+
     public static ScenarioDef Load(string path)
     {
         var yaml = new DeserializerBuilder().WithNamingConvention(UnderscoredNamingConvention.Instance).Build();
@@ -51,6 +59,12 @@ public sealed record ScenarioDef
             .AddSystem(new WanderSystem())
             .AddSystem(new NeedsDecaySystem());
         if (AiPingStep is { } at) { world.AddSystem(new AiPingSystem(at, AiPingDeadlineSteps)); }
+        if (DecisionPingStep is { } dpAt)
+        {
+            world.Decisions.Register(new DecisionPingOwner());
+            world.AddSystem(new DecisionPingSystem(dpAt, Enum.Parse<Sim.Decisions.DeciderKind>(DecisionPingDecider, ignoreCase: true), DecisionPingDeadlineSteps));
+        }
+
         for (var i = 0; i < Settlers; i++)
         {
             var command = new CommandEnvelope(i + 1, 0, CommandSource.Scenario,
@@ -84,6 +98,7 @@ public static class ScenarioRunner
             for (var s = 0; s < stepsPerDay; s++)
             {
                 var output = world.Step();
+                LogOpenedDecisions(world, output);
                 events += output.Events.Count;
                 if (inputLog is not null) { foreach (var c in output.AppliedCommands) { inputLog.Append(c); } }
                 if (eventLog is not null) { foreach (var e in output.Events) { Sim.Persistence.LogCodec.WriteEvent(eventLog, e); } }
@@ -94,6 +109,18 @@ public static class ScenarioRunner
         }
 
         return new RunResult(world.Clock.Step, StateHasher.Hash(world), days, clock.Elapsed.TotalSeconds);
+    }
+
+    /// <summary>
+    /// DPs a model may decide are logged as integrity commands (20 §8.5) exactly as <see cref="SimRunner"/> does; with
+    /// no gateway here, the policy decides them at their deadline.
+    /// </summary>
+    internal static void LogOpenedDecisions(SimWorld world, StepOutput output)
+    {
+        foreach (var dp in output.OpenedDecisions)
+        {
+            world.Enqueue(new CommandEnvelope(world.LastCommandSeq + 1, 0, CommandSource.Integrity, dp));
+        }
     }
 
     private static DayMetrics Measure(SimWorld world, int day, int events)

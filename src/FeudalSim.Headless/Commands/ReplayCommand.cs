@@ -33,9 +33,14 @@ public sealed class ReplayCommand : Command<ReplaySettings>
         var until = settings.UntilStep ?? log.Max(c => c.ApplyStep);
         using var jobs = new JobRunner(1);
         var world = scenario.CreateWorld(content, jobs);
-        var lodEvents = 0;
-        Replayer.Run(world, log, until, o => lodEvents += o.Events.Count(e => e.Payload is Sim.Events.LodChanged or Sim.Events.Embodied));
-        Console.WriteLine($"replay: {log.Count} commands → step {world.Clock.Step}; LOD/embodiment events {lodEvents}; final hash {StateHasher.Hash(world):x16}");
+        int lodEvents = 0, decisions = 0, mismatches = 0;
+        Replayer.Run(world, log, until, o =>
+        {
+            lodEvents += o.Events.Count(e => e.Payload is Sim.Events.LodChanged or Sim.Events.Embodied);
+            decisions += o.Events.Count(e => e.Payload is Sim.Events.DecisionResolved);
+            mismatches += o.Events.Count(e => e.Payload is Sim.Events.IntegrityMismatch);
+        });
+        Console.WriteLine($"replay: {log.Count} commands → step {world.Clock.Step}; LOD/embodiment events {lodEvents}; decisions {decisions}; integrity mismatches {mismatches}; final hash {StateHasher.Hash(world):x16}");
         return 0;
     }
 }

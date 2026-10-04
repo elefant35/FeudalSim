@@ -14,6 +14,7 @@ public static class Salt
     public const uint WanderPause = 2;
     public const uint DecisionPolicy = 3;
     public const uint ScenarioSpawn = 4;
+    public const uint DecisionPolicyResample = 5;
 }
 
 /// <summary>SplitMix64 finalizer-based mixing (Steele, Lea &amp; Flood 2014).</summary>
