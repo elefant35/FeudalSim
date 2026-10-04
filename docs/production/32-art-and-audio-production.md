@@ -163,6 +163,12 @@ Aligned with the ≤ 4 GB VRAM plan in [20 §19](../tech/20-architecture.md#19-p
 | Building, large (hall, church) | 5,000–12,000 | 30% | proxy | ≤ 4 | Atlases ≤ 1024² |
 | Fortification module (wall, tower, gate) | 1,000–6,000 | 30% | proxy | ≤ 3 | Atlases ≤ 1024² |
 | Terrain material | — | — | — | splat layers | ≤ 1024² per layer, ≤ 32 layers |
+| Graybox placeholder (M1-20 kit: blockout people, props, buildings, nature) | 6–2,000 | — | cull | 1 | Palette |
+
+*Graybox (M1-20):* placeholders are deliberately coarser than any shipping class (a block building is ~50 triangles),
+so they get their own class instead of failing the shipping minimums; nothing in the `graybox` class ships. The kit is
+`art/generators/graybox/kit.py` (40 items) built by `python3 tools/art/build_kit.py [--previews]`, reviewed in
+`res://scenes/dev/KitGallery.tscn`.
 
 **Skeletons:** humanoid ≤ 45 deform bones (+ face controls); quadruped ≤ 35. **Animation:** 30 fps
 authoring; compressed in Godot.
