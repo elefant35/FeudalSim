@@ -278,8 +278,13 @@ public partial class SimHost : Node3D
         var minute = snapshot.GameMs / Sim.Time.SimClock.MsPerGameMinute;
         UpdateSun(snapshot.Weather, minute);
         _overlay.Text = $"FeudalSim · {_scenarioId} · {date} · {snapshot.Weather.Sky} {Sim.Climate.Weather.AirTempC(snapshot.Weather, minute):F0} °C · wind {snapshot.Weather.WindMs:F0} m/s · step {snapshot.Step} · {_stepsPerSecond:F1} steps/s · ×{_timeScale} · {_runner.Mode}\n" +
-                        $"{snapshot.Count - (snapshot.IsPlayer.AsSpan(0, snapshot.Count).Contains(true) ? 1 : 0)} settlers · [Space] pause · [1][2][4][8] speed · {(_play ? "WASD walk · Shift run · [E] talk · [Esc] leave · [T] take" : "WASD/arrows pan")} · wheel zoom" +
+                        $"{snapshot.Count - (snapshot.IsPlayer.AsSpan(0, snapshot.Count).Contains(true) ? 1 : 0)} settlers · [Space] pause · [1][2][4][8] speed · {(_play ? "WASD walk · Shift jog · Ctrl sprint · [E] talk · [Esc] leave · [T] take" : "WASD/arrows pan")} · wheel zoom" +
                         (_aiStatus.Length > 0 ? $" · {_aiStatus}" : "");
+        if (_play && snapshot.PlayerStaminaMax > 0f)
+        {
+            _overlay.Text += $"\nyou: stamina {snapshot.PlayerStamina:F0}/{snapshot.PlayerStaminaMax:F0}{(snapshot.PlayerWinded ? " (winded)" : "")} · warmth {snapshot.PlayerWarmth:F0} · wet {snapshot.PlayerWetness:F0}";
+        }
+
         if (snapshot.CampActive)
         {
             var parts = new List<string>();

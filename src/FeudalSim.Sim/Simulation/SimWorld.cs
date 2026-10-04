@@ -345,6 +345,8 @@ public sealed class SimWorld
                 {
                     ref var pt = ref People.Transforms[pr];
                     (pt.X, pt.Z, pt.Yaw) = (c.X, c.Z, c.Yaw);
+                    ref var st = ref People.Stamina[pr];
+                    (st.Gait, st.GaitUntilStep) = (Math.Min(c.Gait, (byte)2), Clock.Step + Survival.StaminaRules.GaitHoldSteps);
                 }
 
                 break;

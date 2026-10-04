@@ -15,7 +15,7 @@ namespace FeudalSim.Game.Bridge;
 public partial class SimHost
 {
     private const string CharacterModel = "res://assets/characters/humanoid_a.glb";
-    private const float WalkSpeed = 1.6f, RunSpeed = 3.6f, TalkRangeM = 4f;   // canon §10.9 walk; ConversationSystem.StartRangeM = 6 m
+    private const float WalkSpeed = 1.6f, RunSpeed = 4.0f, SprintSpeed = 6.5f, TalkRangeM = 4f;   // canon §10.9 walk / jog / sprint   // canon §10.9 walk; ConversationSystem.StartRangeM = 6 m
     private bool _play, _autotestCamp;
     private Vector2 _player;
     private Vector2 _lastReportedPlayer = new(float.NaN, float.NaN);
@@ -125,7 +125,10 @@ public partial class SimHost
             if (to.Length() > 2.5f) { input = to.Normalized(); }
         }
 
-        var speed = Input.IsKeyPressed(Key.Shift) || _autotestCamp ? RunSpeed : WalkSpeed;
+        // Gait (10 §12.1): Shift jogs; Ctrl sprints while the sim says there is stamina (11 §3.1) — Winded drops to a jog.
+        var canSprint = !snap.PlayerWinded && snap.PlayerStamina > 0.5f;
+        byte gait = Input.IsKeyPressed(Key.Ctrl) && canSprint ? (byte)2 : Input.IsKeyPressed(Key.Shift) || Input.IsKeyPressed(Key.Ctrl) || _autotestCamp ? (byte)1 : (byte)0;
+        var speed = gait switch { 2 => SprintSpeed, 1 => RunSpeed, _ => WalkSpeed };
         var moved = input.LengthSquared() > 0;
         if (moved) { _player += input.Normalized() * speed * delta; }
         _playerBody!.Position = new Vector3(_player.X, 0, _player.Y);
@@ -133,7 +136,7 @@ public partial class SimHost
         Animate(_playerAnim, moved, speed / WalkSpeed);
         if (snap.Step != _lastPlayerStep && _runner!.Mode != RunMode.Paused && _player != _lastReportedPlayer)
         {
-            _runner.Submit(CommandSource.Embodiment, new PlayerMoved(_player.X, _player.Y, _playerBody.Rotation.Y));
+            _runner.Submit(CommandSource.Embodiment, new PlayerMoved(_player.X, _player.Y, _playerBody.Rotation.Y, moved ? gait : (byte)0));
             (_lastPlayerStep, _lastReportedPlayer) = (snap.Step, _player);
         }
 

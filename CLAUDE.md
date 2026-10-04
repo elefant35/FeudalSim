@@ -83,7 +83,7 @@ dotnet run --project tests/FeudalSim.Benchmarks -c Release -- --filter '*'
 dotnet run -c Release --project src/FeudalSim.Headless -- bench --scenario content/scenarios/s6_mixed.yaml --warmup-days 1 --days 4   # 20 §19 step budgets (S6): per-system + slowest step
 dotnet run --project src/FeudalSim.Headless -- weather [--seed N --years 3000]   # 10 §6.3 chain: shares vs the table (±3 points), beach temperatures
 dotnet build game/FeudalSim.Game.csproj                                  # the Godot client (also builds Hosting/Sim)
-$GODOT --path game                                                       # the M1 camp (m1_view), play mode: WASD walk · Shift run · [E] talk · [Esc] leave · Space pause · 1/2/4/8 speed; `-- --view` overhead
+$GODOT --path game                                                       # the M1 camp (m1_view), play mode: WASD walk · Shift jog · Ctrl sprint · [E] talk · [Esc] leave · Space pause · 1/2/4/8 speed; `-- --view` overhead
 $GODOT --path game -- --scenario m1_overheard                            # any content/scenarios/<name>.yaml; `-- --shot out.png 30` saves a screenshot and quits
 $GODOT --headless --path game -- --autotest                              # Boot smoke: movement, pause, time scale (exit 0/1)
 $GODOT --headless --path game -- --autotest-camp                         # M1-18 play mode: bodies, walk to a settler, [E] talk, [Esc] leave (exit 0/1)

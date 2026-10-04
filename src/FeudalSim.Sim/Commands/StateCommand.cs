@@ -137,9 +137,10 @@ public sealed record DialogueLineRendered(
     [property: Key(0)] ulong Conversation, [property: Key(1)] int TurnIndex, [property: Key(2)] Core.EntityId Speaker,
     [property: Key(3)] string Text, [property: Key(4)] string Source, [property: Key(5)] string Flags) : StateCommand;
 
-/// <summary>The player's body position as reported by the client each step (the player is always embodied).</summary>
+/// <summary>The player's body position as reported by the client each step (the player is always embodied), with the
+/// gait it moved at (0 walk · 1 jog · 2 sprint; 10 §12.1): the sim spends Stamina on a sprint and sets the activity tier.</summary>
 [MessagePackObject]
-public sealed record PlayerMoved([property: Key(0)] float X, [property: Key(1)] float Z, [property: Key(2)] float Yaw) : StateCommand;
+public sealed record PlayerMoved([property: Key(0)] float X, [property: Key(1)] float Z, [property: Key(2)] float Yaw, [property: Key(3)] byte Gait = 0) : StateCommand;
 
 /// <summary>
 /// The embodiment boundary (ADR-0007, 20 §3): for an LOD0 person, the client's physics body is authoritative

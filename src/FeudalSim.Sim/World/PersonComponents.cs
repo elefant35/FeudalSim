@@ -47,6 +47,17 @@ public struct Worn
     }
 }
 
+/// <summary>
+/// 18 §2.3 / 11 §3.1 Stamina (M2-05b): the seconds-scale exertion pool, simulated at LOD0 only. <c>Spent</c> carries the
+/// part of 100 spent toward the next Energy point; the gait and its expiry come from the embodiment (the player's moves).
+/// </summary>
+public struct Stamina
+{
+    public float Value, Spent;
+    public long LastSpendStep, WindedUntilStep, GaitUntilStep;
+    public byte Gait, Reserved0, Reserved1, Reserved2;
+}
+
 /// <summary>11 §9.3–9.4 exposure state: Wetness 0–100 and Hypothermia 0–100 (M2-05a).</summary>
 public struct Body
 {

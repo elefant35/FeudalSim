@@ -144,6 +144,14 @@ temporary attribute modifier. "Mood" values are **inputs suggested to 21**, whic
   100 Stamina spent.
 - At LOD1+ Stamina is not simulated. Its effect is folded into the activity tier's rates.
 
+*Implemented (M2-05b):* `StaminaSystem` runs each step for LOD0 rows (`Survival/StaminaRules.cs`). It applies 18 §2.3
+max and regen, ×0.75 Exhausted (Energy < 25), ×0.85 Ravenous max, ×0.7 regen when Cold or worse, and ×0.9 regen when
+Hungry. A sprint costs 8/s, and an empty pool is Winded for 1.5 s (no sprint). Every 100 spent costs 1 Energy. The
+client reports the player's gait with each move (10 §12.1: Shift jogs at 4.0 m/s, Ctrl sprints at 6.5 m/s while the
+sim allows it). The gait also sets the player's activity tier, so needs and exposure use the same rules as for NPCs:
+walk light, jog moderate, sprint heavy, standing still rest. Jump, climb, lift and swim drains wait for those actions.
+NPCs don't sprint yet (flee and combat are M2's).
+
 ### 3.2 Sleep
 
 `Energy gain per hour asleep = 8.5 × bedding × warmthF × disturbance`

@@ -31,6 +31,11 @@ public sealed class RenderSnapshot
     /// <summary>The region's weather (10 §6.3; M2-03) for the sky, light and HUD.</summary>
     public Sim.Climate.WeatherState Weather;
 
+    /// <summary>The player's body (M2-05): stamina, its max and Winded, warmth and wetness, for the HUD and the client's gait.</summary>
+    public float PlayerStamina, PlayerStaminaMax, PlayerWarmth, PlayerWetness;
+
+    public bool PlayerWinded;
+
     public void CopyFrom(SimWorld world)
     {
         Step = world.Clock.Step;
@@ -64,6 +69,14 @@ public sealed class RenderSnapshot
 
         CampActive = world.Camp.Active != 0;
         Weather = world.Weather;
+        if (world.PlayerRow is var pr and >= 0)
+        {
+            ref readonly var n = ref p.Needs[pr];
+            ref readonly var st = ref p.Stamina[pr];
+            var athletics = world.Content.SkillHandle("skill.athletics");
+            (PlayerStamina, PlayerWarmth, PlayerWetness, PlayerWinded) = (st.Value, n.Warmth, p.Body[pr].Wetness, world.Clock.Step < st.WindedUntilStep);
+            PlayerStaminaMax = Sim.Survival.StaminaRules.Max(Sim.Skills.Skills.Attribute(world, pr, "end"), athletics >= 0 ? p.SkillLevels(pr)[athletics] : 0f, n.Energy, n.Satiety);
+        }
         (Food, Firewood, FireFuelMin) = (world.Camp.Food, world.Camp.Firewood, world.Camp.FireFuelMin);
     }
 }

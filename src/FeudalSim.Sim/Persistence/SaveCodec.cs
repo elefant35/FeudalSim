@@ -189,6 +189,7 @@ public static class SaveCodec
         ("attribute_training", 1, Marshal.SizeOf<AttributeTraining>()),                 // M2-04
         ("worn", 1, Marshal.SizeOf<Worn>()),                                             // M2-05a
         ("body", 1, Marshal.SizeOf<Body>()),                                             // M2-05a
+        ("stamina", 1, Marshal.SizeOf<Stamina>()),                                       // M2-05b
     ];
 
     public static SaveImage Capture(SimWorld world)
@@ -212,6 +213,7 @@ public static class SaveCodec
         people.Columns.Add(Column("attribute_training", (ReadOnlySpan<AttributeTraining>)p.Training));
         people.Columns.Add(Column("worn", (ReadOnlySpan<Worn>)p.Worn));
         people.Columns.Add(Column("body", (ReadOnlySpan<Body>)p.Body));
+        people.Columns.Add(Column("stamina", (ReadOnlySpan<Stamina>)p.Stamina));
         people.Strings.Add(new StringColumn { Name = "name", Values = p.Names.ToArray() });
 
         var counters = new ulong[256];
@@ -278,6 +280,7 @@ public static class SaveCodec
         CopyOrDefault(chunk, "attribute_training", p.Training, notes, static _ => default);
         CopyOrDefault(chunk, "worn", p.Worn, notes, static _ => Worn.None);
         CopyOrDefault(chunk, "body", p.Body, notes, static _ => default);
+        CopyOrDefault(chunk, "stamina", p.Stamina, notes, static _ => new Stamina { Value = Survival.StaminaRules.Full });
 
         foreach (var c in chunk.Columns.Where(c => PeopleColumns.All(k => k.Name != c.Name)))
         {
