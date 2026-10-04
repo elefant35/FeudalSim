@@ -35,6 +35,9 @@ public sealed class SimWorld
     public EntityIdAllocator Ids { get; } = new();
     public PersonTable People { get; } = new();
 
+    /// <summary>The M1 graybox camp: places and shared stocks (inactive in M0 scenarios).</summary>
+    public CampRecord Camp;
+
     /// <summary>Decision points: menus, guards, the policy and the DP watchdog (canon §13.1, 22 §6).</summary>
     public DecisionRulesEngine Decisions { get; }
 

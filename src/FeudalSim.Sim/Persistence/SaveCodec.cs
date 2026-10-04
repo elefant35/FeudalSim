@@ -12,6 +12,18 @@ namespace FeudalSim.Sim.Persistence;
 public static class SaveCodec
 {
     public const string PeopleTable = "people";
+    public const string CampTable = "camp";
+
+    private static TableChunk CampChunk(in CampRecord camp)
+    {
+        var chunk = new TableChunk { Table = CampTable, RowCount = 1 };
+        chunk.Columns.Add(new ColumnBlock
+        {
+            Name = "camp", LayoutVersion = 1, ElementSize = Marshal.SizeOf<CampRecord>(),
+            Data = MemoryMarshal.AsBytes(new ReadOnlySpan<CampRecord>(in camp)).ToArray(),
+        });
+        return chunk;
+    }
 
     private static readonly MessagePackSerializerOptions Options =
         MessagePackSerializerOptions.Standard.WithCompression(MessagePackCompression.Lz4BlockArray);
@@ -29,6 +41,7 @@ public static class SaveCodec
         ("personality", 1, Marshal.SizeOf<Personality>()),
         ("emotions", 1, Marshal.SizeOf<Emotions>()),
         ("mood", 1, Marshal.SizeOf<Mood>()),
+        ("activity", 1, Marshal.SizeOf<ActivityState>()),     // M1-02a
         ("skill_levels", 1, PersonTable.SkillCount),          // 28 bytes per row, skill-handle order
         ("skill_aptitude", 1, PersonTable.SkillCount),
     ];
@@ -47,6 +60,7 @@ public static class SaveCodec
         people.Columns.Add(Column("personality", (ReadOnlySpan<Personality>)p.Personality));
         people.Columns.Add(Column("emotions", (ReadOnlySpan<Emotions>)p.Emotions));
         people.Columns.Add(Column("mood", (ReadOnlySpan<Mood>)p.Mood));
+        people.Columns.Add(Column("activity", (ReadOnlySpan<ActivityState>)p.Activity));
         people.Columns.Add(Column("skill_levels", (ReadOnlySpan<byte>)p.SkillLevelsAll));
         people.Columns.Add(Column("skill_aptitude", (ReadOnlySpan<byte>)p.SkillAptitudeAll));
         people.Strings.Add(new StringColumn { Name = "name", Values = p.Names.ToArray() });
@@ -68,7 +82,7 @@ public static class SaveCodec
                 LastCommandSeq = world.LastCommandSeq,
             },
             IdCounters = counters,
-            Tables = [people],
+            Tables = [people, CampChunk(world.Camp)],
         };
     }
 
@@ -108,12 +122,19 @@ public static class SaveCodec
         });
         CopyOrDefault(chunk, "emotions", p.Emotions, notes, _ => new Emotions { UpdatedGameMs = h.GameMs });
         CopyOrDefault(chunk, "mood", p.Mood, notes, static _ => default);
+        CopyOrDefault(chunk, "activity", p.Activity, notes, static _ => new ActivityState { Action = -1, Level = Content.ActivityLevel.Light });
         CopyBytesOrDefault(chunk, "skill_levels", p.SkillLevelsAll, notes, 0);
         CopyBytesOrDefault(chunk, "skill_aptitude", p.SkillAptitudeAll, notes, 100);
 
         foreach (var c in chunk.Columns.Where(c => PeopleColumns.All(k => k.Name != c.Name)))
         {
             notes.Add($"Dropped unknown column people.{c.Name}.");
+        }
+
+        if (image.Tables.FirstOrDefault(t => t.Table == CampTable) is { } camp && camp.Columns.FirstOrDefault(c => c.Name == "camp") is { } block
+            && block.ElementSize == Marshal.SizeOf<CampRecord>() && block.Data.Length == block.ElementSize)
+        {
+            world.Camp = MemoryMarshal.Read<CampRecord>(block.Data);
         }
 
         warnings = notes;

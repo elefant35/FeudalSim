@@ -45,6 +45,9 @@ public static class ContentCompiler
         var traits = new List<(TraitDef Def, string Rel, Mark Mark)>();
         var cultures = new List<(CultureDef Def, string Rel, Mark Mark)>();
         var professions = new List<(ProfessionDef Def, string Rel, Mark Mark)>();
+        var actions = new List<ActionDef>();
+        var actionMarks = new List<(ActionDef Def, string Rel, Mark Mark)>();
+        var schedules = new List<ScheduleDef>();
         var repoRoot = Path.GetDirectoryName(Path.GetFullPath(contentRoot).TrimEnd(Path.DirectorySeparatorChar)) ?? contentRoot;
         var seen = new Dictionary<string, string>(StringComparer.Ordinal);
         var files = 0;
@@ -87,6 +90,8 @@ public static class ContentCompiler
                         case TraitDef t: traits.Add((t, rel, mark)); break;
                         case CultureDef c: cultures.Add((c, rel, mark)); break;
                         case ProfessionDef p: professions.Add((p, rel, mark)); break;
+                        case ActionDef a: actionMarks.Add((a, rel, mark)); actions.Add(a); break;   // validated after skills load
+                        case ScheduleDef d: ValidateSchedule(d, rel, mark, errors); schedules.Add(d); break;
                     }
                 }
             }
@@ -95,6 +100,7 @@ public static class ContentCompiler
         CheckCanonical("skills", CanonLists.SkillIds, skills.Select(s => s.Id), errors);
         CheckCanonical("needs", CanonLists.NeedIds, needs.Select(n => n.Id), errors);
         var symmetricTraits = ValidatePeople(traits, cultures, professions, skills, errors);
+        foreach (var (a, rel, mark) in actionMarks) { ValidateAction(a, rel, mark, skills, errors); }
         if (errors.Count > 0) { return new Result(null, errors, files); }
 
         skills.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
@@ -105,8 +111,10 @@ public static class ContentCompiler
         var traitDefs = symmetricTraits.OrderBy(t => t.Id, StringComparer.Ordinal).ToList();
         var cultureDefs = cultures.Select(c => c.Def).OrderBy(c => c.Id, StringComparer.Ordinal).ToList();
         var professionDefs = professions.Select(p => p.Def).OrderBy(p => p.Id, StringComparer.Ordinal).ToList();
-        var hash = Hash(skills, items, needs, traitDefs, cultureDefs, professionDefs);
-        return new Result(new ContentDatabase(skills, items, needs, hash, assets, audio, traitDefs, cultureDefs, professionDefs), errors, files);
+        actions.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
+        schedules.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
+        var hash = Hash(skills, items, needs, traitDefs, cultureDefs, professionDefs, actions, schedules);
+        return new Result(new ContentDatabase(skills, items, needs, hash, assets, audio, traitDefs, cultureDefs, professionDefs, actions, schedules), errors, files);
     }
 
     private static IEnumerable<(JsonNode Node, Mark Mark)> ParseFile(string path, string rel, string kind, JsonSchema schema, List<ContentError> errors)
@@ -211,7 +219,8 @@ public static class ContentCompiler
     }
 
     private static ulong Hash(IEnumerable<SkillDef> skills, IEnumerable<ItemDef> items, IEnumerable<NeedDef> needs,
-        IEnumerable<TraitDef> traits, IEnumerable<CultureDef> cultures, IEnumerable<ProfessionDef> professions)
+        IEnumerable<TraitDef> traits, IEnumerable<CultureDef> cultures, IEnumerable<ProfessionDef> professions,
+        IEnumerable<ActionDef> actions, IEnumerable<ScheduleDef> schedules)
     {
         var h = new XxHash64();
         foreach (var d in skills) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
@@ -222,7 +231,51 @@ public static class ContentCompiler
         foreach (var d in traits) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
         foreach (var d in cultures) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
         foreach (var d in professions) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
+        foreach (var d in actions) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
+        foreach (var d in schedules) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
         return h.GetCurrentHashAsUInt64();
+    }
+
+    /// <summary>Camp stocks an action may read or change (M1 graybox camp), and the needs it may touch.</summary>
+    public static readonly IReadOnlyList<string> CampStocks = ["food", "firewood", "fire_fuel_min", "threat"];
+
+    private static readonly string[] ScheduleBlocks = ["sleep", "morning", "meal", "work", "social", "worship", "market", "obligation", "any"];
+
+    private static void ValidateAction(ActionDef a, string rel, Mark m, List<SkillDef> skills, List<ContentError> errors)
+    {
+        var needs = CanonLists.NeedIds.Select(n => n["need.".Length..]).ToArray();
+        void Keys(IEnumerable<string>? keys, IReadOnlyCollection<string> allowed, string what)
+        {
+            foreach (var k in keys ?? []) { if (!allowed.Contains(k)) { errors.Add(new(rel, m.Line, m.Column, $"{a.Id}: unknown {what} '{k}' ({string.Join(", ", allowed)}).")); } }
+        }
+
+        Keys(a.WeightNeed is null ? null : [a.WeightNeed], needs, "need");
+        Keys(a.NeedPerHour?.Keys, needs, "need");
+        Keys(a.UntilNeed?.Keys, needs, "need");
+        Keys(a.StartBelow?.Keys, needs, "need");
+        Keys(a.StockPerHour?.Keys, CampStocks.ToArray(), "camp stock");
+        Keys(a.Requires?.Keys, CampStocks.ToArray(), "camp stock");
+        Keys(a.Consumes is null ? null : [a.Consumes.Stock], CampStocks.ToArray(), "camp stock");
+        Keys(a.StockPressure is null ? null : [a.StockPressure.Stock], CampStocks.ToArray(), "camp stock");
+        Keys(a.FacetK?.Keys, CanonLists.Facets.ToArray(), "facet");
+        Keys([a.ScheduleBlock], ScheduleBlocks, "schedule block");
+        if (a.Skill is not null && skills.All(s => s.Id != a.Skill)) { errors.Add(new(rel, m.Line, m.Column, $"{a.Id}: unknown skill '{a.Skill}'.")); }
+        if (a.DurationMin <= 0) { errors.Add(new(rel, m.Line, m.Column, $"{a.Id}: duration_min must be > 0.")); }
+        if (a.StockPressure is { Comfortable: <= 0 }) { errors.Add(new(rel, m.Line, m.Column, $"{a.Id}: stock_pressure.comfortable must be > 0.")); }
+    }
+
+    private static void ValidateSchedule(ScheduleDef d, string rel, Mark m, List<ContentError> errors)
+    {
+        foreach (var b in d.Blocks)
+        {
+            if (!TimeOnly.TryParseExact(b.From, "HH:mm", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out _)
+                || !TimeOnly.TryParseExact(b.To, "HH:mm", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out _))
+            {
+                errors.Add(new(rel, m.Line, m.Column, $"{d.Id}: block times must be HH:mm (got {b.From}–{b.To})."));
+            }
+
+            if (!ScheduleBlocks.Contains(b.Block) || b.Block == "any") { errors.Add(new(rel, m.Line, m.Column, $"{d.Id}: unknown block '{b.Block}'.")); }
+        }
     }
 
     /// <summary>

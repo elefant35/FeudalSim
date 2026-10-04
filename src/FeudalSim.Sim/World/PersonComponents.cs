@@ -77,6 +77,24 @@ public struct Mood
     public float Value, Smoothed;
 }
 
+/// <summary>
+/// The current activity (21 §3 ActivityState, M1 form): the chosen action (content handle, −1 none), travel or perform
+/// phase, the activity level for need decay, flags for the psychology system, and timing in game-ms.
+/// </summary>
+public struct ActivityState
+{
+    public const byte Asleep = 1, Interacting = 2, Purposeful = 4;
+
+    public short Action;
+    public byte Phase;   // 0 travelling to the place, 1 performing
+    public Content.ActivityLevel Level;
+    public byte Flags;
+    public long StartedGameMs, EndGameMs, NextDecideGameMs;
+    public float Score, TargetX, TargetZ;
+
+    public readonly bool Has(byte flag) => (Flags & flag) != 0;
+}
+
 public enum LodTier : byte { Lod0, Lod1, Lod2, Lod3, Lod0Battle }
 
 /// <summary>Simulation level of detail (canon §8.2).</summary>

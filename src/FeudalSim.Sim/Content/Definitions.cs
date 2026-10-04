@@ -132,6 +132,76 @@ public sealed record ProfessionDef
     public string? Workplace { get; init; }
 }
 
+public enum PriorityClass { P0, P1, P2, P3, P4 }
+
+/// <summary>Activity levels for physical-need decay (11 §2.1).</summary>
+public enum ActivityLevel : byte { Sleep, Rest, Light, Moderate, Heavy }
+
+/// <summary>Where an action happens in the M1 graybox camp; <c>Home</c> is the person's own spot.</summary>
+public enum PlaceKind { Fire, Water, Stores, Shelter, Woods, ForageGround, Home }
+
+public sealed record ConsumeSpec
+{
+    public required string Stock { get; init; }
+    public required float Ratio { get; init; }
+}
+
+public sealed record StockPressureSpec
+{
+    public required string Stock { get; init; }
+
+    /// <summary>Stock level at which the work feels unnecessary: consideration = clamp(1 − stock/comfortable, 0.1, 1).</summary>
+    public required float Comfortable { get; init; }
+}
+
+/// <summary>An action the utility AI can choose (21 §7.1–7.3; M1 camp catalog).</summary>
+public sealed record ActionDef
+{
+    public required string Id { get; init; }
+    public required string Name { get; init; }
+
+    public required PriorityClass Class { get; init; }   // YAML `class` (snake_case of Class)
+
+    public float BaseWeight { get; init; } = 1f;
+
+    /// <summary>Need whose urgency sets W (21 §7.2): satiety, hydration, energy, warmth or social.</summary>
+    public string? WeightNeed { get; init; }
+
+    public required PlaceKind Place { get; init; }
+    public required int DurationMin { get; init; }
+    public required ActivityLevel Activity { get; init; }
+    public IReadOnlyDictionary<string, float>? NeedPerHour { get; init; }
+    public ConsumeSpec? Consumes { get; init; }
+    public IReadOnlyDictionary<string, float>? StockPerHour { get; init; }
+    public IReadOnlyDictionary<string, float>? Requires { get; init; }
+    public IReadOnlyDictionary<string, float>? UntilNeed { get; init; }
+
+    /// <summary>Outside its own schedule block, the action only starts while every listed need is below its level.</summary>
+    public IReadOnlyDictionary<string, float>? StartBelow { get; init; }
+    public string? Skill { get; init; }
+    public bool Purposeful { get; init; }
+    public bool Social { get; init; }
+    public string ScheduleBlock { get; init; } = "any";
+    public IReadOnlyList<string>? UtilityKeys { get; init; }
+    public IReadOnlyDictionary<string, float>? FacetK { get; init; }
+    public StockPressureSpec? StockPressure { get; init; }
+}
+
+public sealed record ScheduleBlockDef
+{
+    public required string From { get; init; }
+    public required string To { get; init; }
+    public required string Block { get; init; }
+}
+
+/// <summary>A soft daily schedule (21 §9): blocks set schedule fit, they never move people on rails.</summary>
+public sealed record ScheduleDef
+{
+    public required string Id { get; init; }
+    public required string Name { get; init; }
+    public required IReadOnlyList<ScheduleBlockDef> Blocks { get; init; }
+}
+
 public enum AssetKind { Model, Animation, Texture, Vfx, Ui, Sfx, Ambience, Music, Vocal }
 
 public enum AssetStatus { Placeholder, Draft, Review, Approved, Final }
@@ -234,8 +304,11 @@ public sealed class ContentDatabase
 {
     public ContentDatabase(IReadOnlyList<SkillDef> skills, IReadOnlyList<ItemDef> items, IReadOnlyList<NeedDef> needs, ulong hash,
         IReadOnlyList<AssetDef>? assets = null, IReadOnlyList<AudioEventDef>? audio = null,
-        IReadOnlyList<TraitDef>? traits = null, IReadOnlyList<CultureDef>? cultures = null, IReadOnlyList<ProfessionDef>? professions = null)
+        IReadOnlyList<TraitDef>? traits = null, IReadOnlyList<CultureDef>? cultures = null, IReadOnlyList<ProfessionDef>? professions = null,
+        IReadOnlyList<ActionDef>? actions = null, IReadOnlyList<ScheduleDef>? schedules = null)
     {
+        Actions = actions ?? [];
+        Schedules = schedules ?? [];
         Traits = traits ?? [];
         Cultures = cultures ?? [];
         Professions = professions ?? [];
@@ -264,6 +337,8 @@ public sealed class ContentDatabase
 
     public IReadOnlyList<CultureDef> Cultures { get; }
     public IReadOnlyList<ProfessionDef> Professions { get; }
+    public IReadOnlyList<ActionDef> Actions { get; }
+    public IReadOnlyList<ScheduleDef> Schedules { get; }
 
     /// <summary>Handle of a definition id in a sorted list, or −1.</summary>
     public static int HandleOf<T>(IReadOnlyList<T> defs, string id, Func<T, string> idOf)

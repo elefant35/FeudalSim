@@ -1,0 +1,129 @@
+# yaml-language-server: $schema=../schemas/action.schema.json
+# M1 action catalog (21 §7.1: ≈ 30 at M1; these are the Landfall-camp basics). Scoring: 21 §7.2.
+#   weight_need: W = 1 + 4·u(need) (social: 0.6 + 2·u); otherwise W = base_weight. Routine work is base 1.0 (21 §7.7);
+#   it fills Purpose as a side effect (21 §5.2) — making work need-driven cancels personality (S… M1-02a finding).
+#   start_below: outside its own schedule block, a satisfier only starts below this need level (a step consideration).
+#   need_per_hour: gains while performing; consumes: each need point gained uses `ratio` units of that stock.
+#   stock_per_hour: camp stock changes while performing (food = Satiety points, firewood = bundles, fire_fuel_min).
+#   requires: stock minimums; until_need: stop early once reached; yields scale by (0.6 + 0.8·skill/100) when `skill` is set.
+#   Rates: eating ≈ 40 Satiety per 20-min meal and drinking 0.25 L/min at +40/L (11 §17); sleep 8.5/h × bedding (11 §3.2).
+- id: action.eat_meal
+  name: Eat a meal
+  class: p3
+  weight_need: satiety
+  place: stores
+  duration_min: 20
+  activity: rest
+  need_per_hour: { satiety: 120 }
+  consumes: { stock: food, ratio: 1.0 }
+  requires: { food: 1 }
+  until_need: { satiety: 95 }
+  start_below: { satiety: 75 }
+  schedule_block: meal
+- id: action.drink
+  name: Drink
+  class: p3
+  weight_need: hydration
+  place: water
+  duration_min: 10
+  activity: rest
+  need_per_hour: { hydration: 600 }
+  until_need: { hydration: 98 }
+  start_below: { hydration: 80 }
+  schedule_block: any
+- id: action.sleep
+  name: Sleep
+  class: p3
+  weight_need: energy
+  place: shelter
+  duration_min: 480
+  activity: sleep
+  need_per_hour: { energy: 8.5 }
+  until_need: { energy: 97 }
+  start_below: { energy: 45 }
+  schedule_block: sleep
+  utility_keys: [rest]
+- id: action.gather_wood
+  name: Gather firewood
+  class: p3
+  base_weight: 1.0
+  place: woods
+  duration_min: 60
+  activity: heavy
+  stock_per_hour: { firewood: 2.0 }
+  skill: skill.woodcutting
+  purposeful: true
+  schedule_block: work
+  utility_keys: [work]
+  facet_k: { diligence: 0.25 }
+  stock_pressure: { stock: firewood, comfortable: 20 }
+- id: action.gather_food
+  name: Forage for food
+  class: p3
+  base_weight: 1.0
+  place: forage_ground
+  duration_min: 60
+  activity: moderate
+  stock_per_hour: { food: 45 }
+  skill: skill.foraging
+  purposeful: true
+  schedule_block: work
+  utility_keys: [work]
+  facet_k: { diligence: 0.25 }
+  stock_pressure: { stock: food, comfortable: 60000 }   # settlers know the ship's stores are finite
+- id: action.tend_fire
+  name: Tend the fire
+  class: p3
+  base_weight: 0.9
+  place: fire
+  duration_min: 30
+  activity: light
+  stock_per_hour: { firewood: -2.0, fire_fuel_min: 240 }
+  requires: { firewood: 1 }
+  purposeful: true
+  schedule_block: any
+  utility_keys: [work, maintain]
+  facet_k: { diligence: 0.25 }
+  stock_pressure: { stock: fire_fuel_min, comfortable: 480 }
+- id: action.socialize
+  name: Sit and talk at the fire
+  class: p3
+  weight_need: social
+  place: fire
+  duration_min: 30
+  activity: rest
+  need_per_hour: { social: 40 }
+  social: true
+  until_need: { social: 95 }
+  start_below: { social: 85 }
+  schedule_block: social
+  utility_keys: [gather, chat]
+  facet_k: { sociability: 0.30 }
+- id: action.rest
+  name: Take a rest
+  class: p3
+  base_weight: 0.25
+  place: home
+  duration_min: 30
+  activity: rest
+  schedule_block: any
+  utility_keys: [rest, idle]
+  # A routine break (11 §17: rest slows need decay). Ordinary settlers prefer work; Lazy (rest ×1.6, idle ×1.6) mixes rest into the workday.
+- id: action.idle
+  name: Idle near home
+  class: p4
+  base_weight: 0.3
+  place: home
+  duration_min: 30
+  activity: rest
+  schedule_block: any
+  utility_keys: [idle]
+- id: action.flee
+  name: Flee a threat
+  class: p0
+  base_weight: 5.0
+  place: shelter
+  duration_min: 15
+  activity: heavy
+  requires: { threat: 1 }
+  schedule_block: any

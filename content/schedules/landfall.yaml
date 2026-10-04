@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../schemas/schedule.schema.json
+# Schedules (21 §9): soft blocks that set schedule fit (S in 21 §7.2), never rails. Era 0 Landfall is communal (21 §9.5):
+# dawn muster at the fire, communal meals, shared shelter. Spring anchors: sunrise 06:00, sunset 18:00 (21 §9.2).
+- id: schedule.landfall_communal
+  name: Landfall communal day
+  blocks:
+    - { from: "21:00", to: "06:00", block: sleep }
+    - { from: "06:00", to: "07:00", block: morning }
+    - { from: "07:00", to: "07:30", block: meal }
+    - { from: "07:30", to: "12:00", block: work }
+    - { from: "12:00", to: "13:00", block: meal }
+    - { from: "13:00", to: "18:30", block: work }
+    - { from: "18:30", to: "19:00", block: meal }
+    - { from: "19:00", to: "21:00", block: social }

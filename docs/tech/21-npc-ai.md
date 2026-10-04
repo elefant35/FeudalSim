@@ -743,6 +743,12 @@ mid-afternoon. If Satiety falls to 30 (W_eat = 4.08 → 3.96) eating wins outrig
 then. If the player insults him now, Anger jumps (§6.1) and `confront(player)` enters with E ×2.1 —
 or a hijack fires (§8.3).
 
+*Implemented (M1-02a, 2026-10-04):* `ActivitySystem` with the M1 camp catalog (`content/actions/camp.yaml`). Two
+tuning lessons are now rules: **routine work is base-weight** (W = 1, as in §7.7) — making it Purpose-driven
+creates a feedback loop that erases personality; and **satisfiers carry a `start_below` step** outside their own
+schedule block (otherwise W = 1 + 4u lets a mildly tired agent out-score work and sleep at noon). A P3 `rest`
+(base 0.25, trait keys rest/idle) lets Lazy express itself inside the routine class.
+
 ### 7.8 Decision-point propensities (the policy at DPs)
 
 When an owning system opens a DP (canon §13.1), this layer turns its menu into base propensities

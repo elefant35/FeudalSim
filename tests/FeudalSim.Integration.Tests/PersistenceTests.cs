@@ -114,12 +114,14 @@ public sealed class PersistenceTests : IDisposable
             ["personality"] = (1, "Curiosity:Byte@0|Diligence:Byte@1|Sociability:Byte@2|Warmth:Byte@3|Volatility:Byte@4|Values:ValueBlock@5|Culture:UInt16@14|Profession:UInt16@16|Traits:UInt64@24"),
             ["emotions"] = (1, "Anger:Single@0|Fear:Single@4|Grief:Single@8|Joy:Single@12|Shame:Single@16|Jealousy:Single@20|AngerTarget:EntityId@24|FearSource:EntityId@32|JealousyTarget:EntityId@40|ShameAudience:EntityId@48|UpdatedGameMs:Int64@56"),
             ["mood"] = (1, "Value:Single@0|Smoothed:Single@4"),
+            ["activity"] = (1, "Action:Int16@0|Phase:Byte@2|Level:ActivityLevel@3|Flags:Byte@4|StartedGameMs:Int64@8|EndGameMs:Int64@16|NextDecideGameMs:Int64@24|Score:Single@32|TargetX:Single@36|TargetZ:Single@40"),
         };
         var types = new Dictionary<string, Type>
         {
             ["core"] = typeof(PersonCore), ["transform"] = typeof(Transform), ["needs"] = typeof(Needs),
             ["lod"] = typeof(LodState), ["wander"] = typeof(WanderState),
             ["attributes"] = typeof(Attributes), ["personality"] = typeof(Personality), ["emotions"] = typeof(Emotions), ["mood"] = typeof(Mood),
+            ["activity"] = typeof(ActivityState),
         };
 
         // Every persisted struct column is fingerprinted here (id and the per-row byte columns excepted).

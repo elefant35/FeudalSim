@@ -19,6 +19,7 @@ public sealed class PersonTable
     private Personality[] _personality = new Personality[64];
     private Emotions[] _emotions = new Emotions[64];
     private Mood[] _mood = new Mood[64];
+    private ActivityState[] _activity = new ActivityState[64];
     private byte[] _skillLevels = new byte[64 * SkillCount];       // row-major: 28 skills per person, in skill-handle order
     private byte[] _skillAptitude = new byte[64 * SkillCount];     // hidden aptitude × 100 (50–150), 12 §5.4
 
@@ -38,6 +39,7 @@ public sealed class PersonTable
     public Span<Personality> Personality => _personality.AsSpan(0, Count);
     public Span<Emotions> Emotions => _emotions.AsSpan(0, Count);
     public Span<Mood> Mood => _mood.AsSpan(0, Count);
+    public Span<ActivityState> Activity => _activity.AsSpan(0, Count);
 
     /// <summary>All rows' skill levels (0–100), row-major, <see cref="SkillCount"/> per row.</summary>
     public Span<byte> SkillLevelsAll => _skillLevels.AsSpan(0, Count * SkillCount);
@@ -69,6 +71,7 @@ public sealed class PersonTable
         _personality[i] = new Personality { Culture = World.Personality.None, Profession = World.Personality.None };
         _emotions[i] = default;
         _mood[i] = default;
+        _activity[i] = new ActivityState { Action = -1, Level = Content.ActivityLevel.Light };
         SkillLevels(i).Clear();
         SkillAptitude(i).Fill(100);
         return i;
@@ -86,7 +89,7 @@ public sealed class PersonTable
         Count = 0;
         EnsureCapacity(ids.Length);
         Array.Clear(_core); Array.Clear(_transform); Array.Clear(_needs); Array.Clear(_lod); Array.Clear(_wander);
-        Array.Clear(_attributes); Array.Clear(_personality); Array.Clear(_emotions); Array.Clear(_mood);
+        Array.Clear(_attributes); Array.Clear(_personality); Array.Clear(_emotions); Array.Clear(_mood); Array.Clear(_activity);
         Array.Clear(_skillLevels); Array.Clear(_skillAptitude);
         ids.CopyTo(_ids, 0);
         names.CopyTo(_names, 0);
@@ -111,6 +114,7 @@ public sealed class PersonTable
         Array.Resize(ref _personality, size);
         Array.Resize(ref _emotions, size);
         Array.Resize(ref _mood, size);
+        Array.Resize(ref _activity, size);
         Array.Resize(ref _skillLevels, size * SkillCount);
         Array.Resize(ref _skillAptitude, size * SkillCount);
     }

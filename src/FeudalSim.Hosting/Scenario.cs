@@ -32,6 +32,12 @@ public sealed record ScenarioDef
 
     public int DecisionPingDeadlineSteps { get; init; } = Sim.Decisions.DecisionRulesEngine.ConversationDeadlineSteps;
 
+    /// <summary>Behavior: <c>wander</c> (the M0 toy) or <c>utility</c> (M1 utility AI on a camp).</summary>
+    public string Ai { get; init; } = "wander";
+
+    /// <summary>The graybox camp for <c>ai: utility</c> (places in metres; stocks; sleep bedding; schedule id).</summary>
+    public CampDef? Camp { get; init; }
+
     public static ScenarioDef Load(string path)
     {
         var yaml = new DeserializerBuilder().WithNamingConvention(UnderscoredNamingConvention.Instance).Build();
@@ -54,11 +60,13 @@ public sealed record ScenarioDef
     /// <summary>Builds the world, registers the M0 systems and queues the spawn commands (all logged).</summary>
     public SimWorld CreateWorld(ContentDatabase content, IJobScheduler jobs, Action<CommandEnvelope>? log = null)
     {
+        var utility = string.Equals(Ai, "utility", StringComparison.OrdinalIgnoreCase);
         var world = new SimWorld(Seed, StartGameMs(), DayLengthMinutes) { Content = content, Jobs = jobs }
             .AddSystem(new LodSystem())
-            .AddSystem(new WanderSystem())
+            .AddSystem(utility ? new ActivitySystem() : new WanderSystem())
             .AddSystem(new NeedsDecaySystem())
             .AddSystem(new PsychologySystem());
+        if (utility) { world.Camp = (Camp ?? new CampDef()).ToRecord(content); }
         if (AiPingStep is { } at) { world.AddSystem(new AiPingSystem(at, AiPingDeadlineSteps)); }
         if (DecisionPingStep is { } dpAt)
         {
@@ -74,6 +82,35 @@ public sealed record ScenarioDef
         }
 
         return world;
+    }
+}
+
+/// <summary>The M1 graybox camp configuration (scenario YAML <c>camp:</c>).</summary>
+public sealed record CampDef
+{
+    public float Food { get; init; } = 32_000f;          // ≈ 14 days for 24 settlers (95 Satiety each per day)
+    public float Firewood { get; init; } = 10f;
+    public float FireFuelMin { get; init; } = 240f;
+    public float Bedding { get; init; } = 0.85f;         // bough bed (11 §3.2)
+    public string Schedule { get; init; } = "schedule.landfall_communal";
+    public Dictionary<string, float[]> Places { get; init; } = new()
+    {
+        ["fire"] = [10, -6], ["stores"] = [14, -2], ["shelter"] = [2, -16],
+        ["water"] = [-25, 12], ["woods"] = [45, -35], ["forage_ground"] = [-35, -30],
+    };
+
+    public Sim.World.CampRecord ToRecord(ContentDatabase content)
+    {
+        (float X, float Z) P(string k) => Places.TryGetValue(k, out var v) && v.Length == 2 ? (v[0], v[1]) : (0f, 0f);
+        var handle = ContentDatabase.HandleOf(content.Schedules, Schedule, s => s.Id);
+        return new Sim.World.CampRecord
+        {
+            Active = 1, Food = Food, Firewood = Firewood, FireFuelMin = FireFuelMin, Bedding = Bedding,
+            Schedule = handle < 0 ? (ushort)0xFFFF : (ushort)handle,
+            FireX = P("fire").X, FireZ = P("fire").Z, StoresX = P("stores").X, StoresZ = P("stores").Z,
+            ShelterX = P("shelter").X, ShelterZ = P("shelter").Z, WaterX = P("water").X, WaterZ = P("water").Z,
+            WoodsX = P("woods").X, WoodsZ = P("woods").Z, ForageX = P("forage_ground").X, ForageZ = P("forage_ground").Z,
+        };
     }
 }
 

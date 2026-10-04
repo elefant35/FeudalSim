@@ -42,9 +42,20 @@ public sealed class PsychologySystem(float comfortTarget = PsychologySystem.Land
             var t = Fold(p.Traits);
             float zSoc = Z(p.Sociability), zDil = Z(p.Diligence), zVol = Z(p.Volatility);
 
-            // Decay needs (placeholder: always awake and not interacting until M1-02's activity state).
-            n.Social = MathF.Max(0f, n.Social - (3.0f * (1f + (0.3f * zSoc)) * t.SocialDecay * dtH));
-            n.Purpose = MathF.Max(0f, n.Purpose - (2.0f * (1f + (0.3f * zDil)) * t.PurposeDecay * dtH));
+            // Decay needs: Social only while awake and not interacting; Purpose only while awake and not purposeful (21 §5.2).
+            // Gains while interacting or working come from the ActivitySystem. Without a camp (M0), always decaying.
+            ref readonly var act = ref people.Activity[i];
+            var performing = world.Camp.Active != 0 && act.Phase == 1;
+            var asleep = performing && act.Has(ActivityState.Asleep);
+            if (!asleep && !(performing && act.Has(ActivityState.Interacting)))
+            {
+                n.Social = MathF.Max(0f, n.Social - (3.0f * (1f + (0.3f * zSoc)) * t.SocialDecay * dtH));
+            }
+
+            if (!asleep && !(performing && act.Has(ActivityState.Purposeful)))
+            {
+                n.Purpose = MathF.Max(0f, n.Purpose - (2.0f * (1f + (0.3f * zDil)) * t.PurposeDecay * dtH));
+            }
 
             // Tracking needs.
             n.Comfort += (comfortTarget - n.Comfort) * comfortK;

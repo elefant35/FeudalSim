@@ -17,12 +17,14 @@ public static class SchemaGenerator
     /// <summary>Content kinds: folder name, id prefix, definition type.</summary>
     public static readonly IReadOnlyList<(string Folder, string Kind, Type Type)> Kinds =
     [
+        ("actions", "action", typeof(ActionDef)),
         ("assets", "asset", typeof(AssetDef)),
         ("audio", "audio", typeof(AudioEventDef)),
         ("cultures", "culture", typeof(CultureDef)),
         ("items", "item", typeof(ItemDef)),
         ("needs", "need", typeof(NeedDef)),
         ("professions", "profession", typeof(ProfessionDef)),
+        ("schedules", "schedule", typeof(ScheduleDef)),
         ("skills", "skill", typeof(SkillDef)),
         ("traits", "trait", typeof(TraitDef)),
     ];

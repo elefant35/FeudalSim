@@ -1,0 +1,14 @@
+# M1 Talking Camp, graybox (M1-02): 24 settlers live on the utility AI at a Landfall camp — eat, drink, sleep,
+# gather wood and food, tend the fire, socialize, idle. Places in metres; food in Satiety points.
+id: scenario.m1_camp
+seed: 42
+start: Y0 Spring 1 05:30
+days: 8
+settlers: 24
+ai: utility
+camp:
+  food: 32000
+  firewood: 10
+  fire_fuel_min: 240
+  bedding: 0.85
+  schedule: schedule.landfall_communal
