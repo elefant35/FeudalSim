@@ -6,6 +6,10 @@ The art agent keeps this current; the code agent reads it to wire assets in. New
 
 | Date | Asset(s) | Files | Notes |
 |------|----------|-------|-------|
+| 2026-10-04 | P1 trees and cut states: 29 | `content/assets/trees_p1_m2.yaml`, `art/generators/broadleaf/`, `game/assets/flora/trees/` | Elm/yew/lime ×3 and stump/log states for all 10 tree species. 72–950 tris, palette, grounded cut states, trunk collision and foliage wind. All four-angle turntables and silhouette sheets inspected. |
+| 2026-10-04 | P1 later camp: 11 | `content/assets/camp_p1_m2.yaml`, `art/generators/camp_later/`, `game/assets/buildings/` | Drying rack, knapping stones, covered storage pit, latrine, 4 × 5 m hut and six construction stages. 300–1,238 tris; hut doorway 2.02 m. Roof/gable normals repaired after preview review. All turntables inspected. Storage pit liner needs terrain depression placement on the code side. |
+| 2026-10-04 | P1 materials and harvested pickups: 27 | `content/assets/pickups_p1_m2.yaml`, `art/generators/pickups/`, `game/assets/props/` | Six craft materials and all 21 forage pickups; 64–216 tris overall, forage items 80–140 (≤150). Grip origins, palette, botanical close-up tells. All turntables inspected. |
+| 2026-10-04 | P1 human animations: 14 additional clips | `content/assets/animations.yaml`, five shared libraries, `art/generators/animations/` | 41 total clips, all P0 channels preserved exactly against committed files. 30 fps/in-place/loop checks pass. Five added first-person clips keep a wrist visible in all 61 sampled frames, minimum 0.205 m camera distance. Third-person and first-person sheets inspected. |
 | 2026-10-04 | P0.8 Wending Star: all 10 files | `game/assets/wreck/`, `content/assets/wreck.yaml`, `art/generators/wreck/` | Two clinker hull halves 3,252 / 3,400 tris; mast/rigging 1,492 / 1,584; reef 320 with 4 convex hulls; five flotsam pieces 192–520. One palette each. Hull/deck concave collision, baked 25° heel, waterline origin; whole ship 22 m. All individual turntables/silhouettes and assembled waterline preview inspected. |
 | 2026-10-04 | P0 character movement correction | Settler generators and both body GLBs | Added shoulder yokes and blended sleeve/leg hem weights after jogging review. Final largest outfit 3,688 / 3,612 tris; motion and all six work/needs eye-camera sheets rechecked. |
 | 2026-10-04 | P0.9 Handheld tools: all 7 | `game/assets/props/{flint_knife,stone_axe,iron_axe,iron_knife,hammerstone,flint_nodule,flint_flake}.glb`, `content/assets/tools_m2.yaml`, `art/generators/handtools/` | 64–840 tris, one palette, grip origin and +Z heads. Chipped flint, shaved hafts, supported lashing, forged axe eye. All checks pass (three tools use the explicit 1,200-triangle close-up allowance); close-up turntables/silhouettes inspected. |
@@ -20,11 +24,13 @@ The art agent keeps this current; the code agent reads it to wire assets in. New
 
 ## In progress
 
-- 2026-10-04: **P0 complete and committed for owner review**, with the wreck and character movement follow-up being committed now. No asset is owner-approved yet. Full content validation passes (46 content files).
-- 2026-10-04: P1 exports underway: elm/yew/lime and 20 stump/log states; 70 additional botanical variants; later camp structures and construction stages; 27 harvested pickups/craft materials; extra character layers/heads/child; 14 additional human clips. P2 follows P1.
+- 2026-10-04: **P0 complete and committed for owner review**, including the wreck and character movement follow-up. No asset is owner-approved yet. Full content validation passes (50 content files).
+- 2026-10-04: P1 trees, later camp, pickups and animations checked and visually reviewed. Character layers/heads/child and 70 botanical variants are finishing visual QA. P2 sources are prepared; exports follow completion of P1.
 - Tooling supports M2 naming, collision exclusion, modular character budgets, expressions, palette UV centres and animation-only GLBs; legacy graybox regression passes. Exporter explicitly preserves wind colors; preview renders palette directly. Pipeline commit `24517a4`.
 
 ## Requests to the code agent
+
+- **User-reported backwards walking (2026-10-04):** art faces Blender −Y → Godot **+Z**, as required by §1. `game/scripts/Bridge/SimHost.Play.cs` currently claims imported models face −Z: `faceOffset = Mathf.Pi` at line 193 and NPC moving rotation `Mathf.Atan2(step.X, step.Y) + Mathf.Pi` at line 234 point the art 180° away from velocity. For +Z art, use player `faceOffset = 0`; moving NPC yaw `Mathf.Atan2(step.X, step.Y)`; idle NPC yaw `-snap.Yaw[i] + Mathf.Pi` if sim yaw follows camera −Z. Preserve sim yaw reporting conventions: visual +Z yaw and sim/camera −Z yaw differ by π. Verified in Godot 4.7.2 by `art/generators/animations/godot_forward_probe.gd`: eyes/toes are forward +Z, planted walk foot travels −Z at 1.600015 m/s, cancelling actor motion +Z at 1.6 m/s. The asset and gait directions agree. Keep these integration changes in the code-owned files; do not rotate every exported asset against the contract.
 
 - Seasonally hide `bush_bramble_<variant>_berries` for bramble without fruit; berries export as separate meshes.
 
@@ -37,4 +43,5 @@ The art agent keeps this current; the code agent reads it to wire assets in. New
 
 ## Questions for the owner
 
-None. All work uses deterministic own-work generators; no external licence or AI-service approval needed.
+- Palette request for a later revision: the fixed 8×8 palette has no botanical purple/pink. P1 flower/stem tells currently use muted `woad`/`madder` proxies and structural details. A true purple/pink swatch would improve foxglove/comfrey flowers and hemlock marks; any grid expansion must be coordinated with the code agent. Existing review assets use only the current palette.
+- All work uses deterministic own-work generators; no external licence or AI-service approval is needed.

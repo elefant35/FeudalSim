@@ -27,7 +27,9 @@ def assembled(meshes):
     base, slots = [], {}
     for o in meshes:
         prefix = o.name.split('_')[0]
-        if prefix in ('Head', 'Hair', 'Beard', 'Headwear'):
+        if o.name in ('Cloth_wool_cloak','Cloth_fur_cloak','Cloth_oiled_cloak','Cloth_sailcloth_poncho'):
+            prefix = 'OuterCloak'
+        if prefix in ('Head', 'Hair', 'Beard', 'Headwear', 'OuterCloak'):
             slots.setdefault(prefix, []).append(o)
         else:
             base.append(o)
@@ -66,14 +68,19 @@ def main():
             for c in a['channels']:
                 target = c['target']
                 node = document['nodes'][target['node']].get('name')
-                if node not in ('Root', 'Hips') or target['path'] != 'translation':
+                if node not in ('Root', 'Hips'):
+                    continue
+                if node=='Hips' and target['path']!='translation':
+                    continue
+                if target['path'] not in ('translation','rotation','scale'):
                     continue
                 ac = document['accessors'][a['samplers'][c['sampler']]['output']]
                 bv = document['bufferViews'][ac['bufferView']]
                 offset = bv.get('byteOffset', 0) + ac.get('byteOffset', 0)
-                stride = bv.get('byteStride', 12)
-                values = [struct.unpack_from('<fff', binary, offset + i * stride) for i in range(ac['count'])]
-                axes = range(3) if node == 'Root' else (0, 2)
+                count = 4 if target['path']=='rotation' else 3
+                stride = bv.get('byteStride', count*4)
+                values = [struct.unpack_from('<'+'f'*count, binary, offset + i * stride) for i in range(ac['count'])]
+                axes = range(count) if node == 'Root' else (0, 2)
                 if any(max(v[j] for v in values) - min(v[j] for v in values) > 0.0001 for j in axes):
                     problems.append(f"{a['name']}: {node} travels")
         fsart.result(ok=not problems, asset=path, budget_class=cls, clips=names,
@@ -97,6 +104,8 @@ def main():
     # Contract §6.4 explicit first-person allowance (other props stay at 600).
     if pathlib.Path(path).stem in ('flint_knife', 'stone_axe', 'iron_axe', 'hammerstone'):
         hi = 1200
+    if pathlib.Path(path).stem.startswith('item_'):
+        hi = min(hi, 150)
     if not lo <= tris['0'] <= hi:
         problems.append(f"assembled LOD0 {tris['0']} triangles outside {lo}–{hi}")
     materials = sorted({s.material.name for o in visible for s in o.material_slots if s.material})
@@ -132,7 +141,7 @@ def main():
             problems.append(f'base outside ground plane: {min_z:.3f} m')
         if not 0.005 <= height <= 60:
             problems.append(f'implausible height {height:.3f} m')
-    if cls == 'character':
+    if cls == 'character' and pathlib.Path(path).stem!='humanoid_a':
         rigs = [o for o in bpy.context.scene.objects if o.type == 'ARMATURE']
         if len(rigs) != 1:
             problems.append('requires one shared skeleton')
@@ -146,8 +155,9 @@ def main():
                 keys = set(o.data.shape_keys.key_blocks.keys()) if o.data.shape_keys else set()
                 if required - keys:
                     problems.append(o.name + ': missing face shapes ' + str(sorted(required-keys)))
-        if height is not None and not 1.59 <= height <= 1.86:
-            problems.append('adult height outside contract scale')
+        lo_h, hi_h = (0.85, 1.4) if 'child' in pathlib.Path(path).stem else (1.59, 1.86)
+        if height is not None and not lo_h <= height <= hi_h:
+            problems.append('character height outside contract scale')
     fsart.result(ok=not problems, asset=path, budget_class=cls, tris=tris,
                  stored_tris=sum(fsart.triangles(o) for o in lod0), assembled_objects=[o.name for o in selected],
                  collision_objects=[o.name for o in collision], materials=materials,

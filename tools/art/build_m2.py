@@ -15,10 +15,31 @@ def specs(family):
             for i in range(count):
                 v=chr(97+i);add(species+'_'+v,'art/generators/broadleaf/broadleaf.py','flora/trees','tree',dict(species=species,seed=101+i,variant=v),
                   'Timber-size '+species+'; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights.')
+    elif family=='trees_p1':
+        for species in ('elm','yew','lime'):
+            for i in range(3):
+                v=chr(97+i);add(species+'_'+v,'art/generators/broadleaf/broadleaf.py','flora/trees','tree',dict(species=species,seed=401+i,variant=v),'P1 timber '+species+'; palette/wind/trunk collision.')
+        for species in ('scots_pine','oak','birch','ash','beech','alder','willow','elm','yew','lime'):
+            for stage in ('stump','log'):
+                add(species+'_'+stage,'art/generators/broadleaf/broadleaf.py','flora/trees','tree',dict(species=species,seed=401,variant='a',stage=stage),'P1 '+species+' cut state; exposed pale end grain, grounded hull.')
+    elif family=='camp_p1':
+        for item,budget in [('drying_rack','workstation'),('knapping_stone','workstation'),('storage_pit','workstation'),('latrine','building_small'),('hut','building_small')]:
+            add(item,'art/generators/camp_later/camp_later.py','buildings',''+budget,dict(item=item,seed=501),'P1 '+item+'; own-work palette geometry.')
+        for shelter in ('sailcloth_shelter','lean_to','hut'):
+            for stage in (1,2):
+                n=shelter+'_stage'+str(stage)
+                add(n,'art/generators/camp_later/camp_later.py','buildings','building_small',dict(item=n,seed=501),'Construction stage: frame' if stage==1 else 'Construction stage: half covered')
     elif family=='nature':
         for species,count in [('boulder',4),('fieldstone',4),('flint_scatter',3),('driftwood',3),('outcrop',4)]:
             for i in range(count):
                 v=chr(97+i);add(species+'_'+v,'art/generators/nature/nature.py','nature/rocks','rock',dict(species=species,seed=201+i,variant=v),'Grounded '+species+'; palette-painted, deterministic seed.')
+    elif family=='pickups_p1':
+        names=['wild_carrot','hemlock','field_mushroom','death_cap','ramsons','lily_of_the_valley','comfrey','foxglove','valerian','water_hemlock','bilberries','nightshade_berries','hazelnuts','blackberries','nettles','sorrel','sea_beet','wild_strawberries','yarrow','plantain','sphagnum']
+        for item in ['rough_log','pole','reed_thatch','clay','antler_billet','pressure_flaker']+['item_'+n for n in names]:
+            add(item,'art/generators/pickups/pickups.py','props','prop_handheld',dict(item=item,seed=601),'P1 harvested pickup / primitive craft material; grip origin and +Z orientation.')
+    elif family=='hunting_p2':
+        for item in ('wooden_spear','sling','self_bow','arrows','round_shield','deer_carcass','hide_frame','snare'):
+            add(item,'art/generators/hunting/hunting.py','props','prop_handheld',dict(item=item,seed=701),'P2 primitive hunting/combat equipment; own-work palette geometry.')
     elif family in ('camp','wreck','tools'):
         groups={
           'camp': [('campfire','buildings','workstation'),('sailcloth_shelter','buildings','building_small'),('lean_to','buildings','building_small'),

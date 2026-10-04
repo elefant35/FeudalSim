@@ -30,11 +30,14 @@ for o in meshes:
     o.hide_render = o.name.endswith(('-colonly','-convcolonly')) or bool(re.search(r'_lod[1-9]\d*$',o.name))
     if not o.hide_render:
         slot = o.name.split('_')[0]
-        if slot in ('Head','Hair','Beard','Headwear'):
+        if o.name in ('Cloth_wool_cloak','Cloth_fur_cloak','Cloth_oiled_cloak','Cloth_sailcloth_poncho'):
+            slot = 'OuterCloak'
+        if slot in ('Head','Hair','Beard','Headwear','OuterCloak'):
             slots.setdefault(slot, []).append(o)
         else:
             visible.append(o)
 for slot, alternatives in slots.items():
+    if slot=='OuterCloak': alternatives.sort(key=lambda o: (o.name!='Cloth_wool_cloak',o.name))
     arg = '--'+slot.lower()
     idx = int(args[args.index(arg)+1]) if arg in args else 0
     for i,o in enumerate(alternatives):
