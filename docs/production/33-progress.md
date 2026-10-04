@@ -119,7 +119,8 @@ Items found while working that belong to a later milestone or need triage.
 | 2026-10-03 | Dialogue latency varied 3.9–9.6 s for qwen/qwen3-14b on OpenRouter (provider routing); S2 must pin fast providers or pick another model | M1 (S2) | M0-10 |
 | 2026-10-03 | Persist pending AI requests and the AI request counter in saves | M1 | M0-10 |
 | 2026-10-03 | Full 20 §9.4 snapshot layout (header + TOC + per-chunk hashes) | M3 | M0-06 |
-| 2026-10-03 | **Install the .NET 10 SDK, update `global.json`, unpin the Roslyn-4.11 workarounds** (BannedApiAnalyzers 3.3.4; JsonSchema.Net.Generation dropped) — ADR-0010 step 2; .NET 8 support ends 2026-11-10 | M0/M1 (owner install) | M0-02, M0-07 |
+| 2026-10-03 | ~~**Install the .NET 10 SDK, update `global.json`, unpin the Roslyn-4.11 workarounds**~~ — **done 2026-10-04** (SDK 10.0.401 arrived with the Godot cask; ADR-0010 step 2) | M0 | M0-02, M0-07 |
+| 2026-10-04 | ADR-0010 step 3: spike a `net10.0` game project on Godot 4.7.x, or wait for a Godot release whose GodotSharp targets net10 — .NET 8 support ends 2026-11-10 | M1 | ADR-0010 |
 
 ---
 

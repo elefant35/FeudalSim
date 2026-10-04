@@ -1,6 +1,6 @@
 # ADR-0010 — .NET version: net8.0 now, .NET 10 SDK next, net10 runtime when Godot allows
 
-> **Status:** Accepted · **Date:** 2026-10-03 · **Related:** [canon §4](../01-canon.md#4-core-product--technology-decisions), [ADR-0001](0001-engine-godot-dotnet.md)
+> **Status:** Accepted · step 2 done 2026-10-04 · **Date:** 2026-10-03 · **Related:** [canon §4](../01-canon.md#4-core-product--technology-decisions), [ADR-0001](0001-engine-godot-dotnet.md)
 
 ## Context
 
@@ -21,8 +21,24 @@
 
 ## Consequences
 
-Until step 2, avoid packages whose analyzers need Roslyn > 4.11, or pin older versions and note why in
-`Directory.Packages.props`.
+- ~~Until step 2, avoid packages whose analyzers need Roslyn > 4.11.~~ Step 2 is done (below), so current
+  analyzers are fine again.
+- Machines and CI need **two** installs: the .NET 10 SDK (builds) and the .NET 8 runtime (runs tests,
+  the CLI and the Godot game, which all target net8.0). CI's `setup-dotnet` installs both.
+
+## Step 2 — done 2026-10-04
+
+- `global.json` → SDK **10.0.401**. `BannedApiAnalyzers` unpinned to **5.6.0** (an injected
+  `System.Random` in the Sim still fails the build with RS0030).
+- .NET 10's `dotnet test` no longer runs Microsoft.Testing.Platform apps (xunit.v3) through VSTest, so
+  `global.json` opts in with `"test": { "runner": "Microsoft.Testing.Platform" }`; the VSTest-only
+  packages (`Microsoft.NET.Test.Sdk`, `xunit.runner.visualstudio`) were removed. New syntax:
+  `dotnet test --solution …`, `--project …`, xunit filters (`--filter-class`, `--filter-method`),
+  `--report-xunit-trx --results-directory TestResults`.
+- Evidence: Release build 0 warnings; 58/58 tests; content validate/schemas/licenses OK; smoke run
+  final hash **8bea5171cd1c0ad3**, identical to the SDK 8 build; the Godot game builds and both
+  headless Godot checks pass. `JsonSchema.Net.Generation` stays dropped (our generator is smaller and
+  deterministic).
 
 ## Revisit if
 

@@ -56,12 +56,14 @@ in `docs/` is the basis for all development.
 
 ## Commands
 
-Run from the repo root. SDK pinned by `global.json` (8.0.401; see ADR-0010 before upgrading packages —
-analyzers that need Roslyn > 4.11 break this SDK).
+Run from the repo root. `global.json` pins the .NET **10** SDK (10.0.401) and opts `dotnet test` into
+Microsoft.Testing.Platform; every project still **targets net8.0** (Godot 4.7.2), so the .NET 8 runtime
+must be installed too (ADR-0010). Godot: `/Applications/Godot_mono.app/Contents/MacOS/Godot` (4.7.2 .NET).
 
 ```bash
 dotnet build                                   # 0 warnings required (TreatWarningsAsErrors)
 dotnet test                                    # all suites; Integration includes determinism + replay
+dotnet test --project tests/FeudalSim.Sim.Tests --filter-class '*ClockTests'   # one project / class (xunit.v3 filters)
 dotnet run --project src/FeudalSim.Headless -- content validate          # YAML → schema → compile
 dotnet run --project src/FeudalSim.Headless -- content schemas [--check] # regenerate / verify JSON Schemas
 dotnet run --project src/FeudalSim.Headless -- run --scenario content/scenarios/m0_smoke.yaml --verify-determinism [--threads 4]
@@ -70,8 +72,14 @@ dotnet run --project src/FeudalSim.Headless -- ai ping                   # one c
 dotnet run --project src/FeudalSim.Headless -- ai decide                 # one fast-decider question (option probabilities)
 dotnet run --project src/FeudalSim.Headless -- run --scenario content/scenarios/m0_ai_ping.yaml --realtime --seconds 25   # live AI round trip, logged
 dotnet run --project src/FeudalSim.Headless -- log inputs|events <file.fslog> [--filter X]   # inspect logs
+dotnet run --project src/FeudalSim.Headless -- replay --scenario <yaml> --log <inputs.fslog> --until-step N   # final hash of a recorded session
 dotnet run --project tests/FeudalSim.Benchmarks -c Release -- --filter '*'
+dotnet build game/FeudalSim.Game.csproj                                  # the Godot client (also builds Hosting/Sim)
+$GODOT --path game                                                       # run Boot (Space pause · 1/2/4 speed)
+$GODOT --headless --path game -- --autotest                              # Boot smoke: movement, pause, time scale (exit 0/1)
+tools/godot/embodiment_check.sh                                          # LOD0 bodies + headless replay of the client session
 ```
 
 Headless runs write `sim_runs/<id>/` (gitignored). CI (`.github/workflows/ci.yml`) runs build, tests,
-content checks and the smoke run with `LLM_MODE=template`. Godot commands are added at M0-11.
+content checks and the smoke run with `LLM_MODE=template`; `godot.yml` builds the game with the pinned
+Godot (from `game/GODOT_VERSION`) and runs the two headless Godot checks above.

@@ -427,7 +427,7 @@ contract survives that change: `GodotEmbodiment` would simply stop reporting NPC
 ```text
 FeudalSim/
 ├── FeudalSim.sln
-├── global.json                  # pins .NET SDK 8.0.401, rollForward: latestFeature
+├── global.json                  # pins .NET SDK 10.0.401 (rollForward: latestFeature) + MTP test runner; projects target net8.0 (ADR-0010)
 ├── Directory.Build.props        # LangVersion, Nullable, TreatWarningsAsErrors, analyzers (all projects)
 ├── Directory.Packages.props     # central package versions
 ├── .editorconfig

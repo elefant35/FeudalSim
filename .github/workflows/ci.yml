@@ -28,7 +28,8 @@ jobs:
 
       - uses: actions/setup-dotnet@v4
         with:
-          global-json-file: global.json
+          global-json-file: global.json   # SDK 10 (ADR-0010)
+          dotnet-version: 8.0.x            # projects target net8.0 (Godot 4.7.2), so the .NET 8 runtime runs tests and tools
 
       - name: Restore
         run: dotnet restore FeudalSim.sln
@@ -37,7 +38,7 @@ jobs:
         run: dotnet build FeudalSim.sln --no-restore -c Release
 
       - name: Test
-        run: dotnet test FeudalSim.sln --no-build -c Release --logger "trx;LogFileName=results.trx"
+        run: dotnet test --solution FeudalSim.sln --no-build -c Release --report-xunit-trx --results-directory TestResults
 
       - name: Content — validate
         run: dotnet run --project src/FeudalSim.Headless --no-build -c Release -- content validate
@@ -57,6 +58,6 @@ jobs:
         with:
           name: ci-${{ matrix.os }}
           path: |
-            tests/**/TestResults/*.trx
+            TestResults/
             sim_runs/
           if-no-files-found: ignore
