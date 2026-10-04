@@ -143,5 +143,32 @@
       "attribution_required": false
     },
     "notes": "Hand-authored 30 fps in-place complete P0/P1 clips: carry_log_walk, chop_loop, dig_loop, forage_pick_loop, knap_loop, pick_up, stoke_fire. Complete shared 40-bone rig; Root fully fixed, Hips horizontal fixed. Vertical Hips articulation grounds sitting/kneeling/lying and jump preparation; preserve vertical offsets at runtime. Loop endpoints and all 30fps key times verified. Original P0 poses retained. P1 five FP work/carry/drink clips inspected; each has wrist in frustum at all61 sampled frames. Evidence art/previews/animations_p1 and measurements_p1.json."
+  },
+  {
+    "id": "asset.animations.combat_basic",
+    "kind": "animation",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/animations/combat_motion.py",
+      "params": {},
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/characters/anims/combat_basic.glb"
+    ],
+    "budget_class": "animation",
+    "measured": {
+      "tris_lod0": 0,
+      "materials": 0,
+      "duration_s": 14.4
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Original hand-authored 30 fps P2 clips: block, death_a, downed_loop, hit_react_front, punch_a, punch_b, shove, stagger, unarmed_ready. Complete shared 40-bone rig, Root fully static and Hips horizontal static. Vertical Hips offsets provide guarded stance, stagger and grounded collapse; preserve at runtime. unarmed_ready and downed_loop close exactly. Nine clips pass exact-name/skeleton/30fps/root-motion audit and Godot GLTFDocument import; zero mesh/material animation-only GLB. All nine third-person poses and five first-person combat clips reviewed. Each FP clip keeps at least one wrist visible in all61 sampled frames, minimum wrist-camera distance 0.234m. Rebuild/check commands in art/generators/animations/README.txt; measured evidence art/previews/animations/measurements_p2.json and art/previews/animations_p2/pose_measurements.json."
   }
 ]
