@@ -79,6 +79,15 @@ public sealed class SimWorld
     /// <summary>The player's own Person row, if spawned (<see cref="PersonFlags.Player"/>); derived from the flag on load.</summary>
     public EntityId PlayerId { get; private set; }
 
+    private Climate.WeatherState _weather;
+
+    /// <summary>The region's weather (10 §6.3; M2-03). Saved and hashed.</summary>
+    public Climate.WeatherState Weather => _weather;
+
+    internal ref Climate.WeatherState WeatherRef => ref _weather;
+
+    internal void RestoreWeather(Climate.WeatherState w) => _weather = w;
+
     /// <summary>Row of the player's character, or −1.</summary>
     public int PlayerRow => PlayerId.IsNone ? -1 : People.IndexOf(PlayerId);
 

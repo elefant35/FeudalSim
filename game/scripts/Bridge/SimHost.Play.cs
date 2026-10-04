@@ -45,7 +45,7 @@ public partial class SimHost
         (_playerBody, _playerAnim) = Spawn();
         _playerBody.AddChild(new Label3D { Text = "you", Position = new Vector3(0, 2.15f, 0), Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, FontSize = 48, OutlineSize = 12, PixelSize = 0.012f, Modulate = new Color(0.4f, 1f, 1f) });
         AddChild(new MeshInstance3D { Mesh = new PlaneMesh { Size = new Vector2(240, 240) }, Position = new Vector3(10, -0.01f, -6), MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.36f, 0.45f, 0.28f) } });
-        AddChild(new DirectionalLight3D { RotationDegrees = new Vector3(-55, 35, 0), ShadowEnabled = true, LightEnergy = 1.0f });
+        AddChild(_sun = new DirectionalLight3D { RotationDegrees = new Vector3(-55, 35, 0), ShadowEnabled = true, LightEnergy = 1.0f });
 
         // The dialogue host: classification, DPs and lines for the player's conversation (the panel is M1-19's).
         if (config is not null && _aiStack is not null)

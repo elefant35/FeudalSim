@@ -28,6 +28,9 @@ public sealed class RenderSnapshot
     public float Food, Firewood, FireFuelMin;
     public bool CampActive;
 
+    /// <summary>The region's weather (10 §6.3; M2-03) for the sky, light and HUD.</summary>
+    public Sim.Climate.WeatherState Weather;
+
     public void CopyFrom(SimWorld world)
     {
         Step = world.Clock.Step;
@@ -60,6 +63,7 @@ public sealed class RenderSnapshot
         }
 
         CampActive = world.Camp.Active != 0;
+        Weather = world.Weather;
         (Food, Firewood, FireFuelMin) = (world.Camp.Food, world.Camp.Firewood, world.Camp.FireFuelMin);
     }
 }

@@ -57,6 +57,7 @@ public static class SaveCodec
 
     public const string ConversationsTable = "conversations";
     public const string PlayerTable = "player";
+    public const string WeatherTable = "weather";
     public const string ConfrontationsTable = "confrontations";
     public const string FavorsTable = "favors";
     public const string HoldingsTable = "holdings";
@@ -102,6 +103,13 @@ public static class SaveCodec
     {
         var chunk = new TableChunk { Table = PlayerTable, RowCount = 1 };
         chunk.Columns.Add(new ColumnBlock { Name = "pose", LayoutVersion = 1, ElementSize = Marshal.SizeOf<PlayerState>(), Data = MemoryMarshal.AsBytes(new ReadOnlySpan<PlayerState>(in player)).ToArray() });
+        return chunk;
+    }
+
+    private static TableChunk WeatherChunk(in Climate.WeatherState weather)
+    {
+        var chunk = new TableChunk { Table = WeatherTable, RowCount = 1 };
+        chunk.Columns.Add(new ColumnBlock { Name = "state", LayoutVersion = 1, ElementSize = Marshal.SizeOf<Climate.WeatherState>(), Data = MemoryMarshal.AsBytes(new ReadOnlySpan<Climate.WeatherState>(in weather)).ToArray() });
         return chunk;
     }
 
@@ -219,7 +227,7 @@ public static class SaveCodec
                 LastCommandSeq = world.LastCommandSeq,
             },
             IdCounters = counters,
-            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories), ClaimsChunk(world.Claims), BeliefsChunk(world.Beliefs), RenownChunk(world.Reputation), DecisionsChunk(world.Decisions), AiChunk(world), ConversationsChunk(world.Conversations), PlayerChunk(world.Player), ConfrontationsChunk(world.Confrontations), FavorsChunk(world.Favors), HoldingsChunk(world.Holdings), NegotiationsChunk(world.Negotiations)],
+            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories), ClaimsChunk(world.Claims), BeliefsChunk(world.Beliefs), RenownChunk(world.Reputation), DecisionsChunk(world.Decisions), AiChunk(world), ConversationsChunk(world.Conversations), PlayerChunk(world.Player), ConfrontationsChunk(world.Confrontations), FavorsChunk(world.Favors), HoldingsChunk(world.Holdings), NegotiationsChunk(world.Negotiations), WeatherChunk(world.WeatherRef)],
         };
     }
 
@@ -352,6 +360,12 @@ public static class SaveCodec
         {
             if (pose.ElementSize == Marshal.SizeOf<PlayerState>() && pose.Data.Length == pose.ElementSize) { world.Player = MemoryMarshal.Read<PlayerState>(pose.Data); }
             else { notes.Add("Player table has an unknown layout; the player's pose is reset."); }
+        }
+
+        if (image.Tables.FirstOrDefault(t => t.Table == WeatherTable)?.Columns.FirstOrDefault(c => c.Name == "state") is { } weather)
+        {
+            if (weather.ElementSize == Marshal.SizeOf<Climate.WeatherState>() && weather.Data.Length == weather.ElementSize) { world.RestoreWeather(MemoryMarshal.Read<Climate.WeatherState>(weather.Data)); }
+            else { notes.Add("Weather table has an unknown layout; the weather restarts from the current slot."); }
         }
 
         if (image.Tables.FirstOrDefault(t => t.Table == ConfrontationsTable) is { } quarrels)

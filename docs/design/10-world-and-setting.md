@@ -586,6 +586,16 @@ season's distribution, excluding the current state and reweighted by adjacency: 
 Cloudy, Drizzle or Rain; Fog only in the 00 and 06 slots, burning off by 12 with p = 0.7 unless
 Autumn. The stationary shares converge to the table within ±3 points (tested, §20).
 
+*Implementation (M2-03, `Sim/Climate/Weather.cs`):* the chain is keyed per slot index (`RngStream.Weather`), so
+catching up equals stepping. "Drawn from the season's distribution" is realised as **leave weights fitted at start-up**
+so that the periodic (00/06/12/18) chain, with its stay probabilities and adjacency rules, has the table's stationary
+shares — drawing the leave state straight from the table under-weights the short-stay states (Fog, Storm). Fog forms only
+in the 00 and 06 slots; outside Autumn it burns off at 12 with p = 0.7 and is gone by 18. Wet/Dry summers (§6.4) get
+their own fitted weights from the shifted table. `feudalsim weather` runs the chain (3,000 years: worst share error 1.5
+points; season means 7.8 / 16.2 / 9.2 / 0.8 °C).
+**Finding (Q17):** a Dry summer's Clear +20 (60%) is unreachable with Clear's p_stay 0.6 — with every exit returning to
+Clear the ceiling is ≈ 56%. *Applied (reversible, pending owner):* in a Dry summer Clear's p_stay is 0.75.
+
 | State | Precip (mm/h) | Wind (m/s) | Humidity | Notes |
 |-------|---------------|-----------|----------|-------|
 | Clear | 0 | 2–5 | 65% (55% on Summer afternoons) | Cold nights |
@@ -1490,6 +1500,8 @@ place *is*: a character may choose whether to share what they believe, never wha
    implications belong to [20](../tech/20-architecture.md).
 7. **Gold:** none in v1. A trace-gold placer would be a strong rumor engine ("fortune" motive) but
    distorts [15](15-economy-and-trade.md)'s coinage. Keep it out?
+8. **Q17 — Dry-summer persistence** (§6.3–6.4, M2-03): keep Clear p_stay 0.75 in Dry summers (applied), or soften
+   Dry to Clear +15?
 
 ## Proposed canon additions
 

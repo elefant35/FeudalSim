@@ -19,6 +19,25 @@ public partial class SimHost : Node3D
     private JobRunner? _jobs;
     private MultiMeshInstance3D _settlers = null!;
     private Label _overlay = null!;
+    private DirectionalLight3D? _sun;
+
+    /// <summary>10 §6.1: the sun crosses the sky between sunrise and sunset; cloud dims it and night leaves moonlight.</summary>
+    private void UpdateSun(in Sim.Climate.WeatherState weather, long minute)
+    {
+        if (_sun is null) { return; }
+        var day = Sim.Climate.Weather.DayOfYear(minute);
+        var length = Sim.Climate.Weather.DaylightHours(day);
+        var hour = minute % 1440 / 60f;
+        var t = (hour - (12f - (length / 2f))) / length;                 // 0 at sunrise, 1 at sunset
+        var up = t is > 0f and < 1f;
+        var elevation = up ? Mathf.Sin(Mathf.Pi * t) * 60f : 20f;          // the moon stands in at night
+        _sun.RotationDegrees = new Vector3(-Mathf.Max(5f, elevation), up ? -90f + (180f * t) : 35f, 0);
+        var cloud = weather.Sky switch { Sim.Climate.Sky.Clear => 1f, Sim.Climate.Sky.Cloudy => 0.6f, Sim.Climate.Sky.Fog => 0.45f, Sim.Climate.Sky.Drizzle => 0.5f, Sim.Climate.Sky.Rain => 0.4f, _ => 0.3f };
+        var moon = 0.04f + (0.10f * (1f - Mathf.Abs((Sim.Climate.Weather.MoonPhase(minute) * 2f) - 1f)));
+        _sun.LightEnergy = up ? Mathf.Lerp(0.15f, 1.1f, Mathf.Sin(Mathf.Pi * t)) * cloud : moon * cloud;
+        _sun.LightColor = up && (t < 0.12f || t > 0.88f) ? new Color(1f, 0.75f, 0.55f) : up ? new Color(1f, 0.97f, 0.92f) : new Color(0.6f, 0.7f, 1f);
+        _sun.ShadowEnabled = up || moon > 0.1f;
+    }
     private double _rateWindow;
     private long _rateSteps;
     private double _stepsPerSecond;
@@ -256,7 +275,9 @@ public partial class SimHost : Node3D
         }
 
         var date = Sim.Time.GameDate.FromGameMs(snapshot.GameMs);
-        _overlay.Text = $"FeudalSim · {_scenarioId} · {date} · step {snapshot.Step} · {_stepsPerSecond:F1} steps/s · ×{_timeScale} · {_runner.Mode}\n" +
+        var minute = snapshot.GameMs / Sim.Time.SimClock.MsPerGameMinute;
+        UpdateSun(snapshot.Weather, minute);
+        _overlay.Text = $"FeudalSim · {_scenarioId} · {date} · {snapshot.Weather.Sky} {Sim.Climate.Weather.AirTempC(snapshot.Weather, minute):F0} °C · wind {snapshot.Weather.WindMs:F0} m/s · step {snapshot.Step} · {_stepsPerSecond:F1} steps/s · ×{_timeScale} · {_runner.Mode}\n" +
                         $"{snapshot.Count - (snapshot.IsPlayer.AsSpan(0, snapshot.Count).Contains(true) ? 1 : 0)} settlers · [Space] pause · [1][2][4][8] speed · {(_play ? "WASD walk · Shift run · [E] talk · [Esc] leave · [T] take" : "WASD/arrows pan")} · wheel zoom" +
                         (_aiStatus.Length > 0 ? $" · {_aiStatus}" : "");
         if (snapshot.CampActive)

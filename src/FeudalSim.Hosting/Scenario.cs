@@ -70,6 +70,7 @@ public sealed record ScenarioDef
     /// </summary>
     public static SimWorld AddCampSystems(SimWorld world)
     {
+        world.AddSystem(new WeatherSystem());
         world.AddSystem(new LodSystem());
         world.AddSystem(new Sim.Dialogue.ConversationSystem());   // Sense, after LOD: holds conversing NPCs before the AI decides
         world.Decisions.Register(new Sim.Dialogue.InitiativeOwner());

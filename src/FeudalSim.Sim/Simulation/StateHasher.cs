@@ -39,6 +39,7 @@ public static class StateHasher
         h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<ActivityState>)people.Activity));
         h.Append(MemoryMarshal.AsBytes(new ReadOnlySpan<CampRecord>(in world.Camp)));
         h.Append(MemoryMarshal.AsBytes(new ReadOnlySpan<PlayerState>(in world.Player)));
+        h.Append(MemoryMarshal.AsBytes(new ReadOnlySpan<Climate.WeatherState>(in world.WeatherRef)));
         h.Append(people.SkillLevelsAll);
         h.Append(people.SkillAptitudeAll);
         h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<SkillProgress>)people.SkillProgressAll));

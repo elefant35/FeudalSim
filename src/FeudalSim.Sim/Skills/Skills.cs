@@ -103,10 +103,8 @@ public static class Skills
         e += n.Energy < 15 ? -10f : n.Energy < 30 ? -5f : 0f;
         if (n.Satiety < 20) { e -= 5f; }
         if (n.Warmth < 30 && weights[(r.Skill * 6) + 2] > 0.25f) { e -= 5f; }
-        var minute = world.Clock.GameMinute % 1440;
-        var dark = minute is < 300 or >= 1260;
-        if (dark) { e += r.HasLight ? -4f : -10f; }
-        if (r.Outdoors && r.Raining) { e -= 5f; }
+        if (!Climate.Weather.IsDaylight(world.Clock.GameMinute)) { e += r.HasLight ? -4f : -10f; }   // 10 §6.1 daylight (M2-03)
+        if (r.Outdoors && (r.Raining || Climate.Weather.Wet(world.WeatherRef))) { e -= 5f; }
         var mood = people.Mood[r.Actor].Smoothed;
         e += mood <= -50 ? -3f : mood >= 50 ? 2f : 0f;
         if (r.Rushing) { e -= 8f; }
