@@ -367,6 +367,18 @@ Talking is the main way the player affects society ([canon P2](../01-canon.md#2-
 
 The world stays live behind the dialogue. Others can walk up, interrupt, or overhear. Conversations don't pause time, but they run on **focus time**: while a conversation is open the world clock slows to **12:1** (¼ of normal, the same rate as the battle clock), so a 3-minute exchange costs ~36 game minutes rather than 2.4 game hours ([canon §6](../01-canon.md#6-time-canon)).
 
+*Implemented (M1-19, graybox):* the panel in `game/scripts/Bridge/SimHost.Dialogue.cs` — header with profession,
+familiarity words, the demeanor cue (§6.5, one read roll per conversation; Perception and concealment join later), the
+stance from their last choice and the last glyph (§6.6: ▲/▼, ✧, ✦); transcript with echoes and gestures (§6.9); a
+typewriter for streamed lines (≥ 25 chars/s); quick intents Ask · Request ▾ (firewood, foraging, the fire) · Trade ·
+Compliment · Apologize · Insult · Threaten · Leave; free text; the take at 0.3 s and a filler after 1.5 s without words
+(§6.4); proposal cards for `ask_favor` / `invite`; a stub trade panel (§7.1: their ask and counters, coin −/+, Offer,
+Confirm deal, Walk away); [P] a basic People page (§7.3: who you have met, how well you know them, how they last
+seemed, what you believe about them). Hosting adds `DialogueHost.ReadAsync / Commit / Intent` (classification before
+anything is said) and `TurnOutcome` (stance, glyph, proposal terms — the chosen option only). Not yet: Ask/Give/Promise
+sub-pickers over known entities (no promise owner or inventory UI in M1), group conversations, focus time 12:1, the
+"Effects of words" setting. `--autotest-dialogue` covers the panel in CI.
+
 ### 6.2 Quick intents
 
 Everything the player can do in dialogue is reachable without typing, and a quick intent faces exactly the same NPC menu as typed words (§6.8). A quick intent produces a **structured dialogue act directly**, skipping the classifier. The LLM then voices the player's line in the player's established tone, or the UI shows it bracketed ("[You ask about the tin rumor]"), depending on a setting. The voiced line is cosmetic: the NPC decides on the structured act with a neutral words signal, so a well-phrased voicing never helps or hurts the player.
@@ -391,6 +403,9 @@ When the player types, the fast decider classifies the text into `{act, tone, to
 **Consequential acts** need a moment of confirmation, because they create obligations, crimes or fights. These are: Threaten, Insult (moderate+), Promise/Commit, Accept/Offer deal ≥ 2d, Confess, Challenge, Lie (a claim that contradicts the player's own known beliefs). For these, the echo shows **[Enter] confirm · [Backspace] unsay**. It auto-confirms after **1.5 s**. While waiting, the NPC plays a listening animation. The NPC's decision point opens only **after** the act is confirmed, so an unsaid line leaves nothing to observe. Setting: *Confirm consequential acts: Auto 1.5 s (default) / Always ask / Never*.
 
 The echo and unsay cover **the player's own** acts. There is no unsay for the other side: once an NPC's choice has been shown (§6.9), it has been made.
+
+*M1 forms:* consequential acts are threaten, insult, promise, trade_offer and accept_offer; downgrades are threaten →
+tell ("Warning (unclear)"), insult/promise/accept_offer → small talk, trade_offer → a question.
 
 If the classifier's confidence is < 0.55 on a consequential act, the act is **downgraded** to its nearest non-consequential act (e.g., Threaten → Warn). The echo says so ("↳ read as: Warning (unclear)"). This prevents a garbled sentence from starting a feud.
 

@@ -12,7 +12,14 @@ using FeudalSim.Sim.Events;
 namespace FeudalSim.Hosting;
 
 /// <summary>The player's open conversation as last seen on the sim thread (read by the UI and <see cref="DialogueHost.SayAsync"/>).</summary>
-public sealed record ConversationView(ulong Id, int Turn, EntityId Npc, string NpcName, string PlayerName, IReadOnlyList<string> Transcript, IReadOnlyList<string> OthersPresent, string ActiveBusiness);
+public sealed record ConversationView(ulong Id, int Turn, EntityId Npc, string NpcName, string PlayerName, IReadOnlyList<string> Transcript, IReadOnlyList<string> OthersPresent, string ActiveBusiness)
+{
+    /// <summary>19 §6.1 header: profession and how well you know them (words, never numbers).</summary>
+    public string Who { get; init; } = "";
+
+    /// <summary>19 §6.5 demeanor cue ("seems: warm, tired"), filtered by the read roll.</summary>
+    public string Cue { get; init; } = "";
+}
 
 /// <summary>
 /// Hosts the dialogue turn pipeline (22 §4) beside the sim: player text → rate limit → sanitize → classify →
@@ -68,6 +75,11 @@ public sealed class DialogueHost
     /// <summary>Raised when a classified turn has been submitted (UI: the intent echo, 22 §4.1).</summary>
     public event Action<Classification>? Classified;
 
+    /// <summary>The partner's choices as the player may see them (stance, glyph, proposal), raised on the sim thread.</summary>
+    public event Action<TurnOutcome>? Outcome;
+
+    private readonly ConcurrentDictionary<ulong, DecisionPointOpened> _menus = new();
+
     /// <summary>The dialogue model's time to first token for a turn (ms from the reply route's start).</summary>
     public event Action<double>? FirstToken;
 
@@ -85,10 +97,21 @@ public sealed class DialogueHost
     /// </summary>
     public async Task<Classification?> SayAsync(string text, CancellationToken ct = default)
     {
+        var pending = await ReadAsync(text, ct).ConfigureAwait(false);
+        if (pending is null) { return null; }
+        Commit(pending);
+        return pending.Classification;
+    }
+
+    /// <summary>
+    /// 19 §6.3 step one: waits out the turn limit, sanitizes, classifies and builds the turn — but submits nothing, so an
+    /// unsaid line leaves nothing to observe. Consequential acts under 0.55 confidence are downgraded here.
+    /// </summary>
+    public async Task<PendingTurn?> ReadAsync(string text, CancellationToken ct = default)
+    {
         if (_view is not { } view) { return null; }
         var wait = _limiter.Check(view.Id);
         if (wait > TimeSpan.Zero) { await Task.Delay(wait, ct).ConfigureAwait(false); }
-        _limiter.Record(view.Id);
         var line = Sanitizer.Clean(text);
         var context = new ClassifierContext(view.PlayerName, view.NpcName, view.OthersPresent, view.ActiveBusiness, view.Transcript);
         var c = await _classifier.ClassifyAsync(line, context, ct).ConfigureAwait(false);
@@ -102,10 +125,36 @@ public sealed class DialogueHost
             command = command with { Act = "tell", ClaimPredicate = claim.Predicate, ClaimSubject = claim.Subject, ClaimObject = claim.Object, ClaimFirstHand = claim.FirstHand };
         }
 
-        _submit(CommandSource.Player, command);
-        _view = view with { Turn = view.Turn + 1 };   // the next line numbers on even before the sim catches up
+        var downgraded = DialogueTurns.IsConsequential(command.Act) && c.ActP < 0.55f;
+        var original = command.Act;
+        if (downgraded) { command = command with { Act = DialogueTurns.Downgrade(command.Act), Severity = 0 }; }
         Classified?.Invoke(c);
-        return c;
+        return new PendingTurn(view.Id, line.Text, c, command, DialogueTurns.IsConsequential(command.Act), downgraded, DialogueTurns.Echo(command.Act, c.Tone, downgraded, original));
+    }
+
+    /// <summary>19 §6.3 step two: the line is said (confirmed, or not consequential). False if the conversation moved on.</summary>
+    public bool Commit(PendingTurn turn)
+    {
+        if (_view is not { } view || view.Id != turn.Conversation) { return false; }
+        _limiter.Record(view.Id);
+        _submit(CommandSource.Player, turn.Command with { TurnIndex = view.Turn + 1 });
+        _view = view with { Turn = view.Turn + 1 };   // the next line numbers on even before the sim catches up
+        return true;
+    }
+
+    /// <summary>
+    /// 19 §6.2 quick intents: a structured act with the neutral words signal (persuasiveness 4, politeness 3), no classifier;
+    /// the line shows bracketed ("[You apologize]"). Consequential intents go through <see cref="Commit"/> like typed ones.
+    /// </summary>
+    public PendingTurn? Intent(QuickIntent intent)
+    {
+        if (_view is not { } view) { return null; }
+        var hostile = intent.Act is "insult" or "threaten";
+        var c = new Classification(intent.Act, 1f, false, "none", hostile ? "hostile" : "neutral", hostile ? 3f : 1f, 3f, 4f, "", intent.Act == "apologize" ? 4f : 0f,
+            0f, false, "intent", 0, 0, 0, 0);
+        var command = new PlayerUtteranceClassified(view.Id, view.Turn + 1, intent.Act, 1f, 0f, intent.Shown, intent.Severity, 4f, c.Hostility, 3f, "", c.Sincerity,
+            intent.RequestTask, intent.RequestHours);
+        return new PendingTurn(view.Id, intent.Shown, c, command, DialogueTurns.IsConsequential(intent.Act), false, DialogueTurns.Echo(intent.Act, "", false, null));
     }
 
     /// <summary>22 §4.5 for M1 favors: which camp task a request names (firewood, food, the fire) and for how many hours.</summary>
@@ -136,6 +185,13 @@ public sealed class DialogueHost
         foreach (var e in output.Events)
         {
             if (e.Payload is DecisionResolved r && _routed.ContainsKey(r.Dp)) { _router.OnResolved(r.Dp, r.Chosen); _routed.TryRemove(r.Dp, out _); }
+            if (e.Payload is DecisionResolved shown && _view is { } v && shown.Chooser == v.Npc)
+            {
+                _menus.TryRemove(shown.Dp, out var menu);
+                var proposal = shown.Owner == InitiativeOwner.Id && shown.Chosen is "ask_favor" or "invite"
+                    ? menu?.Options.FirstOrDefault(o => o.Id == shown.Chosen)?.Gloss ?? shown.Chosen.Replace('_', ' ') : null;
+                Outcome?.Invoke(new TurnOutcome(v.Id, shown.Owner, shown.Chosen, DialogueTurns.Stance(shown.Chosen), DialogueTurns.Glyph(menu, shown.Chosen), proposal));
+            }
             if (e.Payload is DecisionPointCancelled x) { _router.OnResolved(x.Dp, ""); _routed.TryRemove(x.Dp, out _); }
         }
 
@@ -163,7 +219,7 @@ public sealed class DialogueHost
             return taken;
         }
 
-        foreach (var d in mine) { taken.Add(d.Id); _routed[d.Id] = true; }
+        foreach (var d in mine) { taken.Add(d.Id); _routed[d.Id] = true; _menus[d.Id] = d; }
         var bundle = TurnBundleBuilder.Build(world, conv, mine);
         _ = Task.Run(() => _router.RunAsync(bundle, CancellationToken.None));
         return taken;
@@ -224,8 +280,10 @@ public static class TurnBundleBuilder
         }
 
         var business = world.Negotiations.Count > 0 ? "haggling" : "none";
+        var profession = npc >= 0 && people.Personality[npc].Profession < world.Content.Professions.Count ? world.Content.Professions[people.Personality[npc].Profession].Name.ToLowerInvariant() : "settler";
+        var knows = PersonaFacts.FamiliarityWords(world.Relationships.Familiarity(conv.Player, conv.Npc)) is var w && w == "a stranger" ? "a stranger to you" : w.Replace("knows", "you know", StringComparison.Ordinal);
         return new ConversationView(conv.Id, conv.Turn, conv.Npc, npc >= 0 ? people.Names[npc] : "?", world.PlayerRow >= 0 ? people.Names[world.PlayerRow] : "you",
-            [.. conv.Transcript], others, business);
+            [.. conv.Transcript], others, business) { Who = $"{profession} · {knows}", Cue = DialogueTurns.Cue(world, conv) };
     }
 
     private static Dictionary<string, string> Slots(SimWorld world, MenuOption o, string npc, string player)

@@ -116,6 +116,57 @@ public sealed class DialogueHostTests
         lines[0].Source.ShouldBe("template");
     }
 
+    [Fact]
+    public async Task AReadLineIsNotSaid_UntilCommitted_SoUnsayLeavesNothing()
+    {
+        var (loop, host, npc) = Start(null);
+        var pending = await host.ReadAsync("You lazy fool.", TestContext.Current.CancellationToken);
+        pending.ShouldNotBeNull();
+        (pending.Command.Act, pending.Consequential).ShouldBe(("insult", true));
+        pending.Echo.ShouldStartWith("read as: Insult");
+        loop.Inbox.ShouldBeEmpty();                       // nothing submitted while the echo waits
+        for (var i = 0; i < 50; i++) { loop.Step(); }
+        loop.Events<DecisionResolved>().ShouldNotContain(r => r.Owner == Sim.Social.EscalationOwner.Id);   // unsaid: no DP opened
+
+        host.Commit(pending).ShouldBeTrue();
+        loop.RunUntil(() => loop.Events<DecisionResolved>().Any(r => r.Owner == Sim.Social.EscalationOwner.Id));
+        var chooser = loop.W.People.Ids[npc];
+        loop.Events<DecisionResolved>().Any(r => r.Owner == Sim.Social.EscalationOwner.Id && r.Chooser == chooser).ShouldBeTrue();
+    }
+
+    [Fact]
+    public void QuickIntents_SkipTheClassifier_WithTheNeutralWordsSignal_AndOutcomesShowOnlyTheChoice()
+    {
+        var (loop, host, npc) = Start(null);
+        var outcomes = new List<FeudalSim.Hosting.TurnOutcome>();
+        host.Outcome += o => outcomes.Add(o);
+        var intent = host.Intent(new FeudalSim.Hosting.QuickIntent("request", "[You ask for a hand with the firewood]", "action.gather_wood", 1f));
+        intent.ShouldNotBeNull();
+        (intent.Command.Persuasiveness, intent.Command.Politeness, intent.Consequential).ShouldBe((4f, 3f, false));
+        host.Commit(intent).ShouldBeTrue();
+        loop.RunUntil(() => outcomes.Any(o => o.Owner == Sim.Social.RequestOwner.Id));
+        var answer = outcomes.First(o => o.Owner == Sim.Social.RequestOwner.Id);
+        answer.Stance.ShouldBe(FeudalSim.Hosting.DialogueTurns.Stance(answer.Chosen));
+        answer.Stance.ShouldBeOneOf("agreeable", "bargaining", "unmoved");
+        host.Conversation!.Who.ShouldNotBeNullOrEmpty();
+        host.Conversation.Cue.ShouldNotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public void Echo_Downgrade_AndGlyphs_FollowNineteen()
+    {
+        FeudalSim.Hosting.DialogueTurns.Downgrade("threaten").ShouldBe("tell");
+        FeudalSim.Hosting.DialogueTurns.Echo("tell", "", true, "threaten").ShouldBe("read as: Warning (unclear)");
+        FeudalSim.Hosting.DialogueTurns.Echo("request", "formal_polite", false, null).ShouldBe("read as: Request · formal polite");
+        FeudalSim.Hosting.DialogueTurns.IsConsequential("request").ShouldBeFalse();
+        FeudalSim.Hosting.DialogueTurns.Glyph(null, "warm_to_speaker").ShouldBe("▲ warmer");
+        var dp = new DecisionPointOpened(1, "16.request", new DpContext("k", new Sim.Core.EntityId(1), new Sim.Core.EntityId(2), 0), 0,
+            [new("accept_request", "accept", [], true, 0.1f, 0f, Stakes.Low, true, "help"), new("refuse_request", "refuse", [], true, 0.9f, 0f, Stakes.Low, false, "no")],
+            ["accept_request", "refuse_request"], 0, 40, DeciderKind.Llm);
+        FeudalSim.Hosting.DialogueTurns.Glyph(dp, "accept_request").ShouldBe("✧ talked round");
+        FeudalSim.Hosting.DialogueTurns.Glyph(dp, "refuse_request").ShouldBeNull();
+    }
+
     private static string RepoRoot()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);

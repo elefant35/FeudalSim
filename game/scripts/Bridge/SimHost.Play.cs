@@ -29,7 +29,9 @@ public partial class SimHost
     private DialogueHost? _dialogue;
     private Label? _panel;
     private ulong _talkTarget;
-    private int _campPhase;
+    private int _campPhase, _dialoguePhase;
+    private bool _autotestDialogue;
+    private int _outcomesAtUnsay;
     private double _campT, _campMark;
     private ulong _campTarget;
 
@@ -51,6 +53,8 @@ public partial class SimHost
             _dialogue = new DialogueHost(_runner!.Submit, _aiStack.Chat, _aiStack.Decider, config, content);
             _runner.Dialogue = _dialogue;
         }
+
+        InitDialogue();
 
         _panel = new Label { Position = new Vector2(12, 300), Size = new Vector2(760, 220), AutowrapMode = TextServer.AutowrapMode.WordSmart };
         _panel.AddThemeColorOverride("font_color", new Color(1, 0.95f, 0.8f));
@@ -175,11 +179,9 @@ public partial class SimHost
         _camera.Position = new Vector3(_player.X, 7.5f * _zoom, _player.Y + (10f * _zoom));
         _camera.LookAt(new Vector3(_player.X, 1.2f, _player.Y));
 
-        // Conversation entry and the M1-18 panel (the dialogue UI proper is M1-19).
-        var conv = _dialogue?.Conversation;
-        _panel!.Text = conv is { } c
-            ? $"Talking with {c.NpcName}  ·  [Esc] leave  ·  (the dialogue panel arrives with M1-19)\n" + string.Join("\n", c.Transcript.TakeLast(6))
-            : nearest != 0 ? $"[E] talk to {_names.GetValueOrDefault(nearest, "them")}" : "";
+        // Conversation entry; the dialogue panel (M1-19) takes over while one is open.
+        _panel!.Text = _dialogue?.Conversation is null && nearest != 0 ? $"[E] talk to {_names.GetValueOrDefault(nearest, "them")}   ·   [P] people" : "";
+        UpdateDialogue(delta);
         if (_autotestCamp) { CampAutotest(delta); }
     }
 
@@ -193,6 +195,66 @@ public partial class SimHost
     private void Leave()
     {
         if (_dialogue?.Conversation is { } c) { _runner!.Submit(CommandSource.Player, new EndConversation(c.Id)); }
+    }
+
+    /// <summary>
+    /// `--autotest-dialogue` (M1-19, after the camp autotest's approach): a typed request is echoed and answered with a
+    /// streamed line; a typed insult waits in the confirm window and is unsaid — nothing reaches the sim; a quick-intent
+    /// apology is answered; the People page lists the settler. True when done.
+    /// </summary>
+    private bool DialogueAutotest()
+    {
+        var npc = _dialogue?.Conversation?.NpcName ?? "?";
+        bool Logged(string s) => _log.Any(l => l.Contains(s, StringComparison.Ordinal));
+        var t = _campT - _campMark;
+        switch (_dialoguePhase)
+        {
+            case 0:
+                Expect("dialogue panel shown", _dlg?.Visible == true ? 1 : 0, 1, 0);
+                Expect("header shows a demeanor cue", _dlgHeader?.Text.Contains("seems:", StringComparison.Ordinal) == true ? 1 : 0, 1, 0);
+                SubmitText("Could you help me gather firewood for an hour?");
+                (_dialoguePhase, _campMark) = (1, _campT);
+                break;
+            case 1 when Logged($"[b]{npc}:[/b]") || t > 12:
+                Expect("typed request echoed", Logged("read as: Request") ? 1 : 0, 1, 0);
+                Expect("NPC line streamed in", Logged($"[b]{npc}:[/b]") ? 1 : 0, 1, 0);
+                Expect("their choice surfaced (outcome)", _outcomes.Count, 1, null);
+                (_dialoguePhase, _campMark) = (2, _campT);
+                break;
+            case 2 when t > 2.2:   // the 2 s turn limit
+                SubmitText("You lazy fool.");
+                (_dialoguePhase, _campMark) = (3, _campT);
+                break;
+            case 3 when _pending is not null || t > 5:
+                Expect("insult held in the confirm window", _pending is { Consequential: true } ? 1 : 0, 1, 0);
+                _outcomesAtUnsay = _outcomes.Count;
+                Unsay();
+                (_dialoguePhase, _campMark) = (4, _campT);
+                break;
+            case 4 when t > 3:
+                Expect("unsaid: no choice was made", _outcomes.Count - _outcomesAtUnsay, 0, 0);
+                Expect("unsaid noted", Logged("unsaid") ? 1 : 0, 1, 0);
+                Act(new QuickIntent("apologize", "[You apologize]"));
+                (_dialoguePhase, _campMark) = (5, _campT);
+                break;
+            case 5 when _outcomes.Count > _outcomesAtUnsay || t > 12:
+                Expect("quick-intent apology answered", _outcomes.Count - _outcomesAtUnsay, 1, null);
+                TogglePeople();
+                (_dialoguePhase, _campMark) = (6, _campT);
+                break;
+            case 6 when _peoplePage?.Visible == true || t > 5:
+                Expect("People page lists them", _peopleText?.Text.Contains(npc, StringComparison.Ordinal) == true ? 1 : 0, 1, 0);
+                if (Array.IndexOf(OS.GetCmdlineUserArgs(), "--dialogue-shot") is var ds and >= 0 && ds + 1 < OS.GetCmdlineUserArgs().Length)
+                {
+                    GetViewport().GetTexture().GetImage().SavePng(OS.GetCmdlineUserArgs()[ds + 1]);
+                }
+
+                TogglePeople();
+                _dialoguePhase = 7;
+                return true;
+        }
+
+        return false;
     }
 
     /// <summary>`--autotest-camp`: bodies for every settler, walk up to an awake one, [E], a conversation opens, [Esc], it closes.</summary>
@@ -219,6 +281,11 @@ public partial class SimHost
                 break;
             case 2 when _dialogue?.Conversation is not null || _campT - _campMark > 5:
                 Expect("conversation opened with the target", _dialogue?.Conversation?.Npc.Value == _campTarget ? 1 : 0, 1, 0);
+                if (_autotestDialogue) { (_campPhase, _campMark) = (7, _campT); break; }
+                Leave();
+                (_campPhase, _campMark) = (3, _campT);
+                break;
+            case 7 when DialogueAutotest():
                 Leave();
                 (_campPhase, _campMark) = (3, _campT);
                 break;
