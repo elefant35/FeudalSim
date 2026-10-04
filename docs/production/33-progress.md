@@ -62,10 +62,12 @@ and audio produce `status: review` assets for the owner.
 
 | ID | Item (owning doc) | Status | Evidence |
 |----|-------------------|--------|----------|
-| M2-01a | World generation v1, terrain: stages 1–6 for the 8 km region and a 2 × 2 km playable area — landmass, landing coast, rivers, fords, tides (10) | [ ] | |
+| M2-01a-i | World generation v1 (i): WorldSpec as content, `Sim/WorldGen`, stage 1 landmass + stage 2 relief, retries, preview (10) | [x] | `content/world/worldspec.yaml` (kind **worldspec**, schema, in the content hash) · `Sim/WorldGen/WorldNoise.cs` (keyed value noise, fBm, ridged, warp) · `WorldGenerator` stage 1 (archetype by weight, rotation/mirror, warped fBm under a superellipse falloff, offshore islet field, sea level by bisection to a drawn land-area target, sea border) and stage 2 (chamfer coast distance; spine / massif / twin-ridge fields × ridged noise + hills + coastal plain; peak normalised to a drawn target) on the 8 m grid (1,025²), per-row on the job scheduler; W1/W5 validation with `seed' = Hash(seed, attempt)` retries (≤ 16). `Hosting/WorldPreview` (PNG) + **`feudalsim worldgen`** (+ CI, 20 seeds). **30/30 seeds valid** (most on attempt 0–2; ≈ 0.2 s per attempt, p50 0.38 s per world, max 2.6 s with retries — budget 1 s + 2 s); islets 4–10; previews reviewed. **`WorldGenTests`** 2 (bit-identical serial vs parallel, bands on 3 seeds). 253 tests. 0b02d23 |
+| M2-01a-ii | World generation v1 (ii): stage 3 hydraulic erosion (60k droplets on the 8 m grid, 2 thermal passes, 2 m upsample) + stage 4 lithology (10 §3.4) | [ ] | |
+| M2-01a-iii | World generation v1 (iii): stage 5 hydrology (priority flood → lakes, D8, channels carved, fords, springs) + stage 6 coast/estuary/tides; W2/W3 asserts (10 §3.5–3.6) | [ ] | |
 | M2-01b | World generation v1, life: 8 biomes; flint, wood, clay, stone, water, herbs, wild foods as content-driven resource nodes (10) | [ ] | |
 | M2-01c | World generation v1, places: the wreck POI, knowledge tiles, travel speeds (10) | [ ] | |
-| M2-02 | Cache the sim heightfield / world beside Terrain3D's under `user://worlds/<seed>/` (ADR-0009 §S4 open item) | [ ] | |
+| M2-02 | Cache the sim heightfield / world beside Terrain3D's under `user://worlds/<seed>/` (ADR-0009 §S4 open item); the grids also go into the save (10 §3.2: float drift must not change a world after creation): a SaveCodec table and the hash decision | [ ] | |
 | M2-03 | Weather basics (no snow) and day/night: temperature, rain, wind, light (10, 11) | [ ] | |
 | M2-04 | Skills & XP: attributes, 28 skills, XP curve, DF, `Resolve()`, work rate, rust (12) | [ ] | |
 | M2-05 | Survival I: warmth, wetness, clothing, exposure, Stamina use (11) | [ ] | |
@@ -386,6 +388,7 @@ Newest first. One entry per session or work item: date, what changed, evidence, 
 | 2026-10-04 | **M1-29** theft placeholder: Steal → §10.1 witnesses → stole_from_me, wary, rumor (13/24 after 2 days); [T] in the client | TheftTests; 251 tests | M1-26 latency (time-boxed) |
 | 2026-10-04 | **M1-26** latency: critical-path trim (act2/tone off); gesture 1.62 s, first words 2.10 s — finding (one call ≈ 0.39 s > 0.3 s target) → awaiting owner (31 D37) | session 40 turns | M1 transition checks + advisor |
 | 2026-10-04 | **M1 complete except owner items** (M1-24 playtest, 31 D37 latency). Transition checks at a445365 all PASS; §9.4 hard end tried and reverted (D36 → M2-26); catalog v2.1; Godot CI failures now annotated. **M2 breakdown generated** (37 items). Morning summary written | gate table; a445365 checks | M2-01a world generation v1 (terrain) + M2-02 heightfield cache |
+| 2026-10-04 | **M2-01a-i** world generation stages 1–2: WorldSpec content, landmass + relief, retries, PNG preview, `worldgen` in CI (30/30 valid) | 0b02d23; WorldGenTests | M2-01a-ii erosion + lithology |
 | 2026-10-04 | **M1-14** resilience: latency breaker, reply-route breaker + TTFT fail-over, sim never waits | ResilienceTests 5; 236 tests | M1-15 determinism of a recorded session |
 | 2026-10-04 | **M1-13** persona voice phrases, price must-say, template/prompt tests | PromptAndTemplateTests 7; 229 tests | M1-14 resilience |
 | 2026-10-04 | **M1-12** decision-first reply route, templates, dialogue host, `feudalsim talk` | ReplyRouterTests 6, DialogueHostTests 2; 222 tests; live 4-turn talk | M1-13 prompt/persona depth + template coverage |

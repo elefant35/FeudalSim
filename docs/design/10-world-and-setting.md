@@ -205,6 +205,12 @@ Node scattering must therefore use **integer-only per-chunk hashing**, reading t
 that regeneration is platform-stable even though [20](../tech/20-architecture.md)'s general
 determinism is per-platform.
 
+*Implemented (M2-01a-i):* stages 1–2 in `Sim/WorldGen/WorldGenerator.cs` on the 8 m grid with the W1/W5 asserts and
+§3.11 retries; `feudalsim worldgen --seeds N --png out.png` previews and reports (30/30 seeds valid, ≈ 0.2 s per attempt
+on the reference Mac). The 35–45 km² land target is 52–67% of the 8,192 m square, so the falloff is a superellipse
+rather than a circle; offshore islets come from a dedicated field in the outer band (W1's 3–10). Erosion, lithology,
+hydrology and coast follow (M2-01a-ii/iii).
+
 ### 3.3 Landmass & relief
 
 Three archetypes, randomly rotated and mirrored:
