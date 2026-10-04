@@ -42,6 +42,9 @@
       "public_multiplier": {
         "type": "number"
       },
+      "words": {
+        "type": "boolean"
+      },
       "scaling": {
         "type": "string",
         "enum": [

@@ -280,6 +280,9 @@ public sealed record OpinionModifierDef
     /// <summary>× this when the act was public (≥ 3 witnesses) — status-relevant harms.</summary>
     public float PublicMultiplier { get; init; } = 1f;
 
+    /// <summary>Opinion from words (talk, praise, rapport): positive gains count toward the +10 per pair per day budget (canon §13.4, 16 §4.15).</summary>
+    public bool Words { get; init; }
+
     public OpinionScaling Scaling { get; init; }
 
     /// <summary>Event fear added toward the actor (16 §4.10).</summary>

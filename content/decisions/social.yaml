@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../schemas/dp.schema.json
+# Social decision points in conversations with the player (16 §4.14, §4.15, §5.4, §7.10). The owners compute base
+# propensities from 16's formulas and 22 §6.3's menu width; options carry no extra character terms here.
+- id: dp.rapport
+  owner: 16.rapport
+  description: >-
+    16 §4.15 — how the NPC feels about the talk: once at the close of a conversation with the player (and after every 8
+    further turns, at most 3), ±step Opinion with step 1–4 from Familiarity. warm_to_speaker needs words budget left.
+  options:
+    - { id: warm_to_speaker, family: rapport, stakes: low, favors_player: true, gloss: "warm to {player} a little after this talk" }
+    - { id: stay_neutral,    family: rapport, stakes: low, gloss: "feel no differently about {player}" }
+    - { id: cool_to_speaker, family: rapport, stakes: low, gloss: "cool on {player} a little after this talk" }
+- id: dp.apology
+  owner: 16.apology
+  description: >-
+    16 §4.14 — the wronged person's answer to an apology. demand_amends needs a material harm (theft, damage, cheating:
+    M3–M4); in M1 the choice is accept or refuse.
+  options:
+    - { id: accept_apology,  family: accept, stakes: low, favors_player: true, gloss: "accept {player}'s apology" }
+    - { id: demand_amends,   family: counter, stakes: low, gloss: "demand that {player} make it right first" }
+    - { id: refuse_apology,  family: refuse, stakes: low, gloss: "refuse {player}'s apology" }

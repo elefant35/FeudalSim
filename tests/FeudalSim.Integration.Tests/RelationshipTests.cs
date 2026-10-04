@@ -71,10 +71,13 @@ public sealed class RelationshipTests
         var rel = w.Relationships;
         w.People.Personality[0].Warmth = 50;   // positive scaling × 1.0
         for (var k = 0; k < 40; k++) { rel.ApplyModifier(a, b, "opinion.chatted"); }
-        Mods(w, a, b).ShouldBeInRange(11.5f, 12f);                                          // saturates toward the +12 cap
+        Mods(w, a, b).ShouldBe(10f, 0.01f);                                                 // words: +10 per pair per day (canon §13.4)
+
+        for (var k = 0; k < 40; k++) { rel.ApplyModifier(a, b, "opinion.attended_my_occasion"); }
+        Mods(w, a, b).ShouldBeInRange(10f + 11.5f, 10f + 12f);                              // a deed: saturates toward its +12 cap
 
         for (var k = 0; k < 10; k++) { rel.ApplyModifier(a, b, "opinion.stood_by_me"); }
-        Mods(w, a, b).ShouldBe(12f + 40f, 0.6f);                                            // add caps at +40
+        Mods(w, a, b).ShouldBe(10f + 12f + 40f, 0.6f);                                      // add caps at +40
 
         rel.ApplyModifier(a, b, "opinion.first_impression", 0.5f);
         rel.ApplyModifier(a, b, "opinion.first_impression", 1.0f).ShouldBe(0f);           // once: second ignored

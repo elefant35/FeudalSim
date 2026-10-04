@@ -91,8 +91,7 @@ public sealed class LodTierTests
         RunHours(a, 20);
         var restored = SaveCodec.Restore(image, out _);
         restored.Content = Content;
-        restored.AddSystem(new LodSystem()).AddSystem(new ActivitySystem()).AddSystem(new NeedsDecaySystem()).AddSystem(new PsychologySystem())
-            .AddSystem(new Lod3System()).AddSystem(new SocialSystem()).AddSystem(new InteractionSystem());
+        ScenarioDef.AddCampSystems(restored);
         RunHours(restored, 20);
         StateHasher.Hash(restored).ShouldBe(StateHasher.Hash(a));
     }

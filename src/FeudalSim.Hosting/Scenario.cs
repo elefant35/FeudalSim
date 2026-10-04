@@ -64,6 +64,23 @@ public sealed record ScenarioDef
         var other => throw new FormatException($"macro_step must be hour or day, not '{other}'."),
     };
 
+    /// <summary>
+    /// The M1 camp's systems and decision-point owners, in their canonical order. Configuration, not state: a restored
+    /// save must be configured exactly like this to continue identically.
+    /// </summary>
+    public static SimWorld AddCampSystems(SimWorld world)
+    {
+        world.AddSystem(new LodSystem());
+        world.AddSystem(new Sim.Dialogue.ConversationSystem());   // Sense, after LOD: holds conversing NPCs before the AI decides
+        world.Decisions.Register(new Sim.Dialogue.InitiativeOwner());
+        world.Decisions.Register(new Sim.Social.EscalationOwner());
+        world.Decisions.Register(new Sim.Social.BystanderOwner());
+        world.Decisions.Register(new Sim.Social.RapportOwner());
+        world.Decisions.Register(new Sim.Social.ApologyOwner());
+        return world.AddSystem(new ActivitySystem()).AddSystem(new NeedsDecaySystem()).AddSystem(new PsychologySystem())
+            .AddSystem(new Lod3System()).AddSystem(new SocialSystem()).AddSystem(new InteractionSystem());
+    }
+
     public static ScenarioDef Load(string path)
     {
         var yaml = new DeserializerBuilder().WithNamingConvention(UnderscoredNamingConvention.Instance).Build();
@@ -87,27 +104,17 @@ public sealed record ScenarioDef
     public SimWorld CreateWorld(ContentDatabase content, IJobScheduler jobs, Action<CommandEnvelope>? log = null)
     {
         var utility = string.Equals(Ai, "utility", StringComparison.OrdinalIgnoreCase);
-        var world = new SimWorld(Seed, StartGameMs(), DayLengthMinutes) { Content = content, Jobs = jobs }
-            .AddSystem(new LodSystem());
-        if (utility)
-        {
-            world.AddSystem(new Sim.Dialogue.ConversationSystem());   // Sense, after LOD: holds conversing NPCs before the AI decides
-            world.Decisions.Register(new Sim.Dialogue.InitiativeOwner());
-            world.Decisions.Register(new Sim.Social.EscalationOwner());
-            world.Decisions.Register(new Sim.Social.BystanderOwner());
-        }
-
-        world
-            .AddSystem(utility ? new ActivitySystem() : new WanderSystem())
-            .AddSystem(new NeedsDecaySystem())
-            .AddSystem(new PsychologySystem());
+        var world = new SimWorld(Seed, StartGameMs(), DayLengthMinutes) { Content = content, Jobs = jobs };
         if (utility)
         {
             world.Camp = (Camp ?? new CampDef()).ToRecord(content);
-            world.AddSystem(new Lod3System());
-            world.AddSystem(new SocialSystem());
-            world.AddSystem(new InteractionSystem());
+            AddCampSystems(world);
         }
+        else
+        {
+            world.AddSystem(new LodSystem()).AddSystem(new WanderSystem()).AddSystem(new NeedsDecaySystem()).AddSystem(new PsychologySystem());
+        }
+
         if (AiPingStep is { } at) { world.AddSystem(new AiPingSystem(at, AiPingDeadlineSteps)); }
         if (DecisionPingStep is { } dpAt)
         {

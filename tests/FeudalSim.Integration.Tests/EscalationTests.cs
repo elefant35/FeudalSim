@@ -220,11 +220,7 @@ public sealed class EscalationTests
         var restored = SaveCodec.Restore(image, out var warnings);
         warnings.ShouldBeEmpty();
         restored.Content = Content;
-        restored.Decisions.Register(new InitiativeOwner());
-        restored.Decisions.Register(new EscalationOwner());
-        restored.Decisions.Register(new BystanderOwner());
-        restored.AddSystem(new LodSystem()).AddSystem(new ConversationSystem()).AddSystem(new ActivitySystem()).AddSystem(new NeedsDecaySystem())
-            .AddSystem(new PsychologySystem()).AddSystem(new Lod3System()).AddSystem(new SocialSystem()).AddSystem(new InteractionSystem());
+        ScenarioDef.AddCampSystems(restored);
         restored.Confrontations.Count.ShouldBe(1);
         var r = new Harness { W = restored };
         r.Steps(120);

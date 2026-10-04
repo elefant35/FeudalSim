@@ -4,11 +4,11 @@
 # public_multiplier applies when ≥ 3 witnesses (status-relevant harms). scaling: honor (× 0.5 + Honor/100) or
 # family_faith (× 0.5 + value/100). fear: event fear added toward the actor (16 §4.10). Variable values (gift, request
 # importance, stakes, severity, first impression, amends) are passed by the triggering system as a multiplier.
-- { id: opinion.chatted,                number: 1,  value: 2,   half_life_days: 3,  stacking: saturate, cap: 12,  notes: "×1.5 if the holder's Social need < 40" }
-- { id: opinion.joked_together,         number: 2,  value: 3,   half_life_days: 3,  stacking: saturate, cap: 12 }
+- { id: opinion.chatted,                number: 1,  value: 2,   half_life_days: 3,  stacking: saturate, cap: 12,  notes: "×1.5 if the holder's Social need < 40", words: true }
+- { id: opinion.joked_together,         number: 2,  value: 3,   half_life_days: 3,  stacking: saturate, cap: 12, words: true }
 - { id: opinion.shared_meal,            number: 3,  value: 2,   half_life_days: 4,  stacking: saturate, cap: 10 }
-- { id: opinion.complimented_me,        number: 4,  value: 3,   half_life_days: 3,  stacking: saturate, cap: 10,  notes: "×0.5 if Trust < 30 (flattery)" }
-- { id: opinion.comforted_me,           number: 5,  value: 8,   half_life_days: 8,  stacking: saturate, cap: 20,  notes: "Only while Grief/Fear/Shame ≥ 30" }
+- { id: opinion.complimented_me,        number: 4,  value: 3,   half_life_days: 3,  stacking: saturate, cap: 10,  notes: "×0.5 if Trust < 30 (flattery)", words: true }
+- { id: opinion.comforted_me,           number: 5,  value: 8,   half_life_days: 8,  stacking: saturate, cap: 20,  notes: "Only while Grief/Fear/Shame ≥ 30", words: true }
 - { id: opinion.helped_my_work,         number: 6,  value: 5,   half_life_days: 6,  stacking: saturate, cap: 20 }
 - { id: opinion.granted_my_request,     number: 7,  value: 5,   half_life_days: 8,  stacking: saturate, cap: 25,  notes: "× importance 0.5–3" }
 - { id: opinion.gave_gift,              number: 8,  value: 3,   half_life_days: 8,  stacking: saturate, cap: 35,  notes: "Value min(20, 3 + 5·log2(1 + G/W)) passed by the caller; ×0.5 from someone Opinion ≤ −30" }
@@ -23,7 +23,7 @@
 - { id: opinion.fed_me_hungry,          number: 17, value: 10,  half_life_days: 32, stacking: add,      cap: 30,  notes: "Gave food while my Satiety < 25 — the Era 0 cornerstone" }
 - { id: opinion.saved_my_life,          number: 18, value: 40,  half_life_days: 128, stacking: add,     cap: 70,  floor_fraction: 0.25, extends_to: { kin: 0.5 } }
 - { id: opinion.avenged_me,             number: 19, value: 20,  half_life_days: 64, stacking: add,      cap: 40 }
-- { id: opinion.romantic_moment,        number: 20, value: 4,   half_life_days: 4,  stacking: saturate, cap: 20,  notes: "Adults only (16 §4.11 gate)" }
+- { id: opinion.romantic_moment,        number: 20, value: 4,   half_life_days: 4,  stacking: saturate, cap: 20,  notes: "Adults only (16 §4.11 gate)", words: true }
 - { id: opinion.attended_my_occasion,   number: 21, value: 4,   half_life_days: 16, stacking: saturate, cap: 12 }
 - { id: opinion.hosted_me,              number: 22, value: 4,   half_life_days: 8,  stacking: saturate, cap: 12 }
 - { id: opinion.shared_hardship,        number: 23, value: 6,   half_life_days: 64, stacking: saturate, cap: 20,  notes: "Applied to co-members with Familiarity ≥ 20" }
@@ -43,5 +43,5 @@
 - { id: opinion.cheated_me,             number: 37, value: -15, half_life_days: 24, stacking: add,      cap: -40 }
 - { id: opinion.broke_promise,          number: 38, value: -8,  half_life_days: 16, stacking: add,      cap: -40, notes: "× stakes 1–3" }
 - { id: opinion.lied_to_me,             number: 39, value: -10, half_life_days: 24, stacking: add,      cap: -40 }
-- { id: opinion.warmed_to_me,           number: 58, value: 1,   half_life_days: 6,  stacking: saturate, cap: 20,  notes: "Rapport DP; value = Familiarity step 1–4; counts toward +10 Opinion/day from words" }
+- { id: opinion.warmed_to_me,           number: 58, value: 1,   half_life_days: 6,  stacking: saturate, cap: 20,  notes: "Rapport DP; value = Familiarity step 1–4; counts toward +10 Opinion/day from words", words: true }
 - { id: opinion.cooled_on_me,           number: 59, value: -1,  half_life_days: 6,  stacking: saturate, cap: -20, notes: "Rapport DP; value = −(Familiarity step 1–4)" }

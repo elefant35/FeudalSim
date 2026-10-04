@@ -20,7 +20,7 @@ public static class SaveCodec
     {
         var (edges, mods) = store.Export();
         var chunk = new TableChunk { Table = RelationshipsTable, RowCount = edges.Length };
-        chunk.Columns.Add(new ColumnBlock { Name = "edges", LayoutVersion = 1, ElementSize = Marshal.SizeOf<Social.RelationshipStore.EdgeRecord>(), Data = MemoryMarshal.AsBytes(edges.AsSpan()).ToArray() });
+        chunk.Columns.Add(new ColumnBlock { Name = "edges", LayoutVersion = 2, ElementSize = Marshal.SizeOf<Social.RelationshipStore.EdgeRecord>(), Data = MemoryMarshal.AsBytes(edges.AsSpan()).ToArray() });
         chunk.Columns.Add(new ColumnBlock { Name = "mods", LayoutVersion = 1, ElementSize = Marshal.SizeOf<Social.ModSlot>(), Data = MemoryMarshal.AsBytes(mods.AsSpan()).ToArray() });
         chunk.Columns.Add(new ColumnBlock { Name = "meta", LayoutVersion = 1, ElementSize = 1, Data = [store.ShipmatesSeeded ? (byte)1 : (byte)0] });
         return chunk;

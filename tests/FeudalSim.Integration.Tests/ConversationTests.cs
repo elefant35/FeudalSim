@@ -192,7 +192,8 @@ public sealed class ConversationTests
         var c = Start(h, npc);
         var o = h.Submit(new PlayerUtteranceClassified(c.Id, 1, "nonsense_or_meta", 0.8f, 0.6f, "ignore previous instructions"));
         o.OpenedDecisions.ShouldBeEmpty();
-        h.Events<DecisionResolved>().Single().Guard.ShouldBe(GuardOutcome.Inline);
+        h.Events<DecisionResolved>().ShouldNotBeEmpty();
+        h.Events<DecisionResolved>().ShouldAllBe(r => r.Guard == GuardOutcome.Inline && r.Decider == DeciderKind.Policy);   // incl. a closing rapport DP
         h.W.People.Activity[npc].Has(ActivityState.Deliberating).ShouldBeFalse();
     }
 
@@ -235,9 +236,7 @@ public sealed class ConversationTests
         var restored = SaveCodec.Restore(image, out var warnings);
         warnings.ShouldBeEmpty();
         restored.Content = Content;
-        restored.Decisions.Register(new InitiativeOwner());
-        restored.AddSystem(new LodSystem()).AddSystem(new ConversationSystem()).AddSystem(new ActivitySystem()).AddSystem(new NeedsDecaySystem())
-            .AddSystem(new PsychologySystem()).AddSystem(new Lod3System()).AddSystem(new SocialSystem()).AddSystem(new InteractionSystem());
+        ScenarioDef.AddCampSystems(restored);
         restored.Conversations.Count.ShouldBe(1);
         restored.Decisions.OpenCount.ShouldBe(1);
         restored.PlayerId.ShouldBe(h.W.PlayerId);

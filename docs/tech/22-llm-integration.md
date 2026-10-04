@@ -920,7 +920,10 @@ in a first form (conversation, turn, act, act probability, injection probability
 record and full probabilities are appended in M1-11. Each turn opens the initiative DP and, for `insult` and `threaten` (M1-08), 16's
 `escalation.respond` DP with the act's default severity (insult 3, threaten 3; `PlayerUtteranceClassified.Severity`
 carries the classifier's 1–5 from M1-11). The player's act is committed first (`insulted_me`/`threatened_me`, memory,
-a first-hand claim for everyone within 25 m). The social (M1-09) and trade (M1-10) owners join the routing next.
+a first-hand claim for everyone within 25 m). `apologize` opens 16's `apology.respond` (M1-09a), and rapport DPs open every 8 turns and at the close. The menu-width
+machinery is `Sim/Decisions/MenuWidth.cs` (s, Margin, L_words from the score questions, L_skill, the step distribution,
+the yes expectation), reproducing §6.3's master/novice example. Requests, being told (M1-09b) and trade (M1-10) join
+next.
 
 **Stakes** (canon §13.1) set the guard floor and the risk tier:
 

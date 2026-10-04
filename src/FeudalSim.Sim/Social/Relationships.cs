@@ -24,6 +24,10 @@ public sealed class RelationshipEdge
     public long FearTimeMin, LastContactMin, FriendSinceMin = -1, EnemyCalmSinceMin = -1;
     public RelTags Tags;
     public float SocialContactToday, WorkHoursToday;
+
+    /// <summary>Positive Opinion from words today (canon §13.4 budget: +10 per pair per game day).</summary>
+    public float WordsToday;
+    public long WordsDay = -1;
     public long SocialContactDay = -1, WorkDay = -1, InteractionDay = -1;
     public int InteractionsToday;
     public List<ModSlot> Mods { get; } = [];
@@ -123,6 +127,16 @@ public sealed class RelationshipStore
             _ => v,
         };
 
+        // Words budget (canon §13.4, 16 §4.15): positive Opinion from talk is capped at +10 per pair per game day.
+        if (def.Words && newValue > vd)
+        {
+            var day = now / 1440;
+            if (e.WordsDay != day) { (e.WordsDay, e.WordsToday) = (day, 0f); }
+            var room = MathF.Max(0f, WordsBudgetPerDay - e.WordsToday);
+            if (newValue - vd > room) { newValue = vd + room; }
+            e.WordsToday += newValue - vd;
+        }
+
         var floorFraction = def.FloorFraction * (hp.Vengeful && v < 0f && MathF.Abs(v) >= 25f ? 2f : 1f);
         slot.Floor += floorFraction * v;
         slot.Value = newValue;
@@ -207,6 +221,16 @@ public sealed class RelationshipStore
         if (e.WorkDay != day) { (e.WorkDay, e.WorkHoursToday) = (day, 0f); }
         e.WorkHoursToday += 1f;
         if (e.WorkHoursToday == 2f) { Contact(a, b, 1.5f, social: false); }
+    }
+
+    /// <summary>Canon §13.4: words add at most +10 Opinion per speaker → listener pair per game day.</summary>
+    public const float WordsBudgetPerDay = 10f;
+
+    /// <summary>What is left of the holder's words budget toward the actor today (0–10).</summary>
+    public float WordsBudgetLeft(EntityId holder, EntityId actor)
+    {
+        if (!_edges.TryGetValue((holder.Value, actor.Value), out var e)) { return WordsBudgetPerDay; }
+        return e.WordsDay == _world.Clock.GameMinute / 1440 ? MathF.Max(0f, WordsBudgetPerDay - e.WordsToday) : WordsBudgetPerDay;
     }
 
     /// <summary>A camp up to this size is one ship's company; larger (synthetic, S6) populations are crews of <see cref="CrewSize"/>.</summary>
@@ -449,6 +473,7 @@ public sealed class RelationshipStore
             F(h, e.Trust); F(h, e.Trust0); F(h, e.Familiarity); F(h, e.PeakFamiliarity); F(h, e.FearEvent);
             L(h, e.FearTimeMin); L(h, e.LastContactMin); L(h, e.FriendSinceMin); L(h, e.EnemyCalmSinceMin); L(h, (long)e.Tags);
             F(h, e.SocialContactToday); L(h, e.SocialContactDay); F(h, e.WorkHoursToday); L(h, e.WorkDay); L(h, e.InteractionDay); L(h, e.InteractionsToday);
+            F(h, e.WordsToday); L(h, e.WordsDay);
             foreach (var s in e.Mods) { L(h, s.Modifier); F(h, s.Value); F(h, s.Floor); L(h, s.TimeMin); L(h, s.Count); }
         }
     }
@@ -474,6 +499,8 @@ public sealed class RelationshipStore
         public float Trust, Trust0, Familiarity, PeakFamiliarity, FearEvent, SocialContactToday, WorkHoursToday;
         public long FearTimeMin, LastContactMin, FriendSinceMin, EnemyCalmSinceMin, SocialContactDay, WorkDay, InteractionDay;
         public int InteractionsToday;
+        public float WordsToday;
+        public long WordsDay;
         public ushort Tags;
         public int ModStart, ModCount;
     }
@@ -490,7 +517,7 @@ public sealed class RelationshipStore
                 FearEvent = e.FearEvent, SocialContactToday = e.SocialContactToday, FearTimeMin = e.FearTimeMin, LastContactMin = e.LastContactMin,
                 FriendSinceMin = e.FriendSinceMin, EnemyCalmSinceMin = e.EnemyCalmSinceMin, SocialContactDay = e.SocialContactDay,
                 WorkHoursToday = e.WorkHoursToday, WorkDay = e.WorkDay, InteractionDay = e.InteractionDay, InteractionsToday = e.InteractionsToday,
-                Tags = (ushort)e.Tags, ModStart = mods.Count, ModCount = e.Mods.Count,
+                WordsToday = e.WordsToday, WordsDay = e.WordsDay, Tags = (ushort)e.Tags, ModStart = mods.Count, ModCount = e.Mods.Count,
             });
             mods.AddRange(e.Mods);
         }
@@ -509,6 +536,7 @@ public sealed class RelationshipStore
                 SocialContactToday = r.SocialContactToday, FearTimeMin = r.FearTimeMin, LastContactMin = r.LastContactMin,
                 FriendSinceMin = r.FriendSinceMin, EnemyCalmSinceMin = r.EnemyCalmSinceMin, SocialContactDay = r.SocialContactDay, Tags = (RelTags)r.Tags,
                 WorkHoursToday = r.WorkHoursToday, WorkDay = r.WorkDay, InteractionDay = r.InteractionDay, InteractionsToday = r.InteractionsToday,
+                WordsToday = r.WordsToday, WordsDay = r.WordsDay,
             };
             for (var k = 0; k < r.ModCount; k++) { e.Mods.Add(mods[r.ModStart + k]); }
             _edges.Add((r.Holder, r.Other), e);

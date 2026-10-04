@@ -41,6 +41,19 @@ public sealed class Conversation
 
     /// <summary>What the NPC was doing when the conversation began (content action handle, −1 none): a task to ask help with.</summary>
     [Key(11)] public short PrevAction { get; set; } = -1;
+
+    /// <summary>Sum and count of the turns' L_words (22 §6.3): the rapport DP reads their mean (16 §4.15).</summary>
+    [Key(12)] public float WordsSum { get; set; }
+
+    [Key(13)] public int WordsN { get; set; }
+
+    /// <summary>Rapport DPs opened in this conversation (at most 3: every 8 turns and at the close).</summary>
+    [Key(14)] public int RapportCount { get; set; }
+
+    /// <summary>The last turn was flagged as injection (≥ 0.3): its DPs, including a closing rapport DP, go to the policy.</summary>
+    [Key(15)] public bool PolicyTurn { get; set; }
+
+    [IgnoreMember] public float MeanWords => WordsN == 0 ? 0f : WordsSum / WordsN;
 }
 
 /// <summary>Open conversations in id order. State: saved (the <c>conversations</c> table) and hashed.</summary>
@@ -92,6 +105,7 @@ public sealed class ConversationStore
         foreach (var c in _open.Values)
         {
             L(h, (long)c.Id); L(h, (long)c.Npc.Value); L(h, (long)c.Player.Value); L(h, c.OpenedStep); L(h, c.Turn); L(h, c.PrevAction);
+            L(h, BitConverter.SingleToInt32Bits(c.WordsSum)); L(h, c.WordsN); L(h, c.RapportCount); L(h, c.PolicyTurn ? 1 : 0);
             S(h, c.LastAct); S(h, c.PendingOffer); S(h, c.Agenda);
             foreach (var (k, v) in c.LastActed) { S(h, k); L(h, v); }
             foreach (var (k, v) in c.Declined) { S(h, k); L(h, v); }

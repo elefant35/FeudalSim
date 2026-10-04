@@ -68,7 +68,9 @@ public sealed record EndConversation([property: Key(0)] ulong Conversation) : St
 
 /// <summary>
 /// One player turn, after sanitizing and classification by the gateway (22 §4.4–4.6): the classified act (catalog v2
-/// id), its probability, the injection probability (≥ 0.3 → this turn's DPs go to the policy) and the sanitized text.
+/// id), its probability, the injection probability (≥ 0.3 → this turn's DPs go to the policy) and the sanitized text;
+/// then the severity of a provocation (1–5), the score questions behind L_words (persuasiveness 1–7, hostility and
+/// politeness 1–5, the appeal, apology sincerity 1–5; 0 or "" = not classified, the neutral signal, 22 §6.3).
 /// The M1-04b form; extraction records and full probabilities are appended as keys in M1-11. Applying it advances the
 /// turn and opens the NPC's decision points for that turn.
 /// </summary>
@@ -80,7 +82,12 @@ public sealed record PlayerUtteranceClassified(
     [property: Key(3)] float ActP,
     [property: Key(4)] float Injection,
     [property: Key(5)] string Text,
-    [property: Key(6)] int Severity = 0) : StateCommand;
+    [property: Key(6)] int Severity = 0,
+    [property: Key(7)] float Persuasiveness = 0f,
+    [property: Key(8)] float Hostility = 0f,
+    [property: Key(9)] float Politeness = 0f,
+    [property: Key(10)] string Appeal = "",
+    [property: Key(11)] float Sincerity = 0f) : StateCommand;
 
 /// <summary>The player's body position as reported by the client each step (the player is always embodied).</summary>
 [MessagePackObject]

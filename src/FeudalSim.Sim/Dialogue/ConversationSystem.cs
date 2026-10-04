@@ -100,6 +100,29 @@ public sealed class ConversationSystem : ISimSystem
         End(world, conv, "player");
     }
 
+    private static void Track(SimWorld world, Conversation conv, ulong dp)
+    {
+        if (world.Decisions.IsOpen(dp)) { conv.Dps.Add(dp); }
+    }
+
+    /// <summary>22 §6.3 appeal match: (value − 50)/50 for one of the nine values; pity +0.5 for the Compassionate or
+    /// Charitable; flattery +0.5 for the Proud, −0.5 for the Humble; otherwise 0.</summary>
+    public static float AppealMatch(SimWorld world, int listener, string appeal)
+    {
+        var p = world.People.Personality[listener];
+        bool Has(string t) => p.HasTrait(world.Content.TraitHandle(t));
+        var v = p.Values;
+        return appeal switch
+        {
+            "family" => (v.Family - 50f) / 50f, "wealth" => (v.Wealth - 50f) / 50f, "status" => (v.Status - 50f) / 50f,
+            "honor" => (v.Honor - 50f) / 50f, "tradition" => (v.Tradition - 50f) / 50f, "faith" => (v.Faith - 50f) / 50f,
+            "fairness" => (v.Fairness - 50f) / 50f, "freedom" => (v.Freedom - 50f) / 50f, "loyalty" => (v.Loyalty - 50f) / 50f,
+            "pity" => Has("trait.compassionate") || Has("trait.charitable") ? 0.5f : 0f,
+            "flattery" => Has("trait.proud") ? 0.5f : Has("trait.humble") ? -0.5f : 0f,
+            _ => 0f,
+        };
+    }
+
     /// <summary>The player's own act is applied before the NPC's answer, deterministically (22 §6.1): modifier, memory, claim.</summary>
     private static void CommitProvocation(SimWorld world, int player, int npc, string act, int severity)
     {
@@ -126,6 +149,16 @@ public sealed class ConversationSystem : ISimSystem
     {
         if (!world.Conversations.Remove(conv.Id)) { return; }
         foreach (var dp in conv.Dps) { world.Decisions.Cancel(dp, $"conversation ended ({reason})"); }
+
+        // 16 §4.15: the close brings a rapport DP — in the closing reply when there is one, else the policy decides.
+        if (conv.Turn > 0 && conv.RapportCount < Social.RapportOwner.MaxPerConversation && world.People.IndexOf(conv.Player) >= 0 && world.People.IndexOf(conv.Npc) >= 0)
+        {
+            conv.RapportCount++;
+            var decider = reason is "player" or "npc" && !conv.PolicyTurn ? DeciderKind.Llm : DeciderKind.Policy;
+            world.Decisions.Open(Social.RapportOwner.Id, new DpContext(Social.RapportOwner.Kind, conv.Npc, conv.Player, Social.RapportOwner.Encode(conv.MeanWords)),
+                decider, DecisionRulesEngine.ConversationDeadlineSteps);
+        }
+
         var npc = world.People.IndexOf(conv.Npc);
         if (npc >= 0)
         {
@@ -154,10 +187,15 @@ public sealed class ConversationSystem : ISimSystem
         conv.PendingOffer = "";
         conv.Turn = u.TurnIndex;
         conv.LastAct = u.Act;
+        var listener = world.People.IndexOf(conv.Npc);
+        var lWords = listener < 0 ? 0f : MenuWidth.LWords(u.Persuasiveness, AppealMatch(world, listener, u.Appeal), u.Hostility, u.Politeness);
+        conv.WordsSum += lWords;
+        conv.WordsN++;
 
         // The response DP for the act (22 §6.1 routing). M1-08: insult and threaten → 16's escalation ladder; the social
         // (M1-09) and trade (M1-10) owners join here.
         var decider = u.Injection >= InjectionPolicy ? DeciderKind.Policy : DeciderKind.Llm;
+        conv.PolicyTurn = decider == DeciderKind.Policy;
         var npc = world.People.IndexOf(conv.Npc);
         var player = world.People.IndexOf(conv.Player);
         if (npc >= 0 && player >= 0 && Social.Escalation.DefaultSeverity(u.Act) is var s and > 0)
@@ -167,6 +205,25 @@ public sealed class ConversationSystem : ISimSystem
             var response = Social.Escalation.Provoke(world, player, npc, severity, decider, DecisionRulesEngine.ConversationDeadlineSteps);
             if (world.Decisions.IsOpen(response)) { conv.Dps.Add(response); }
             if (world.Conversations.Get(conv.Id) is null) { return; }   // the answer ended it (walked off, a fight)
+        }
+
+        if (npc >= 0 && player >= 0 && u.Act == "apologize")
+        {
+            // 16 §4.14: the attempt is remembered (a fourth within 4 days reads as mockery), then the victim answers.
+            var me = world.People.Ids[npc];
+            if (Social.ApologyOwner.RecentApologies(world, me, conv.Player) >= 3) { world.Relationships.ApplyModifier(me, conv.Player, "opinion.rude_to_me"); }
+            world.Memories.Remember(me, Social.MemoryKind.Apology, conv.Player, me, world.Clock.GameMinute, 15, 1f, 0f, 0);
+            var sincerity = u.Sincerity > 0f ? Math.Clamp((u.Sincerity - 3f) / 2f, -1f, 1f) : 0f;
+            Track(world, conv, world.Decisions.Open(Social.ApologyOwner.Id, new DpContext(Social.ApologyOwner.Kind, conv.Npc, conv.Player, Social.RapportOwner.Encode(sincerity)),
+                decider, DecisionRulesEngine.ConversationDeadlineSteps));
+        }
+
+        // 16 §4.15: a rapport DP after every 8 player turns (the close brings the last; at most 3 in all).
+        if (conv.Turn % Social.RapportOwner.EveryTurns == 0 && conv.RapportCount < Social.RapportOwner.MaxPerConversation - 1)
+        {
+            conv.RapportCount++;
+            Track(world, conv, world.Decisions.Open(Social.RapportOwner.Id, new DpContext(Social.RapportOwner.Kind, conv.Npc, conv.Player, Social.RapportOwner.Encode(conv.MeanWords)),
+                decider, DecisionRulesEngine.ConversationDeadlineSteps));
         }
 
         var id = world.Decisions.Open(InitiativeOwner.Id, new DpContext(InitiativeOwner.Kind, conv.Npc, conv.Player, (long)conv.Id), decider,

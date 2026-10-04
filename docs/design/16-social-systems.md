@@ -501,6 +501,13 @@ apology within 4 days is read as mockery (`rude_to_me`). **Restitution** (return
 compensation ≥ value) adds `made_amends` and a `MadeAmends` claim that propagates (§7) and restores
 up to half the Honesty impression lost.
 
+*Implemented (M1-09a):* `ApologyOwner` (`apology.respond`, content `dp.apology`) with the formula above; `G·Margin` from
+22 §6.3 with the classified sincerity (1–5 → L_words (s − 3)/2). Every attempt is remembered, so repeats lose 0.10 each
+and a fourth within 4 days also adds `rude_to_me`. Accepting scales the grievance modifiers (insulted, mocked, rude,
+argued, threatened, struck, humiliated) to 50 % (Stubborn 75 %), Anger −30, ends any quarrel and gives those in earshot a
+`made_amends` claim. `demand_amends` stays ineligible until material harms exist (theft, damage: M3–M4). NPC↔NPC
+apologies keep the M1-06 policy roll.
+
 ### 4.15 Conversation rapport (decision point)
 
 Canon §13.1's "a long, friendly conversation" moment. A conversation with the player closes with one
@@ -540,6 +547,14 @@ game day** (canon §13.4); the excess is discarded and `warm_to_speaker` becomes
 budget is spent. Deeds (gifts, help, food, a rescue) are not words and are not capped by it. Insults,
 threats and lies found out are acts that apply their own §4.5 modifiers whatever the rapport pick.
 Familiarity grows from the contact itself (§4.9), whatever the pick.
+
+*Implemented (M1-09a):* `RapportOwner` (`relationship.rapport`, content `dp.rapport`) reproduces the split above
+(`SocialDpTests`). Each conversation with the player opens one after turns 8 and 16 and one at the close (at most 3):
+decided in the closing reply (LLM) when the player or NPC says goodbye, by the policy at once when the player walks off,
+a fight or a threat ends it, or the last turn was flagged as injection. The **words budget** is content-driven: opinion
+modifiers marked `words: true` (#1, #2, #4, #5, #20, #58) add at most +10 per directed pair per game day (`WordsToday`
+on the edge, saved and hashed); deeds are uncapped. NPC↔NPC rapport DPs are not opened (Q12 open; the `chatted` stream
+stands, and the budget binds it).
 
 **Parity.** The budget binds every pair. NPC↔NPC conversations at LOD0–2 close with the same DP,
 decided by the policy, once per pair per day with ≥ 2 successful interactions; at LOD3 the expected
