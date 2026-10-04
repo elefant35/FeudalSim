@@ -26,8 +26,8 @@ answer.
 
 | Category | Approved? | Notes |
 |----------|-----------|-------|
-| Install listed prerequisites with Homebrew (`git-lfs`, `ffmpeg`, `gh`; optional `sox`, `fluidsynth`) | **not yet** | Commands are in 20 §20 step 1 and 32 §2 |
-| Install the pinned Godot 4.x .NET editor | **not yet** | The skill proposes the exact version first |
+| Install listed prerequisites with Homebrew (`git-lfs`, `ffmpeg`, `gh`; optional `sox`, `fluidsynth`) | **not yet** (nothing pending) | Owner installed git-lfs 3.8.0, ffmpeg 9.0.2 and the .NET 10 SDK (2026-10-03/04). `gh` remains optional. Commands are in 20 §20 step 1 and 32 §2 |
+| Install the pinned Godot 4.x .NET editor | **done by the owner** — 4.7.2 .NET (2026-10-04) | Engine upgrades or plugin downloads (e.g. Terrain3D) still need approval; the skill proposes the exact version first |
 | Push to `origin/main` after a work item passes verification | **yes — proposed default, owner to confirm or change** | Never force-push |
 | LLM spend from `OPENROUTER_KEY` during development | **yes, ≤ $2 per session** — owner approved using the key (2026-10-03); the $2 cap is a proposed default | Prefer replay/template mode in tests |
 | Commit generated binary assets (requires Git LFS installed) | **yes** — Git LFS installed 2026-10-03 | — |
@@ -78,7 +78,7 @@ Source of truth for the steps: [20 §20](../tech/20-architecture.md#20-m0-founda
 
 | ID | Item | Status | Evidence |
 |----|------|--------|----------|
-| S4 | Terrain streaming for 8,192 m (continues into M1) | [ ] | |
+| S4 | Terrain streaming for 8,192 m (continues into M1) | [ ] | **Carried into M1** (decided 2026-10-04): 30 §4 timeboxes it at 1–2 weeks over M0–M1, feeding M2, and it is not an M0 exit criterion. It starts after the terrain technology is chosen (M0-12 → ADR-0009), because Terrain3D brings its own region streaming while the built-in fallback needs our own chunking/LOD. Pass: walk/run the full 8 × 8 km map with no hitch > 50 ms and VRAM within budget |
 
 ---
 
