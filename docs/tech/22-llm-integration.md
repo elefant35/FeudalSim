@@ -2362,6 +2362,10 @@ DRE), grants 3.5% vs policy 29.9%, character breaks 1.5%. A third wording ("a po
 was worse (13.4 / +7.9) and was reverted. Lift and the request/accept gap carry into the M1 gate (§17.2 #3 iterates:
 gloss wording next). Spend ≈ $0.80.
 
+*M1-27 (after real names, M1-30):* gap 9.4, lift +6.1 at rules v2.1; **gloss wording** (step 2 below) — the yes
+states its cost, the no a legitimate reason (`dp.request`, `dp.apology`) — gives **gap 7.7, lift +2.2**, with refusal
+100%, pressure flip 0%, argument sensitivity +22.7, red-team 0 off-menu executions. §17.2 #3 passes.
+
 When the calibration gap or acceptance lift is out of band, the fix order is prompt (§7.11) → gloss
 wording → menu shape and floors (ADR-0003 "Revisit if"). When railroading is out of band: widen
 menus or lower floors in the owning system, never by loosening the critical check.

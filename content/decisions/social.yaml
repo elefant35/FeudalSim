@@ -16,19 +16,19 @@
     16 §4.14 — the wronged person's answer to an apology. demand_amends needs a material harm (theft, damage, cheating:
     M3–M4); in M1 the choice is accept or refuse.
   options:
-    - { id: accept_apology,  family: accept, stakes: low, favors_player: true, gloss: "accept {player}'s apology" }
+    - { id: accept_apology,  family: accept, stakes: low, favors_player: true, gloss: "accept {player}'s apology and let it go" }
     - { id: demand_amends,   family: counter, stakes: low, gloss: "demand that {player} make it right first" }
-    - { id: refuse_apology,  family: refuse, stakes: low, gloss: "refuse {player}'s apology" }
+    - { id: refuse_apology,  family: refuse, stakes: low, gloss: "keep the grudge for now: you are not ready to forgive {player}" }
 - id: dp.request
   owner: 16.request
   description: >-
     16 §5.4 — a favor asked in conversation: help at a camp task for some hours (M1). The yes propensity is Willingness with
     22 §6.3's menu width; repeats the same day halve it. Accepted favors are carried out by the utility AI as obligations.
   options:
-    - { id: accept_request,        family: accept, stakes: low, favors_player: true, gloss: "agree to help {player} with {task} for {hours} hour(s)" }
+    - { id: accept_request,        family: accept, stakes: low, favors_player: true, gloss: "give {hours} hour(s) of your own time to help {player} with {task}" }
     - { id: accept_with_condition, family: accept, stakes: low, favors_player: true, gloss: "help with {task} if {player} returns the favor with equal hours" }
     - { id: defer,                 family: counter, stakes: low, gloss: "promise to help with {task} tomorrow, not now" }
-    - { id: refuse_request,        family: refuse, stakes: low, gloss: "refuse to help {player} with {task}" }
+    - { id: refuse_request,        family: refuse, stakes: low, gloss: "say no: your own work and rest come first, not {player}'s {task}" }
 - id: dp.told
   owner: 16.told
   description: >-
