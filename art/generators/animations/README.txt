@@ -49,3 +49,17 @@ These scripts provide art-side evidence only; the game code is separately owned.
 
 All deliveries remain review status pending human approval. Rendered evidence is
 ignored locally; source scripts and rebuild instructions are tracked for reuse.
+
+Live-client heading regression (7.2 seconds / at most 200 moving samples):
+  /Applications/Godot_mono.app/Contents/MacOS/Godot --headless --max-fps 60 --path game --script ../art/generators/animations/godot_live_heading_probe.gd -- --scenario m1_view --template --art-heading-output res://../art/previews/animations/live_heading_before.json
+After a separately authorized code fix, rebuild the C# client with dotnet build
+and rerun using live_heading_after.json as the output filename. This boots the
+actual existing Boot/SimHost client, applies synthetic WASD for eight movement
+directions and measures live M2 player+NPC skeleton world displacement. Forward
+is the horizontal vector from Head REST world position to the mean LeftEye and
+RightEye REST world positions, with no assumed model axis and no yaw mutation.
+Success requires both player and NPC evidence and every moving dot >= 0.95.
+It records source/client-DLL hashes, per-body paths, roles, direction counts and
+raw samples. Exit 1 denotes failed heading threshold; exit 0 denotes success.
+Shutdown releases inputs, stops audio through Boot's existing close notification,
+and frees Boot so its _ExitTree disposes and joins simulation/job threads.

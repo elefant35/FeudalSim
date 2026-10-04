@@ -1,0 +1,17 @@
+{
+  "result": "pass",
+  "mode": "final",
+  "entries": 258,
+  "outputs": 508,
+  "glbs_checked": 249,
+  "core_required_outputs": 248,
+  "p2_required_outputs": 17,
+  "human_clips": 50,
+  "animals_checked": 8,
+  "binary_filters_checked": 508,
+  "tracked_lfs_pointers_checked": 508,
+  "palette_copies_checked": 243,
+  "errors": [],
+  "pending": [],
+  "warnings": []
+}
