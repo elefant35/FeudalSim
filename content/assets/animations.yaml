@@ -6,7 +6,7 @@
     "milestone": "M2",
     "source": {
       "type": "generator",
-      "generator": "art/generators/animations/human_motion.py",
+      "generator": "art/generators/animations/human_motion_extended.py",
       "params": {
         "set": "locomotion"
       },
@@ -19,14 +19,14 @@
     "measured": {
       "tris_lod0": 0,
       "materials": 0,
-      "duration_s": 11.1
+      "duration_s": 15.667
     },
     "license": {
       "name": "Proprietary-own-work",
       "author": "FeudalSim",
       "attribution_required": false
     },
-    "notes": "Hand-authored 30 fps in-place P0 clips: idle, idle_alt, jog, sprint, turn_left, turn_right, walk. Complete shared 40-bone rig; Root fully fixed, Hips horizontal fixed. Vertical Hips offsets ground postures; preserve those in runtime. Loop endpoints verified. Actual-body three-phase contact sheets in art/previews/animations; six FP work/needs clips inspected and 61/61 sampled frames retain at least one wrist in view."
+    "notes": "Hand-authored 30 fps in-place complete P0/P1 clips: carry_walk, crouch_walk, fall, idle, idle_alt, jog, jump, land, sprint, turn_left, turn_right, walk. Complete shared 40-bone rig; Root fully fixed, Hips horizontal fixed. Vertical Hips articulation grounds sitting/kneeling/lying and jump preparation; preserve vertical offsets at runtime. Loop endpoints and all 30fps key times verified. Original P0 poses retained. P1 five FP work/carry/drink clips inspected; each has wrist in frustum at all61 sampled frames. Evidence art/previews/animations_p1 and measurements_p1.json."
   },
   {
     "id": "asset.animations.rest",
@@ -55,7 +55,7 @@
       "author": "FeudalSim",
       "attribution_required": false
     },
-    "notes": "Hand-authored 30 fps in-place P0 clips: lie_down, lie_up, sit_ground_down, sit_ground_loop, sit_ground_up, sleep_loop, warm_hands_loop. Complete shared 40-bone rig; Root fully fixed, Hips horizontal fixed. Vertical Hips offsets ground postures; preserve those in runtime. Loop endpoints verified. Actual-body three-phase contact sheets in art/previews/animations; six FP work/needs clips inspected and 61/61 sampled frames retain at least one wrist in view."
+    "notes": "Hand-authored 30 fps in-place complete P0/P1 clips: lie_down, lie_up, sit_ground_down, sit_ground_loop, sit_ground_up, sleep_loop, warm_hands_loop. Complete shared 40-bone rig; Root fully fixed, Hips horizontal fixed. Vertical Hips articulation grounds sitting/kneeling/lying and jump preparation; preserve vertical offsets at runtime. Loop endpoints and all 30fps key times verified. Original P0 poses retained. P1 five FP work/carry/drink clips inspected; each has wrist in frustum at all61 sampled frames. Evidence art/previews/animations_p1 and measurements_p1.json."
   },
   {
     "id": "asset.animations.social",
@@ -64,7 +64,7 @@
     "milestone": "M2",
     "source": {
       "type": "generator",
-      "generator": "art/generators/animations/human_motion.py",
+      "generator": "art/generators/animations/human_motion_extended.py",
       "params": {
         "set": "social"
       },
@@ -77,14 +77,14 @@
     "measured": {
       "tris_lod0": 0,
       "materials": 0,
-      "duration_s": 15.033
+      "duration_s": 27.2
     },
     "license": {
       "name": "Proprietary-own-work",
       "author": "FeudalSim",
       "attribution_required": false
     },
-    "notes": "Hand-authored 30 fps in-place P0 clips: nod, point, shake_head, talk_a, talk_b, talk_c, wave. Complete shared 40-bone rig; Root fully fixed, Hips horizontal fixed. Vertical Hips offsets ground postures; preserve those in runtime. Loop endpoints verified. Actual-body three-phase contact sheets in art/previews/animations; six FP work/needs clips inspected and 61/61 sampled frames retain at least one wrist in view."
+    "notes": "Hand-authored 30 fps in-place complete P0/P1 clips: argue_a, argue_b, cry, laugh, nod, point, shake_head, shrug, talk_a, talk_b, talk_c, wave. Complete shared 40-bone rig; Root fully fixed, Hips horizontal fixed. Vertical Hips articulation grounds sitting/kneeling/lying and jump preparation; preserve vertical offsets at runtime. Loop endpoints and all 30fps key times verified. Original P0 poses retained. P1 five FP work/carry/drink clips inspected; each has wrist in frustum at all61 sampled frames. Evidence art/previews/animations_p1 and measurements_p1.json."
   },
   {
     "id": "asset.animations.needs",
@@ -93,7 +93,7 @@
     "milestone": "M2",
     "source": {
       "type": "generator",
-      "generator": "art/generators/animations/human_motion.py",
+      "generator": "art/generators/animations/human_motion_extended.py",
       "params": {
         "set": "needs"
       },
@@ -106,14 +106,14 @@
     "measured": {
       "tris_lod0": 0,
       "materials": 0,
-      "duration_s": 5.667
+      "duration_s": 8.3
     },
     "license": {
       "name": "Proprietary-own-work",
       "author": "FeudalSim",
       "attribution_required": false
     },
-    "notes": "Hand-authored 30 fps in-place P0 clips: drink_kneel_loop, eat_loop. Complete shared 40-bone rig; Root fully fixed, Hips horizontal fixed. Vertical Hips offsets ground postures; preserve those in runtime. Loop endpoints verified. Actual-body three-phase contact sheets in art/previews/animations; six FP work/needs clips inspected and 61/61 sampled frames retain at least one wrist in view."
+    "notes": "Hand-authored 30 fps in-place complete P0/P1 clips: drink_kneel_loop, drink_skin, eat_loop. Complete shared 40-bone rig; Root fully fixed, Hips horizontal fixed. Vertical Hips articulation grounds sitting/kneeling/lying and jump preparation; preserve vertical offsets at runtime. Loop endpoints and all 30fps key times verified. Original P0 poses retained. P1 five FP work/carry/drink clips inspected; each has wrist in frustum at all61 sampled frames. Evidence art/previews/animations_p1 and measurements_p1.json."
   },
   {
     "id": "asset.animations.work",
@@ -122,7 +122,7 @@
     "milestone": "M2",
     "source": {
       "type": "generator",
-      "generator": "art/generators/animations/human_motion.py",
+      "generator": "art/generators/animations/human_motion_extended.py",
       "params": {
         "set": "work"
       },
@@ -135,13 +135,13 @@
     "measured": {
       "tris_lod0": 0,
       "materials": 0,
-      "duration_s": 7.733
+      "duration_s": 12.733
     },
     "license": {
       "name": "Proprietary-own-work",
       "author": "FeudalSim",
       "attribution_required": false
     },
-    "notes": "Hand-authored 30 fps in-place P0 clips: chop_loop, forage_pick_loop, knap_loop, pick_up. Complete shared 40-bone rig; Root fully fixed, Hips horizontal fixed. Vertical Hips offsets ground postures; preserve those in runtime. Loop endpoints verified. Actual-body three-phase contact sheets in art/previews/animations; six FP work/needs clips inspected and 61/61 sampled frames retain at least one wrist in view."
+    "notes": "Hand-authored 30 fps in-place complete P0/P1 clips: carry_log_walk, chop_loop, dig_loop, forage_pick_loop, knap_loop, pick_up, stoke_fire. Complete shared 40-bone rig; Root fully fixed, Hips horizontal fixed. Vertical Hips articulation grounds sitting/kneeling/lying and jump preparation; preserve vertical offsets at runtime. Loop endpoints and all 30fps key times verified. Original P0 poses retained. P1 five FP work/carry/drink clips inspected; each has wrist in frustum at all61 sampled frames. Evidence art/previews/animations_p1 and measurements_p1.json."
   }
 ]
