@@ -14,7 +14,7 @@ scene=bpy.context.scene;scene.render.engine='BLENDER_EEVEE';scene.render.resolut
 world=bpy.data.worlds.new('review');world.use_nodes=True;scene.world=world;world.node_tree.nodes['Background'].inputs['Color'].default_value=(.33,.40,.46,1);world.node_tree.nodes['Background'].inputs['Strength'].default_value=.7
 ld=bpy.data.lights.new('key','AREA');ld.energy=120;ld.shape='DISK';ld.size=2;lo=bpy.data.objects.new('key',ld);scene.collection.objects.link(lo);lo.location=(-1,-2,2.7);lo.rotation_euler=(Vector((0,0,1.6))-lo.location).to_track_quat('-Z','Y').to_euler()
 cam=bpy.data.objects.new('camera',bpy.data.cameras.new('camera'));scene.collection.objects.link(cam);scene.camera=cam;cam.data.type='ORTHO';cam.data.ortho_scale=.37
-scale=1 if sex=='male' else 1.62/1.72
+scale=1 if sex=='male' else .72 if sex=='child' else 1.62/1.72
 cam.location=(0,-1.2,1.63*scale);cam.rotation_euler=(Vector((0,0,1.615*scale))-cam.location).to_track_quat('-Z','Y').to_euler()
 heads=sorted([o for o in scene.objects if o.name.startswith('Head_')],key=lambda o:o.name)
 for o in scene.objects:
@@ -30,8 +30,8 @@ def sheet(name,tiles,cols):
  im=bpy.data.images.new(name,cols*384,rows*384);im.pixels.foreach_set(can.ravel());im.filepath_raw=str(out/(name+'.png'));im.file_format='PNG';im.save()
 tiles=[]
 for i,h in enumerate(heads):
- hair.hide_render=i==3
- fringe=bpy.data.objects.get('Hair_balding_fringe'); fringe.hide_render=i!=3
+ hair.hide_render=i==3 and sex!='child'
+ fringe=bpy.data.objects.get('Hair_balding_fringe'); fringe.hide_render=i!=3 or sex=='child'
  h.hide_render=False;tiles.append(render_tile('tile'));h.hide_render=True; fringe.hide_render=True
 hair.hide_render=False
 sheet(sex+'_heads',tiles,4)

@@ -1,0 +1,90 @@
+{
+  "male": {
+    "assembled_objects": [
+      "Body_Male",
+      "Cloth_hide_jerkin",
+      "Cloth_linen_shirt",
+      "Cloth_turnshoes",
+      "Cloth_wool_hood",
+      "Cloth_wool_hose",
+      "Cloth_wool_tunic",
+      "Beard_moustache_chin",
+      "Cloth_wool_cloak",
+      "Hair_braided",
+      "Head_male_d",
+      "Headwear_wool_hood"
+    ],
+    "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/characters/body_male.glb",
+    "budget_class": "character",
+    "collision_objects": [],
+    "height_m": 1.743,
+    "materials": [
+      "palette",
+      "palette.001"
+    ],
+    "ok": true,
+    "problems": [],
+    "stored_tris": 7104,
+    "tris": {
+      "0": 3796
+    }
+  },
+  "female": {
+    "assembled_objects": [
+      "Body_Female",
+      "Cloth_hide_jerkin",
+      "Cloth_linen_shirt",
+      "Cloth_turnshoes",
+      "Cloth_wool_hood",
+      "Cloth_wool_hose",
+      "Cloth_wool_tunic",
+      "Cloth_wool_cloak",
+      "Hair_braided",
+      "Head_female_d",
+      "Headwear_wool_hood"
+    ],
+    "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/characters/body_female.glb",
+    "budget_class": "character",
+    "collision_objects": [],
+    "height_m": 1.642,
+    "materials": [
+      "palette",
+      "palette.001"
+    ],
+    "ok": true,
+    "problems": [],
+    "stored_tris": 6892,
+    "tris": {
+      "0": 3720
+    }
+  },
+  "child": {
+    "assembled_objects": [
+      "Body_Child",
+      "Cloth_hide_jerkin",
+      "Cloth_linen_shirt",
+      "Cloth_turnshoes",
+      "Cloth_wool_hood",
+      "Cloth_wool_hose",
+      "Cloth_wool_tunic",
+      "Cloth_wool_cloak",
+      "Hair_braided",
+      "Head_child_a",
+      "Headwear_wool_hood"
+    ],
+    "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/characters/body_child.glb",
+    "budget_class": "character",
+    "collision_objects": [],
+    "height_m": 1.254,
+    "materials": [
+      "palette",
+      "palette.001"
+    ],
+    "ok": true,
+    "problems": [],
+    "stored_tris": 6876,
+    "tris": {
+      "0": 3704
+    }
+  }
+}
