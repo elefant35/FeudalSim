@@ -153,6 +153,7 @@ public partial class SimHost : Node3D
             using var gen = new JobRunner(Math.Max(1, System.Environment.ProcessorCount - 1));
             _island = World.Island.Build(this, map, _camera, gen);
             World.Island.Atmosphere(GetNode<WorldEnvironment>("WorldEnvironment"));
+            InitNodes();
             GetNode<Node3D>("Ground").Visible = false;
             if (anchor is not null) { _camera.Position = new Vector3(anchor.FireX, Ground(anchor.FireX, anchor.FireZ) + 34, anchor.FireZ + 26); }
             if (anchor is not null && map.Landing is { } landing) { _islandFacing = Mathf.Atan2(-(landing.WreckX - anchor.FireX), -(landing.WreckZ - anchor.FireZ)); }   // FP2: you start looking out at the wreck
@@ -192,6 +193,7 @@ public partial class SimHost : Node3D
     /// </summary>
     private void IslandAutotest()
     {
+        if (_autotestPhase != 0) { IslandWork(); return; }
         _autotestPhase = 1;
         var island = _island;
         Expect("island built", island is null ? 0 : 1, 1, 0);
@@ -228,10 +230,83 @@ public partial class SimHost : Node3D
             GD.Print("SimHost: " + island.Report);
         }
 
-        foreach (var line in _autotestResults) { GD.Print(line); }
-        GD.Print($"SimHost: ISLAND AUTOTEST {(_autotestFailed ? "FAIL" : "PASS")}");
-        _campfire?.Stop();
-        GetTree().Quit(_autotestFailed ? 1 : 0);
+        Expect($"nodes drawn around the camp ({_nodes?.Instances ?? 0}; {_nodes?.ArtTypes ?? 0} types with art)", _nodes?.Instances ?? 0, 50, null);
+        SetSpeed(8);   // the work below at ×8
+        _islandMark = _clock;
+    }
+
+    private double _islandMark;
+    private Vector2? _autotestWalkTo;
+    private float _autotestLookY = 1.4f;   // how high above the ground the autotest looks (a trunk, or a plant at 0.2 m)
+    private (int Chunk, int Index)? _islandTarget;
+    private int _foraged, _felled;
+
+    /// <summary>
+    /// FP3: walk to the nearest standing tree, look at it, [E] fells it (the stages work themselves), then the nearest
+    /// in-season plant, [E] gathers it. The look-at prompt must name the verb before [E] is pressed.
+    /// </summary>
+    private void IslandWork()
+    {
+        var t = _clock - _islandMark;
+        if ((int)(t / 10) != (int)((t - GetProcessDeltaTime()) / 10) && _autotestWalkTo is { } goal) { GD.Print($"SimHost: island autotest phase {_autotestPhase} t {t:F1} player {_player} goal {goal} d {goal.DistanceTo(_player):F1} look {_look?.Kind}:{_look?.Name} near {_nodes?.Near.Count}"); }
+        var season = Sim.Time.GameDate.FromGameMs(_runner!.Snapshots.ReadLatest().GameMs).Season.ToString().ToLowerInvariant();
+        switch (_autotestPhase)
+        {
+            case 1:
+                _islandTarget = _nodes?.Nearest(_player.X, _player.Y, (d, n, s) => d.Kind == Sim.Content.NodeKind.Tree && n.Size >= 1 && s == 0) is { } tree ? (tree.Chunk, tree.Index) : null;
+                var at = _islandTarget is null ? (Vector3?)null : _nodes!.Nearest(_player.X, _player.Y, (d, n, s) => d.Kind == Sim.Content.NodeKind.Tree && n.Size >= 1 && s == 0)!.Value.At;
+                Expect("a standing tree on the loaded island", at is null ? 0 : 1, 1, 0);
+                if (at is not { } a) { _autotestPhase = 9; break; }
+                _autotestWalkTo = new Vector2(a.X, a.Z);
+                (_autotestPhase, _islandMark) = (2, _clock);
+                break;
+            case 2 when _look is { } lk && lk.Kind == "tree" && LookPromptFor(lk).StartsWith("[E] fell", StringComparison.Ordinal):
+                Expect($"looking at a tree offers to fell it ({LookPromptFor(lk)})", 1, 1, 0);
+                Interact();
+                (_autotestPhase, _islandMark) = (3, _clock);
+                break;
+            case 2 when t > 120:
+                Expect("reached and looked at the tree", 0, 1, 0);
+                _autotestPhase = 9;
+                break;
+            case 3 when _felled > 0:
+                Expect("felled the tree (rough log)", 1, 1, 0);
+                (_autotestPhase, _islandMark) = (4, _clock);
+                break;
+            case 3 when t > 300:
+                Expect("felled the tree in time", 0, 1, 0);
+                _autotestPhase = 9;
+                break;
+            case 4 when t > 2:
+                Expect("the tree shows as a stump", _islandTarget is { } tt && _nodes!.Nearest(_player.X, _player.Y, (d, n, s) => s == World.NodeDressing.Felled) is { } stump && (stump.Chunk, stump.Index) == tt ? 1 : 0, 1, 0);
+                var plant = _nodes!.Nearest(_player.X, _player.Y, (d, n, s) => d.Forage is not null && s == 0 && (d.Seasons.Count == 0 || d.Seasons.Contains(season)));
+                Expect($"an in-season plant to gather ({season})", plant is null ? 0 : 1, 1, 0);
+                if (plant is not { } p) { _autotestPhase = 9; break; }
+                (_autotestWalkTo, _autotestLookY) = (new Vector2(p.At.X, p.At.Z), 0.2f);
+                (_autotestPhase, _islandMark) = (5, _clock);
+                break;
+            case 5 when _look is { } lk2 && LookPromptFor(lk2).StartsWith("[E] gather", StringComparison.Ordinal):
+                Expect($"looking at a plant offers to gather it ({LookPromptFor(lk2)})", 1, 1, 0);
+                Interact();
+                (_autotestPhase, _islandMark) = (6, _clock);
+                break;
+            case 5 when t > 120:
+                Expect("reached and looked at the plant", 0, 1, 0);
+                _autotestPhase = 9;
+                break;
+            case 6 when _foraged > 0 || t > 10:
+                Expect("gathered it", _foraged, 1, null);
+                _autotestPhase = 9;
+                break;
+            case 9:
+                _autotestWalkTo = null;
+                foreach (var line in _autotestResults) { GD.Print(line); }
+                GD.Print($"SimHost: ISLAND AUTOTEST {(_autotestFailed ? "FAIL" : "PASS")}");
+                _campfire?.Stop();
+                _autotestPhase = 10;
+                GetTree().Quit(_autotestFailed ? 1 : 0);
+                break;
+        }
     }
 
     /// <summary>Ground height for anything standing in the world (0 on the flat camp; the island's 2 m field, or the sea surface).</summary>
@@ -397,7 +472,7 @@ public partial class SimHost : Node3D
         _lines.RemoveAll(l => _clock - l.At > 14);
         _subtitles.Text = string.Join("\n", _lines.Select(l => l.Text));
         if (_autotest) { Autotest(snapshot); }
-        if (_autotestIsland && _clock > 4 && _autotestPhase == 0) { IslandAutotest(); }
+        if (_autotestIsland && _clock > 4) { IslandAutotest(); }
     }
 
     /// <summary>
@@ -437,6 +512,7 @@ public partial class SimHost : Node3D
         {
             if (_play && e.Payload is Sim.Events.TradeOffered or Sim.Events.TradeSettled or Sim.Events.NegotiationEnded) { OnTradeEvent(e.Payload); continue; }
             if (_play && OnKnapEvent(e.Payload)) { continue; }
+            if (_play && OnNodeEvent(e.Payload)) { continue; }
             if (e.Payload is not Sim.Events.AiResultApplied r || string.IsNullOrWhiteSpace(r.Text)) { continue; }
             if (r.UsedFallback || !r.Text.TrimStart().StartsWith('['))
             {
@@ -567,7 +643,7 @@ public partial class SimHost : Node3D
             case Key.Key2: SetSpeed(2); break;
             case Key.Key4: SetSpeed(4); break;
             case Key.Key8: SetSpeed(8); break;
-            case Key.E when _play && !Knapping: TryTalk(); break;
+            case Key.E when _play && !Knapping: Interact(); break;
             case Key.Escape when _play && Knapping: _knap!.Escape(); break;
             case Key.Escape when _play: Leave(); break;
             case Key.K when _play: TryKnap(); break;

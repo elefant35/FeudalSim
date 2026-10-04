@@ -45,10 +45,10 @@ public partial class SimHost
         if (_knap is null) { return false; }
         switch (payload)
         {
-            case FeudalSim.Sim.Events.ProcessStarted s when s.Worker == _runner!.Snapshots.ReadLatest().PlayerId:
+            case FeudalSim.Sim.Events.ProcessStarted s when s.Worker == _runner!.Snapshots.ReadLatest().PlayerId && _content!.Recipes[s.Recipe].Id == "recipe.flint_knife":
                 _knap.Begin(s.Process);
                 return true;
-            case FeudalSim.Sim.Events.StageResolved or FeudalSim.Sim.Events.ProcessCompleted or FeudalSim.Sim.Events.ProcessRuined:
+            case FeudalSim.Sim.Events.StageResolved or FeudalSim.Sim.Events.ProcessCompleted or FeudalSim.Sim.Events.ProcessRuined when Knapping:
                 _knap.OnEvent(payload);
                 if (_autotestKnap && _knap.Finished) { FinishKnapAutotest(payload); }
                 return true;

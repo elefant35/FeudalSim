@@ -43,7 +43,6 @@ public partial class SimHost
         foreach (var label in GetChildren().OfType<Label3D>()) { (label.PixelSize, label.Position, label.FontSize) = (0.004f, label.Position with { Y = label.Position.Y - 1.0f }, 48); }   // place names, sized for eye level
         _characterScene = GD.Load<PackedScene>(CharacterModel);
         (_playerBody, _playerAnim) = Spawn();
-        _playerBody.AddChild(new Label3D { Text = "you", Position = new Vector3(0, 2.15f, 0), Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, FontSize = 48, OutlineSize = 12, PixelSize = 0.012f, Modulate = new Color(0.4f, 1f, 1f) });
         if (_island is null) { AddChild(new MeshInstance3D { Mesh = new PlaneMesh { Size = new Vector2(240, 240) }, Position = new Vector3(10, -0.01f, -6), MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.36f, 0.45f, 0.28f) } }); }
         AddChild(_sun = new DirectionalLight3D { RotationDegrees = new Vector3(-55, 35, 0), ShadowEnabled = true, LightEnergy = 1.0f });
 
@@ -122,7 +121,13 @@ public partial class SimHost
             if (Input.IsKeyPressed(Key.A) || Input.IsKeyPressed(Key.Left)) { input.X -= 1; }
             if (Input.IsKeyPressed(Key.D) || Input.IsKeyPressed(Key.Right)) { input.X += 1; }
         }
-        if (!_autotestCamp) { input = ViewRelative(input); }   // W walks where you look (FP2)
+        if (_autotestWalkTo is { } goal)   // the island autotest walks to a node and looks at it
+        {
+            var to = goal - _player;
+            if (to.Length() > 1.8f) { input = to.Normalized(); }
+            (_yaw, _pitch) = (Mathf.Atan2(-to.X, -to.Y), Mathf.Atan2(_autotestLookY - EyeHeight, Math.Max(0.5f, to.Length())));
+        }
+        else if (!_autotestCamp) { input = ViewRelative(input); }   // W walks where you look (FP2)
         else if (_campTarget != 0 && _people.TryGetValue(_campTarget, out var target) && _campPhase == 1)
         {
             var to = new Vector2(target.Body.Position.X, target.Body.Position.Z) - _player;
@@ -133,7 +138,7 @@ public partial class SimHost
 
         // Gait (10 §12.1): Shift jogs; Ctrl sprints while the sim says there is stamina (11 §3.1) — Winded drops to a jog.
         var canSprint = !snap.PlayerWinded && snap.PlayerStamina > 0.5f;
-        byte gait = Input.IsKeyPressed(Key.Ctrl) && canSprint ? (byte)2 : Input.IsKeyPressed(Key.Shift) || Input.IsKeyPressed(Key.Ctrl) || _autotestCamp ? (byte)1 : (byte)0;
+        byte gait = Input.IsKeyPressed(Key.Ctrl) && canSprint ? (byte)2 : Input.IsKeyPressed(Key.Shift) || Input.IsKeyPressed(Key.Ctrl) || _autotestCamp || _autotestWalkTo is not null ? (byte)1 : (byte)0;
         var speed = gait switch { 2 => SprintSpeed, 1 => RunSpeed, _ => WalkSpeed } * snap.PlayerMoveMult;   // 11 §4.3 injuries slow you
         var vital = (Sim.Health.VitalState)snap.PlayerVital;
         if (vital is Sim.Health.VitalState.Downed or Sim.Health.VitalState.Dying or Sim.Health.VitalState.Recovering) { (gait, speed) = (0, 0.5f); }   // 11 §14: crawl
@@ -142,7 +147,7 @@ public partial class SimHost
         if (moved)
         {
             var next = _player + (input.Normalized() * speed * delta);
-            if (_island is null || _island.HeightAt(next.X, next.Y) > -1.2f) { _player = next; }   // wade, but not out to sea (swimming is M2-08)
+            if ((_island is null || _island.HeightAt(next.X, next.Y) > -1.2f) && !(_nodes?.Blocked(next.X, next.Y) ?? false)) { _player = next; }   // wade, but not out to sea (swimming is M2-08); trunks and boulders are solid
         }
 
         _playerBody!.Position = new Vector3(_player.X, Ground(_player.X, _player.Y), _player.Y);
@@ -197,14 +202,15 @@ public partial class SimHost
 
         // FP2: the camera (first person or over the shoulder), then what you look at is the interaction target.
         UpdateMouseMode();
+        ApplyStates();
+        UpdateNodes(snap);
         UpdateCamera();
         _look = UiOpen ? null : FindLookTarget();
         _talkTarget = _look is { Kind: "person" } person ? person.Id : 0;
 
         // The prompt; the dialogue panel (M1-19) takes over while a conversation is open.
         _panel!.Text = _dialogue?.Conversation is not null || Knapping ? ""
-            : _look is { Kind: "person" } who ? $"[E] talk to {who.Name}   ·   [T] take from them   ·   [P] people"
-            : _look is { } thing ? LookPrompt(thing)
+            : _look is { } thing ? LookPromptFor(thing)
             : $"{(_firstPerson ? "[V] third person" : "[V] first person")}   ·   [Tab] free the mouse   ·   [P] people";
         UpdateDialogue(delta);
         if (_autotestCamp) { CampAutotest(delta); }

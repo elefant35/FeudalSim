@@ -30,6 +30,10 @@ public partial class SimHost
         _crosshair.Position -= new Vector2(2, 2);
         GetNode<CanvasLayer>("Overlay").AddChild(_crosshair);
         if (_island is not null && _islandFacing is { } face) { _yaw = face; }   // start facing the wreck and the sea
+        var args = OS.GetCmdlineUserArgs();
+        var at = Array.IndexOf(args, "--yaw");   // dev: `-- --yaw 180` turns the start view (degrees, added to the wreck-facing yaw)
+        if (at >= 0 && at + 1 < args.Length && float.TryParse(args[at + 1], System.Globalization.CultureInfo.InvariantCulture, out var deg)) { _yaw += Mathf.DegToRad(deg); }
+        if (args.Contains("--third-person")) { _firstPerson = false; }
     }
 
     /// <summary>The direction you look along, flattened (movement and the body's facing use it).</summary>
@@ -130,7 +134,4 @@ public partial class SimHost
     private readonly List<LookTarget> _lookables = [];
 
     private float? _islandFacing;
-
-    /// <summary>The prompt for a world thing (M2-FP3 adds the verbs per node kind).</summary>
-    private static string LookPrompt(LookTarget t) => t.Name;
 }

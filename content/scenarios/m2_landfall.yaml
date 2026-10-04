@@ -8,7 +8,7 @@ days: 30
 settlers: 24
 ai: utility
 player: [12, -6]
-player_items: { item.hammerstone: 1, item.antler_billet: 1, item.pressure_flaker: 1, item.flint_nodules: 3 }   # [K] knaps a flint knife (M2-11b)
+player_items: { item.iron_axe: 1, item.hammerstone: 1, item.antler_billet: 1, item.pressure_flaker: 1, item.flint_nodules: 3 }   # a ship's axe to fell trees (FP3); [K] knaps a flint knife (M2-11b)
 world:
   spec: worldspec.farstrand_default
 camp:
