@@ -78,6 +78,8 @@ dotnet build game/FeudalSim.Game.csproj                                  # the G
 $GODOT --path game                                                       # run Boot (Space pause · 1/2/4 speed)
 $GODOT --headless --path game -- --autotest                              # Boot smoke: movement, pause, time scale (exit 0/1)
 tools/godot/embodiment_check.sh                                          # LOD0 bodies + headless replay of the client session
+tools/godot/fetch_addons.sh                                              # pinned third-party addons (Terrain3D) → game/addons/ (SHA-256 checked)
+$GODOT --path game res://scenes/dev/TerrainSpike.tscn -- --terrain3d [--samples 4097] [--autowalk]   # terrain spike (ADR-0009)
 ```
 
 Headless runs write `sim_runs/<id>/` (gitignored). CI (`.github/workflows/ci.yml`) runs build, tests,

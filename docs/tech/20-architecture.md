@@ -1,6 +1,6 @@
 # 20 — Technical Architecture
 
-> **Status:** Draft v0.1, revised for canon v0.3 (decision points) · **Owner doc for:** engine/sim architecture, threading, clocks & ticks, ECS/data layout, the LOD0 embodiment boundary, commands/events, save/load, determinism, content pipeline, AI-gateway interfaces, Godot client structure, headless runner, testing, performance budgets, tooling, CI/CD, repo layout & engineering conventions · **Depends on:** [01-canon](../01-canon.md) (§4, §6, §8, §13, §14), [ADR-0001](../adr/0001-engine-godot-dotnet.md), [ADR-0002](../adr/0002-headless-deterministic-sim-core.md), [ADR-0003](../adr/0003-language-decides-systems-resolve.md), [ADR-0004](../adr/0004-single-player-scope.md) · **Interfaces with:** [21-npc-ai](21-npc-ai.md), [22-llm-integration](22-llm-integration.md), [10-world-and-setting](../design/10-world-and-setting.md), [13-crafting-and-minigames](../design/13-crafting-and-minigames.md), [18-conflict-and-warfare](../design/18-conflict-and-warfare.md), [19-player-experience](../design/19-player-experience.md), [30-roadmap](../production/30-roadmap.md)
+> **Status:** Draft **v0.2** (2026-10-04: M0 results — terrain decided by the M0-12 spike, ADR-0009; .NET 10 SDK, ADR-0010; embodiment verified, ADR-0007), revised for canon v0.3 (decision points) · **Owner doc for:** engine/sim architecture, threading, clocks & ticks, ECS/data layout, the LOD0 embodiment boundary, commands/events, save/load, determinism, content pipeline, AI-gateway interfaces, Godot client structure, headless runner, testing, performance budgets, tooling, CI/CD, repo layout & engineering conventions · **Depends on:** [01-canon](../01-canon.md) (§4, §6, §8, §13, §14), [ADR-0001](../adr/0001-engine-godot-dotnet.md), [ADR-0002](../adr/0002-headless-deterministic-sim-core.md), [ADR-0003](../adr/0003-language-decides-systems-resolve.md), [ADR-0004](../adr/0004-single-player-scope.md) · **Interfaces with:** [21-npc-ai](21-npc-ai.md), [22-llm-integration](22-llm-integration.md), [10-world-and-setting](../design/10-world-and-setting.md), [13-crafting-and-minigames](../design/13-crafting-and-minigames.md), [18-conflict-and-warfare](../design/18-conflict-and-warfare.md), [19-player-experience](../design/19-player-experience.md), [30-roadmap](../production/30-roadmap.md)
 
 This document says **how FeudalSim is built**: where code lives, which thread runs what, how the
 simulation advances, how state is stored and saved, how determinism is kept, and how the Godot client
@@ -1441,15 +1441,23 @@ and resources are saved as **text** (`.tscn`/`.tres`); `.import` and `.uid` file
 
   | For | Against / verify |
   |-----|------------------|
-  | Clipmap LOD; region-based maps (e.g. 1,024 m regions → 8×8); ~32 texture layers; dynamic collision around the camera; navmesh-baking helpers; foliage instancer; MIT; active | GDExtension, so C# calls go through `Call`/`Get` → write a **typed C# facade** and call it rarely. Maps at 1 m spacing cost ~256 MB each (height, control, color) → use **2 m vertex spacing** or drop the color map. Collision must cover ≥ 100 m around the player for LOD0 bodies. Check macOS arm64 binaries, coupling to Godot versions, and a runtime import API for procedurally generated maps. |
+  | Clipmap LOD; region-based maps (1,024-vertex regions at 2 m = 2,048 m → 4×4 for the world); ~32 texture layers; dynamic collision around the camera; navmesh-baking helpers; foliage instancer; MIT; active | GDExtension, so C# calls go through `Call`/`Get` → write a **typed C# facade** and call it rarely. Maps at 1 m spacing cost ~256 MB each (height, control, color) → use **2 m vertex spacing** or drop the color map. Collision must cover ≥ 100 m around the player for LOD0 bodies. Check macOS arm64 binaries, coupling to Godot versions, and a runtime import API for procedurally generated maps. |
 
   Our terrain is **procedural**, so Terrain3D's sculpting tools matter less; its value is clipmap
   rendering, texturing and collision. **Fallback:** a custom terrain of 64 m chunk meshes with LODs
-  generated from the sim heightfield, plus `HeightMapShape3D` collision per chunk. **The M0 spike**
-  renders both at 512 m; the full 8 km test happens at M2.
+  generated from the sim heightfield, plus `HeightMapShape3D` collision per chunk.
+- **Decided (M0-12 spike, [ADR-0009](../adr/0009-terrain.md)): Terrain3D v1.0.2**, 2 m spacing,
+  1,024-vertex regions, behind a typed C# facade used at setup/edits only (a `Call` costs ~0.9 µs vs
+  ~20 ns in C#; gameplay reads heights from the sim heightfield). Measured: 512 m both ways at the
+  120 fps display cap (GPU 1.6 ms ArrayMesh, 2.2 ms Terrain3D); **full 8,192 m in Terrain3D: GPU
+  4.5 ms avg, 301 MB VRAM total, import 0.56 s**, heights exact. Runtime-import rules (region-grid
+  alignment, `change_region_size` after entering the tree, `free_editor_textures = false` for generated
+  assets) are in the ADR and checked headless in `godot.yml`. The addon is pinned and fetched by
+  `tools/godot/fetch_addons.sh` (SHA-256), not committed. Streaming across regions is spike S4 (M1).
 - **Generation flow:** sim world generation ([10](../design/10-world-and-setting.md)) produces the
   heightfield and splat map. `TerrainBuilder` imports them at new-game and caches the result under
-  `user://worlds/<seed>/` (≤ 60 s once).
+  `user://worlds/<seed>/` (≤ 60 s once). The 8 km heightfield currently takes 15.7 s on one thread;
+  generation moves to fixed 64-row chunks on the job runner (deterministic) in M1/M2.
 - **Props:** 64 m chunks; trees and rocks as `MultiMeshInstance3D` per chunk and species, using
   visibility ranges:
   - full mesh ≤ 150 m
@@ -1787,7 +1795,7 @@ tests are green in CI.
 | Risk | L | I | Mitigation | Gate / trigger |
 |------|---|---|-----------|----------------|
 | Godot can't hold 60 fps with 8 km terrain, vegetation and 200 characters on minimum-spec GPUs (M1 16 GB) | M | H | Render tiers (§12.6), VAT crowds, impostors, 2 m terrain spacing, a 30 fps floor on minimum spec | M2 crowd/terrain benchmark |
-| Terrain3D integration (GDExtension from C#, version coupling, VRAM) | M | M | Typed facade; pin versions; custom chunk terrain fallback | M0 spike, M2 full-size test |
+| Terrain3D integration (GDExtension from C#, version coupling, VRAM) | M | M | Typed facade; pin versions (SHA-256 fetch); custom chunk terrain fallback. **M0 spike passed** (ADR-0009): loads on 4.7.2 with one deprecation warning; 8 km at 301 MB VRAM | S4 in M1 (streaming), each Godot upgrade |
 | GC pauses (client + sim in one process) | M | M | Zero-alloc rules, allocation tests, GC configuration, counters in the overlay | Any > 5 ms pause in M2 playtests |
 | Determinism drift (hash-order iteration, parallel merges, ISA/libm differences) | H | H | Banned APIs + FS analyzers, threads-1-vs-N tests, per-RID goldens, hourly checksums, bisect tooling | Any golden flake is a P0 |
 | LOD reconciliation bugs (snap pops, lost actions, NPCs in walls) | M | H | Single authority per datum; only pose crosses the boundary; snap metric; property tests; overlays | > 5 open boundary bugs at M3 → DotRecast ADR (§3.9) |

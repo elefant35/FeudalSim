@@ -3,6 +3,7 @@ name: godot
 # 20 §20 step 14: build the Godot client and smoke-test it headless with the pinned engine.
 # Boot autotest: settlers move by sim commands; pause and time scale work (M0 exit criterion).
 # Embodiment check: LOD0 bodies ↔ puppets, and the client session replays headless to the same hash (M0-13).
+# Terrain3D check: the pinned addon loads on the pinned engine and its heights match the sim (M0-12, ADR-0009).
 
 on:
   push:
@@ -59,6 +60,15 @@ jobs:
           echo "engine $actual · pinned $(cat game/GODOT_VERSION)"
           [[ "$actual" == "$(cat game/GODOT_VERSION)" ]]
 
+      - name: Cache third-party addons
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/feudalsim-addons
+          key: addons-${{ hashFiles('tools/godot/addons.json') }}
+
+      - name: Fetch addons (pinned + SHA-256, e.g. Terrain3D)
+        run: tools/godot/fetch_addons.sh
+
       - name: Build the game (warnings are errors)
         run: dotnet build game/FeudalSim.Game.csproj
 
@@ -74,6 +84,11 @@ jobs:
           grep -q "AUTOTEST PASS" boot.log
           if grep -E '^(ERROR|WARNING|SCRIPT ERROR)' -A3 boot.log; then echo "Godot reported errors or warnings"; exit 1; fi
 
+      - name: Terrain3D check (loads on the pinned Godot; heights match the sim heightfield)
+        run: |
+          "$GODOT" --headless --path game res://scenes/dev/TerrainSpike.tscn -- --terrain3d --check 2>&1 | tee terrain.log
+          grep -q "CHECK PASS" terrain.log
+
       - name: Embodiment check (LOD0 bodies, headless replay of the client session)
         run: GODOT="$GODOT" tools/godot/embodiment_check.sh
 
@@ -84,5 +99,6 @@ jobs:
           name: godot-smoke
           path: |
             boot.log
+            terrain.log
             sim_runs/
           if-no-files-found: ignore

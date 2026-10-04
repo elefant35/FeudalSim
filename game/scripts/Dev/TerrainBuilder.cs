@@ -17,14 +17,7 @@ public static class TerrainBuilder
             {
                 var i = (z * Size) + x;
                 verts[i] = new Vector3((x * Spacing) - half, h[i], (z * Spacing) - half);
-                var hl = h[(z * Size) + Math.Max(0, x - 1)];
-                var hr = h[(z * Size) + Math.Min(Size - 1, x + 1)];
-                var hd = h[(Math.Max(0, z - 1) * Size) + x];
-                var hu = h[(Math.Min(Size - 1, z + 1) * Size) + x];
-                var n = new Vector3(hl - hr, 2 * Spacing, hd - hu).Normalized();
-                normals[i] = n;
-                // Palette swatches (art/palettes): sand low, grass, moss, rock on steep/high ground.
-                colors[i] = n.Y < 0.82f || h[i] > 27 ? new Color("7a7a80") : h[i] < 1.5f ? new Color("c8b48a") : h[i] < 14 ? new Color("6f8f3a") : new Color("5a6b2e");
+                colors[i] = ColorAt(h, Size, Spacing, x, z, out normals[i]);
             }
         }
 
@@ -54,6 +47,23 @@ public static class TerrainBuilder
         mesh.SurfaceSetMaterial(0, new StandardMaterial3D { VertexColorUseAsAlbedo = true, VertexColorIsSrgb = true, Roughness = 0.95f });
         return new MeshInstance3D { Mesh = mesh, Name = "TerrainMesh" };
     }
+
+    /// <summary>Palette swatches (art/palettes): sand low, grass, moss, rock on steep/high ground. Shared by both terrain approaches.</summary>
+    public static Color ColorAt(float[] h, int Size, float Spacing, int x, int z, out Vector3 normal)
+    {
+        var i = (z * Size) + x;
+        var hl = h[(z * Size) + Math.Max(0, x - 1)];
+        var hr = h[(z * Size) + Math.Min(Size - 1, x + 1)];
+        var hd = h[(Math.Max(0, z - 1) * Size) + x];
+        var hu = h[(Math.Min(Size - 1, z + 1) * Size) + x];
+        normal = new Vector3(hl - hr, 2 * Spacing, hd - hu).Normalized();
+        return normal.Y < 0.82f || h[i] > 27 ? Rock : h[i] < 1.5f ? Sand : h[i] < 14 ? Grass : Moss;
+    }
+
+    private static readonly Color Rock = new("7a7a80");
+    private static readonly Color Sand = new("c8b48a");
+    private static readonly Color Grass = new("6f8f3a");
+    private static readonly Color Moss = new("5a6b2e");
 
     public static StaticBody3D BuildCollision(float[] h, int Size, float Spacing)
     {
