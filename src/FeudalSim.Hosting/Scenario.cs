@@ -57,7 +57,8 @@ public sealed record ScenarioDef
         var world = new SimWorld(Seed, StartGameMs(), DayLengthMinutes) { Content = content, Jobs = jobs }
             .AddSystem(new LodSystem())
             .AddSystem(new WanderSystem())
-            .AddSystem(new NeedsDecaySystem());
+            .AddSystem(new NeedsDecaySystem())
+            .AddSystem(new PsychologySystem());
         if (AiPingStep is { } at) { world.AddSystem(new AiPingSystem(at, AiPingDeadlineSteps)); }
         if (DecisionPingStep is { } dpAt)
         {
@@ -78,7 +79,8 @@ public sealed record ScenarioDef
 
 /// <summary>One row of <c>metrics_daily.csv</c>.</summary>
 public sealed record DayMetrics(int Day, string Date, long Step, int People, double SatietyMean, double HydrationMean,
-    double EnergyMean, double MeanDistanceFromHomeM, int Events, ulong StateHash);
+    double EnergyMean, double MeanDistanceFromHomeM, int Events, ulong StateHash,
+    double MoodMean = 0, double SocialMean = 0, double ComfortMean = 0, double PurposeMean = 0, double StatusMean = 0);
 
 public sealed record RunResult(long Steps, ulong FinalHash, IReadOnlyList<DayMetrics> Days, double WallSeconds);
 
@@ -126,9 +128,14 @@ public static class ScenarioRunner
     private static DayMetrics Measure(SimWorld world, int day, int events)
     {
         var p = world.People;
-        double sat = 0, hyd = 0, en = 0, dist = 0;
+        double sat = 0, hyd = 0, en = 0, dist = 0, mood = 0, social = 0, comfort = 0, purpose = 0, status = 0;
         for (var i = 0; i < p.Count; i++)
         {
+            mood += p.Mood[i].Smoothed;
+            social += p.Needs[i].Social;
+            comfort += p.Needs[i].Comfort;
+            purpose += p.Needs[i].Purpose;
+            status += p.Needs[i].Status;
             sat += p.Needs[i].Satiety;
             hyd += p.Needs[i].Hydration;
             en += p.Needs[i].Energy;
@@ -139,6 +146,6 @@ public static class ScenarioRunner
 
         var n = Math.Max(1, p.Count);
         return new DayMetrics(day, GameDate.FromGameMs(world.Clock.GameMs).ToString(), world.Clock.Step, p.Count,
-            sat / n, hyd / n, en / n, dist / n, events, StateHasher.Hash(world));
+            sat / n, hyd / n, en / n, dist / n, events, StateHasher.Hash(world), mood / n, social / n, comfort / n, purpose / n, status / n);
     }
 }

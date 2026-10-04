@@ -72,6 +72,9 @@ public sealed record TraitEffects
     public float? Tau { get; init; }
     public float? Susceptibility { get; init; }
     public float? MoodBaseline { get; init; }
+
+    /// <summary>Additive shift of the Status-need aspiration (21 §5.2: Ambitious +15, Humble −15).</summary>
+    public float? StatusAspiration { get; init; }
     public IReadOnlyDictionary<string, int>? ValueFloor { get; init; }
     public IReadOnlyDictionary<string, int>? ValueCap { get; init; }
     public IReadOnlyDictionary<string, int>? ValueShift { get; init; }

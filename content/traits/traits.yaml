@@ -186,12 +186,12 @@
   group: ambition
   canon: true
   incompatible: [trait.humble]
-  effects: { utility: { ambition_step: 1.5 }, notes: "Status aspiration +15 (21 §5.2); always holds ≥ 1 ambition; Jealousy from rivals' promotion ×1.5." }
+  effects: { utility: { ambition_step: 1.5 }, status_aspiration: 15, notes: "Always holds ≥ 1 ambition; Jealousy from rivals' promotion ×1.5." }
 - id: trait.humble
   name: Humble
   group: ambition
   incompatible: [trait.ambitious, trait.proud]
-  effects: { susceptibility: 0.05, notes: "Status aspiration −15; no Shame from public praise." }
+  effects: { susceptibility: 0.05, status_aspiration: -15, notes: "No Shame from public praise." }
 - id: trait.proud
   name: Proud
   group: ambition

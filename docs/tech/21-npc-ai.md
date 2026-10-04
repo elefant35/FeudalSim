@@ -576,6 +576,12 @@ Landfall feel.
 | Low | −59 … −20 | Work rate ×0.95; Social need decay ×1.2; τ ×(1 + 0.5·|mood|/100) |
 | Breaking | −100 … −60 | Work rate ×0.85; **breaking-point** risk (§6.5) |
 
+*Implemented (M1-01b, 2026-10-04):* `PsychologySystem` applies §5.2, §6.2 and §6.4 each step with exact per-hour
+rates (decay factors `2^(−Δ/HL)`, tracking `1 − (1 − r)^Δ`), so results do not depend on step size. Inputs owned
+elsewhere are placeholders until their systems land: activity state (sleeping/interacting/purposeful — M1-02),
+the Comfort target (11/14; Landfall 25), Safety threats (16/18), Status standing (16/17; profession prestige for
+now), and thoughts. Breaking points (§6.5) arrive with the utility AI.
+
 ### 6.5 Breaking points
 
 While Smoothed mood < −60, roll each game hour (stream `ai.break`):

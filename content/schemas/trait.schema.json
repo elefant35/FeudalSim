@@ -72,6 +72,9 @@
           "mood_baseline": {
             "type": "number"
           },
+          "status_aspiration": {
+            "type": "number"
+          },
           "value_floor": {
             "type": "object"
           },
