@@ -126,7 +126,7 @@ public partial class SimHost : Node3D
         _openKnap = args.Contains("--open-knap");
         _autotestCamp = _autotestDialogue || args.Contains("--autotest-camp");
         _autotestIsland = args.Contains("--autotest-island");
-        var templateOnly = _autotestCamp || _autotestKnap || _autotestIsland || _shotPath is not null;   // autotests and screenshots never call a model (unless --live)
+        var templateOnly = _autotestCamp || _autotestKnap || _autotestIsland || _shotPath is not null || args.Contains("--template");   // autotests, screenshots and `--template` never call a model (unless --live)
         FeudalSim.AI.AiConfig? config = null;
         if (scenario.Player is not null && !_autotest)   // a player can overhear talk: live AI if the key is set, else templates
         {
