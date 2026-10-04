@@ -155,6 +155,7 @@ public partial class SimHost : Node3D
             World.Island.Atmosphere(GetNode<WorldEnvironment>("WorldEnvironment"));
             GetNode<Node3D>("Ground").Visible = false;
             if (anchor is not null) { _camera.Position = new Vector3(anchor.FireX, Ground(anchor.FireX, anchor.FireZ) + 34, anchor.FireZ + 26); }
+            if (anchor is not null && map.Landing is { } landing) { _islandFacing = Mathf.Atan2(-(landing.WreckX - anchor.FireX), -(landing.WreckZ - anchor.FireZ)); }   // FP2: you start looking out at the wreck
         }
 
         _campRecord = world.Camp;
@@ -365,7 +366,7 @@ public partial class SimHost : Node3D
         var minute = snapshot.GameMs / Sim.Time.SimClock.MsPerGameMinute;
         UpdateSun(snapshot.Weather, minute);
         _overlay.Text = $"FeudalSim · {_scenarioId} · {date} · {snapshot.Weather.Sky} {Sim.Climate.Weather.AirTempC(snapshot.Weather, minute):F0} °C · wind {snapshot.Weather.WindMs:F0} m/s · step {snapshot.Step} · {_stepsPerSecond:F1} steps/s · ×{_timeScale} · {_runner.Mode}\n" +
-                        $"{snapshot.Count - (snapshot.IsPlayer.AsSpan(0, snapshot.Count).Contains(true) ? 1 : 0)} settlers · [Space] pause · [1][2][4][8] speed · {(_play ? "WASD walk · Shift jog · Ctrl sprint · [K] knap · [E] talk · [Esc] leave · [T] take" : "WASD/arrows pan")} · wheel zoom" +
+                        $"{snapshot.Count - (snapshot.IsPlayer.AsSpan(0, snapshot.Count).Contains(true) ? 1 : 0)} settlers · [Space] pause · [1][2][4][8] speed · {(_play ? "WASD walk · mouse look · Shift jog · Ctrl sprint · [E] interact · [V] view · [K] knap · [Esc] leave · [Tab] mouse" : "WASD/arrows pan · wheel zoom")}" +
                         (_aiStatus.Length > 0 ? $" · {_aiStatus}" : "");
         if (_play && snapshot.PlayerStaminaMax > 0f)
         {
@@ -547,11 +548,7 @@ public partial class SimHost : Node3D
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (_play && @event is InputEventMouseButton { Pressed: true } z && z.ButtonIndex is MouseButton.WheelUp or MouseButton.WheelDown)
-        {
-            _zoom = Math.Clamp(_zoom * (z.ButtonIndex == MouseButton.WheelUp ? 0.9f : 1.1f), 0.4f, 4f);
-            return;
-        }
+        if (_play && CameraInput(@event)) { return; }
 
         if (@event is InputEventMouseButton { Pressed: true } wheel && wheel.ButtonIndex is MouseButton.WheelUp or MouseButton.WheelDown)
         {

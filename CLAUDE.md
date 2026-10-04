@@ -84,7 +84,7 @@ dotnet run -c Release --project src/FeudalSim.Headless -- bench --scenario conte
 dotnet run -c Release --project src/FeudalSim.Headless -- minigame [--check]   # 13 §13.3 knapping calibration curves (writes content/minigames/knapping.yaml)
 dotnet run --project src/FeudalSim.Headless -- weather [--seed N --years 3000]   # 10 §6.3 chain: shares vs the table (±3 points), beach temperatures
 dotnet build game/FeudalSim.Game.csproj                                  # the Godot client (also builds Hosting/Sim)
-$GODOT --path game                                                       # the island (m2_landfall: camp at the landing; first launch generates the world ≈ 100 s, then cached), play mode: WASD walk · Shift jog · Ctrl sprint · [K] knap · [E] talk · [Esc] leave · Space pause · 1/2/4/8 speed; `-- --view` overhead
+$GODOT --path game                                                       # the island (m2_landfall: camp at the landing; first launch generates the world ≈ 100 s, then cached), play mode in first person: mouse look · WASD walk · Shift jog · Ctrl sprint · [E] interact (what you look at) · [V] third person · [Tab] free the mouse · [K] knap · [Esc] leave · Space pause · 1/2/4/8 speed; `-- --view` overhead; `-- --scenario m1_view` the flat M1 camp
 $GODOT --path game -- --scenario m1_overheard                            # any content/scenarios/<name>.yaml; `-- --shot out.png 30` saves a screenshot and quits
 $GODOT --headless --path game -- --autotest                              # Boot smoke: movement, pause, time scale (exit 0/1)
 $GODOT --headless --path game -- --autotest-island                       # M2-FP1: Terrain3D heights = sim, camp and player on dry land, bodies on the ground (exit 0/1)
