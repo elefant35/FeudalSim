@@ -19,7 +19,7 @@ public sealed class InteractionSystem : ISimSystem
     private static readonly Kind[] Kinds = Enum.GetValues<Kind>();
     private static readonly string[] Forgivable = ["opinion.insulted_me", "opinion.argued_with_me", "opinion.mocked_me", "opinion.rude_to_me"];
     private ContentDatabase? _cachedFor;
-    private int _hotTempered = -1, _stubborn = -1, _charitable = -1, _honest = -1;
+    private int _hotTempered = -1, _stubborn = -1, _charitable = -1, _honest = -1, _vengeful = -1, _healing = -1, _persuasion = -1;
 
     /// <summary>Counts per kind (metrics: 16 §5.6 frequency targets). Not state.</summary>
     public long[] Counts { get; } = new long[Kinds.Length];
@@ -48,6 +48,7 @@ public sealed class InteractionSystem : ISimSystem
             _cachedFor = world.Content;
             (_hotTempered, _stubborn, _charitable, _honest) = (world.Content.TraitHandle("trait.hot_tempered"), world.Content.TraitHandle("trait.stubborn"),
                 world.Content.TraitHandle("trait.charitable"), world.Content.TraitHandle("trait.honest"));
+            (_vengeful, _healing, _persuasion) = (world.Content.TraitHandle("trait.vengeful"), world.Content.SkillHandle("skill.healing"), world.Content.SkillHandle("skill.persuasion"));
         }
 
         Span<int> partners = stackalloc int[people.Count];
@@ -152,7 +153,6 @@ public sealed class InteractionSystem : ISimSystem
                     var lonelyB = people.Needs[j].Social < 40f ? 1.5f : 1f;
                     rel.ApplyModifier(a, b, "opinion.chatted", lonelyA);
                     rel.ApplyModifier(b, a, "opinion.chatted", lonelyB);
-                    Social(people, i, j, 10f);
                     Both(mem, a, b, MemoryKind.Chat, now, 5, 10);
                 }
                 else if (people.Personality[j].Volatility >= 65)
@@ -170,7 +170,6 @@ public sealed class InteractionSystem : ISimSystem
                     rel.ApplyModifier(b, a, "opinion.joked_together");
                     people.Emotions[i].Joy = MathF.Min(100f, people.Emotions[i].Joy + 5f);
                     people.Emotions[j].Joy = MathF.Min(100f, people.Emotions[j].Joy + 5f);
-                    Social(people, i, j, 10f);
                     Both(mem, a, b, MemoryKind.Joke, now, 5, 30);
                 }
                 else
@@ -186,7 +185,7 @@ public sealed class InteractionSystem : ISimSystem
                 break;
 
             case Kind.Comfort:
-                if (rng.Chance(0.5f + (0.004f * opBa) + (people.SkillLevels(i)[world.Content.SkillHandle("skill.healing")] / 400f)))
+                if (rng.Chance(0.5f + (0.004f * opBa) + (people.SkillLevels(i)[_healing] / 400f)))
                 {
                     ref var em = ref people.Emotions[j];
                     if (em.Grief >= em.Fear && em.Grief >= em.Shame) { em.Grief = MathF.Max(0f, em.Grief - 15f); }
@@ -231,8 +230,8 @@ public sealed class InteractionSystem : ISimSystem
 
             case Kind.Apologize:
                 var pAccept = Math.Clamp(0.40f + (0.005f * opBa) + (0.003f * (people.Personality[j].Warmth - 50f))
-                    - (people.Personality[j].HasTrait(_stubborn) ? 0.20f : 0f) - (people.Personality[j].HasTrait(world.Content.TraitHandle("trait.vengeful")) ? 0.25f : 0f)
-                    + (0.15f * 0.57f * (0.5f + (0.5f * people.SkillLevels(i)[world.Content.SkillHandle("skill.persuasion")] / 100f)) * Math.Clamp(people.Emotions[i].Shame / 100f, -0.5f, 1f)),
+                    - (people.Personality[j].HasTrait(_stubborn) ? 0.20f : 0f) - (people.Personality[j].HasTrait(_vengeful) ? 0.25f : 0f)
+                    + (0.15f * 0.57f * (0.5f + (0.5f * people.SkillLevels(i)[_persuasion] / 100f)) * Math.Clamp(people.Emotions[i].Shame / 100f, -0.5f, 1f)),
                     0.05f, 0.95f);
                 if (rng.Chance(pAccept))
                 {
@@ -305,12 +304,6 @@ public sealed class InteractionSystem : ISimSystem
         var delta = baseMagnitude * gVol * gTrait * gValue * MathF.Max(0.1f, gRel);
         e.Anger = MathF.Min(100f, e.Anger + (delta * (1f - (e.Anger / 150f))));
         e.AngerTarget = people.Ids[source];
-    }
-
-    private static void Social(PersonTable people, int i, int j, float amount)
-    {
-        people.Needs[i].Social = MathF.Min(100f, people.Needs[i].Social + amount);
-        people.Needs[j].Social = MathF.Min(100f, people.Needs[j].Social + amount);
     }
 
     private static void Both(MemoryStore mem, EntityId a, EntityId b, MemoryKind kind, long now, int baseKind, sbyte valence, sbyte? valenceOverride = null)

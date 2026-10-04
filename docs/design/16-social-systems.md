@@ -648,9 +648,10 @@ opportunity is the same task site (both performing) or ≤ 4 m (walkers included
 softmax over log-weights at `T = 0.5 + Vo/100`. In the camp, Request help means "a hand with this task": the asker is
 working, the weight is `2·(1 + fatigue)` × pride, and Willingness (§5.4) includes reciprocity from remembered favors.
 A grant also gives `helped_my_work`. Insult adds the modifier and 21 §6.1 anger; the §9 ladder is M1-08. ≤ 4 per pair
-per day, kept on the edge. **Camp sweep (20 seeds × 30 days):** 5.0 initiations / person / day (≈ 10 participations),
-of which chat 70 %, joke 21 %, request 6 %, argue 2 %, praise 1 %, comfort/insult/apology < 1 %. Friends form in every
-seed (0.12 / person by day 30). Talk alone saturates near Op 20 (`chatted` + `joked_together` caps), so friendship
+per day, kept on the edge. Interactions don't refill the Social need; the `socialize` action does (40/h). A +10 per
+chat let idle time displace socializing and pushed the idle rate out of band. **Camp sweep (100 seeds × 30 days):**
+5.5 initiations / person / day (≈ 11 participations), of which chat 70 %, joke 21 %, request 5 %, argue 2 %, praise 1 %,
+comfort/insult/apology < 1 %. Friends form in 87 % of seeds (0.09 / person by day 30). Talk alone saturates near Op 20 (`chatted` + `joked_together` caps), so friendship
 needs help, comfort or rapport, as in §4.13. All 21 §19 bands hold.
 
 ### 5.7 Rendering (interface to [22-llm-integration](../tech/22-llm-integration.md))
@@ -1816,7 +1817,7 @@ betray a confidence, an Honest guard asked to ignore a theft) refuse in ≥ 95% 
 13. How many bystander DPs per exchange can the fast decider afford in a crowded tavern (cap 3 now),
     and should called allies always get one?
 14. Should the player be told (UI) when a pick was blocked by a guard, or should it stay invisible?
-15. **Friendship formation rate.** The M1 camp makes 0.12 friends / person by day 30 with no rapport DPs and no
+15. **Friendship formation rate.** The M1 camp makes 0.09 friends / person by day 30 with no rapport DPs and no
     gossip yet. What target (e.g. 1–2 friends / person by day 30) should the 21 §19 sweep enforce? It interacts
     with Q12.
 
