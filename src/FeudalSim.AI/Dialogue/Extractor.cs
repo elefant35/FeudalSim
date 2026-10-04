@@ -99,7 +99,10 @@ public static partial class Extractor
             else if (defaultUnitF is { } du && !after.StartsWith('%')) { found.Add(new(n.Value * du, n.Start, n.Length)); }
         }
 
-        foreach (Match m in ACrown().Matches(text)) { found.Add(new(CrownF, m.Index, m.Length)); }
+        foreach (Match m in AUnit().Matches(text))
+        {
+            found.Add(new(m.Groups[1].Value.ToLowerInvariant() switch { "farthing" => 1, "penny" => PennyF, "shilling" => ShillingF, _ => CrownF }, m.Index, m.Length));
+        }
         return [.. found.OrderBy(f => f.Start)];
     }
 
@@ -184,8 +187,8 @@ public static partial class Extractor
     [GeneratedRegex(@"^(f|d|s|farthings?|penny|pence|pennies|shillings?|bob|crowns?)\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex UnitWord();
 
-    [GeneratedRegex(@"\ba\s+crown\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
-    private static partial Regex ACrown();
+    [GeneratedRegex(@"\ba\s+(farthing|penny|shilling|crown)\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    private static partial Regex AUnit();
 
     [GeneratedRegex(@"[\p{L}']+", RegexOptions.CultureInvariant)]
     private static partial Regex Word();

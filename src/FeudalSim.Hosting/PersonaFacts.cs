@@ -89,7 +89,7 @@ public static class PersonaFacts
         for (var bits = p.Traits; bits != 0; bits &= bits - 1)
         {
             var h = System.Numerics.BitOperations.TrailingZeroCount(bits);
-            if (h < world.Content.Traits.Count) { parts.Add(world.Content.Traits[h].Name.ToLowerInvariant()); }
+            if (h < world.Content.Traits.Count) { parts.Add(world.Content.Traits[h].VoicePhrase ?? world.Content.Traits[h].Name.ToLowerInvariant()); }
         }
 
         float Z(byte f) => (f - 50f) / 15f;

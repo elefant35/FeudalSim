@@ -102,6 +102,9 @@ public sealed record TraitDef
 
     public TraitEffects? Effects { get; init; }
     public string? Description { get; init; }
+
+    /// <summary>How the trait reads in a persona card's Temperament line (22 §7.3), e.g. "quick to anger".</summary>
+    public string? VoicePhrase { get; init; }
 }
 
 /// <summary>A homeland culture (canon §5): value means and trait-generation multipliers (21 §4.2, §4.4).</summary>

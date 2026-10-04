@@ -175,13 +175,15 @@ public sealed class DialogueReplyRouter(IChatProvider? chat, IDecider? verifier,
             }
 
             var text = shown.ToString().Trim();
-            if (text.Length > 0) { Finish(b, text, "llm", flags); return; }
+            if (text.Length > 0 && SpeechChecks.CarriesPrice(text, b.Slots.GetValueOrDefault(primaryChoice))) { Finish(b, text, "llm", flags); return; }
+            if (text.Length > 0) { flags.Add("must_say:price"); await VoiceResolvedAsync(b, started, primaryChoice, "regenerated", ct, flags).ConfigureAwait(false); return; }
             await VoiceResolvedAsync(b, started, primaryChoice, "template", ct, flags).ConfigureAwait(false);
             return;
         }
 
         // Tier B: rule checks, then the fast decider's verification; one speak-only regeneration; then a template.
         var (checkedText, fail) = SpeechChecks.Check(full, b.Facts.MaxWords, Allowed(b, primaryChoice), b.Facts.KnownNames);
+        if (checkedText is not null && !SpeechChecks.CarriesPrice(checkedText, b.Slots.GetValueOrDefault(primaryChoice))) { (checkedText, fail) = (null, "must_say:price"); }
         if (checkedText is not null && await VerifyAsync(b, primaryChoice, checkedText, ct).ConfigureAwait(false) is null)
         {
             Finish(b, checkedText, "llm", flags);
@@ -230,6 +232,7 @@ public sealed class DialogueReplyRouter(IChatProvider? chat, IDecider? verifier,
                 var at = text.IndexOf("SAY:", StringComparison.Ordinal);
                 if (at >= 0) { text = text[(at + 4)..].Trim(); }
                 var (ok, fail) = SpeechChecks.Check(text, b.Facts.MaxWords, Allowed(b, choice), b.Facts.KnownNames);
+                if (ok is not null && !SpeechChecks.CarriesPrice(ok, b.Slots.GetValueOrDefault(choice))) { (ok, fail) = (null, "must_say:price"); }
                 if (ok is not null && (!TierB(b.Primary, choice) || await VerifyAsync(b, choice, ok, cut.Token).ConfigureAwait(false) is null))
                 {
                     Finish(b, ok, "regenerated", flags);

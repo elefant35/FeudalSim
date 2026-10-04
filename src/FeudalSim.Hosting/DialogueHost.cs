@@ -206,7 +206,7 @@ public static class TurnBundleBuilder
         {
             switch (p.Key)
             {
-                case "price_f": s["price"] = Sim.Economy.Money.Words(p.Value); break;
+                case "price_f": s["price"] = Sim.Economy.Money.Words(p.Value); s["price_f"] = p.Value.ToString(System.Globalization.CultureInfo.InvariantCulture); break;
                 case "task" when p.Value >= 0 && p.Value < world.Content.Actions.Count: s["task"] = world.Content.Actions[(int)p.Value].Name.ToLowerInvariant(); break;
                 case "claim" when p.Value >= 0 && p.Value < world.Claims.Count: s["claim"] = PersonaFacts.ClaimText(world, (int)p.Value); break;
                 case "reason" when p.Value >= 0 && p.Value < world.Content.Actions.Count: s["reason"] = "I need to " + world.Content.Actions[(int)p.Value].Name.ToLowerInvariant(); break;

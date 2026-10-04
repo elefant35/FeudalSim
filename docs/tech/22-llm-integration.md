@@ -1239,6 +1239,11 @@ Example lines: "Iron doesn't care how you feel about it. Neither do I." / "Ask p
 | Voice | Voice catalog keyed by culture × profession × traits × age (Varrow: formal address, "aye/nay"; Osmeri: coin and trade idioms; Brannoch: kin and oath talk, light dialect without phonetic spelling; Ashen Reform: plain, scripture-flavored speech) — deterministic pick on stream `voice` |
 | Example lines | Utility LLM, once; fallback: catalog exemplars |
 
+*Implemented (M1-12/13, Hosting `PersonaFacts`):* Name, age, trade and homeland; Temperament from each trait's content
+`voice_phrase` (45 written) plus facet extremes; Cares most / little from the values; Voice by culture with a volatility or
+warmth flavor. **Not yet:** households (16 §11), skill tiers in the card, the voice catalog by profession × age, and the
+two generated example lines (utility model, stored in the save) — the card works without them.
+
 ### 7.4 Numbers → words
 
 LLMs follow descriptive language better than raw numbers; all sim scalars are rendered through band
@@ -1316,6 +1321,11 @@ talk) carry the decision instead of a menu — v1's OUTCOME library, now keyed b
 | Chat | `DECIDED - CHAT: respond naturally; you may mention {may_mention}. {question_back?}` |
 
 Every block ends with `Show: {stance words}` and `Length: {n} sentences, at most {w} words`.
+
+*Implemented (M1-13):* `PromptBuilder` follows §7.1's order (RULES · PERSONA + YOU KNOW + CONVERSATION SO FAR · NOW,
+FEELS, TOWARD · `<player_said>` · DECISION); YOU KNOW holds the NPC's three most salient memories of the speaker and its
+three strongest held beliefs (k ≤ 6; SECRETS waits for disclosure, §6.4). A typical turn's prompt is within the ≈ 2,290-token
+budget (test). The price must-say rule runs on every priced line (`SpeechChecks.CarriesPrice`; the S2 price errors).
 
 ### 7.7 Context retrieval (inside the sim, deterministic)
 

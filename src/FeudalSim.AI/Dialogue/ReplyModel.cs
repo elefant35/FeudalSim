@@ -92,6 +92,21 @@ public static partial class SpeechChecks
         return (text, null);
     }
 
+    /// <summary>
+    /// 22 §4.9 required facts (the deterministic half of v_mustsay): a line voicing a priced option must state that price —
+    /// in farthings as parsed from its words, or the exact price words. S2 saw wrong or omitted prices in 22–43 % of lines
+    /// from some models.
+    /// </summary>
+    public static bool CarriesPrice(string text, IReadOnlyDictionary<string, string>? slots)
+    {
+        if (slots is null || !slots.TryGetValue("price_f", out var f) || !long.TryParse(f, System.Globalization.CultureInfo.InvariantCulture, out var price)) { return true; }
+        if (slots.TryGetValue("price", out var words) && text.Contains(words, StringComparison.OrdinalIgnoreCase)) { return true; }
+        var money = Extractor.Money(text, Extractor.Numbers(text), defaultUnitF: 1);
+        var total = 0L;
+        foreach (var m in money) { if (m.Farthings == price) { return true; } total += m.Farthings; }
+        return total == price;   // "eleven pence and a farthing" parses as two mentions
+    }
+
     /// <summary>Numbers a line may carry: those in the chosen option's slot values and facts, and any the player just said.</summary>
     public static HashSet<long> AllowedNumbers(IEnumerable<string> facts, string playerLine)
     {
