@@ -137,6 +137,37 @@ public sealed class NodesTests
         forage.ShouldBeGreaterThan(0);
     }
 
+    [Fact]
+    public void TheLanding_MeetsTheHardRequirements_WithTheWreckOnAWadeableReef()   // 10 §3.9, §9 (M2-01c-i)
+    {
+        var w = World.Value;
+        var l = w.Landing;
+        if (l is null) { w.Failures.ShouldContain(f => f.StartsWith("W9", StringComparison.Ordinal)); return; }   // a single attempt may have none: Generate retries
+        (l.WaterM, l.FlintM, l.ClayM, l.BroadleafM).ShouldSatisfyAllConditions(() => l.WaterM.ShouldBeLessThanOrEqualTo(400f), () => l.FlintM.ShouldBeLessThanOrEqualTo(1000f),
+            () => l.ClayM.ShouldBeLessThanOrEqualTo(1500f), () => l.BroadleafM.ShouldBeLessThanOrEqualTo(600f));
+        l.FertileHa.ShouldBeGreaterThanOrEqualTo(40f);
+        var g = w.Grid;
+        var wreck = w.Pois.Single(p => p.Kind == PoiKind.Wreck);
+        var d = MathF.Sqrt(((wreck.X - l.BeachX) * (wreck.X - l.BeachX)) + ((wreck.Z - l.BeachZ) * (wreck.Z - l.BeachZ)));
+        d.ShouldBeInRange(140f, 320f);
+        var cell = ((int)MathF.Round((wreck.Z + 4096f) / g.CellM) * g.Size) + (int)MathF.Round((wreck.X + 4096f) / g.CellM);
+        g.Land[cell].ShouldBe((byte)0);
+        g.Height[cell].ShouldBeGreaterThanOrEqualTo(-0.8f);   // wadeable at low water (11 §15.2)
+        var flotsam = w.Pois.Where(p => p.Kind == PoiKind.Flotsam).ToList();
+        flotsam.Count.ShouldBeInRange(1, 12);
+        flotsam.ShouldAllBe(p => p.X >= l.BeachX - 500f);
+    }
+
+    [Fact]
+    public void Generate_ReturnsAWorldWithALanding_AndNoMoreThanTenIslets()
+    {
+        using var jobs = new JobRunner(Environment.ProcessorCount);
+        var w = WorldGenerator.Generate(Content.WorldSpec("worldspec.farstrand_default")!, 49, jobs);
+        w.CoreValid.ShouldBeTrue(string.Join("; ", w.Failures));
+        w.Landing.ShouldNotBeNull();
+        w.Islets.ShouldBeInRange(3, 10);
+    }
+
     private static string RepoRoot()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);

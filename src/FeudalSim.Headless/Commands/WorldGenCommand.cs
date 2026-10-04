@@ -46,6 +46,7 @@ public sealed class WorldGenCommand : Command<WorldGenSettings>
         using var jobs = new JobRunner(settings.Threads);
         var ok = 0;
         var full = 0;
+        var w14Ok = 0;
         for (var k = 0; k < settings.Seeds; k++)
         {
             var seed = settings.Seed + (ulong)k;
@@ -57,6 +58,11 @@ public sealed class WorldGenCommand : Command<WorldGenSettings>
             var lith = Enumerable.Range(0, 7).Select(l => w.Grid.Lithology.Count(b => b == l)).ToArray();
             var landCells = Math.Max(1, lith.Skip(1).Sum());
             Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"   deposits: {string.Join(" · ", w.Deposits.GroupBy(d => d.Kind).OrderBy(gr => gr.Key).Select(gr => $"{gr.Key} {gr.Count()}"))}"));
+            var w14 = WorldGenerator.CheckW14(w, content);
+            if (w14 is null) { w14Ok++; }
+            Console.WriteLine(w.Landing is { } l
+                ? string.Create(CultureInfo.InvariantCulture, $"   landing ({l.BeachX:F0}, {l.BeachZ:F0}) · reef {l.ReefM:F0} m · water {l.WaterM:F0} m · flint {l.FlintM:F0} m · clay {l.ClayM:F0} m · broadleaf {l.BroadleafM:F0} m · fertile {l.FertileHa:F0} ha · flotsam {w.Pois.Count(p => p.Kind == PoiKind.Flotsam)} · {w14 ?? "W14 ok"}")
+                : "   landing: none (W9)");
             if (settings.Nodes)
             {
                 var table = new NodeScatter.Table(content);
@@ -86,7 +92,7 @@ public sealed class WorldGenCommand : Command<WorldGenSettings>
             }
         }
 
-        Console.WriteLine($"worldgen: {ok}/{settings.Seeds} pass {(settings.Strict ? "all asserts" : "W1/W5 (stages 1–4)")} · {full}/{settings.Seeds} pass every assert incl. W2/W3/W4");
+        Console.WriteLine($"worldgen: {ok}/{settings.Seeds} pass {(settings.Strict ? "all asserts" : "W1/W5/W9 (land, peak, a landing)")} · {full}/{settings.Seeds} pass every assert incl. W2/W3/W4/W9 · {w14Ok}/{settings.Seeds} W14");
         return ok == settings.Seeds ? 0 : 1;
     }
 }

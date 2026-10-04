@@ -398,6 +398,25 @@ should create a rivalry, not just a chore.
 
 The landing is designed to be **good for food and poor for metal**. That is the canon tension.
 
+*Implemented (M2-01c-i), `Sim/WorldGen/Landing.cs`:*
+- **Candidates:** sandy, dune and shingle beach cells within 1.5 km of the primary estuary mouth.
+- **Hard requirements:** water ≤ 400 m, flint ≤ 1 km, clay ≤ 1.5 km, broadleaf ≤ 600 m, ≥ 40 ha of fertility ≥ 0.65
+  within 1.5 km, and open sea 150 m or more straight out.
+- **Choices (reversible):**
+  - Fresh water includes brooks of ≥ 0.25 km² catchment. The estuary flare turns the lower river brackish, so
+    without them almost no beach near the mouth qualifies.
+  - Flint counts §5.1's three sources: beds, chalk ground and shingle shores.
+- **Score:** the fertile area ×3.
+- **Wreck and reef:** the reef line out to the wreck (≤ 220 m) is shoaled to −0.8 m, wadeable at low water. The wreck
+  is POI 1; 6–12 flotsam strands lie within 5 km downdrift (east, with the westerlies), ≥ 300 m apart.
+- **Asserts:** W9 is enforced alongside W1/W5, since the game needs a landing. W14 (`WorldGenerator.CheckW14`) is
+  reported.
+- **Islets:** W1's upper bound became a generator rule. If the stage-1 mask raises more than 10 islets of ≥ 1 ha, the
+  smallest extras are sunk before relief.
+- **Measured:** 20/20 seeds pass W1/W5/W9 (in 0–6 attempts); W14 19/20.
+- **Not yet:** tin, dens and metals join the hard requirements when they exist (W6–W8), and expedition sites W10/W11
+  come with expeditions.
+
 **Expedition candidate sites** (≥ 3, used in §14.2): coastal, each with an anchorage, its own
 fresh water, ≥ 30 ha of fertility ≥ 0.6 within 1.2 km, ≥ 2.5 km path from the landing and from
 each other, and overlapping no more than 20% of any other site's 1.5 km farmland disc. Each

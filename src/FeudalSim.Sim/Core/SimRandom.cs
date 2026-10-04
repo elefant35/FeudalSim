@@ -37,6 +37,7 @@ public static class Salt
     public const uint WorldGenBiomes = 32;
     public const uint WorldGenNodes = 33;
     public const uint WorldGenDeposits = 34;
+    public const uint WorldGenLanding = 35;
     public const uint Mediation = 25;
     public const uint Trauma = 26;
     public const uint Infection = 27;

@@ -51,10 +51,17 @@ public sealed record WorldGenResult(ulong Seed, int Attempt, ulong AttemptSeed, 
     /// <summary>T0 deposits (10 §3.8; M2-01b-ii). Nodes are not stored: <see cref="NodeScatter"/> regenerates any chunk from <c>AttemptSeed</c>.</summary>
     public IReadOnlyList<Deposit> Deposits { get; init; } = [];
 
+    /// <summary>10 §3.9 the player's landing and the wreck (M2-01c-i); null if no beach met the hard requirements (W9).</summary>
+    public LandingSite? Landing { get; init; }
+
+    /// <summary>10 §9 POIs placed so far: the wreck and its flotsam strands.</summary>
+    public IReadOnlyList<Poi> Pois { get; init; } = [];
+
     public bool Valid => Failures.Count == 0;
 
-    /// <summary>The asserts of the stages that are complete (W1, W5 — M2-01a-i/ii) hold; W2/W3 may still fail (10 Q, 31 D38).</summary>
-    public bool CoreValid => Failures.All(f => !f.StartsWith("W1", StringComparison.Ordinal) && !f.StartsWith("W5", StringComparison.Ordinal));
+    /// <summary>The enforced asserts hold: W1 (land), W5 (peak) and W9 (a landing — the game needs one, M2-01c). W2/W3/W4 are
+    /// reported while their findings stand (10 Q16/Q18, 31 D38/D44).</summary>
+    public bool CoreValid => Failures.All(f => !f.StartsWith("W1", StringComparison.Ordinal) && !f.StartsWith("W5", StringComparison.Ordinal) && !f.StartsWith("W9", StringComparison.Ordinal));
 }
 
 /// <summary>
@@ -100,6 +107,7 @@ public static class WorldGenerator
         jobs.ForEachChunk(size, (start, end) => MaskRows(mask, start, end, size, landKey, archetype, rotation, mirrored));
         var sea = SeaLevel(mask, targetKm2 * 1e6 / (CellM * CellM));
         for (var i = 0; i < mask.Length; i++) { grid.Land[i] = mask[i] > sea ? (byte)1 : (byte)0; }
+        TrimIslets(grid, 1e4f / (CellM * CellM), 10);   // W1: at most 10 islets ≥ 1 ha — the smallest extras go under
 
         // Stage 2 — relief: distance to the shore, then archetype ridges + hills + coastal plain, peak normalised into its band.
         DistanceTransform(grid);
@@ -150,6 +158,9 @@ public static class WorldGenerator
         // Stage 9 (part) — T0 deposits; nodes scatter on demand per chunk (M2-01b-ii).
         var deposits = WorldGen.Deposits.Place(grid, SplitMix64.Mix(s, (ulong)RngStream.WorldGen, Salt.WorldGenDeposits, 0, 0));
 
+        // Stage 10 (part) — the landing, the wreck on its reef and the flotsam strands (M2-01c-i).
+        var (landing, pois) = WorldGen.Landing.Choose(grid, water, coast, deposits, SplitMix64.Mix(s, (ulong)RngStream.WorldGen, Salt.WorldGenLanding, 0, 0));
+
         // Validation (10 §3.11): W1 land area and islets, W5 peak.
         var land = 0;
         var above800 = 0;
@@ -184,6 +195,10 @@ public static class WorldGenerator
 
         if (water.Springs.Count < 6) { failures.Add($"W3 springs {water.Springs.Count}"); }
 
+        // W9: a landing meeting every hard requirement (tin and dens join when they exist). W14 (nodes near the landing)
+        // needs the node table, so it is checked by callers with content (WorldGenerator.CheckW14).
+        if (landing is null) { failures.Add("W9 no landing meets the hard requirements"); }
+
         // W4: every biome present and inside its share band.
         foreach (var (key, band) in spec.BiomeShare ?? new Dictionary<string, IReadOnlyList<float>>())
         {
@@ -192,7 +207,7 @@ public static class WorldGenerator
             if (b == Biome.None || band.Count != 2 || share < band[0] || share > band[1]) { failures.Add($"W4 {key} {share:P1}"); }
         }
 
-        return new WorldGenResult(seed, attempt, s, spec.Id, archetype, rotation, mirrored, grid, landKm2, peak, above800 * cellKm2, islets, failures) { Water = water, Coast = coast, Biomes = biomes, Deposits = deposits };
+        return new WorldGenResult(seed, attempt, s, spec.Id, archetype, rotation, mirrored, grid, landKm2, peak, above800 * cellKm2, islets, failures) { Water = water, Coast = coast, Biomes = biomes, Deposits = deposits, Landing = landing, Pois = pois };
     }
 
     /// <summary>
@@ -218,6 +233,14 @@ public static class WorldGenerator
                 : t < q800 ? 450f + (350f * (t - q450) / (q800 - q450))
                 : 800f + ((peak - 800f) * (t - q800) / (1f - q800));
         }
+    }
+
+    /// <summary>10 §3.11 W14: ≥ 200 harvestable trees and ≥ 30 forage patches within 600 m of the landing.</summary>
+    public static string? CheckW14(WorldGenResult w, ContentDatabase content)
+    {
+        if (w.Landing is not { } l) { return "W14 no landing"; }
+        var (trees, forage) = NodeScatter.Around(w.Grid, w.AttemptSeed, new NodeScatter.Table(content), l.BeachX, l.BeachZ, 600f, content);
+        return trees >= 200 && forage >= 30 ? null : $"W14 trees {trees} · forage {forage}";
     }
 
     private static ReliefArchetype PickArchetype(WorldSpecDef spec, float u)
@@ -413,6 +436,44 @@ public static class WorldGenerator
     }
 
     /// <summary>W1 islets: land components other than the largest with at least <paramref name="minCells"/> cells (4-connected).</summary>
+    /// <summary>
+    /// W1's upper bound as a generator rule (M2-01c): if more than <paramref name="max"/> islets of at least
+    /// <paramref name="minCells"/> rise from the stage-1 mask, the smallest extras (ties by scan order) are sunk. Sub-hectare
+    /// rocks stay. Runs before relief, so every later stage sees the trimmed coast.
+    /// </summary>
+    private static void TrimIslets(WorldGrid g, float minCells, int max)
+    {
+        var n = g.Size;
+        var label = new int[n * n];
+        var comps = new List<List<int>>();
+        var stack = new Stack<int>();
+        for (var i = 0; i < label.Length; i++)
+        {
+            if (g.Land[i] == 0 || label[i] != 0) { continue; }
+            var cells = new List<int>();
+            stack.Push(i);
+            label[i] = comps.Count + 1;
+            while (stack.Count > 0)
+            {
+                var k = stack.Pop();
+                cells.Add(k);
+                int r = k / n, c = k % n;
+                foreach (var j in (ReadOnlySpan<int>)[c > 0 ? k - 1 : -1, c < n - 1 ? k + 1 : -1, r > 0 ? k - n : -1, r < n - 1 ? k + n : -1])
+                {
+                    if (j >= 0 && g.Land[j] == 1 && label[j] == 0) { label[j] = comps.Count + 1; stack.Push(j); }
+                }
+            }
+
+            comps.Add(cells);
+        }
+
+        if (comps.Count == 0) { return; }
+        var main = comps.IndexOf(comps.MaxBy(c => c.Count)!);
+        var islets = Enumerable.Range(0, comps.Count).Where(k => k != main && comps[k].Count >= minCells)
+            .OrderByDescending(k => comps[k].Count).ThenBy(k => k).ToList();
+        foreach (var k in islets.Skip(max)) { foreach (var cell in comps[k]) { g.Land[cell] = 0; } }
+    }
+
     private static int Islets(WorldGrid g, float minCells)
     {
         var n = g.Size;
