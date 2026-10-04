@@ -290,15 +290,27 @@ public static class Processes
         var itemDef = content.Items[item];
         ulong instance = 0;
         var yield = def.Site is not null && def.SizeYield is { Count: 4 } sy ? sy[p.SiteSize] : 1;
+        var output = p.Container;
+        if (p.SiteChunk >= 0 && world.Map is { } map)   // M2-08: a site's products (logs, firewood) land on the ground there, not in the carry
+        {
+            var per = WorldGen.NodeScatter.ChunksPerSide(map.Grid);
+            var nodes = new List<WorldGen.ResourceNode>();
+            WorldGen.NodeScatter.Chunk(map.Grid, map.AttemptSeed, world.NodeTable, p.SiteChunk % per, p.SiteChunk / per, nodes);
+            if (p.SiteIndex < nodes.Count)
+            {
+                var (sx, sz) = WorldGen.NodeScatter.Position(map.Grid, p.SiteChunk % per, p.SiteChunk / per, nodes[p.SiteIndex]);
+                output = world.Piles.At(world, sx + 1.2f, sz);
+            }
+        }
         var qty = def.Output.Qty * yield;
         foreach (var by in def.Byproducts)
         {
             var byYield = def.Site is not null && def.ByproductSizeYield is { Count: 4 } by4 ? by4[p.SiteSize] : 1;
-            if (by.Qty * byYield > 0) { world.Inventory.Add(p.Container, content.ItemHandle(by.Item), by.Qty * byYield, 50); }
+            if (by.Qty * byYield > 0) { world.Inventory.Add(output, content.ItemHandle(by.Item), by.Qty * byYield, 50); }
         }
 
         if (p.SiteChunk >= 0) { world.NodeDeltas.Set(p.SiteChunk, p.SiteIndex, NodeFelled); }   // the tree is down (20 §6.6 delta)
-        if (itemDef.IsStackable) { if (qty > 0) { world.Inventory.Add(p.Container, item, qty, q); } }
+        if (itemDef.IsStackable) { if (qty > 0) { world.Inventory.Add(output, item, qty, q); } }
         else
         {
             var durability = Quality.MaxDurability(itemDef.Durability ?? 100, q) * DurabilityAfterFlaws(p.Flaws, content.Flaws);

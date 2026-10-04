@@ -1040,6 +1040,18 @@ minus 2 m when landing in snow ≥ 30 cm. Landing in water ≥ 2 m deep counts a
 Non-combat fatal trauma (falls, crushing by a tree or rockfall) is the only instant death outside
 drowning (canon §12).
 
+*Implementation notes (M2-08):* `Survival/Encumbrance.cs` (capacity, ratio, states, speeds, the tier step), read by the
+client's movement and by the stamina system (a burdened sprint drains ×1.25). Carry aids wait for their items. Things
+can be put down: a **ground pile** is a container with a place (`PileStore`; drops within 1.5 m merge; pick up within
+3 m). A site recipe's products (felled timber) land in a pile at the stump, because three logs in the carry would pin
+the feller at 0.3 m/s. Swimming: the body reports deep water (beyond 1.2 m) as a fourth gait. The stamina system then
+runs §12.2 (drain, floundering, floating, sinking over r 0.6, breath 30 + 2·END s, unconscious 10 s after it runs out,
+dead 60 s later, `VitalCause.Drowning`), and exposure uses §9.1 immersion with the sea at 10 §6.4's seasonal
+temperature. Falling: the client can't walk up slopes steeper than 50°; walking off ground steeper than 56° is a fall,
+reported on landing as `PlayerFell` (an embodiment report, like a pose); the sim applies the §12.3 table (`Survival/
+Falling.cs`, fatal falls via `VitalCause.Fall`). NPCs don't swim or climb yet (their routes avoid both, as §12.2 says
+for LOD1+). Not yet: rescues and revival, fords and currents, snow landings.
+
 ### 12.4 Work accidents ([13](13-crafting-and-minigames.md) interface)
 
 Tasks declare a `risk_class`. 13 emits `AccidentRoll(task, person, hours)`. This doc resolves it:

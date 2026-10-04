@@ -51,6 +51,7 @@ public enum Salience : byte { Trace, Minor, Notable, Major, Historic }
 [Union(42, typeof(Ate))]
 [Union(43, typeof(FoodRotted))]
 [Union(44, typeof(Drank))]
+[Union(45, typeof(ItemsMoved))]
 public abstract record DomainEvent;
 
 [MessagePackObject]
@@ -265,3 +266,7 @@ public sealed record FoodRotted([property: Key(0)] EntityId Container, [property
 /// <summary>11 §11 (M2-07c): someone drank where they stood; <c>Source</c> is camp, spring, stream, river, lake or sea.</summary>
 [MessagePackObject]
 public sealed record Drank([property: Key(0)] EntityId Drinker, [property: Key(1)] float Hydration, [property: Key(2)] string Source) : DomainEvent;
+
+/// <summary>M2-08: goods moved between a person and a ground pile (drop, pick up, felled timber).</summary>
+[MessagePackObject]
+public sealed record ItemsMoved([property: Key(0)] EntityId From, [property: Key(1)] EntityId To, [property: Key(2)] int Item, [property: Key(3)] int Qty) : DomainEvent;

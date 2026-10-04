@@ -131,6 +131,38 @@ public partial class SimHost
 
     private ulong _playerId;
 
+    /// <summary>11 §12.2: deep enough to swim beyond 1.2 m; a swimmer's body hangs below the surface with the head out.</summary>
+    private const float SwimDepthM = 1.2f, SwimBodyDepthM = 1.45f, ClimbGrade = 1.2f, FallGrade = 1.5f;
+    private float _fallDrop;
+
+    /// <summary>
+    /// M2-08: can the body step here? Uphill steeper than 50° is a cliff you can't walk up. Downhill steeper than 56° is a
+    /// fall: the drop accumulates while it lasts and is reported on landing (<see cref="Land"/>). Shallow ground resets it.
+    /// </summary>
+    private bool Traverse(Vector2 next, float stepM)
+    {
+        if (_island is null || stepM <= 0f) { return true; }
+        float here = _island.HeightAt(_player.X, _player.Y), there = _island.HeightAt(next.X, next.Y);
+        var grade = (there - here) / stepM;
+        if (grade > ClimbGrade && there > 0f) { return false; }
+        if (grade < -FallGrade && here > 0f) { _fallDrop += here - Math.Max(there, -SwimBodyDepthM); return true; }
+        if (_fallDrop > 0f) { Land(); }
+        return true;
+    }
+
+    /// <summary>Reports a fall of 2 m or more to the sim (11 §12.3); landing in water ≥ 2 m deep counts 12 m less.</summary>
+    private void Land()
+    {
+        var drop = _fallDrop;
+        _fallDrop = 0f;
+        if (_island is not null && _island.HeightAt(_player.X, _player.Y) < -2f) { drop -= 12f; }
+        if (drop >= 2f)
+        {
+            _runner!.Submit(CommandSource.Embodiment, new PlayerFell(drop));
+            Say($"You fall {drop:0} m.");
+        }
+    }
+
     /// <summary>Half a turn for the M1 stand-in (faces −Z); the settler kit faces +Z (measured).</summary>
     private float ModelFlip => _kit is null ? Mathf.Pi : 0f;
 
@@ -217,7 +249,10 @@ public partial class SimHost
         // Gait (10 §12.1): Shift jogs; Ctrl sprints while the sim says there is stamina (11 §3.1) — Winded drops to a jog.
         var canSprint = !snap.PlayerWinded && snap.PlayerStamina > 0.5f;
         byte gait = Input.IsKeyPressed(Key.Ctrl) && canSprint ? (byte)2 : Input.IsKeyPressed(Key.Shift) || Input.IsKeyPressed(Key.Ctrl) || _autotestCamp || _autotestWalkTo is not null ? (byte)1 : (byte)0;
-        var speed = gait switch { 2 => SprintSpeed, 1 => RunSpeed, _ => WalkSpeed } * snap.PlayerMoveMult;   // 11 §4.3 injuries slow you
+        if (Sim.Survival.Encumbrance.Of(snap.PlayerLoadRatio) >= Sim.Survival.Encumbrance.State.Overloaded) { gait = 0; }   // 11 §12.1: walk only
+        var speed = Sim.Survival.Encumbrance.Speed(WalkSpeed, RunSpeed, SprintSpeed, gait, snap.PlayerLoadRatio) * snap.PlayerMoveMult;   // 11 §12.1 load, §4.3 injuries
+        var swimming = _island is not null && _island.HeightAt(_player.X, _player.Y) < -SwimDepthM;
+        if (swimming) { (gait, speed) = (3, snap.PlayerSwimSpeed * snap.PlayerMoveMult); }   // 11 §12.2: deep water
         var vital = (Sim.Health.VitalState)snap.PlayerVital;
         if (vital is Sim.Health.VitalState.Downed or Sim.Health.VitalState.Dying or Sim.Health.VitalState.Recovering) { (gait, speed) = (0, 0.5f); }   // 11 §14: crawl
         if (vital == Sim.Health.VitalState.Dead) { input = Vector2.Zero; }
@@ -225,8 +260,9 @@ public partial class SimHost
         if (moved)
         {
             var next = _player + (input.Normalized() * speed * delta);
-            if ((_island is null || _island.HeightAt(next.X, next.Y) > -1.2f) && !(_nodes?.Blocked(next.X, next.Y) ?? false)) { _player = next; }   // wade, but not out to sea (swimming is M2-08); trunks and boulders are solid
+            if (!(_nodes?.Blocked(next.X, next.Y) ?? false) && Traverse(next, speed * delta)) { _player = next; }   // trunks and boulders are solid; cliffs (M2-08)
         }
+        else if (_fallDrop > 0f) { Land(); }
 
         // FP4: once the sim has said who the player is, the legacy stand-in gives way to the player's own settler body.
         _playerId = snap.PlayerId.Value;
@@ -237,7 +273,7 @@ public partial class SimHost
             _playerKitBody = true;
         }
 
-        _playerBody!.Position = new Vector3(_player.X, Ground(_player.X, _player.Y), _player.Y);
+        _playerBody!.Position = new Vector3(_player.X, swimming ? -SwimBodyDepthM : Ground(_player.X, _player.Y), _player.Y);
         // Measured (`--facing-check`): the settler models face +Z and their clips walk +Z, so a body faces direction (x, z)
         // at rotation atan2(x, z). The M1 stand-in faces −Z and needs a half turn.
         if (moved) { _playerBody.Rotation = new Vector3(0, Mathf.Atan2(input.X, input.Y) + ModelFlip, 0); }

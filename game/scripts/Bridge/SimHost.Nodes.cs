@@ -49,8 +49,15 @@ public partial class SimHost
 
         if (_statesDirty && _statesPending is not { IsCompleted: false }) { RequestStates(); }
 
-        // Look-at candidates: nodes within reach.
+        // Look-at candidates: ground piles and nodes within reach.
         _lookables.Clear();
+        foreach (var p in _piles)
+        {
+            if (new Vector2(p.X, p.Z).DistanceTo(_player) > Sim.World.PileStore.ReachM - 0.5f) { continue; }
+            var top = p.Goods[0];
+            _lookables.Add(new LookTarget("pile", p.Id, $"{top.Name.ToLowerInvariant()} ×{top.Qty}{(p.Goods.Count > 1 ? $" (+{p.Goods.Count - 1} more)" : "")}", new Vector3(p.X, Ground(p.X, p.Z) + 0.3f, p.Z)));
+        }
+
         foreach (var n in _nodes.Near)
         {
             var def = _content!.Nodes[n.Type];
@@ -79,11 +86,25 @@ public partial class SimHost
                 for (var k = 0; k < count; k++) { states.Add((c, k, w.NodeDeltas.State(c, k))); }
             }
 
-            return states;
-        }).ContinueWith(t => { if (t.IsCompletedSuccessfully) { _pendingStates = t.Result; } }, TaskScheduler.Default);
+            var piles = new List<PileView>();   // M2-08: ground piles within 200 m
+            foreach (var (id, p) in w.Piles.All)
+            {
+                if (((p.X - px) * (p.X - px)) + ((p.Z - pz) * (p.Z - pz)) > 200f * 200f) { continue; }
+                var goods = w.Inventory.Of(new Sim.Core.EntityId(id)).GroupBy(s => s.Seen).Select(g => (w.Content.Items[g.Key].Id, w.Content.Items[g.Key].Name, g.Sum(s => s.Qty))).ToList();
+                if (goods.Count > 0) { piles.Add(new PileView(id, p.X, p.Z, goods)); }
+            }
+
+            return (states, piles);
+        }).ContinueWith(t => { if (t.IsCompletedSuccessfully) { (_pendingStates, _pendingPiles) = t.Result; } }, TaskScheduler.Default);
     }
 
     private List<(int, int, byte)>? _pendingStates;
+    private List<PileView>? _pendingPiles;
+    private List<PileView> _piles = [];
+    private readonly Dictionary<ulong, Node3D> _pileNodes = [];
+
+    /// <summary>A ground pile as the client shows it: where, and what is in it (as seen).</summary>
+    private sealed record PileView(ulong Id, float X, float Z, List<(string Item, string Name, int Qty)> Goods);
     private string? _waterHere;
 
     /// <summary>What water the player stands by (the sim decides; this only names it for the prompt): camp water, a brook, the sea.</summary>
@@ -109,6 +130,12 @@ public partial class SimHost
             _pendingStates = null;
             _nodes.SetStates(states, _player.X, _player.Y);
         }
+
+        if (_pendingPiles is { } piles)
+        {
+            _pendingPiles = null;
+            ShowPiles(piles);
+        }
     }
 
     private static string NodeLabel(NodeDef def, byte size, byte state)
@@ -127,6 +154,7 @@ public partial class SimHost
     private string LookPromptFor(LookTarget t)
     {
         if (t.Kind == "person") { return $"[E] talk to {t.Name}   ·   [T] take from them"; }
+        if (t.Kind == "pile") { return $"[E] pick up: {t.Name}"; }
         var (chunk, index) = ((int)(t.Id >> 20), (int)(t.Id & 0xFFFFF));
         var near = _nodes?.Near.FirstOrDefault(n => n.Chunk == chunk && n.Index == index);
         if (near is not { } n) { return t.Name; }
@@ -151,6 +179,12 @@ public partial class SimHost
 
         if (_look is not { } t) { return; }
         if (t.Kind == "person") { TryTalk(); return; }
+        if (t.Kind == "pile" && _piles.FirstOrDefault(p => p.Id == t.Id) is { } pile)
+        {
+            _runner!.Submit(CommandSource.Player, new PickUp(_runner.Snapshots.ReadLatest().PlayerId, new Sim.Core.EntityId(pile.Id), pile.Goods[0].Item, 1));
+            return;
+        }
+
         var (chunk, index) = ((int)(t.Id >> 20), (int)(t.Id & 0xFFFFF));
         var near = _nodes?.Near.FirstOrDefault(n => n.Chunk == chunk && n.Index == index);
         if (near is not { } n) { return; }
@@ -217,6 +251,14 @@ public partial class SimHost
             case Sim.Events.ProcessCompleted:
                 _statesDirty = true;
                 return false;
+            case Sim.Events.ItemsMoved m:
+                _statesDirty = true;
+                if (InventoryOpen) { RefreshInventory(show: false); }
+                if (m.To == _runner!.Snapshots.ReadLatest().PlayerId) { Say($"You pick up {m.Qty} × {_content!.Items[m.Item].Name.ToLowerInvariant()}."); }
+                return true;
+            case Sim.Events.CommandRejected r when r.Reason.StartsWith("PickUp:", StringComparison.Ordinal) || r.Reason.StartsWith("Drop:", StringComparison.Ordinal):
+                Say(r.Reason[(r.Reason.IndexOf(':') + 1)..].Trim());
+                return true;
             case Sim.Events.Drank d when d.Drinker == _runner!.Snapshots.ReadLatest().PlayerId:
                 _drank++;
                 Say(d.Source == "sea" ? "Salt water — it only makes you thirstier." : $"You drink from the {(d.Source == "camp" ? "brook" : d.Source)} (+{d.Hydration:0} Hydration).");
@@ -230,5 +272,28 @@ public partial class SimHost
         }
 
         return false;
+    }
+
+    /// <summary>Draws the piles: the first item's prop model (the art's <c>props/&lt;item&gt;.glb</c>), else a graybox crate.</summary>
+    private void ShowPiles(List<PileView> piles)
+    {
+        _piles = piles;
+        var live = piles.Select(p => p.Id).ToHashSet();
+        foreach (var gone in _pileNodes.Keys.Where(k => !live.Contains(k)).ToList()) { _pileNodes[gone].QueueFree(); _pileNodes.Remove(gone); }
+        foreach (var p in piles)
+        {
+            var key = p.Goods[0].Item;
+            if (_pileNodes.TryGetValue(p.Id, out var existing) && existing.HasMeta("item") && existing.GetMeta("item").AsString() == key) { continue; }
+            existing?.QueueFree();
+            var name = key.StartsWith("item.", StringComparison.Ordinal) ? key[5..] : key;
+            var path = $"res://assets/props/{(name == "firewood" ? "firewood_bundle" : name)}.glb";
+            Node3D node = ResourceLoader.Exists(path) ? GD.Load<PackedScene>(path).Instantiate<Node3D>()
+                : new MeshInstance3D { Mesh = new BoxMesh { Size = new Vector3(0.6f, 0.4f, 0.6f) }, MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color("6a4a30") } };
+            World.CampDressing.DropVertexColour(node);
+            node.SetMeta("item", key);
+            node.Position = new Vector3(p.X, Ground(p.X, p.Z), p.Z);
+            AddChild(node);
+            _pileNodes[p.Id] = node;
+        }
     }
 }

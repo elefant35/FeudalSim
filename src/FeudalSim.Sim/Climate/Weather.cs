@@ -77,6 +77,17 @@ public static class Weather
     public static float MeanTempC(int d) => 8.5f + (8.5f * MathF.Sin(2 * MathF.PI * (d - 5) / 32f));
 
     /// <summary>10 §6.2 air temperature at a place: daily mean + year offset + front anomaly + diurnal swing − lapse rate.</summary>
+    /// <summary>10 §6.4 sea water: 8 / 13 / 12 / 7 °C at mid-Spring / Summer / Autumn / Winter, linear between (M2-08).</summary>
+    public static float SeaTempC(long gameMinute)
+    {
+        ReadOnlySpan<float> mid = [8f, 13f, 12f, 7f];
+        var t = ((gameMinute / 1440f % GameDate.DaysPerYear) / GameDate.DaysPerSeason) - 0.5f;   // seasons, 0 = mid-Spring
+        if (t < 0f) { t += 4f; }
+        var a = (int)t % 4;
+        var f = t - MathF.Floor(t);
+        return mid[a] + ((mid[(a + 1) % 4] - mid[a]) * f);
+    }
+
     public static float AirTempC(in WeatherState w, long gameMinute, float elevationM = 0f, bool nearCoast = true)
     {
         var d = DayOfYear(gameMinute);

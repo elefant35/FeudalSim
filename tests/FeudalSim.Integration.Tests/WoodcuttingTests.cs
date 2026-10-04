@@ -76,8 +76,11 @@ public sealed class WoodcuttingTests
         p.SiteSize.ShouldBe(NodeScatter.Timber);
         var events = FinishAuto(w, p);
         events.OfType<ProcessCompleted>().ShouldHaveSingleItem();
-        w.Inventory.Count(who, Content.ItemHandle("item.rough_log")).ShouldBe(3);
-        w.Inventory.Count(who, Content.ItemHandle("item.firewood")).ShouldBe(2);
+        // M2-08: the timber lands in a pile by the stump, not in the feller's carry (three logs would pin them, 11 §12.1).
+        w.Inventory.Count(who, Content.ItemHandle("item.rough_log")).ShouldBe(0);
+        var pile = new FeudalSim.Sim.Core.EntityId(w.Piles.All.ShouldHaveSingleItem().Key);
+        w.Inventory.Count(pile, Content.ItemHandle("item.rough_log")).ShouldBe(3);
+        w.Inventory.Count(pile, Content.ItemHandle("item.firewood")).ShouldBe(2);
         w.NodeDeltas.State(chunk, index).ShouldBe(Processes.NodeFelled);
         Run(w, new StartProcess(who, "recipe.fell_tree", SiteChunk: chunk, SiteIndex: index)).OfType<CommandRejected>().Single().Reason.ShouldContain("already worked");
     }

@@ -44,6 +44,9 @@ public sealed class RenderSnapshot
 
     public float PlayerMoveMult = 1f, PlayerHealth = 100f, PlayerBlood = 100f;
 
+    /// <summary>M2-08: load ratio and capacity (11 §12.1), swim speed and breath left in seconds (§12.2).</summary>
+    public float PlayerLoadRatio, PlayerCapacityKg, PlayerSwimSpeed = 0.6f, PlayerBreathLeft = 30f;
+
     /// <summary>The player's person id (none if no player).</summary>
     public Sim.Core.EntityId PlayerId;
 
@@ -104,6 +107,9 @@ public sealed class RenderSnapshot
             ref readonly var v = ref p.Vitals[pr];
             (PlayerVital, PlayerHealth, PlayerBlood) = ((byte)v.State, v.Health, v.Blood);
             PlayerMoveMult = Sim.Health.HealthRules.MoveSpeedMult(world.Injuries.Of(p.Ids[pr]), v.Blood);
+            (PlayerLoadRatio, PlayerCapacityKg) = (Sim.Survival.Encumbrance.Ratio(world, pr), Sim.Survival.Encumbrance.CapacityKg(world, pr));
+            PlayerSwimSpeed = Sim.Systems.StaminaSystem.SwimSpeed(athletics >= 0 ? p.SkillLevels(pr)[athletics] : 0f);
+            PlayerBreathLeft = Sim.Systems.StaminaSystem.BreathSeconds(Sim.Skills.Skills.Attribute(world, pr, "end")) - st.BreathUsed;
             PlayerProcess = 0;
             foreach (var proc in world.Processes.Open)
             {

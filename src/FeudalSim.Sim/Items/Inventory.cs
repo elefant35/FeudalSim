@@ -173,6 +173,32 @@ public sealed class InventoryStore
         return false;
     }
 
+    /// <summary>Moves a quantity of what the holders see as <paramref name="seen"/> (labels kept: 11 §8.2), stacks first, then instances.</summary>
+    public void MoveSeen(EntityId from, EntityId to, int seen, int qty)
+    {
+        if (!_byContainer.TryGetValue(from.Value, out var list)) { return; }
+        for (var k = 0; k < list.Count && qty > 0;)
+        {
+            var s = list[k];
+            if (s.Seen != seen) { k++; continue; }
+            if (s.Instance != 0)
+            {
+                list.RemoveAt(k);
+                Insert(ListFor(to.Value), s);
+                qty--;
+                continue;
+            }
+
+            var n = Math.Min(qty, s.Qty);
+            s.Qty -= n;
+            qty -= n;
+            if (s.Qty == 0) { list.RemoveAt(k); } else { list[k] = s; k++; }
+            Add(to, s.Item, n, s.Q, s.Label, s.Spoil);
+        }
+
+        if (list.Count == 0) { _byContainer.Remove(from.Value); }
+    }
+
     /// <summary>Moves a quantity between containers, conserving it (the stack keeps its Q; instances move whole).</summary>
     public bool Move(EntityId from, EntityId to, int item, int qty)
     {

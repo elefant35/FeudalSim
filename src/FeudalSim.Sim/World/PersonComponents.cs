@@ -55,7 +55,10 @@ public struct Stamina
 {
     public float Value, Spent;
     public long LastSpendStep, WindedUntilStep, GaitUntilStep;
-    public byte Gait, Reserved0, Reserved1, Reserved2;
+    public byte Gait, Swimming, Reserved1, Reserved2;
+
+    /// <summary>11 §12.2 breath used, in seconds (0 = full; 30 + 2·END is all of it); refills out of the water. M2-08.</summary>
+    public float BreathUsed;
 }
 
 /// <summary>11 §9.3–9.4 exposure state: Wetness 0–100 and Hypothermia 0–100 (M2-05a).</summary>

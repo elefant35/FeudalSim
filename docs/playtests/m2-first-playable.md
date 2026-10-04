@@ -29,7 +29,7 @@ tools/play.sh
 | Tab | Free the mouse (a click takes it back) |
 | K | Knap a flint knife (the bench minigame) |
 | P | People: who you know and what you think of them |
-| I | What you carry (as you believe it is); ↑↓ choose, Enter eats one |
+| I | What you carry (as you believe it is); ↑↓ choose, Enter eats one, D puts one down |
 | T | Take something from the settler you look at (theft: they may notice) |
 | Esc | Leave a conversation or the bench |
 | Space · 1 2 4 8 | Pause · time speed |
@@ -59,8 +59,8 @@ What you fell or pick stays felled or picked.
 
 ## Known gaps (so you don't have to report them)
 
-- You can eat what you gather ([I]) and drink at water ([E]) but can't yet sleep or build as the player (the settlers can). Swimming isn't in, so the sea stops you at
-  about chest depth.
+- You can eat what you gather ([I]), drink at water ([E]), swim (watch your breath), and carry only so much (felled logs
+  stay in a pile by the stump; [E] picks one up). You can't yet sleep or build as the player (the settlers can).
 - Felling has no minigame yet: the stages resolve on their own. Gathering is instant.
 - Settlers fetch wood and food from abstract camp places (the "woods" and "forage ground"), not from the trees and
   plants you see. That's M2-21's work.

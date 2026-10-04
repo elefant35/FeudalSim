@@ -14,7 +14,7 @@ public enum InjuryType : byte { Cut, Puncture, Bruise, Fracture, Burn, Frostbite
 public enum DamageType : byte { Cut, Pierce, Blunt, Burn }
 
 /// <summary>11 §5.3 contamination sources (c₀): clean blade 0.2 · tool/wood/earth/arrow 0.5 · animal 0.8 · burn 0.3.</summary>
-public enum TraumaSource : byte { CleanBlade, Tool, Animal, Fire }
+public enum TraumaSource : byte { CleanBlade, Tool, Animal, Fire, Fall }
 
 /// <summary>11 §5.3 infection track (M2-06b drives it; M2-06a creates wounds Clean).</summary>
 public enum InfectionState : byte { Clean, Inflamed, Infected, Septic }
@@ -32,7 +32,7 @@ public static class Treated
 public enum VitalState : byte { Active, Impaired, Downed, Dying, Recovering, Dead }
 
 /// <summary>Why someone went down or died (11 §14 triggers).</summary>
-public enum VitalCause : byte { None, Trauma, BloodLoss, Hypothermia, Infection, Disease, Dehydration, Starvation }
+public enum VitalCause : byte { None, Trauma, BloodLoss, Hypothermia, Infection, Disease, Dehydration, Starvation, Drowning, Fall }
 
 /// <summary>11 §4.2 injury record (blittable, packed without padding: saved and hashed as bytes).</summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]

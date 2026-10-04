@@ -36,10 +36,12 @@ public sealed class ExposureSystem : ISimSystem
             ref var body = ref people.Body[i];
             ref var n = ref people.Needs[i];
             var ins = Exposure.Insulation(people.Worn[i], _wear, body.Wetness);
-            var c = Exposure.CoreC(x, ins);
-            body.Wetness = Exposure.StepWetness(body.Wetness, x, Exposure.RainResist(people.Worn[i], _wear), c, dtH);
+            var swimming = people.Stamina[i].Swimming != 0;   // M2-08: 11 §9.1 immersion — soaked through, sea-water cold ×3
+            var c = swimming ? Exposure.ImmersionC(Climate.Weather.SeaTempC(ctx.GameMinute), ins, Content.ActivityLevel.Heavy) : Exposure.CoreC(x, ins);
+            body.Wetness = swimming ? 100f : Exposure.StepWetness(body.Wetness, x, Exposure.RainResist(people.Worn[i], _wear), c, dtH);
             if (world.IsDown(i) && x.RainBlock < 0.9f && Climate.Weather.Wet(world.WeatherRef)) { body.Wetness = MathF.Min(100f, body.Wetness + (10f * dtH)); }   // 11 §14
-            n.Warmth = Exposure.StepWarmth(n.Warmth, c, x.FireDistM <= 3f, x.Vulnerable, dtH);
+            var warmth = Exposure.StepWarmth(n.Warmth, c, x.FireDistM <= 3f, x.Vulnerable, dtH);
+            n.Warmth = swimming && warmth < n.Warmth ? MathF.Max(0f, n.Warmth - ((n.Warmth - warmth) * Exposure.ImmersionLossFactor)) : warmth;
             var before = body.Hypothermia;
             body.Hypothermia = Exposure.StepHypothermia(before, n.Warmth, c, dtH);
             foreach (var mark in Marks)

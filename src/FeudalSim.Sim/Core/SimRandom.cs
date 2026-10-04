@@ -51,6 +51,7 @@ public static class Salt
     public const uint Contagion = 39;
     public const uint WaterExposure = 40;
     public const uint Eat = 41;
+    public const uint Fall = 42;
 }
 
 /// <summary>SplitMix64 finalizer-based mixing (Steele, Lea &amp; Flood 2014).</summary>

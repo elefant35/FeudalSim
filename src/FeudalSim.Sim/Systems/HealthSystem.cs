@@ -115,6 +115,9 @@ public sealed class HealthSystem : ISimSystem
         Transition(world, i, ref v, bleeding > 0f || people.Needs[i].Warmth < 25f || septicRising, hypo, infection, injuries, now);
     }
 
+    /// <summary>An instant death from outside the health tracks (canon §12: a fatal fall, crushing, drowning).</summary>
+    internal static void Kill(SimWorld world, int i, VitalCause cause) => Die(world, i, ref world.People.Vitals[i], cause);
+
     private static void Die(SimWorld world, int i, ref Vitals v, VitalCause cause)
     {
         var id = world.People.Ids[i];

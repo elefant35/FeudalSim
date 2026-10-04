@@ -51,6 +51,7 @@ public static class StateHasher
         h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<Health.Vitals>)people.Vitals));
         world.Injuries.HashInto(h);
         world.Conditions.HashInto(h);
+        world.Piles.HashInto(h);
         world.Decisions.HashInto(h);
         world.HashAiInto(h);
         world.Conversations.HashInto(h);

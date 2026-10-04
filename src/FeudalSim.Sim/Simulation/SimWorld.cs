@@ -68,6 +68,9 @@ public sealed class SimWorld
     /// <summary>Open crafting processes and completions (13 §4; M2-10). Saved and hashed.</summary>
     public Crafting.ProcessStore Processes { get; } = new();
 
+    /// <summary>Things put down on the ground (M2-08).</summary>
+    public World.PileStore Piles { get; } = new();
+
     /// <summary>10 §10 personal map knowledge (M2-01c-ii). Saved and hashed.</summary>
     public World.KnowledgeStore Knowledge { get; } = new();
 
@@ -380,6 +383,30 @@ public sealed class SimWorld
                 Survival.Eating.Command(this, command, c);
                 break;
 
+            case Drop c:
+            {
+                var row = People.IndexOf(c.Person);
+                if (row < 0 || (command.Source == CommandSource.Player && row != PlayerRow)) { Reject(command, "Drop: the player acts as themselves."); break; }
+                if (World.PileStore.Drop(this, row, Content.ItemHandle(c.Item), c.Qty) is { } why) { Reject(command, $"Drop: {why}."); }
+                break;
+            }
+
+            case PickUp c:
+            {
+                var row = People.IndexOf(c.Person);
+                if (row < 0 || (command.Source == CommandSource.Player && row != PlayerRow)) { Reject(command, "PickUp: the player acts as themselves."); break; }
+                if (World.PileStore.PickUp(this, row, c.Pile, Content.ItemHandle(c.Item), c.Qty) is { } why) { Reject(command, $"PickUp: {why}."); }
+                break;
+            }
+
+            case PlayerFell c:
+            {
+                if (PlayerRow is not (var fr and >= 0)) { Reject(command, "PlayerFell: no player."); break; }
+                if (!float.IsFinite(c.HeightM) || c.HeightM < 0f || c.HeightM > 500f) { Reject(command, "PlayerFell: invalid height."); break; }
+                Survival.Falling.Apply(this, fr, c.HeightM);
+                break;
+            }
+
             case Drink c:
             {
                 var row = People.IndexOf(c.Drinker);
@@ -460,6 +487,7 @@ public sealed class SimWorld
                     (pt.X, pt.Z, pt.Yaw) = (c.X, c.Z, c.Yaw);
                     ref var st = ref People.Stamina[pr];
                     (st.Gait, st.GaitUntilStep) = (Math.Min(c.Gait, (byte)2), Clock.Step + Survival.StaminaRules.GaitHoldSteps);
+                    st.Swimming = c.Gait == 3 ? (byte)1 : (byte)0;   // M2-08: the body reports deep water (11 §12.2)
                 }
 
                 break;

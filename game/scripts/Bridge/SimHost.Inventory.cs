@@ -55,7 +55,7 @@ public partial class SimHost
 
     private void DrawInventory()
     {
-        var lines = new List<string> { "WHAT YOU CARRY   ↑↓ choose · [Enter] eat · [I] close" };
+        var lines = new List<string> { "WHAT YOU CARRY   ↑↓ choose · [Enter] eat · [D] put one down · [I] close" };
         for (var k = 0; k < _invItems.Count; k++)
         {
             var (_, name, qty, sat) = _invItems[k];
@@ -76,6 +76,9 @@ public partial class SimHost
             case Key.Down: _invSelected = Math.Min(Math.Max(0, _invItems.Count - 1), _invSelected + 1); DrawInventory(); return true;
             case Key.Enter or Key.KpEnter when _invItems.Count > 0 && _invItems[_invSelected].Sat >= 0:
                 _runner!.Submit(CommandSource.Player, new Eat(_runner.Snapshots.ReadLatest().PlayerId, _invItems[_invSelected].Id));
+                return true;
+            case Key.D when _invItems.Count > 0:
+                _runner!.Submit(CommandSource.Player, new Drop(_runner.Snapshots.ReadLatest().PlayerId, _invItems[_invSelected].Id, 1));
                 return true;
             case Key.Escape or Key.I: _invPage!.Visible = false; return true;
         }

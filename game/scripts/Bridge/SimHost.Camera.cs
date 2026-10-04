@@ -80,7 +80,7 @@ public partial class SimHost
     /// <summary>Places the camera: at the eyes (first person) or over the right shoulder (third person, kept above the ground).</summary>
     private void UpdateCamera()
     {
-        var ground = Ground(_player.X, _player.Y);
+        var ground = _island is not null && _island.HeightAt(_player.X, _player.Y) < -SwimDepthM ? -SwimBodyDepthM : Ground(_player.X, _player.Y);
         var eye = new Vector3(_player.X, ground + EyeHeight, _player.Y);
         var basis = Basis.FromEuler(new Vector3(_pitch, _yaw, 0));
         if (_firstPerson)

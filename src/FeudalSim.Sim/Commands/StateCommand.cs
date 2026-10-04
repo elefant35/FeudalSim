@@ -38,6 +38,9 @@ public enum CommandSource : byte { Player, Embodiment, Ai, Settings, Scenario, D
 [Union(26, typeof(InspectItem))]
 [Union(27, typeof(Eat))]
 [Union(28, typeof(Drink))]
+[Union(29, typeof(PlayerFell))]
+[Union(30, typeof(Drop))]
+[Union(31, typeof(PickUp))]
 public abstract record StateCommand;
 
 /// <summary>Changes the real-minutes-per-game-day setting (canon §6). Logged; applies at the next step.</summary>
@@ -157,6 +160,18 @@ public sealed record Eat([property: Key(0)] Core.EntityId Eater, [property: Key(
 /// <summary>11 §11 (M2-07c): drink where you stand — the camp's water, a brook, river, lake or spring within reach, or the sea.</summary>
 [MessagePackObject]
 public sealed record Drink([property: Key(0)] Core.EntityId Drinker) : StateCommand;
+
+/// <summary>11 §12.3 (M2-08): the player's body fell <c>HeightM</c> (an embodiment report, like a pose); the sim applies the injuries.</summary>
+[MessagePackObject]
+public sealed record PlayerFell([property: Key(0)] float HeightM) : StateCommand;
+
+/// <summary>M2-08: put down <c>Qty</c> of an item (as the person sees it) where they stand, on a ground pile.</summary>
+[MessagePackObject]
+public sealed record Drop([property: Key(0)] Core.EntityId Person, [property: Key(1)] string Item, [property: Key(2)] int Qty = 1) : StateCommand;
+
+/// <summary>M2-08: pick <c>Qty</c> of an item up from a ground pile within reach.</summary>
+[MessagePackObject]
+public sealed record PickUp([property: Key(0)] Core.EntityId Person, [property: Key(1)] Core.EntityId Pile, [property: Key(2)] string Item, [property: Key(3)] int Qty = 1) : StateCommand;
 
 /// <summary>11 §8.2 second chances: <c>Inspector</c> looks over what <c>Container</c> holds as <c>Item</c> (the label).</summary>
 [MessagePackObject]

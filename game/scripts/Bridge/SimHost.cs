@@ -250,6 +250,7 @@ public partial class SimHost : Node3D
     private float _autotestLookY = 1.4f;   // how high above the ground the autotest looks (a trunk, or a plant at 0.2 m)
     private (int Chunk, int Index)? _islandTarget;
     private int _foraged, _felled, _eaten;
+    private float _swimStamina;
 
     /// <summary>
     /// FP3: walk to the nearest standing tree, look at it, [E] fells it (the stages work themselves), then the nearest
@@ -289,6 +290,7 @@ public partial class SimHost : Node3D
                 break;
             case 4 when t > 2:
                 Expect("the tree shows as a stump", _islandTarget is { } tt && _nodes!.Nearest(_player.X, _player.Y, (d, n, s) => s == World.NodeDressing.Felled) is { } stump && (stump.Chunk, stump.Index) == tt ? 1 : 0, 1, 0);
+                Expect($"the logs lie in a pile by the stump ({_piles.FirstOrDefault()?.Goods.FirstOrDefault().Name ?? "none"})", _piles.Any(p => p.Goods.Any(g => g.Item == "item.rough_log") && new Vector2(p.X, p.Z).DistanceTo(_player) < 6f) ? 1 : 0, 1, 0);
                 var plant = _nodes!.Nearest(_player.X, _player.Y, (d, n, s) => d.Forage is { } f && _content!.Items[_content.ItemHandle(f.Item)].Food is not null && s == 0 && (d.Seasons.Count == 0 || d.Seasons.Contains(season)));
                 Expect($"an in-season food plant to gather ({season})", plant is null ? 0 : 1, 1, 0);
                 if (plant is not { } p) { _autotestPhase = 9; break; }
@@ -337,6 +339,21 @@ public partial class SimHost : Node3D
                 break;
             case 21 when _drank > 0 || t > 10:
                 Expect("drank ([E] → Drink → Drank)", _drank, 1, null);
+                if (_island?.Map.Landing is not { } wreck) { _autotestPhase = 9; break; }
+                (_autotestWalkTo, _autotestLookY) = (new Vector2(wreck.WreckX, wreck.WreckZ), 1.6f);   // out to sea, toward the wreck
+                (_autotestPhase, _islandMark) = (22, _clock);
+                break;
+            case 22 when _island!.HeightAt(_player.X, _player.Y) < -1.6f:
+                _swimStamina = _runner!.Snapshots.ReadLatest().PlayerStamina;
+                (_autotestPhase, _islandMark) = (23, _clock);
+                break;
+            case 22 when t > 200:
+                Expect("reached deep water", 0, 1, 0);
+                _autotestPhase = 9;
+                break;
+            case 23 when t > 8:
+                var snapSwim = _runner!.Snapshots.ReadLatest();
+                Expect($"swimming drains stamina ({_swimStamina:0} → {snapSwim.PlayerStamina:0}; swim speed {snapSwim.PlayerSwimSpeed:0.00} m/s)", snapSwim.PlayerStamina < _swimStamina - 5f ? 1 : 0, 1, 0);
                 _autotestPhase = 9;
                 break;
             case 9:
@@ -488,7 +505,11 @@ public partial class SimHost : Node3D
         if (_play && snapshot.PlayerStaminaMax > 0f)
         {
             var state = (Sim.Health.VitalState)snapshot.PlayerVital switch { Sim.Health.VitalState.Dead => " · DEAD", Sim.Health.VitalState.Dying => " · DYING", Sim.Health.VitalState.Downed or Sim.Health.VitalState.Recovering => " · DOWN", _ => "" };
-            _overlay.Text += $"\nyou: health {snapshot.PlayerHealth:F0} · blood {snapshot.PlayerBlood:F0} · stamina {snapshot.PlayerStamina:F0}/{snapshot.PlayerStaminaMax:F0}{(snapshot.PlayerWinded ? " (winded)" : "")} · warmth {snapshot.PlayerWarmth:F0} · wet {snapshot.PlayerWetness:F0}{state}";
+            var load = Sim.Survival.Encumbrance.Of(snapshot.PlayerLoadRatio);
+            var swimming = _island is not null && _island.HeightAt(_player.X, _player.Y) < -SwimDepthM;
+            _overlay.Text += $"\nyou: health {snapshot.PlayerHealth:F0} · blood {snapshot.PlayerBlood:F0} · stamina {snapshot.PlayerStamina:F0}/{snapshot.PlayerStaminaMax:F0}{(snapshot.PlayerWinded ? " (winded)" : "")} · warmth {snapshot.PlayerWarmth:F0} · wet {snapshot.PlayerWetness:F0}" +
+                $" · load {snapshot.PlayerLoadRatio * snapshot.PlayerCapacityKg:0}/{snapshot.PlayerCapacityKg:0} kg{(load == Sim.Survival.Encumbrance.State.Free ? "" : $" ({load.ToString().ToLowerInvariant()})")}" +
+                $"{(swimming ? $" · SWIMMING · breath {Math.Max(0, snapshot.PlayerBreathLeft):0} s" : "")}{state}";
         }
 
         if (snapshot.CampActive)
