@@ -1,0 +1,330 @@
+{
+  "body_forward": [
+    0.0,
+    0.0,
+    1.0
+  ],
+  "body_sha256": "2c97d05040f49c585b72ac90fe13bd08ef8591b73892c4d8712c76d43595e65e",
+  "camera_standing": [
+    {
+      "camera_look": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "camera_yaw": 0.0,
+      "correct_sim_yaw": 0.0,
+      "corrected_standing_dot_look": 1.0,
+      "legacy_standing_dot_look": -1.0
+    },
+    {
+      "camera_look": [
+        -0.70710676908493,
+        0.0,
+        -0.70710676908493
+      ],
+      "camera_yaw": 0.785398163397448,
+      "correct_sim_yaw": -0.785398163397448,
+      "corrected_standing_dot_look": 0.999999940395355,
+      "legacy_standing_dot_look": -0.999999940395355
+    },
+    {
+      "camera_look": [
+        -1.0,
+        0.0,
+        -0.0000000000000000612323426292584
+      ],
+      "camera_yaw": 1.5707963267949,
+      "correct_sim_yaw": -1.5707963267949,
+      "corrected_standing_dot_look": 1.0,
+      "legacy_standing_dot_look": -1.0
+    },
+    {
+      "camera_look": [
+        -0.70710676908493,
+        0.0,
+        0.70710676908493
+      ],
+      "camera_yaw": 2.35619449019234,
+      "correct_sim_yaw": -2.35619449019234,
+      "corrected_standing_dot_look": 1.0,
+      "legacy_standing_dot_look": -1.0
+    },
+    {
+      "camera_look": [
+        -0.000000000000000122464685258517,
+        0.0,
+        1.0
+      ],
+      "camera_yaw": 3.14159265358979,
+      "correct_sim_yaw": -3.14159265358979,
+      "corrected_standing_dot_look": 1.0,
+      "legacy_standing_dot_look": -1.0
+    },
+    {
+      "camera_look": [
+        0.70710676908493,
+        0.0,
+        0.70710676908493
+      ],
+      "camera_yaw": 3.92699081698724,
+      "correct_sim_yaw": 2.35619449019234,
+      "corrected_standing_dot_look": 0.999999940395355,
+      "legacy_standing_dot_look": -1.0
+    },
+    {
+      "camera_look": [
+        1.0,
+        0.0,
+        0.000000000000000183697014652885
+      ],
+      "camera_yaw": 4.71238898038469,
+      "correct_sim_yaw": 1.5707963267949,
+      "corrected_standing_dot_look": 1.0,
+      "legacy_standing_dot_look": -1.0
+    },
+    {
+      "camera_look": [
+        0.70710676908493,
+        0.0,
+        -0.70710676908493
+      ],
+      "camera_yaw": 5.49778714378214,
+      "correct_sim_yaw": 0.785398163397448,
+      "corrected_standing_dot_look": 1.0,
+      "legacy_standing_dot_look": -1.0
+    }
+  ],
+  "command": "/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --path game --script ../art/generators/animations/godot_heading_audit.gd",
+  "correct_formulas": {
+    "npc_idle_visual_yaw": "PI - snap.Yaw[i]",
+    "npc_moving_visual_yaw": "atan2(step.X, step.Y)",
+    "player_moving_visual_yaw": "atan2(input.X, input.Y)",
+    "player_reported_sim_yaw": "atan2(input.X, -input.Y)",
+    "player_standing_sim_yaw": "-camera_yaw",
+    "player_standing_visual_yaw": "camera_yaw + PI"
+  },
+  "directions": [
+    {
+      "correct_visual_yaw": 0.0,
+      "corrected_idle_dot_direction": 1.0,
+      "corrected_moving_dot_velocity": 1.0,
+      "corrected_moving_heading": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "direction": "north_plus_z",
+      "legacy_idle_dot_direction": -1.0,
+      "legacy_moving_dot_velocity": -1.0,
+      "legacy_moving_heading": [
+        -0.0000000874227765734759,
+        0.0,
+        -1.0
+      ],
+      "sim_yaw": 3.14159265358979,
+      "velocity": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "correct_visual_yaw": 3.14159265358979,
+      "corrected_idle_dot_direction": 1.0,
+      "corrected_moving_dot_velocity": 1.0,
+      "corrected_moving_heading": [
+        -0.0000000874227765734759,
+        0.0,
+        -1.0
+      ],
+      "direction": "south_minus_z",
+      "legacy_idle_dot_direction": -1.0,
+      "legacy_moving_dot_velocity": -1.0,
+      "legacy_moving_heading": [
+        0.000000174845553146952,
+        0.0,
+        1.0
+      ],
+      "sim_yaw": 0.0,
+      "velocity": [
+        0.0,
+        0.0,
+        -1.0
+      ]
+    },
+    {
+      "correct_visual_yaw": 1.5707963267949,
+      "corrected_idle_dot_direction": 1.0,
+      "corrected_moving_dot_velocity": 1.0,
+      "corrected_moving_heading": [
+        1.0,
+        0.0,
+        -0.0000000437113882867379
+      ],
+      "direction": "east_plus_x",
+      "legacy_idle_dot_direction": -1.0,
+      "legacy_moving_dot_velocity": -1.0,
+      "legacy_moving_heading": [
+        -1.0,
+        0.0,
+        0.0000000119248806385031
+      ],
+      "sim_yaw": 1.5707963267949,
+      "velocity": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "correct_visual_yaw": -1.5707963267949,
+      "corrected_idle_dot_direction": 1.0,
+      "corrected_moving_dot_velocity": 1.0,
+      "corrected_moving_heading": [
+        -1.0,
+        0.0,
+        -0.0000000437113882867379
+      ],
+      "direction": "west_minus_x",
+      "legacy_idle_dot_direction": -1.0,
+      "legacy_moving_dot_velocity": -1.0,
+      "legacy_moving_heading": [
+        1.0,
+        0.0,
+        -0.0000000437113882867379
+      ],
+      "sim_yaw": -1.5707963267949,
+      "velocity": [
+        -1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "correct_visual_yaw": 0.785398163397448,
+      "corrected_idle_dot_direction": 0.999999940395355,
+      "corrected_moving_dot_velocity": 0.999999940395355,
+      "corrected_moving_heading": [
+        0.70710676908493,
+        0.0,
+        0.70710676908493
+      ],
+      "direction": "north_east",
+      "legacy_idle_dot_direction": -0.999999940395355,
+      "legacy_moving_dot_velocity": -0.999999940395355,
+      "legacy_moving_heading": [
+        -0.707106709480286,
+        0.0,
+        -0.707106828689575
+      ],
+      "sim_yaw": 2.35619449019234,
+      "velocity": [
+        0.70710676908493,
+        0.0,
+        0.70710676908493
+      ]
+    },
+    {
+      "correct_visual_yaw": -0.785398163397448,
+      "corrected_idle_dot_direction": 1.0,
+      "corrected_moving_dot_velocity": 0.999999940395355,
+      "corrected_moving_heading": [
+        -0.70710676908493,
+        0.0,
+        0.70710676908493
+      ],
+      "direction": "north_west",
+      "legacy_idle_dot_direction": -0.999999940395355,
+      "legacy_moving_dot_velocity": -0.999999940395355,
+      "legacy_moving_heading": [
+        0.70710676908493,
+        0.0,
+        -0.70710676908493
+      ],
+      "sim_yaw": -2.35619449019234,
+      "velocity": [
+        -0.70710676908493,
+        0.0,
+        0.70710676908493
+      ]
+    },
+    {
+      "correct_visual_yaw": 2.35619449019234,
+      "corrected_idle_dot_direction": 0.999999940395355,
+      "corrected_moving_dot_velocity": 0.999999940395355,
+      "corrected_moving_heading": [
+        0.70710676908493,
+        0.0,
+        -0.70710676908493
+      ],
+      "direction": "south_east",
+      "legacy_idle_dot_direction": -0.999999940395355,
+      "legacy_moving_dot_velocity": -1.0,
+      "legacy_moving_heading": [
+        -0.70710688829422,
+        0.0,
+        0.707106649875641
+      ],
+      "sim_yaw": 0.785398163397448,
+      "velocity": [
+        0.70710676908493,
+        0.0,
+        -0.70710676908493
+      ]
+    },
+    {
+      "correct_visual_yaw": -2.35619449019234,
+      "corrected_idle_dot_direction": 0.999999940395355,
+      "corrected_moving_dot_velocity": 0.999999940395355,
+      "corrected_moving_heading": [
+        -0.70710676908493,
+        0.0,
+        -0.70710676908493
+      ],
+      "direction": "south_west",
+      "legacy_idle_dot_direction": -0.999999940395355,
+      "legacy_moving_dot_velocity": -0.999999940395355,
+      "legacy_moving_heading": [
+        0.70710676908493,
+        0.0,
+        0.70710676908493
+      ],
+      "sim_yaw": -0.785398163397448,
+      "velocity": [
+        -0.70710676908493,
+        0.0,
+        -0.70710676908493
+      ]
+    }
+  ],
+  "eye_minus_head_z": 0.0879999995231628,
+  "godot_version": "4.7.2-stable (official)",
+  "math_checks_pass": true,
+  "runtime_legacy_npc_pi_offset_present": true,
+  "runtime_legacy_player_pi_offset_present": true,
+  "runtime_source": "game/scripts/Bridge/SimHost.Play.cs",
+  "runtime_source_sha256": "e3d17c78e6425bfd537c784e215520ce1230c4233635ba0e06718bdb9b89bcc4",
+  "runtime_source_snippets": [
+    {
+      "line": 228,
+      "text": "const float faceOffset = Mathf.Pi;   // imported models face −Z (Godot's forward), as the sim's yaw assumes"
+    },
+    {
+      "line": 229,
+      "text": "if (moved) { _playerBody.Rotation = new Vector3(0, Mathf.Atan2(input.X, input.Y) + faceOffset, 0); }"
+    },
+    {
+      "line": 230,
+      "text": "else { _playerBody.Rotation = new Vector3(0, _yaw + Mathf.Pi + faceOffset, 0); }   // standing: face where you look"
+    },
+    {
+      "line": 238,
+      "text": "_runner.Submit(CommandSource.Embodiment, new PlayerMoved(_player.X, _player.Y, _playerBody.Rotation.Y, moved ? gait : (byte)0));"
+    },
+    {
+      "line": 270,
+      "text": "p.Body.Rotation = asleep && !kitBody ? new Vector3(-Mathf.Pi / 2, 0, 0) : new Vector3(0, walking ? Mathf.Atan2(step.X, step.Y) + Mathf.Pi : -snap.Yaw[i], 0);   // models face −Z"
+    }
+  ]
+}

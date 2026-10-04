@@ -1,0 +1,31 @@
+{
+  "body_eye_world": [
+    -0.0379999987781048,
+    1.63399994373322,
+    0.0879999995231628
+  ],
+  "body_head_world": [
+    0.0,
+    1.50999999046326,
+    0.0
+  ],
+  "body_sha256": "2c97d05040f49c585b72ac90fe13bd08ef8591b73892c4d8712c76d43595e65e",
+  "command": "/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --path game --script ../art/generators/animations/godot_forward_probe.gd",
+  "expected_actor_move_z_m_s": 1.6,
+  "eye_forward_z_m": 0.0879999995231628,
+  "godot_version": "4.7.2-stable (official)",
+  "locomotion_sha256": "5e0bc4f4c8d0c489577ebe6050fc6f10d2049cd365ab93a3b2ad65e4cccecf24",
+  "nose_max_world_z_m": 0.150999993085861,
+  "toe_forward_z_m": 0.115000002086163,
+  "walk_stance_left_foot_end": [
+    0.110001690685749,
+    0.0848210752010345,
+    -0.0186720639467239
+  ],
+  "walk_stance_left_foot_start": [
+    0.110002726316452,
+    0.0843828618526459,
+    0.269330680370331
+  ],
+  "walk_stance_z_velocity_m_s": -1.60001524620586
+}

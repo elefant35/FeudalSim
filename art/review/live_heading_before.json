@@ -1,0 +1,6480 @@
+{
+  "bodies": {
+    "/root/Boot/@Node3D@101": "npc",
+    "/root/Boot/@Node3D@104": "npc",
+    "/root/Boot/@Node3D@107": "npc",
+    "/root/Boot/@Node3D@110": "npc",
+    "/root/Boot/@Node3D@113": "npc",
+    "/root/Boot/@Node3D@119": "npc",
+    "/root/Boot/@Node3D@122": "npc",
+    "/root/Boot/@Node3D@125": "npc",
+    "/root/Boot/@Node3D@128": "npc",
+    "/root/Boot/@Node3D@131": "npc",
+    "/root/Boot/@Node3D@137": "npc",
+    "/root/Boot/@Node3D@140": "npc",
+    "/root/Boot/@Node3D@143": "npc",
+    "/root/Boot/@Node3D@146": "npc",
+    "/root/Boot/@Node3D@80": "npc",
+    "/root/Boot/@Node3D@83": "npc",
+    "/root/Boot/@Node3D@86": "npc",
+    "/root/Boot/@Node3D@89": "npc",
+    "/root/Boot/@Node3D@92": "npc",
+    "/root/Boot/@Node3D@95": "npc",
+    "/root/Boot/body_female": "npc",
+    "/root/Boot/body_male": "player"
+  },
+  "body_count": 22,
+  "command": "/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --max-fps 60 --path game --script ../art/generators/animations/godot_live_heading_probe.gd -- --scenario m1_view --template --art-heading-output res://../art/previews/animations/live_heading_before.json",
+  "godot_version": "4.7.2-stable (official)",
+  "maximum_forward_dot_velocity": -0.999999821186066,
+  "measurement": "Horizontal live Skeleton3D global position difference; horizontal mean(LeftEye,RightEye) rest world landmark minus Head rest world landmark. No assumed forward axis, no yaw writes. Synthetic WASD uses existing live player movement.",
+  "minimum_forward_dot_velocity": -1.00000023841858,
+  "pass": false,
+  "required_minimum": 0.95,
+  "roles": {
+    "npc": 168,
+    "player": 27
+  },
+  "running_client_dll_sha256": "b8ca44112077cb89b43c2bbb4b5c958b03eafdd92eb78ca12057c11a4a39a6f9",
+  "sample_count": 195,
+  "samples": [
+    {
+      "body_path": "/root/Boot/body_female",
+      "elapsed_s": 0.131,
+      "forward_dot_velocity": -1.00000011920929,
+      "forward_from_landmarks": [
+        -0.802125215530396,
+        0.0,
+        0.5971559882164
+      ],
+      "head_rest_world": [
+        0.065479964017868,
+        1.4222092628479,
+        -0.0487476512789726
+      ],
+      "input_phase": -1,
+      "mean_eye_rest_world": [
+        -0.00100314617156982,
+        1.53899991512299,
+        0.000746849924325943
+      ],
+      "position_world": [
+        0.065479964017868,
+        0.0,
+        -0.0487476512789726
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/body_female/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        4.47995567321777,
+        0.0,
+        -3.33517789840698
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@80",
+      "elapsed_s": 0.131,
+      "forward_dot_velocity": -1.00000011920929,
+      "forward_from_landmarks": [
+        -0.743146896362305,
+        0.0,
+        0.66912841796875
+      ],
+      "head_rest_world": [
+        4.06066560745239,
+        1.4222092628479,
+        -0.0546230413019657
+      ],
+      "input_phase": -1,
+      "mean_eye_rest_world": [
+        3.99907088279724,
+        1.53899991512299,
+        0.00083676353096962
+      ],
+      "position_world": [
+        4.06066560745239,
+        0.0,
+        -0.0546230413019657
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@80/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        4.15056276321411,
+        0.0,
+        -3.73715567588806
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@83",
+      "elapsed_s": 0.131,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.746304333209991,
+        0.0,
+        0.665604829788208
+      ],
+      "head_rest_world": [
+        8.06092262268066,
+        1.50999999046326,
+        -0.0543349906802177
+      ],
+      "input_phase": -1,
+      "mean_eye_rest_world": [
+        7.99524784088135,
+        1.63399994373322,
+        0.00423823297023773
+      ],
+      "position_world": [
+        8.06092262268066,
+        0.0,
+        -0.0543349906802177
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@83/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        4.16816091537476,
+        0.0,
+        -3.71744847297668
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@86",
+      "elapsed_s": 0.131,
+      "forward_dot_velocity": -1.00000023841858,
+      "forward_from_landmarks": [
+        -0.663735270500183,
+        0.0,
+        0.747967660427094
+      ],
+      "head_rest_world": [
+        12.0541820526123,
+        1.50999999046326,
+        -0.06105912104249
+      ],
+      "input_phase": -1,
+      "mean_eye_rest_world": [
+        11.9957733154297,
+        1.63399994373322,
+        0.00476207211613655
+      ],
+      "position_world": [
+        12.0541820526123,
+        0.0,
+        -0.06105912104249
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@86/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        3.70703935623169,
+        0.0,
+        -4.17749404907227
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@89",
+      "elapsed_s": 0.131,
+      "forward_dot_velocity": -0.99999988079071,
+      "forward_from_landmarks": [
+        -0.660168766975403,
+        0.0,
+        0.75111722946167
+      ],
+      "head_rest_world": [
+        16.0538921356201,
+        1.4222092628479,
+        -0.0613151341676712
+      ],
+      "input_phase": -1,
+      "mean_eye_rest_world": [
+        15.9991750717163,
+        1.53899991512299,
+        0.000940050929784775
+      ],
+      "position_world": [
+        16.0538921356201,
+        0.0,
+        -0.0613151341676712
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@89/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        3.68708896636963,
+        0.0,
+        -4.19500970840454
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@92",
+      "elapsed_s": 0.131,
+      "forward_dot_velocity": -1.00000011920929,
+      "forward_from_landmarks": [
+        -0.562169015407562,
+        0.0,
+        0.827022433280945
+      ],
+      "head_rest_world": [
+        20.0458927154541,
+        1.50999999046326,
+        -0.0675123631954193
+      ],
+      "input_phase": -1,
+      "mean_eye_rest_world": [
+        19.9964218139648,
+        1.63399994373322,
+        0.00526565313339233
+      ],
+      "position_world": [
+        20.0458927154541,
+        0.0,
+        -0.0675123631954193
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@92/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        3.1397659778595,
+        0.0,
+        -4.6190071105957
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@95",
+      "elapsed_s": 0.131,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.835417926311493,
+        0.0,
+        0.549615144729614
+      ],
+      "head_rest_world": [
+        0.0681977644562721,
+        1.4222092628479,
+        -4.04486703872681
+      ],
+      "input_phase": -1,
+      "mean_eye_rest_world": [
+        -0.00104480236768723,
+        1.53899991512299,
+        -3.99931287765503
+      ],
+      "position_world": [
+        0.0681977644562721,
+        0.0,
+        -4.04486703872681
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@95/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        4.66589975357056,
+        0.0,
+        -3.06965684890747
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@101",
+      "elapsed_s": 0.131,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.772844552993774,
+        0.0,
+        0.634595394134521
+      ],
+      "head_rest_world": [
+        8.06308937072754,
+        1.4222092628479,
+        -4.05180501937866
+      ],
+      "input_phase": -1,
+      "mean_eye_rest_world": [
+        7.99903297424316,
+        1.53899991512299,
+        -3.99920725822449
+      ],
+      "position_world": [
+        8.06308937072754,
+        0.0,
+        -4.05180501937866
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@101/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        4.31647253036499,
+        0.0,
+        -3.54432940483093
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@104",
+      "elapsed_s": 0.131,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.728205323219299,
+        0.0,
+        0.685359060764313
+      ],
+      "head_rest_world": [
+        12.0594453811646,
+        1.4222092628479,
+        -4.05594778060913
+      ],
+      "input_phase": -1,
+      "mean_eye_rest_world": [
+        11.9990892410278,
+        1.53899991512299,
+        -3.99914288520813
+      ],
+      "position_world": [
+        12.0594453811646,
+        0.0,
+        -4.05594778060913
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@104/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        4.06709051132202,
+        0.0,
+        -3.82777786254883
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@107",
+      "elapsed_s": 0.131,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.676077783107758,
+        0.0,
+        0.736830234527588
+      ],
+      "head_rest_world": [
+        16.0551891326904,
+        1.4222092628479,
+        -4.06015014648438
+      ],
+      "input_phase": -1,
+      "mean_eye_rest_world": [
+        15.999153137207,
+        1.53899991512299,
+        -3.99907875061035
+      ],
+      "position_world": [
+        16.0551891326904,
+        0.0,
+        -4.06015014648438
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@107/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        3.77592539787292,
+        0.0,
+        -4.11527299880981
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@110",
+      "elapsed_s": 0.131,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.64292174577713,
+        0.0,
+        0.765931844711304
+      ],
+      "head_rest_world": [
+        20.0524845123291,
+        1.4222092628479,
+        -4.06252384185791
+      ],
+      "input_phase": -1,
+      "mean_eye_rest_world": [
+        19.9991970062256,
+        1.53899991512299,
+        -3.99904084205627
+      ],
+      "position_world": [
+        20.0524845123291,
+        0.0,
+        -4.06252384185791
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@110/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        3.59072399139404,
+        0.0,
+        -4.27770042419434
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@113",
+      "elapsed_s": 0.131,
+      "forward_dot_velocity": -0.99999988079071,
+      "forward_from_landmarks": [
+        -0.850875735282898,
+        0.0,
+        0.525366842746735
+      ],
+      "head_rest_world": [
+        0.0694594830274582,
+        1.50999999046326,
+        -8.04288673400879
+      ],
+      "input_phase": -1,
+      "mean_eye_rest_world": [
+        -0.00541748851537704,
+        1.63399994373322,
+        -7.99665451049805
+      ],
+      "position_world": [
+        0.0694594830274582,
+        0.0,
+        -8.04288673400879
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@113/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        4.75222396850586,
+        0.0,
+        -2.93423771858215
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@119",
+      "elapsed_s": 0.131,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.790953278541565,
+        0.0,
+        0.611876547336578
+      ],
+      "head_rest_world": [
+        8.06456851959229,
+        1.4222092628479,
+        -8.04994869232178
+      ],
+      "input_phase": -1,
+      "mean_eye_rest_world": [
+        7.99901151657104,
+        1.53899991512299,
+        -7.99923419952393
+      ],
+      "position_world": [
+        8.06456851959229,
+        0.0,
+        -8.04994869232178
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@119/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        4.41754293441772,
+        0.0,
+        -3.41737985610962
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@122",
+      "elapsed_s": 0.131,
+      "forward_dot_velocity": -0.99999988079071,
+      "forward_from_landmarks": [
+        -0.794686198234558,
+        0.0,
+        0.607020318508148
+      ],
+      "head_rest_world": [
+        12.0648727416992,
+        1.4222092628479,
+        -8.04955387115479
+      ],
+      "input_phase": -1,
+      "mean_eye_rest_world": [
+        11.9990062713623,
+        1.53899991512299,
+        -7.99924182891846
+      ],
+      "position_world": [
+        12.0648727416992,
+        0.0,
+        -8.04955387115479
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@122/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        4.43843460083008,
+        0.0,
+        -3.39027714729309
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@125",
+      "elapsed_s": 0.131,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.705592095851898,
+        0.0,
+        0.708618223667145
+      ],
+      "head_rest_world": [
+        16.0576000213623,
+        1.4222092628479,
+        -8.05784606933594
+      ],
+      "input_phase": -1,
+      "mean_eye_rest_world": [
+        15.9991178512573,
+        1.53899991512299,
+        -7.99911308288574
+      ],
+      "position_world": [
+        16.0576000213623,
+        0.0,
+        -8.05784606933594
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@125/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        3.94079971313477,
+        0.0,
+        -3.95773887634277
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@128",
+      "elapsed_s": 0.131,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.707678973674774,
+        0.0,
+        0.706534147262573
+      ],
+      "head_rest_world": [
+        20.0577697753906,
+        1.4222092628479,
+        -8.05767631530762
+      ],
+      "input_phase": -1,
+      "mean_eye_rest_world": [
+        19.9991149902344,
+        1.53899991512299,
+        -7.99911642074585
+      ],
+      "position_world": [
+        20.0577697753906,
+        0.0,
+        -8.05767631530762
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@128/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        3.95246887207031,
+        0.0,
+        -3.94606971740723
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@131",
+      "elapsed_s": 0.131,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.876875996589661,
+        0.0,
+        0.480716586112976
+      ],
+      "head_rest_world": [
+        0.0715820416808128,
+        1.4222092628479,
+        -12.0392427444458
+      ],
+      "input_phase": -1,
+      "mean_eye_rest_world": [
+        -0.00109666585922241,
+        1.53899991512299,
+        -11.9993991851807
+      ],
+      "position_world": [
+        0.0715820416808128,
+        0.0,
+        -12.0392427444458
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@131/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        4.89744281768799,
+        0.0,
+        -2.68485569953918
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@137",
+      "elapsed_s": 0.131,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.835828840732574,
+        0.0,
+        0.548990190029144
+      ],
+      "head_rest_world": [
+        8.06823062896729,
+        1.50999999046326,
+        -12.0448160171509
+      ],
+      "input_phase": -1,
+      "mean_eye_rest_world": [
+        7.99467754364014,
+        1.63399994373322,
+        -11.9965047836304
+      ],
+      "position_world": [
+        8.06823062896729,
+        0.0,
+        -12.0448160171509
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@137/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        4.66824197769165,
+        0.0,
+        -3.06617474555969
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@140",
+      "elapsed_s": 0.131,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.83178848028183,
+        0.0,
+        0.555092811584473
+      ],
+      "head_rest_world": [
+        12.0679025650024,
+        1.50999999046326,
+        -12.0453128814697
+      ],
+      "input_phase": -1,
+      "mean_eye_rest_world": [
+        11.9947052001953,
+        1.63399994373322,
+        -11.9964647293091
+      ],
+      "position_world": [
+        12.0679025650024,
+        0.0,
+        -12.0453128814697
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@140/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        4.64565658569336,
+        0.0,
+        -3.1002414226532
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@143",
+      "elapsed_s": 0.131,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.777164220809937,
+        0.0,
+        0.629297852516174
+      ],
+      "head_rest_world": [
+        16.0634441375732,
+        1.4222092628479,
+        -12.0513706207275
+      ],
+      "input_phase": -1,
+      "mean_eye_rest_world": [
+        15.9990301132202,
+        1.53899991512299,
+        -11.9992122650146
+      ],
+      "position_world": [
+        16.0634441375732,
+        0.0,
+        -12.0513706207275
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@143/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        4.34056377410889,
+        0.0,
+        -3.51468586921692
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@146",
+      "elapsed_s": 0.131,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.734618604183197,
+        0.0,
+        0.678480327129364
+      ],
+      "head_rest_world": [
+        20.0599708557129,
+        1.4222092628479,
+        -12.0553874969482
+      ],
+      "input_phase": -1,
+      "mean_eye_rest_world": [
+        19.9990825653076,
+        1.53899991512299,
+        -11.9991521835327
+      ],
+      "position_world": [
+        20.0599708557129,
+        0.0,
+        -12.0553874969482
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@146/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        4.10303926467896,
+        0.0,
+        -3.7894766330719
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 1.032,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "head_rest_world": [
+        12.0,
+        1.50999999046326,
+        -6.02666664123535
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        12.0,
+        1.63399994373322,
+        -5.93866682052612
+      ],
+      "position_world": [
+        12.0,
+        0.0,
+        -6.02666664123535
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.0,
+        0.0,
+        -2.25606107711792
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_female",
+      "elapsed_s": 1.133,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.802124381065369,
+        0.0,
+        0.597156941890717
+      ],
+      "head_rest_world": [
+        1.34437847137451,
+        1.4222092628479,
+        -1.00084555149078
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        1.27789545059204,
+        1.53899991512299,
+        -0.95135098695755
+      ],
+      "position_world": [
+        1.34437847137451,
+        0.0,
+        -1.00084555149078
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/body_female/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.18353128433228,
+        0.0,
+        -0.881101965904236
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@80",
+      "elapsed_s": 1.133,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.743148505687714,
+        0.0,
+        0.669126451015472
+      ],
+      "head_rest_world": [
+        5.2455358505249,
+        1.4222092628479,
+        -1.12147378921509
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        5.18394088745117,
+        1.53899991512299,
+        -1.06601405143738
+      ],
+      "position_world": [
+        5.2455358505249,
+        0.0,
+        -1.12147378921509
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@80/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.09651708602905,
+        0.0,
+        -0.987300634384155
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@83",
+      "elapsed_s": 1.133,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.746304214000702,
+        0.0,
+        0.665604948997498
+      ],
+      "head_rest_world": [
+        9.25081157684326,
+        1.50999999046326,
+        -1.11555886268616
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        9.18513679504395,
+        1.63399994373322,
+        -1.05698561668396
+      ],
+      "position_world": [
+        9.25081157684326,
+        0.0,
+        -1.11555886268616
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@83/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.10116064548492,
+        0.0,
+        -0.982089817523956
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@86",
+      "elapsed_s": 1.133,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.663725256919861,
+        0.0,
+        0.74797648191452
+      ],
+      "head_rest_world": [
+        13.1124124526978,
+        1.50999999046326,
+        -1.25361347198486
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        13.0540046691895,
+        1.63399994373322,
+        -1.18779158592224
+      ],
+      "position_world": [
+        13.1124124526978,
+        0.0,
+        -1.25361347198486
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@86/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.979319512844086,
+        0.0,
+        -1.10362756252289
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@89",
+      "elapsed_s": 1.133,
+      "forward_dot_velocity": -0.99999988079071,
+      "forward_from_landmarks": [
+        -0.660179078578949,
+        0.0,
+        0.751108169555664
+      ],
+      "head_rest_world": [
+        17.1064758300781,
+        1.4222092628479,
+        -1.25887024402618
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        17.0517578125,
+        1.53899991512299,
+        -1.19661569595337
+      ],
+      "position_world": [
+        17.1064758300781,
+        0.0,
+        -1.25887024402618
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@89/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.974095523357391,
+        0.0,
+        -1.10825788974762
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@92",
+      "elapsed_s": 1.133,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.562188327312469,
+        0.0,
+        0.827009201049805
+      ],
+      "head_rest_world": [
+        20.9422416687012,
+        1.50999999046326,
+        -1.38610768318176
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        20.8927688598633,
+        1.63399994373322,
+        -1.3133305311203
+      ],
+      "position_world": [
+        20.9422416687012,
+        0.0,
+        -1.38610768318176
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@92/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.82951146364212,
+        0.0,
+        -1.22027099132538
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@95",
+      "elapsed_s": 1.133,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.835414588451385,
+        0.0,
+        0.54962033033371
+      ],
+      "head_rest_world": [
+        1.40017902851105,
+        1.4222092628479,
+        -4.9211745262146
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        1.33093667030334,
+        1.53899991512299,
+        -4.87561988830566
+      ],
+      "position_world": [
+        1.40017902851105,
+        0.0,
+        -4.9211745262146
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@95/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.23265826702118,
+        0.0,
+        -0.81096351146698
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@101",
+      "elapsed_s": 1.133,
+      "forward_dot_velocity": -0.99999988079071,
+      "forward_from_landmarks": [
+        -0.772832870483398,
+        0.0,
+        0.634609580039978
+      ],
+      "head_rest_world": [
+        9.29528617858887,
+        1.4222092628479,
+        -5.06362009048462
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        9.23123073577881,
+        1.53899991512299,
+        -5.01102113723755
+      ],
+      "position_world": [
+        9.29528617858887,
+        0.0,
+        -5.06362009048462
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@101/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.14031434059143,
+        0.0,
+        -0.936366438865662
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@104",
+      "elapsed_s": 1.133,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.728203892707825,
+        0.0,
+        0.685360550880432
+      ],
+      "head_rest_world": [
+        13.2204818725586,
+        1.4222092628479,
+        -5.14867353439331
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        13.1601257324219,
+        1.53899991512299,
+        -5.09186840057373
+      ],
+      "position_world": [
+        13.2204818725586,
+        0.0,
+        -5.14867353439331
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@104/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.07446002960205,
+        0.0,
+        -1.01124405860901
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@107",
+      "elapsed_s": 1.133,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.676059603691101,
+        0.0,
+        0.736846923828125
+      ],
+      "head_rest_world": [
+        17.1330909729004,
+        1.4222092628479,
+        -5.23495626449585
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        17.0770568847656,
+        1.53899991512299,
+        -5.17388391494751
+      ],
+      "position_world": [
+        17.1330909729004,
+        0.0,
+        -5.23495626449585
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@107/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.997524440288544,
+        0.0,
+        -1.08720350265503
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@110",
+      "elapsed_s": 1.133,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.642942309379578,
+        0.0,
+        0.765914618968964
+      ],
+      "head_rest_world": [
+        21.0775852203369,
+        1.4222092628479,
+        -5.28368759155273
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        21.0242958068848,
+        1.53899991512299,
+        -5.22020578384399
+      ],
+      "position_world": [
+        21.0775852203369,
+        0.0,
+        -5.28368759155273
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@110/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.948661386966705,
+        0.0,
+        -1.13010382652283
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@113",
+      "elapsed_s": 1.133,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.850882291793823,
+        0.0,
+        0.525356292724609
+      ],
+      "head_rest_world": [
+        1.42608249187469,
+        1.50999999046326,
+        -8.88050842285156
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        1.35120499134064,
+        1.63399994373322,
+        -8.83427715301514
+      ],
+      "position_world": [
+        1.42608249187469,
+        0.0,
+        -8.88050842285156
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@113/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.25546050071716,
+        0.0,
+        -0.775160491466522
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@119",
+      "elapsed_s": 1.133,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.790965259075165,
+        0.0,
+        0.611860990524292
+      ],
+      "head_rest_world": [
+        9.32567405700684,
+        1.4222092628479,
+        -9.02550029754639
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        9.26011562347412,
+        1.53899991512299,
+        -8.97478675842285
+      ],
+      "position_world": [
+        9.32567405700684,
+        0.0,
+        -9.02550029754639
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@119/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.16706776618958,
+        0.0,
+        -0.902806043624878
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@122",
+      "elapsed_s": 1.133,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.79467648267746,
+        0.0,
+        0.60703319311142
+      ],
+      "head_rest_world": [
+        13.3319091796875,
+        1.4222092628479,
+        -9.01740646362305
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        13.2660436630249,
+        1.53899991512299,
+        -8.9670934677124
+      ],
+      "position_world": [
+        13.3319091796875,
+        0.0,
+        -9.01740646362305
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@122/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.17255556583405,
+        0.0,
+        -0.895682394504547
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@125",
+      "elapsed_s": 1.133,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.70560359954834,
+        0.0,
+        0.708606719970703
+      ],
+      "head_rest_world": [
+        17.1826000213623,
+        1.4222092628479,
+        -9.18763637542725
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        17.124116897583,
+        1.53899991512299,
+        -9.12890434265137
+      ],
+      "position_world": [
+        17.1826000213623,
+        0.0,
+        -9.18763637542725
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@125/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.04111075401306,
+        0.0,
+        -1.04554319381714
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@128",
+      "elapsed_s": 1.133,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.707676112651825,
+        0.0,
+        0.706537008285522
+      ],
+      "head_rest_world": [
+        21.1860790252686,
+        1.4222092628479,
+        -9.18415927886963
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        21.1274242401123,
+        1.53899991512299,
+        -9.1255989074707
+      ],
+      "position_world": [
+        21.1860790252686,
+        0.0,
+        -9.18415927886963
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@128/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.0441712141037,
+        0.0,
+        -1.0424827337265
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@131",
+      "elapsed_s": 1.133,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.876875638961792,
+        0.0,
+        0.480717331171036
+      ],
+      "head_rest_world": [
+        1.46966290473938,
+        1.4222092628479,
+        -12.8057022094727
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        1.39698433876038,
+        1.53899991512299,
+        -12.7658586502075
+      ],
+      "position_world": [
+        1.46966290473938,
+        0.0,
+        -12.8057022094727
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@131/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.29382944107056,
+        0.0,
+        -0.709306180477142
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@137",
+      "elapsed_s": 1.133,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.835820555686951,
+        0.0,
+        0.549002707004547
+      ],
+      "head_rest_world": [
+        9.40084075927734,
+        1.50999999046326,
+        -12.9201259613037
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        9.32728862762451,
+        1.63399994373322,
+        -12.8718137741089
+      ],
+      "position_world": [
+        9.40084075927734,
+        0.0,
+        -12.9201259613037
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@137/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.233238697052,
+        0.0,
+        -0.810040056705475
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@140",
+      "elapsed_s": 1.133,
+      "forward_dot_velocity": -1.00000011920929,
+      "forward_from_landmarks": [
+        -0.83180183172226,
+        0.0,
+        0.555072784423828
+      ],
+      "head_rest_world": [
+        13.3941240310669,
+        1.50999999046326,
+        -12.9303178787231
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        13.3209257125854,
+        1.63399994373322,
+        -12.8814716339111
+      ],
+      "position_world": [
+        13.3941240310669,
+        0.0,
+        -12.9303178787231
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@140/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.22732865810394,
+        0.0,
+        -0.819010615348816
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@143",
+      "elapsed_s": 1.133,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.777189135551453,
+        0.0,
+        0.62926709651947
+      ],
+      "head_rest_world": [
+        17.3025951385498,
+        1.4222092628479,
+        -13.0546913146973
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        17.2381782531738,
+        1.53899991512299,
+        -13.002534866333
+      ],
+      "position_world": [
+        17.3025951385498,
+        0.0,
+        -13.0546913146973
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@143/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.14675211906433,
+        0.0,
+        -0.928504049777985
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@146",
+      "elapsed_s": 1.133,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.734624326229095,
+        0.0,
+        0.678474128246307
+      ],
+      "head_rest_world": [
+        21.2312679290771,
+        1.4222092628479,
+        -13.1371669769287
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        21.1703796386719,
+        1.53899991512299,
+        -13.0809326171875
+      ],
+      "position_world": [
+        21.2312679290771,
+        0.0,
+        -13.1371669769287
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@146/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.08395826816559,
+        0.0,
+        -1.00111269950867
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 1.235,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "head_rest_world": [
+        12.0,
+        1.50999999046326,
+        -6.34666633605957
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        12.0,
+        1.63399994373322,
+        -6.25866651535034
+      ],
+      "position_world": [
+        12.0,
+        0.0,
+        -6.34666633605957
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.0,
+        0.0,
+        -1.42040264606476
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 1.435,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "head_rest_world": [
+        12.0,
+        1.50999999046326,
+        -6.66666603088379
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        12.0,
+        1.63399994373322,
+        -6.57866621017456
+      ],
+      "position_world": [
+        12.0,
+        0.0,
+        -6.66666603088379
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.0,
+        0.0,
+        -1.29745733737946
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 1.652,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "head_rest_world": [
+        12.0,
+        1.50999999046326,
+        -7.01333236694336
+      ],
+      "input_phase": 0,
+      "mean_eye_rest_world": [
+        12.0,
+        1.63399994373322,
+        -6.92533254623413
+      ],
+      "position_world": [
+        12.0,
+        0.0,
+        -7.01333236694336
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.0,
+        0.0,
+        -1.43585181236267
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 1.868,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "head_rest_world": [
+        12.2133331298828,
+        1.50999999046326,
+        -7.14666557312012
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        12.1253328323364,
+        1.63399994373322,
+        -7.14666557312012
+      ],
+      "position_world": [
+        12.2133331298828,
+        0.0,
+        -7.14666557312012
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.59795308113098,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 2.084,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "head_rest_world": [
+        12.5598745346069,
+        1.50999999046326,
+        -7.14666557312012
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        12.4718742370605,
+        1.63399994373322,
+        -7.14666557312012
+      ],
+      "position_world": [
+        12.5598745346069,
+        0.0,
+        -7.14666557312012
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.71998465061188,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_female",
+      "elapsed_s": 2.136,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.802126407623291,
+        0.0,
+        0.597154140472412
+      ],
+      "head_rest_world": [
+        2.62767577171326,
+        1.4222092628479,
+        -1.95621657371521
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        2.56119251251221,
+        1.53899991512299,
+        -1.90672218799591
+      ],
+      "position_world": [
+        2.62767577171326,
+        0.0,
+        -1.95621657371521
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/body_female/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.12875783443451,
+        0.0,
+        -0.840321660041809
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@80",
+      "elapsed_s": 2.136,
+      "forward_dot_velocity": -0.99999988079071,
+      "forward_from_landmarks": [
+        -0.743148505687714,
+        0.0,
+        0.669126451015472
+      ],
+      "head_rest_world": [
+        6.43448352813721,
+        1.4222092628479,
+        -2.19199895858765
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        6.37288856506348,
+        1.53899991512299,
+        -2.13653922080994
+      ],
+      "position_world": [
+        6.43448352813721,
+        0.0,
+        -2.19199895858765
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@80/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.04577052593231,
+        0.0,
+        -0.941608667373657
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@83",
+      "elapsed_s": 2.136,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.746304214000702,
+        0.0,
+        0.665604948997498
+      ],
+      "head_rest_world": [
+        10.4447946548462,
+        1.50999999046326,
+        -2.18043398857117
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        10.3791198730469,
+        1.63399994373322,
+        -2.12186074256897
+      ],
+      "position_world": [
+        10.4447946548462,
+        0.0,
+        -2.18043398857117
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@83/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.05019927024841,
+        0.0,
+        -0.936639010906219
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@86",
+      "elapsed_s": 2.136,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.663725256919861,
+        0.0,
+        0.74797648191452
+      ],
+      "head_rest_world": [
+        14.1742839813232,
+        1.50999999046326,
+        -2.45027136802673
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        14.1158761978149,
+        1.63399994373322,
+        -2.38444948196411
+      ],
+      "position_world": [
+        14.1742839813232,
+        0.0,
+        -2.45027136802673
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@86/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.933996915817261,
+        0.0,
+        -1.05255198478699
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@89",
+      "elapsed_s": 2.136,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.660178363323212,
+        0.0,
+        0.751108825206757
+      ],
+      "head_rest_world": [
+        18.1626834869385,
+        1.4222092628479,
+        -2.46054863929749
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        18.1079654693604,
+        1.53899991512299,
+        -2.39829397201538
+      ],
+      "position_world": [
+        18.1626834869385,
+        0.0,
+        -2.46054863929749
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@89/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.929014623165131,
+        0.0,
+        -1.0569680929184
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@92",
+      "elapsed_s": 2.136,
+      "forward_dot_velocity": -1.00000011920929,
+      "forward_from_landmarks": [
+        -0.562189042568207,
+        0.0,
+        0.827008783817291
+      ],
+      "head_rest_world": [
+        21.8416767120361,
+        1.50999999046326,
+        -2.70924139022827
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        21.7922039031982,
+        1.63399994373322,
+        -2.6364643573761
+      ],
+      "position_world": [
+        21.8416767120361,
+        0.0,
+        -2.70924139022827
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@92/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.791121900081635,
+        0.0,
+        -1.16379714012146
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@95",
+      "elapsed_s": 2.136,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.835414946079254,
+        0.0,
+        0.549619674682617
+      ],
+      "head_rest_world": [
+        2.73674416542053,
+        1.4222092628479,
+        -5.80049800872803
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        2.66750168800354,
+        1.53899991512299,
+        -5.75494337081909
+      ],
+      "position_world": [
+        2.73674416542053,
+        0.0,
+        -5.80049800872803
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@95/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.17561113834381,
+        0.0,
+        -0.773432374000549
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@101",
+      "elapsed_s": 2.136,
+      "forward_dot_velocity": -1.00000011920929,
+      "forward_from_landmarks": [
+        -0.772832870483398,
+        0.0,
+        0.634609580039978
+      ],
+      "head_rest_world": [
+        10.5317239761353,
+        1.4222092628479,
+        -6.07891750335693
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        10.4676685333252,
+        1.53899991512299,
+        -6.02631855010986
+      ],
+      "position_world": [
+        10.5317239761353,
+        0.0,
+        -6.07891750335693
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@101/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.08754098415375,
+        0.0,
+        -0.893031656742096
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@104",
+      "elapsed_s": 2.136,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.728203892707825,
+        0.0,
+        0.685360550880432
+      ],
+      "head_rest_world": [
+        14.3855142593384,
+        1.4222092628479,
+        -6.2451605796814
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        14.3251581192017,
+        1.53899991512299,
+        -6.18835544586182
+      ],
+      "position_world": [
+        14.3855142593384,
+        0.0,
+        -6.2451605796814
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@104/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.02473437786102,
+        0.0,
+        -0.964444041252136
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@107",
+      "elapsed_s": 2.136,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.676059603691101,
+        0.0,
+        0.736846923828125
+      ],
+      "head_rest_world": [
+        18.2147026062012,
+        1.4222092628479,
+        -6.41380548477173
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        18.1586685180664,
+        1.53899991512299,
+        -6.35273313522339
+      ],
+      "position_world": [
+        18.2147026062012,
+        0.0,
+        -6.41380548477173
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@107/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.951359331607819,
+        0.0,
+        -1.0368880033493
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@110",
+      "elapsed_s": 2.136,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.642942309379578,
+        0.0,
+        0.765914618968964
+      ],
+      "head_rest_world": [
+        22.1062145233154,
+        1.4222092628479,
+        -6.5090537071228
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        22.0529251098633,
+        1.53899991512299,
+        -6.44557189941406
+      ],
+      "position_world": [
+        22.1062145233154,
+        0.0,
+        -6.5090537071228
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@110/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.904757618904114,
+        0.0,
+        -1.07780289649963
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@113",
+      "elapsed_s": 2.136,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.850882291793823,
+        0.0,
+        0.525356292724609
+      ],
+      "head_rest_world": [
+        2.78737616539001,
+        1.50999999046326,
+        -9.7210111618042
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        2.71249866485596,
+        1.63399994373322,
+        -9.67477989196777
+      ],
+      "position_world": [
+        2.78737616539001,
+        0.0,
+        -9.7210111618042
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@113/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.19736444950104,
+        0.0,
+        -0.739286303520203
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@119",
+      "elapsed_s": 2.136,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.790965259075165,
+        0.0,
+        0.611860990524292
+      ],
+      "head_rest_world": [
+        10.5911197662354,
+        1.4222092628479,
+        -10.0044088363647
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        10.5255613327026,
+        1.53899991512299,
+        -9.95369529724121
+      ],
+      "position_world": [
+        10.5911197662354,
+        0.0,
+        -10.0044088363647
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@119/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.11305618286133,
+        0.0,
+        -0.861024439334869
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@122",
+      "elapsed_s": 2.136,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.79467648267746,
+        0.0,
+        0.60703319311142
+      ],
+      "head_rest_world": [
+        14.6033048629761,
+        1.4222092628479,
+        -9.98859024047852
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        14.5374393463135,
+        1.53899991512299,
+        -9.93827724456787
+      ],
+      "position_world": [
+        14.6033048629761,
+        0.0,
+        -9.98859024047852
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@122/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.11829006671906,
+        0.0,
+        -0.854230463504791
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@125",
+      "elapsed_s": 2.136,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.70560359954834,
+        0.0,
+        0.708606719970703
+      ],
+      "head_rest_world": [
+        18.3114719390869,
+        1.4222092628479,
+        -10.3213138580322
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        18.2529888153076,
+        1.53899991512299,
+        -10.2625818252563
+      ],
+      "position_world": [
+        18.3114719390869,
+        0.0,
+        -10.3213138580322
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@125/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.992928445339203,
+        0.0,
+        -0.997155785560608
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@128",
+      "elapsed_s": 2.136,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.707676112651825,
+        0.0,
+        0.706537008285522
+      ],
+      "head_rest_world": [
+        22.3182697296143,
+        1.4222092628479,
+        -10.3145179748535
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        22.259614944458,
+        1.53899991512299,
+        -10.2559576034546
+      ],
+      "position_world": [
+        22.3182697296143,
+        0.0,
+        -10.3145179748535
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@128/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.995847344398499,
+        0.0,
+        -0.994236886501312
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@131",
+      "elapsed_s": 2.136,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.876875638961792,
+        0.0,
+        0.480717331171036
+      ],
+      "head_rest_world": [
+        2.87255573272705,
+        1.4222092628479,
+        -13.5747995376587
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        2.79987716674805,
+        1.53899991512299,
+        -13.5349559783936
+      ],
+      "position_world": [
+        2.87255573272705,
+        0.0,
+        -13.5747995376587
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@131/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.23395133018494,
+        0.0,
+        -0.676479697227478
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@137",
+      "elapsed_s": 2.136,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.835820555686951,
+        0.0,
+        0.549002707004547
+      ],
+      "head_rest_world": [
+        10.7380428314209,
+        1.50999999046326,
+        -13.7984485626221
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        10.6644906997681,
+        1.63399994373322,
+        -13.7501363754272
+      ],
+      "position_world": [
+        10.7380428314209,
+        0.0,
+        -13.7984485626221
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@137/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.17616474628448,
+        0.0,
+        -0.772551655769348
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@140",
+      "elapsed_s": 2.136,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.83180183172226,
+        0.0,
+        0.555072784423828
+      ],
+      "head_rest_world": [
+        14.7249097824097,
+        1.50999999046326,
+        -13.8183670043945
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        14.6517114639282,
+        1.63399994373322,
+        -13.7695207595825
+      ],
+      "position_world": [
+        14.7249097824097,
+        0.0,
+        -13.8183670043945
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@140/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.17052829265594,
+        0.0,
+        -0.781107068061829
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@143",
+      "elapsed_s": 2.136,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.777189135551453,
+        0.0,
+        0.62926709651947
+      ],
+      "head_rest_world": [
+        18.5460109710693,
+        1.4222092628479,
+        -14.0614643096924
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        18.4815940856934,
+        1.53899991512299,
+        -14.0093078613281
+      ],
+      "position_world": [
+        18.5460109710693,
+        0.0,
+        -14.0614643096924
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@143/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.09368073940277,
+        0.0,
+        -0.885533154010773
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@146",
+      "elapsed_s": 2.136,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.734624326229095,
+        0.0,
+        0.678474128246307
+      ],
+      "head_rest_world": [
+        22.4065971374512,
+        1.4222092628479,
+        -14.2226686477661
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        22.3457088470459,
+        1.53899991512299,
+        -14.1664342880249
+      ],
+      "position_world": [
+        22.4065971374512,
+        0.0,
+        -14.2226686477661
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@146/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.0337929725647,
+        0.0,
+        -0.954781472682953
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 2.285,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "head_rest_world": [
+        12.8798742294312,
+        1.50999999046326,
+        -7.14666557312012
+      ],
+      "input_phase": 1,
+      "mean_eye_rest_world": [
+        12.7918739318848,
+        1.63399994373322,
+        -7.14666557312012
+      ],
+      "position_world": [
+        12.8798742294312,
+        0.0,
+        -7.14666557312012
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.5419590473175,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 2.502,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "head_rest_world": [
+        13.093207359314,
+        1.50999999046326,
+        -7.01333236694336
+      ],
+      "input_phase": 2,
+      "mean_eye_rest_world": [
+        13.093207359314,
+        1.63399994373322,
+        -7.10133218765259
+      ],
+      "position_world": [
+        13.093207359314,
+        0.0,
+        -7.01333236694336
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.0,
+        0.0,
+        1.25130879878998
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 2.718,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "head_rest_world": [
+        13.093207359314,
+        1.50999999046326,
+        -6.66666603088379
+      ],
+      "input_phase": 2,
+      "mean_eye_rest_world": [
+        13.093207359314,
+        1.63399994373322,
+        -6.75466585159302
+      ],
+      "position_world": [
+        13.093207359314,
+        0.0,
+        -6.66666603088379
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.0,
+        0.0,
+        1.59604036808014
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 2.918,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "head_rest_world": [
+        13.093207359314,
+        1.50999999046326,
+        -6.34666633605957
+      ],
+      "input_phase": 2,
+      "mean_eye_rest_world": [
+        13.093207359314,
+        1.63399994373322,
+        -6.4346661567688
+      ],
+      "position_world": [
+        13.093207359314,
+        0.0,
+        -6.34666633605957
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.0,
+        0.0,
+        1.55173933506012
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 3.129,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "head_rest_world": [
+        13.093207359314,
+        1.50999999046326,
+        -6.02666664123535
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        13.093207359314,
+        1.63399994373322,
+        -6.11466646194458
+      ],
+      "position_world": [
+        13.093207359314,
+        0.0,
+        -6.02666664123535
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.0,
+        0.0,
+        1.01594948768616
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_female",
+      "elapsed_s": 3.138,
+      "forward_dot_velocity": -0.99999988079071,
+      "forward_from_landmarks": [
+        -0.802123308181763,
+        0.0,
+        0.597158312797546
+      ],
+      "head_rest_world": [
+        3.91897535324097,
+        1.4222092628479,
+        -2.91755199432373
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        3.8524923324585,
+        1.53899991512299,
+        -2.86805725097656
+      ],
+      "position_world": [
+        3.91897535324097,
+        0.0,
+        -2.91755199432373
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/body_female/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        3.1318154335022,
+        0.0,
+        -2.33154654502869
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@80",
+      "elapsed_s": 3.138,
+      "forward_dot_velocity": -1.00000011920929,
+      "forward_from_landmarks": [
+        -0.743144512176514,
+        0.0,
+        0.669130980968475
+      ],
+      "head_rest_world": [
+        7.63084554672241,
+        1.4222092628479,
+        -3.26919984817505
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        7.56925106048584,
+        1.53899991512299,
+        -3.21373987197876
+      ],
+      "position_world": [
+        7.63084554672241,
+        0.0,
+        -3.26919984817505
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@80/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        2.90155386924744,
+        0.0,
+        -2.61256098747253
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@83",
+      "elapsed_s": 3.138,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.746304214000702,
+        0.0,
+        0.665604948997498
+      ],
+      "head_rest_world": [
+        11.6462230682373,
+        1.50999999046326,
+        -3.25194954872131
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        11.580548286438,
+        1.63399994373322,
+        -3.19337630271912
+      ],
+      "position_world": [
+        11.6462230682373,
+        0.0,
+        -3.25194954872131
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@83/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        2.91384077072144,
+        0.0,
+        -2.59877014160156
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@86",
+      "elapsed_s": 3.138,
+      "forward_dot_velocity": -0.99999988079071,
+      "forward_from_landmarks": [
+        -0.663725256919861,
+        0.0,
+        0.74797648191452
+      ],
+      "head_rest_world": [
+        15.2427768707275,
+        1.50999999046326,
+        -3.65439128875732
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        15.1843690872192,
+        1.63399994373322,
+        -3.5885694026947
+      ],
+      "position_world": [
+        15.2427768707275,
+        0.0,
+        -3.65439128875732
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@86/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        2.59142875671387,
+        0.0,
+        -2.92036628723145
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@89",
+      "elapsed_s": 3.138,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.660182654857635,
+        0.0,
+        0.751105070114136
+      ],
+      "head_rest_world": [
+        19.2254772186279,
+        1.4222092628479,
+        -3.66972064971924
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        19.1707592010498,
+        1.53899991512299,
+        -3.60746669769287
+      ],
+      "position_world": [
+        19.2254772186279,
+        0.0,
+        -3.66972064971924
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@89/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        2.57766366004944,
+        0.0,
+        -2.93262767791748
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@92",
+      "elapsed_s": 3.138,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.562167882919312,
+        0.0,
+        0.827023088932037
+      ],
+      "head_rest_world": [
+        22.7467193603516,
+        1.50999999046326,
+        -4.04062604904175
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        22.6972484588623,
+        1.63399994373322,
+        -3.96784782409668
+      ],
+      "position_world": [
+        22.7467193603516,
+        0.0,
+        -4.04062604904175
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@92/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        2.19488859176636,
+        0.0,
+        -3.22901296615601
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@95",
+      "elapsed_s": 3.138,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.835417628288269,
+        0.0,
+        0.549615621566772
+      ],
+      "head_rest_world": [
+        4.08164358139038,
+        1.4222092628479,
+        -6.68530464172363
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        4.01240110397339,
+        1.53899991512299,
+        -6.63975048065186
+      ],
+      "position_world": [
+        4.08164358139038,
+        0.0,
+        -6.68530464172363
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@95/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        3.26179456710815,
+        0.0,
+        -2.14589476585388
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@101",
+      "elapsed_s": 3.138,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.772835731506348,
+        0.0,
+        0.634606182575226
+      ],
+      "head_rest_world": [
+        11.7758712768555,
+        1.4222092628479,
+        -7.10054588317871
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        11.7118158340454,
+        1.53899991512299,
+        -7.0479474067688
+      ],
+      "position_world": [
+        11.7758712768555,
+        0.0,
+        -7.10054588317871
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@101/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        3.01743674278259,
+        0.0,
+        -2.47773838043213
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@104",
+      "elapsed_s": 3.138,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.728203892707825,
+        0.0,
+        0.685360550880432
+      ],
+      "head_rest_world": [
+        15.5578107833862,
+        1.4222092628479,
+        -7.34848499298096
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        15.4974546432495,
+        1.53899991512299,
+        -7.29167985916138
+      ],
+      "position_world": [
+        15.5578107833862,
+        0.0,
+        -7.34848499298096
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@104/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        2.84317922592163,
+        0.0,
+        -2.67590641975403
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@107",
+      "elapsed_s": 3.138,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.676077783107758,
+        0.0,
+        0.736830234527588
+      ],
+      "head_rest_world": [
+        19.3030586242676,
+        1.4222092628479,
+        -7.60000562667847
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        19.2470226287842,
+        1.53899991512299,
+        -7.53893423080444
+      ],
+      "position_world": [
+        19.3030586242676,
+        0.0,
+        -7.60000562667847
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@107/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        2.63965797424316,
+        0.0,
+        -2.87687849998474
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@110",
+      "elapsed_s": 3.138,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.642945110797882,
+        0.0,
+        0.765912234783173
+      ],
+      "head_rest_world": [
+        23.1412582397461,
+        1.4222092628479,
+        -7.74206113815308
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        23.0879688262939,
+        1.53899991512299,
+        -7.67857980728149
+      ],
+      "position_world": [
+        23.1412582397461,
+        0.0,
+        -7.74206113815308
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@110/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        2.51036691665649,
+        0.0,
+        -2.9904670715332
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@113",
+      "elapsed_s": 3.138,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.850876748561859,
+        0.0,
+        0.52536541223526
+      ],
+      "head_rest_world": [
+        4.15716028213501,
+        1.50999999046326,
+        -10.5667552947998
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        4.08228302001953,
+        1.63399994373322,
+        -10.5205230712891
+      ],
+      "position_world": [
+        4.15716028213501,
+        0.0,
+        -10.5667552947998
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@113/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        3.32215762138367,
+        0.0,
+        -2.05122065544128
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@119",
+      "elapsed_s": 3.138,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.790951132774353,
+        0.0,
+        0.611879348754883
+      ],
+      "head_rest_world": [
+        11.8644561767578,
+        1.4222092628479,
+        -10.9894218444824
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        11.7988996505737,
+        1.53899991512299,
+        -10.9387073516846
+      ],
+      "position_world": [
+        11.8644561767578,
+        0.0,
+        -10.9894218444824
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@119/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        3.08820009231567,
+        0.0,
+        -2.38902926445007
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@122",
+      "elapsed_s": 3.138,
+      "forward_dot_velocity": -0.99999988079071,
+      "forward_from_landmarks": [
+        -0.794686198234558,
+        0.0,
+        0.607020318508148
+      ],
+      "head_rest_world": [
+        15.8826293945312,
+        1.4222092628479,
+        -10.9658298492432
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        15.8167629241943,
+        1.53899991512299,
+        -10.9155178070068
+      ],
+      "position_world": [
+        15.8826293945312,
+        0.0,
+        -10.9658298492432
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@122/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        3.10278105735779,
+        0.0,
+        -2.37006378173828
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@125",
+      "elapsed_s": 3.138,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.705586314201355,
+        0.0,
+        0.708623945713043
+      ],
+      "head_rest_world": [
+        19.4473819732666,
+        1.4222092628479,
+        -11.4620609283447
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        19.3889007568359,
+        1.53899991512299,
+        -11.4033279418945
+      ],
+      "position_world": [
+        19.4473819732666,
+        0.0,
+        -11.4620609283447
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@125/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        2.75487804412842,
+        0.0,
+        -2.76670575141907
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@128",
+      "elapsed_s": 3.138,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.707676112651825,
+        0.0,
+        0.706537008285522
+      ],
+      "head_rest_world": [
+        23.45751953125,
+        1.4222092628479,
+        -11.45192527771
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        23.3988647460938,
+        1.53899991512299,
+        -11.393364906311
+      ],
+      "position_world": [
+        23.45751953125,
+        0.0,
+        -11.45192527771
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@128/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        2.76303505897522,
+        0.0,
+        -2.75854873657227
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@131",
+      "elapsed_s": 3.138,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.876881778240204,
+        0.0,
+        0.480706036090851
+      ],
+      "head_rest_world": [
+        4.28419399261475,
+        1.4222092628479,
+        -14.3486919403076
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        4.21151494979858,
+        1.53899991512299,
+        -14.3088493347168
+      ],
+      "position_world": [
+        4.28419399261475,
+        0.0,
+        -14.3486919403076
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@131/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        3.42366337776184,
+        0.0,
+        -1.87686133384705
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@137",
+      "elapsed_s": 3.138,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.835820555686951,
+        0.0,
+        0.549002707004547
+      ],
+      "head_rest_world": [
+        12.0836172103882,
+        1.50999999046326,
+        -14.6822481155396
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        12.0100650787354,
+        1.63399994373322,
+        -14.6339359283447
+      ],
+      "position_world": [
+        12.0836172103882,
+        0.0,
+        -14.6822481155396
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@137/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        3.26337504386902,
+        0.0,
+        -2.14349865913391
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@140",
+      "elapsed_s": 3.138,
+      "forward_dot_velocity": -1.00000011920929,
+      "forward_from_landmarks": [
+        -0.83178848028183,
+        0.0,
+        0.555092811584473
+      ],
+      "head_rest_world": [
+        16.0639915466309,
+        1.50999999046326,
+        -14.7119541168213
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        15.9907941818237,
+        1.63399994373322,
+        -14.6631059646606
+      ],
+      "position_world": [
+        16.0639915466309,
+        0.0,
+        -14.7119541168213
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@140/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        3.24757051467896,
+        0.0,
+        -2.16725635528564
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@143",
+      "elapsed_s": 3.138,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.77715402841568,
+        0.0,
+        0.629310429096222
+      ],
+      "head_rest_world": [
+        19.7971801757812,
+        1.4222092628479,
+        -15.0745153427124
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        19.7327671051025,
+        1.53899991512299,
+        -15.0223560333252
+      ],
+      "position_world": [
+        19.7971801757812,
+        0.0,
+        -15.0745153427124
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@143/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        3.03426074981689,
+        0.0,
+        -2.45703959465027
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@146",
+      "elapsed_s": 3.138,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.734607994556427,
+        0.0,
+        0.678491771221161
+      ],
+      "head_rest_world": [
+        23.5892562866211,
+        1.4222092628479,
+        -15.3149394989014
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        23.5283699035645,
+        1.53899991512299,
+        -15.2587041854858
+      ],
+      "position_world": [
+        23.5892562866211,
+        0.0,
+        -15.3149394989014
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@146/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        2.86826252937317,
+        0.0,
+        -2.64914059638977
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 3.335,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "head_rest_world": [
+        12.7431869506836,
+        1.50999999046326,
+        -6.02666664123535
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        12.83118724823,
+        1.63399994373322,
+        -6.02666664123535
+      ],
+      "position_world": [
+        12.7431869506836,
+        0.0,
+        -6.02666664123535
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        -1.58976030349731,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 3.552,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "head_rest_world": [
+        12.3983459472656,
+        1.50999999046326,
+        -6.02666664123535
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        12.486346244812,
+        1.63399994373322,
+        -6.02666664123535
+      ],
+      "position_world": [
+        12.3983459472656,
+        0.0,
+        -6.02666664123535
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        -1.46956026554108,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 3.753,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "head_rest_world": [
+        12.0783462524414,
+        1.50999999046326,
+        -6.02666664123535
+      ],
+      "input_phase": 3,
+      "mean_eye_rest_world": [
+        12.1663465499878,
+        1.63399994373322,
+        -6.02666664123535
+      ],
+      "position_world": [
+        12.0783462524414,
+        0.0,
+        -6.02666664123535
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        -1.4269392490387,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 3.967,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.70710676908493,
+        0.0,
+        0.70710676908493
+      ],
+      "head_rest_world": [
+        12.1413841247559,
+        1.50999999046326,
+        -6.19637107849121
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        12.079158782959,
+        1.63399994373322,
+        -6.13414573669434
+      ],
+      "position_world": [
+        12.1413841247559,
+        0.0,
+        -6.19637107849121
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.3194352388382,
+        0.0,
+        -1.3194352388382
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_female",
+      "elapsed_s": 4.15,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.802123308181763,
+        0.0,
+        0.597158312797546
+      ],
+      "head_rest_world": [
+        5.21708679199219,
+        1.4222092628479,
+        -3.88395810127258
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        5.15060377120972,
+        1.53899991512299,
+        -3.83446335792542
+      ],
+      "position_world": [
+        5.21708679199219,
+        0.0,
+        -3.88395810127258
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/body_female/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.78696417808533,
+        0.0,
+        -1.33034372329712
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@80",
+      "elapsed_s": 4.15,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.743149936199188,
+        0.0,
+        0.669124901294708
+      ],
+      "head_rest_world": [
+        8.83351707458496,
+        1.4222092628479,
+        -4.35207748413086
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        8.77192211151123,
+        1.53899991512299,
+        -4.29661798477173
+      ],
+      "position_world": [
+        8.83351707458496,
+        0.0,
+        -4.35207748413086
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@80/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.6555849313736,
+        0.0,
+        -1.49066376686096
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@83",
+      "elapsed_s": 4.15,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.746304214000702,
+        0.0,
+        0.665604948997498
+      ],
+      "head_rest_world": [
+        12.8539915084839,
+        1.50999999046326,
+        -4.32911729812622
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        12.7883167266846,
+        1.63399994373322,
+        -4.27054405212402
+      ],
+      "position_world": [
+        12.8539915084839,
+        0.0,
+        -4.32911729812622
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@83/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.66259610652924,
+        0.0,
+        -1.48281610012054
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@86",
+      "elapsed_s": 4.15,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.663738012313843,
+        0.0,
+        0.747965097427368
+      ],
+      "head_rest_world": [
+        16.3169250488281,
+        1.50999999046326,
+        -4.86486721038818
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        16.2585163116455,
+        1.63399994373322,
+        -4.79904651641846
+      ],
+      "position_world": [
+        16.3169250488281,
+        0.0,
+        -4.86486721038818
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@86/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.4787130355835,
+        0.0,
+        -1.6663407087326
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@89",
+      "elapsed_s": 4.15,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.660179793834686,
+        0.0,
+        0.751107573509216
+      ],
+      "head_rest_world": [
+        20.2938766479492,
+        1.4222092628479,
+        -4.88527011871338
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        20.2391586303711,
+        1.53899991512299,
+        -4.82301568984985
+      ],
+      "position_world": [
+        20.2938766479492,
+        0.0,
+        -4.88527011871338
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@89/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.47074580192566,
+        0.0,
+        -1.67331194877625
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@92",
+      "elapsed_s": 4.15,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.562172889709473,
+        0.0,
+        0.827019691467285
+      ],
+      "head_rest_world": [
+        23.6565341949463,
+        1.50999999046326,
+        -5.37904644012451
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        23.607063293457,
+        1.63399994373322,
+        -5.30626916885376
+      ],
+      "position_world": [
+        23.6565341949463,
+        0.0,
+        -5.37904644012451
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@92/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.25244438648224,
+        0.0,
+        -1.84245574474335
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@95",
+      "elapsed_s": 4.15,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.835414946079254,
+        0.0,
+        0.549619674682617
+      ],
+      "head_rest_world": [
+        5.43363761901855,
+        1.4222092628479,
+        -7.57477760314941
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        5.36439514160156,
+        1.53899991512299,
+        -7.52922296524048
+      ],
+      "position_world": [
+        5.43363761901855,
+        0.0,
+        -7.57477760314941
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@95/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.86113882064819,
+        0.0,
+        -1.22443974018097
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@101",
+      "elapsed_s": 4.15,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.772832870483398,
+        0.0,
+        0.634609580039978
+      ],
+      "head_rest_world": [
+        13.0265817642212,
+        1.4222092628479,
+        -8.12756156921387
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        12.9625263214111,
+        1.53899991512299,
+        -8.0749626159668
+      ],
+      "position_world": [
+        13.0265817642212,
+        0.0,
+        -8.12756156921387
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@101/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.72171270847321,
+        0.0,
+        -1.41378033161163
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@104",
+      "elapsed_s": 4.15,
+      "forward_dot_velocity": -0.99999988079071,
+      "forward_from_landmarks": [
+        -0.728200972080231,
+        0.0,
+        0.685363590717316
+      ],
+      "head_rest_world": [
+        16.736291885376,
+        1.4222092628479,
+        -8.45762825012207
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        16.6759357452393,
+        1.53899991512299,
+        -8.40082263946533
+      ],
+      "position_world": [
+        16.736291885376,
+        0.0,
+        -8.45762825012207
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@104/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.62228202819824,
+        0.0,
+        -1.5268349647522
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@107",
+      "elapsed_s": 4.15,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.676077783107758,
+        0.0,
+        0.736830234527588
+      ],
+      "head_rest_world": [
+        20.3971576690674,
+        1.4222092628479,
+        -8.79244327545166
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        20.341121673584,
+        1.53899991512299,
+        -8.73137187957764
+      ],
+      "position_world": [
+        20.3971576690674,
+        0.0,
+        -8.79244327545166
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@107/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.50612020492554,
+        0.0,
+        -1.6414829492569
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@110",
+      "elapsed_s": 4.15,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.642939448356628,
+        0.0,
+        0.765917003154755
+      ],
+      "head_rest_world": [
+        24.1817588806152,
+        1.4222092628479,
+        -8.98159503936768
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        24.1284694671631,
+        1.53899991512299,
+        -8.91811275482178
+      ],
+      "position_world": [
+        24.1817588806152,
+        0.0,
+        -8.98159503936768
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@110/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.43234384059906,
+        0.0,
+        -1.70633602142334
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@113",
+      "elapsed_s": 4.15,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.850876748561859,
+        0.0,
+        0.52536541223526
+      ],
+      "head_rest_world": [
+        5.53415775299072,
+        1.50999999046326,
+        -11.4169616699219
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        5.45928049087524,
+        1.63399994373322,
+        -11.3707294464111
+      ],
+      "position_world": [
+        5.53415775299072,
+        0.0,
+        -11.4169616699219
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@113/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.89555716514587,
+        0.0,
+        -1.17038226127625
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@119",
+      "elapsed_s": 4.15,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.790965259075165,
+        0.0,
+        0.611860990524292
+      ],
+      "head_rest_world": [
+        13.1445083618164,
+        1.4222092628479,
+        -11.9796314239502
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        13.0789499282837,
+        1.53899991512299,
+        -11.9289178848267
+      ],
+      "position_world": [
+        13.1445083618164,
+        0.0,
+        -11.9796314239502
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@119/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.76210641860962,
+        0.0,
+        -1.36310887336731
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@122",
+      "elapsed_s": 4.15,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.794661164283752,
+        0.0,
+        0.607053279876709
+      ],
+      "head_rest_world": [
+        17.1686496734619,
+        1.4222092628479,
+        -11.9482221603394
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        17.1027851104736,
+        1.53899991512299,
+        -11.8979072570801
+      ],
+      "position_world": [
+        17.1686496734619,
+        0.0,
+        -11.9482221603394
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@122/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.77031266689301,
+        0.0,
+        -1.35235321521759
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@125",
+      "elapsed_s": 4.15,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.70560359954834,
+        0.0,
+        0.708606719970703
+      ],
+      "head_rest_world": [
+        20.5892848968506,
+        1.4222092628479,
+        -12.6088256835938
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        20.5308017730713,
+        1.53899991512299,
+        -12.5500936508179
+      ],
+      "position_world": [
+        20.5892848968506,
+        0.0,
+        -12.6088256835938
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@125/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.57192933559418,
+        0.0,
+        -1.57862174510956
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@128",
+      "elapsed_s": 4.15,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.707676112651825,
+        0.0,
+        0.706537008285522
+      ],
+      "head_rest_world": [
+        24.6027812957764,
+        1.4222092628479,
+        -12.5953330993652
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        24.5441265106201,
+        1.53899991512299,
+        -12.5367727279663
+      ],
+      "position_world": [
+        24.6027812957764,
+        0.0,
+        -12.5953330993652
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@128/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.57655024528503,
+        0.0,
+        -1.57400071620941
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@131",
+      "elapsed_s": 4.15,
+      "forward_dot_velocity": -1.00000011920929,
+      "forward_from_landmarks": [
+        -0.876870810985565,
+        0.0,
+        0.480726182460785
+      ],
+      "head_rest_world": [
+        5.70326852798462,
+        1.4222092628479,
+        -15.1266679763794
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        5.63058996200562,
+        1.53899991512299,
+        -15.0868234634399
+      ],
+      "position_world": [
+        5.70326852798462,
+        0.0,
+        -15.1266679763794
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@131/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.9534786939621,
+        0.0,
+        -1.07095158100128
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@137",
+      "elapsed_s": 4.15,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.835833787918091,
+        0.0,
+        0.548982620239258
+      ],
+      "head_rest_world": [
+        13.4362964630127,
+        1.50999999046326,
+        -15.5707101821899
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        13.3627433776855,
+        1.63399994373322,
+        -15.5223999023438
+      ],
+      "position_world": [
+        13.4362964630127,
+        0.0,
+        -15.5707101821899
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@137/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.86209487915039,
+        0.0,
+        -1.22304546833038
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@140",
+      "elapsed_s": 4.15,
+      "forward_dot_velocity": -0.99999988079071,
+      "forward_from_landmarks": [
+        -0.831791758537292,
+        0.0,
+        0.555087745189667
+      ],
+      "head_rest_world": [
+        17.4100856781006,
+        1.50999999046326,
+        -15.6102561950684
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        17.3368873596191,
+        1.63399994373322,
+        -15.5614080429077
+      ],
+      "position_world": [
+        17.4100856781006,
+        0.0,
+        -15.6102561950684
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@140/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.85301220417023,
+        0.0,
+        -1.23658967018127
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@143",
+      "elapsed_s": 4.15,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.777189135551453,
+        0.0,
+        0.62926709651947
+      ],
+      "head_rest_world": [
+        21.0549449920654,
+        1.4222092628479,
+        -16.0929546356201
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        20.9905281066895,
+        1.53899991512299,
+        -16.0407981872559
+      ],
+      "position_world": [
+        21.0549449920654,
+        0.0,
+        -16.0929546356201
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@143/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.73143267631531,
+        0.0,
+        -1.4019091129303
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@146",
+      "elapsed_s": 4.15,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.734624326229095,
+        0.0,
+        0.678474128246307
+      ],
+      "head_rest_world": [
+        24.7781505584717,
+        1.4222092628479,
+        -16.4129695892334
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        24.7172622680664,
+        1.53899991512299,
+        -16.3567352294922
+      ],
+      "position_world": [
+        24.7781505584717,
+        0.0,
+        -16.4129695892334
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@146/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.63662302494049,
+        0.0,
+        -1.51153790950775
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 4.167,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.70710676908493,
+        0.0,
+        0.70710676908493
+      ],
+      "head_rest_world": [
+        12.3676567077637,
+        1.50999999046326,
+        -6.42264366149902
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        12.3054313659668,
+        1.63399994373322,
+        -6.36041831970215
+      ],
+      "position_world": [
+        12.3676567077637,
+        0.0,
+        -6.42264366149902
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.08393013477325,
+        0.0,
+        -1.08393013477325
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 4.38,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.70710676908493,
+        0.0,
+        0.70710676908493
+      ],
+      "head_rest_world": [
+        12.6127853393555,
+        1.50999999046326,
+        -6.66777229309082
+      ],
+      "input_phase": 4,
+      "mean_eye_rest_world": [
+        12.5505599975586,
+        1.63399994373322,
+        -6.60554695129395
+      ],
+      "position_world": [
+        12.6127853393555,
+        0.0,
+        -6.66777229309082
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.21089446544647,
+        0.0,
+        -1.21089446544647
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 4.584,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        0.70710676908493,
+        0.0,
+        0.70710676908493
+      ],
+      "head_rest_world": [
+        12.7259216308594,
+        1.50999999046326,
+        -6.89404487609863
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        12.7881469726562,
+        1.63399994373322,
+        -6.83181953430176
+      ],
+      "position_world": [
+        12.7259216308594,
+        0.0,
+        -6.89404487609863
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        -1.39189851284027,
+        0.0,
+        -1.39189851284027
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 4.785,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        0.70710676908493,
+        0.0,
+        0.70710676908493
+      ],
+      "head_rest_world": [
+        12.4996490478516,
+        1.50999999046326,
+        -7.12031745910645
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        12.5618743896484,
+        1.63399994373322,
+        -7.05809211730957
+      ],
+      "position_world": [
+        12.4996490478516,
+        0.0,
+        -7.12031745910645
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        -1.29550313949585,
+        0.0,
+        -1.29550313949585
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 4.986,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        0.70710676908493,
+        0.0,
+        0.70710676908493
+      ],
+      "head_rest_world": [
+        12.2733764648438,
+        1.50999999046326,
+        -7.34659004211426
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        12.3356018066406,
+        1.63399994373322,
+        -7.28436470031738
+      ],
+      "position_world": [
+        12.2733764648438,
+        0.0,
+        -7.34659004211426
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        -1.07970952987671,
+        0.0,
+        -1.07970952987671
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_female",
+      "elapsed_s": 5.151,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.802128195762634,
+        0.0,
+        0.597151875495911
+      ],
+      "head_rest_world": [
+        6.50048446655273,
+        1.4222092628479,
+        -4.83939838409424
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        6.43400096893311,
+        1.53899991512299,
+        -4.78990411758423
+      ],
+      "position_world": [
+        6.50048446655273,
+        0.0,
+        -4.83939838409424
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/body_female/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.33370494842529,
+        0.0,
+        -0.992890417575836
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@80",
+      "elapsed_s": 5.151,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.743149936199188,
+        0.0,
+        0.669124901294708
+      ],
+      "head_rest_world": [
+        10.0225582122803,
+        1.4222092628479,
+        -5.42267227172852
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        9.96096324920654,
+        1.53899991512299,
+        -5.36721277236938
+      ],
+      "position_world": [
+        10.0225582122803,
+        0.0,
+        -5.42267227172852
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@80/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.23564982414246,
+        0.0,
+        -1.11256051063538
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@83",
+      "elapsed_s": 5.151,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.746304214000702,
+        0.0,
+        0.665604948997498
+      ],
+      "head_rest_world": [
+        14.0480680465698,
+        1.50999999046326,
+        -5.39407587051392
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        13.9823932647705,
+        1.63399994373322,
+        -5.33550262451172
+      ],
+      "position_world": [
+        14.0480680465698,
+        0.0,
+        -5.39407587051392
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@83/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.24088263511658,
+        0.0,
+        -1.10670340061188
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@86",
+      "elapsed_s": 5.151,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.663738012313843,
+        0.0,
+        0.747965097427368
+      ],
+      "head_rest_world": [
+        17.3789367675781,
+        1.50999999046326,
+        -6.06163311004639
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        17.3205280303955,
+        1.63399994373322,
+        -5.99581241607666
+      ],
+      "position_world": [
+        17.3789367675781,
+        0.0,
+        -6.06163311004639
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@86/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.10364103317261,
+        0.0,
+        -1.24367737770081
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@89",
+      "elapsed_s": 5.151,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.660179793834686,
+        0.0,
+        0.751107573509216
+      ],
+      "head_rest_world": [
+        21.3501663208008,
+        1.4222092628479,
+        -6.08704280853271
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        21.2954483032227,
+        1.53899991512299,
+        -6.02478837966919
+      ],
+      "position_world": [
+        21.3501663208008,
+        0.0,
+        -6.08704280853271
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@89/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.09769463539124,
+        0.0,
+        -1.24888038635254
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@92",
+      "elapsed_s": 5.151,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.562172889709473,
+        0.0,
+        0.827019691467285
+      ],
+      "head_rest_world": [
+        24.5560398101807,
+        1.50999999046326,
+        -6.70229816436768
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        24.5065689086914,
+        1.63399994373322,
+        -6.62952089309692
+      ],
+      "position_world": [
+        24.5560398101807,
+        0.0,
+        -6.70229816436768
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@92/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.934764921665192,
+        0.0,
+        -1.37512123584747
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@95",
+      "elapsed_s": 5.151,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.835424602031708,
+        0.0,
+        0.549604952335358
+      ],
+      "head_rest_world": [
+        6.77030754089355,
+        1.4222092628479,
+        -8.45415592193604
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        6.7010645866394,
+        1.53899991512299,
+        -8.40860271453857
+      ],
+      "position_world": [
+        6.77030754089355,
+        0.0,
+        -8.45415592193604
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@95/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.38906538486481,
+        0.0,
+        -0.913833796977997
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@101",
+      "elapsed_s": 5.151,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.772832870483398,
+        0.0,
+        0.634609580039978
+      ],
+      "head_rest_world": [
+        14.2631158828735,
+        1.4222092628479,
+        -9.1429386138916
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        14.1990604400635,
+        1.53899991512299,
+        -9.09033966064453
+      ],
+      "position_world": [
+        14.2631158828735,
+        0.0,
+        -9.1429386138916
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@101/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.2850044965744,
+        0.0,
+        -1.05517828464508
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@104",
+      "elapsed_s": 5.151,
+      "forward_dot_velocity": -0.99999988079071,
+      "forward_from_landmarks": [
+        -0.728200972080231,
+        0.0,
+        0.685363590717316
+      ],
+      "head_rest_world": [
+        17.9014148712158,
+        1.4222092628479,
+        -9.55420112609863
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        17.8410587310791,
+        1.53899991512299,
+        -9.49739551544189
+      ],
+      "position_world": [
+        17.9014148712158,
+        0.0,
+        -9.55420112609863
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@104/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.21079409122467,
+        0.0,
+        -1.13955688476562
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@107",
+      "elapsed_s": 5.151,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.676077783107758,
+        0.0,
+        0.736830234527588
+      ],
+      "head_rest_world": [
+        21.478853225708,
+        1.4222092628479,
+        -9.97135639190674
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        21.4228172302246,
+        1.53899991512299,
+        -9.91028499603271
+      ],
+      "position_world": [
+        21.478853225708,
+        0.0,
+        -9.97135639190674
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@107/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.12409639358521,
+        0.0,
+        -1.22512483596802
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@110",
+      "elapsed_s": 5.151,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.642939448356628,
+        0.0,
+        0.765917003154755
+      ],
+      "head_rest_world": [
+        25.2104682922363,
+        1.4222092628479,
+        -10.207085609436
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        25.1571788787842,
+        1.53899991512299,
+        -10.1436033248901
+      ],
+      "position_world": [
+        25.2104682922363,
+        0.0,
+        -10.207085609436
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@110/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.06903326511383,
+        0.0,
+        -1.27352797985077
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@113",
+      "elapsed_s": 5.151,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.850876748561859,
+        0.0,
+        0.52536541223526
+      ],
+      "head_rest_world": [
+        6.89554691314697,
+        1.50999999046326,
+        -12.2575302124023
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        6.82066965103149,
+        1.63399994373322,
+        -12.2112979888916
+      ],
+      "position_world": [
+        6.89554691314697,
+        0.0,
+        -12.2575302124023
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@113/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.41475367546082,
+        0.0,
+        -0.873517572879791
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@119",
+      "elapsed_s": 5.151,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.790965259075165,
+        0.0,
+        0.611860990524292
+      ],
+      "head_rest_world": [
+        14.4100532531738,
+        1.4222092628479,
+        -12.9586162567139
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        14.3444948196411,
+        1.53899991512299,
+        -12.9079027175903
+      ],
+      "position_world": [
+        14.4100532531738,
+        0.0,
+        -12.9586162567139
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@119/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.3151524066925,
+        0.0,
+        -1.01735961437225
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@122",
+      "elapsed_s": 5.151,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.794661164283752,
+        0.0,
+        0.607053279876709
+      ],
+      "head_rest_world": [
+        18.4400882720947,
+        1.4222092628479,
+        -12.9194822311401
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        18.3742237091064,
+        1.53899991512299,
+        -12.8691673278809
+      ],
+      "position_world": [
+        18.4400882720947,
+        0.0,
+        -12.9194822311401
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@122/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.32127714157104,
+        0.0,
+        -1.0093320608139
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@125",
+      "elapsed_s": 5.151,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.70560359954834,
+        0.0,
+        0.708606719970703
+      ],
+      "head_rest_world": [
+        21.7182445526123,
+        1.4222092628479,
+        -13.7425918579102
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        21.659761428833,
+        1.53899991512299,
+        -13.6838598251343
+      ],
+      "position_world": [
+        21.7182445526123,
+        0.0,
+        -13.7425918579102
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@125/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.1732132434845,
+        0.0,
+        -1.17820811271667
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@128",
+      "elapsed_s": 5.151,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.707676112651825,
+        0.0,
+        0.706537008285522
+      ],
+      "head_rest_world": [
+        25.7350597381592,
+        1.4222092628479,
+        -13.7257804870605
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        25.6764049530029,
+        1.53899991512299,
+        -13.6672201156616
+      ],
+      "position_world": [
+        25.7350597381592,
+        0.0,
+        -13.7257804870605
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@128/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.17666208744049,
+        0.0,
+        -1.17475926876068
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@131",
+      "elapsed_s": 5.151,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.876870810985565,
+        0.0,
+        0.480726182460785
+      ],
+      "head_rest_world": [
+        7.10625696182251,
+        1.4222092628479,
+        -15.8958253860474
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        7.03357839584351,
+        1.53899991512299,
+        -15.8559808731079
+      ],
+      "position_world": [
+        7.10625696182251,
+        0.0,
+        -15.8958253860474
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@131/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.45798349380493,
+        0.0,
+        -0.799307227134705
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@137",
+      "elapsed_s": 5.151,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.83584201335907,
+        0.0,
+        0.54897004365921
+      ],
+      "head_rest_world": [
+        14.7736186981201,
+        1.50999999046326,
+        -16.4490718841553
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        14.7000646591187,
+        1.63399994373322,
+        -16.4007625579834
+      ],
+      "position_world": [
+        14.7736186981201,
+        0.0,
+        -16.4490718841553
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@137/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.38971948623657,
+        0.0,
+        -0.912763476371765
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@140",
+      "elapsed_s": 5.151,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.831780076026917,
+        0.0,
+        0.555105268955231
+      ],
+      "head_rest_world": [
+        18.7409191131592,
+        1.50999999046326,
+        -16.4984073638916
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        18.6677227020264,
+        1.63399994373322,
+        -16.4495582580566
+      ],
+      "position_world": [
+        18.7409191131592,
+        0.0,
+        -16.4984073638916
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@140/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.38300013542175,
+        0.0,
+        -0.922991156578064
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@143",
+      "elapsed_s": 5.151,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.777189135551453,
+        0.0,
+        0.62926709651947
+      ],
+      "head_rest_world": [
+        22.2984600067139,
+        1.4222092628479,
+        -17.0998058319092
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        22.2340431213379,
+        1.53899991512299,
+        -17.0476493835449
+      ],
+      "position_world": [
+        22.2984600067139,
+        0.0,
+        -17.0998058319092
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@143/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.29225897789001,
+        0.0,
+        -1.0463182926178
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@146",
+      "elapsed_s": 5.151,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.734624326229095,
+        0.0,
+        0.678474128246307
+      ],
+      "head_rest_world": [
+        25.9535732269287,
+        1.4222092628479,
+        -17.498556137085
+      ],
+      "input_phase": 5,
+      "mean_eye_rest_world": [
+        25.8926849365234,
+        1.53899991512299,
+        -17.4423217773438
+      ],
+      "position_world": [
+        25.9535732269287,
+        0.0,
+        -17.498556137085
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@146/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.22149753570557,
+        0.0,
+        -1.12813997268677
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 5.202,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        0.70710676908493,
+        0.0,
+        0.70710676908493
+      ],
+      "head_rest_world": [
+        12.028247833252,
+        1.50999999046326,
+        -7.59171867370605
+      ],
+      "input_phase": 6,
+      "mean_eye_rest_world": [
+        12.0904731750488,
+        1.63399994373322,
+        -7.52949333190918
+      ],
+      "position_world": [
+        12.028247833252,
+        0.0,
+        -7.59171867370605
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        -1.09999120235443,
+        0.0,
+        -1.09999120235443
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 5.417,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.70710676908493,
+        0.0,
+        -0.70710676908493
+      ],
+      "head_rest_world": [
+        12.2356643676758,
+        1.50999999046326,
+        -7.38430213928223
+      ],
+      "input_phase": 6,
+      "mean_eye_rest_world": [
+        12.1734390258789,
+        1.63399994373322,
+        -7.4465274810791
+      ],
+      "position_world": [
+        12.2356643676758,
+        0.0,
+        -7.38430213928223
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.25698614120483,
+        0.0,
+        1.25698614120483
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 5.638,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.70710676908493,
+        0.0,
+        -0.70710676908493
+      ],
+      "head_rest_world": [
+        12.4807929992676,
+        1.50999999046326,
+        -7.13917350769043
+      ],
+      "input_phase": 6,
+      "mean_eye_rest_world": [
+        12.4185676574707,
+        1.63399994373322,
+        -7.2013988494873
+      ],
+      "position_world": [
+        12.4807929992676,
+        0.0,
+        -7.13917350769043
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.77956211566925,
+        0.0,
+        0.77956211566925
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 5.852,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.70710676908493,
+        0.0,
+        -0.70710676908493
+      ],
+      "head_rest_world": [
+        12.7259216308594,
+        1.50999999046326,
+        -6.89404487609863
+      ],
+      "input_phase": 6,
+      "mean_eye_rest_world": [
+        12.6636962890625,
+        1.63399994373322,
+        -6.95627021789551
+      ],
+      "position_world": [
+        12.7259216308594,
+        0.0,
+        -6.89404487609863
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.12439167499542,
+        0.0,
+        1.12439167499542
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 6.069,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        0.70710676908493,
+        0.0,
+        -0.70710676908493
+      ],
+      "head_rest_world": [
+        12.6316413879395,
+        1.50999999046326,
+        -6.64891624450684
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        12.6938667297363,
+        1.63399994373322,
+        -6.71114158630371
+      ],
+      "position_world": [
+        12.6316413879395,
+        0.0,
+        -6.64891624450684
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        -0.924724042415619,
+        0.0,
+        0.924724042415619
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_female",
+      "elapsed_s": 6.153,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.802128195762634,
+        0.0,
+        0.597151875495911
+      ],
+      "head_rest_world": [
+        7.78388214111328,
+        1.4222092628479,
+        -5.79483699798584
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        7.71739864349365,
+        1.53899991512299,
+        -5.74534273147583
+      ],
+      "position_world": [
+        7.78388214111328,
+        0.0,
+        -5.79483699798584
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/body_female/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.12030386924744,
+        0.0,
+        -0.834021747112274
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@80",
+      "elapsed_s": 6.153,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.743149936199188,
+        0.0,
+        0.669124901294708
+      ],
+      "head_rest_world": [
+        11.2115993499756,
+        1.4222092628479,
+        -6.49326705932617
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        11.1500043869019,
+        1.53899991512299,
+        -6.43780755996704
+      ],
+      "position_world": [
+        11.2115993499756,
+        0.0,
+        -6.49326705932617
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@80/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.03793811798096,
+        0.0,
+        -0.934543907642365
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@83",
+      "elapsed_s": 6.153,
+      "forward_dot_velocity": -0.99999988079071,
+      "forward_from_landmarks": [
+        -0.746304214000702,
+        0.0,
+        0.665604948997498
+      ],
+      "head_rest_world": [
+        15.2421445846558,
+        1.50999999046326,
+        -6.45903444290161
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        15.1764698028564,
+        1.63399994373322,
+        -6.40046119689941
+      ],
+      "position_world": [
+        15.2421445846558,
+        0.0,
+        -6.45903444290161
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@83/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.04233360290527,
+        0.0,
+        -0.929623961448669
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@86",
+      "elapsed_s": 6.153,
+      "forward_dot_velocity": -0.99999988079071,
+      "forward_from_landmarks": [
+        -0.663738012313843,
+        0.0,
+        0.747965097427368
+      ],
+      "head_rest_world": [
+        18.4409484863281,
+        1.50999999046326,
+        -7.25839900970459
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        18.3825397491455,
+        1.63399994373322,
+        -7.19257831573486
+      ],
+      "position_world": [
+        18.4409484863281,
+        0.0,
+        -7.25839900970459
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@86/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.927051603794098,
+        0.0,
+        -1.0446811914444
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@89",
+      "elapsed_s": 6.153,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.660179793834686,
+        0.0,
+        0.751107573509216
+      ],
+      "head_rest_world": [
+        22.4064559936523,
+        1.4222092628479,
+        -7.28881549835205
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        22.3517379760742,
+        1.53899991512299,
+        -7.22656106948853
+      ],
+      "position_world": [
+        22.4064559936523,
+        0.0,
+        -7.28881549835205
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@89/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.922056674957275,
+        0.0,
+        -1.0490517616272
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@92",
+      "elapsed_s": 6.153,
+      "forward_dot_velocity": -0.99999988079071,
+      "forward_from_landmarks": [
+        -0.562190234661102,
+        0.0,
+        0.82700788974762
+      ],
+      "head_rest_world": [
+        25.455545425415,
+        1.50999999046326,
+        -8.02554893493652
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        25.4060726165771,
+        1.63399994373322,
+        -7.95277214050293
+      ],
+      "position_world": [
+        25.455545425415,
+        0.0,
+        -8.02554893493652
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@92/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.785196721553802,
+        0.0,
+        -1.15506827831268
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@95",
+      "elapsed_s": 6.153,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.835426390171051,
+        0.0,
+        0.549602329730988
+      ],
+      "head_rest_world": [
+        8.10697746276855,
+        1.4222092628479,
+        -9.33351993560791
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        8.03773403167725,
+        1.53899991512299,
+        -9.28796672821045
+      ],
+      "position_world": [
+        8.10697746276855,
+        0.0,
+        -9.33351993560791
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@95/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.16680634021759,
+        0.0,
+        -0.767614722251892
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@101",
+      "elapsed_s": 6.153,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.772832870483398,
+        0.0,
+        0.634609580039978
+      ],
+      "head_rest_world": [
+        15.4996500015259,
+        1.4222092628479,
+        -10.1583156585693
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        15.4355945587158,
+        1.53899991512299,
+        -10.1057167053223
+      ],
+      "position_world": [
+        15.4996500015259,
+        0.0,
+        -10.1583156585693
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@101/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.07939577102661,
+        0.0,
+        -0.886343240737915
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@104",
+      "elapsed_s": 6.153,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.728200972080231,
+        0.0,
+        0.685363590717316
+      ],
+      "head_rest_world": [
+        19.0665378570557,
+        1.4222092628479,
+        -10.6507740020752
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        19.0061817169189,
+        1.53899991512299,
+        -10.5939683914185
+      ],
+      "position_world": [
+        19.0665378570557,
+        0.0,
+        -10.6507740020752
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@104/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.01705944538116,
+        0.0,
+        -0.957220733165741
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@107",
+      "elapsed_s": 6.153,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.676077783107758,
+        0.0,
+        0.736830234527588
+      ],
+      "head_rest_world": [
+        22.5605487823486,
+        1.4222092628479,
+        -11.1502695083618
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        22.5045127868652,
+        1.53899991512299,
+        -11.0891981124878
+      ],
+      "position_world": [
+        22.5605487823486,
+        0.0,
+        -11.1502695083618
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@107/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.944234013557434,
+        0.0,
+        -1.02909719944
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@110",
+      "elapsed_s": 6.153,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.642939448356628,
+        0.0,
+        0.765917003154755
+      ],
+      "head_rest_world": [
+        26.2391777038574,
+        1.4222092628479,
+        -11.4325761795044
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        26.1858882904053,
+        1.53899991512299,
+        -11.3690938949585
+      ],
+      "position_world": [
+        26.2391777038574,
+        0.0,
+        -11.4325761795044
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@110/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.897981345653534,
+        0.0,
+        -1.06975555419922
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@113",
+      "elapsed_s": 6.153,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.850878238677979,
+        0.0,
+        0.525362968444824
+      ],
+      "head_rest_world": [
+        8.25693607330322,
+        1.50999999046326,
+        -13.0980987548828
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        8.18205833435059,
+        1.63399994373322,
+        -13.0518665313721
+      ],
+      "position_world": [
+        8.25693607330322,
+        0.0,
+        -13.0980987548828
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@113/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.1883841753006,
+        0.0,
+        -0.733749330043793
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@119",
+      "elapsed_s": 6.153,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.790965259075165,
+        0.0,
+        0.611860990524292
+      ],
+      "head_rest_world": [
+        15.6755981445312,
+        1.4222092628479,
+        -13.9376010894775
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        15.6100397109985,
+        1.53899991512299,
+        -13.886887550354
+      ],
+      "position_world": [
+        15.6755981445312,
+        0.0,
+        -13.9376010894775
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@119/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.10471987724304,
+        0.0,
+        -0.854575753211975
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@122",
+      "elapsed_s": 6.153,
+      "forward_dot_velocity": -0.999999821186066,
+      "forward_from_landmarks": [
+        -0.794686198234558,
+        0.0,
+        0.607020318508148
+      ],
+      "head_rest_world": [
+        19.7115592956543,
+        1.4222092628479,
+        -13.8907423019409
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        19.6456928253174,
+        1.53899991512299,
+        -13.8404302597046
+      ],
+      "position_world": [
+        19.7115592956543,
+        0.0,
+        -13.8907423019409
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@122/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.10996448993683,
+        0.0,
+        -0.84783262014389
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@125",
+      "elapsed_s": 6.153,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.70560359954834,
+        0.0,
+        0.708606719970703
+      ],
+      "head_rest_world": [
+        22.847204208374,
+        1.4222092628479,
+        -14.8763580322266
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        22.7887210845947,
+        1.53899991512299,
+        -14.8176259994507
+      ],
+      "position_world": [
+        22.847204208374,
+        0.0,
+        -14.8763580322266
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@125/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.985491812229156,
+        0.0,
+        -0.989687502384186
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@128",
+      "elapsed_s": 6.153,
+      "forward_dot_velocity": -1.00000011920929,
+      "forward_from_landmarks": [
+        -0.707676112651825,
+        0.0,
+        0.706537008285522
+      ],
+      "head_rest_world": [
+        26.867338180542,
+        1.4222092628479,
+        -14.8562278747559
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        26.8086833953857,
+        1.53899991512299,
+        -14.7976675033569
+      ],
+      "position_world": [
+        26.867338180542,
+        0.0,
+        -14.8562278747559
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@128/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        0.98838883638382,
+        0.0,
+        -0.986790478229523
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@131",
+      "elapsed_s": 6.153,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.876870810985565,
+        0.0,
+        0.480726182460785
+      ],
+      "head_rest_world": [
+        8.50924587249756,
+        1.4222092628479,
+        -16.664981842041
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        8.43656730651855,
+        1.53899991512299,
+        -16.6251373291016
+      ],
+      "position_world": [
+        8.50924587249756,
+        0.0,
+        -16.664981842041
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@131/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.22469711303711,
+        0.0,
+        -0.671413123607635
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@137",
+      "elapsed_s": 6.153,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.835845232009888,
+        0.0,
+        0.548965036869049
+      ],
+      "head_rest_world": [
+        16.1109218597412,
+        1.50999999046326,
+        -17.3274059295654
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        16.0373668670654,
+        1.63399994373322,
+        -17.2790966033936
+      ],
+      "position_world": [
+        16.1109218597412,
+        0.0,
+        -17.3274059295654
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@137/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.16740572452545,
+        0.0,
+        -0.766715586185455
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@140",
+      "elapsed_s": 6.153,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.831780076026917,
+        0.0,
+        0.555105268955231
+      ],
+      "head_rest_world": [
+        20.0717525482178,
+        1.50999999046326,
+        -17.3865833282471
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        19.998556137085,
+        1.63399994373322,
+        -17.3377342224121
+      ],
+      "position_world": [
+        20.0717525482178,
+        0.0,
+        -17.3865833282471
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@140/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.16171157360077,
+        0.0,
+        -0.775306820869446
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@143",
+      "elapsed_s": 6.153,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.777148425579071,
+        0.0,
+        0.629317402839661
+      ],
+      "head_rest_world": [
+        23.5418872833252,
+        1.4222092628479,
+        -18.1066570281982
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        23.4774742126465,
+        1.53899991512299,
+        -18.0544967651367
+      ],
+      "position_world": [
+        23.5418872833252,
+        0.0,
+        -18.1066570281982
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@143/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.08538961410522,
+        0.0,
+        -0.878900825977325
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@146",
+      "elapsed_s": 6.153,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.734624326229095,
+        0.0,
+        0.678474128246307
+      ],
+      "head_rest_world": [
+        27.1289958953857,
+        1.4222092628479,
+        -18.5841426849365
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        27.0681076049805,
+        1.53899991512299,
+        -18.5279083251953
+      ],
+      "position_world": [
+        27.1289958953857,
+        0.0,
+        -18.5841426849365
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@146/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.02605032920837,
+        0.0,
+        -0.947630524635315
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 6.28,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        0.70710676908493,
+        0.0,
+        -0.70710676908493
+      ],
+      "head_rest_world": [
+        12.3865127563477,
+        1.50999999046326,
+        -6.40378761291504
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        12.4487380981445,
+        1.63399994373322,
+        -6.46601295471191
+      ],
+      "position_world": [
+        12.3865127563477,
+        0.0,
+        -6.40378761291504
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        -1.55257713794708,
+        0.0,
+        1.55257713794708
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_male",
+      "elapsed_s": 6.481,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        0.70710676908493,
+        0.0,
+        -0.70710676908493
+      ],
+      "head_rest_world": [
+        12.1602401733398,
+        1.50999999046326,
+        -6.17751502990723
+      ],
+      "input_phase": 7,
+      "mean_eye_rest_world": [
+        12.2224655151367,
+        1.63399994373322,
+        -6.2397403717041
+      ],
+      "position_world": [
+        12.1602401733398,
+        0.0,
+        -6.17751502990723
+      ],
+      "role": "player",
+      "skeleton_path": "/root/Boot/body_male/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        -1.42859673500061,
+        0.0,
+        1.42859673500061
+      ]
+    },
+    {
+      "body_path": "/root/Boot/body_female",
+      "elapsed_s": 7.164,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.802128195762634,
+        0.0,
+        0.597151875495911
+      ],
+      "head_rest_world": [
+        9.07998180389404,
+        1.4222092628479,
+        -6.75973224639893
+      ],
+      "input_phase": 8,
+      "mean_eye_rest_world": [
+        9.01349830627441,
+        1.53899991512299,
+        -6.71023797988892
+      ],
+      "position_world": [
+        9.07998180389404,
+        0.0,
+        -6.75973224639893
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/body_female/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.57198214530945,
+        0.0,
+        -1.17027831077576
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@80",
+      "elapsed_s": 7.164,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.743149936199188,
+        0.0,
+        0.669124901294708
+      ],
+      "head_rest_world": [
+        12.4124088287354,
+        1.4222092628479,
+        -7.57445812225342
+      ],
+      "input_phase": 8,
+      "mean_eye_rest_world": [
+        12.3508138656616,
+        1.53899991512299,
+        -7.51899862289429
+      ],
+      "position_world": [
+        12.4124088287354,
+        0.0,
+        -7.57445812225342
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@80/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.45640861988068,
+        0.0,
+        -1.31132841110229
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@83",
+      "elapsed_s": 7.164,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.746309041976929,
+        0.0,
+        0.665599584579468
+      ],
+      "head_rest_world": [
+        16.4480400085449,
+        1.50999999046326,
+        -7.53453350067139
+      ],
+      "input_phase": 8,
+      "mean_eye_rest_world": [
+        16.3823642730713,
+        1.63399994373322,
+        -7.47596025466919
+      ],
+      "position_world": [
+        16.4480400085449,
+        0.0,
+        -7.53453350067139
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@83/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.46257627010345,
+        0.0,
+        -1.30442488193512
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@86",
+      "elapsed_s": 7.164,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.663738012313843,
+        0.0,
+        0.747965097427368
+      ],
+      "head_rest_world": [
+        19.5134696960449,
+        1.50999999046326,
+        -8.46700954437256
+      ],
+      "input_phase": 8,
+      "mean_eye_rest_world": [
+        19.4550609588623,
+        1.63399994373322,
+        -8.40118885040283
+      ],
+      "position_world": [
+        19.5134696960449,
+        0.0,
+        -8.46700954437256
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@86/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.3008154630661,
+        0.0,
+        -1.46587038040161
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@89",
+      "elapsed_s": 7.164,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.660182654857635,
+        0.0,
+        0.751105070114136
+      ],
+      "head_rest_world": [
+        23.4731998443604,
+        1.4222092628479,
+        -8.50247192382812
+      ],
+      "input_phase": 8,
+      "mean_eye_rest_world": [
+        23.4184818267822,
+        1.53899991512299,
+        -8.44021797180176
+      ],
+      "position_world": [
+        23.4731998443604,
+        0.0,
+        -8.50247192382812
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@89/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.29380667209625,
+        0.0,
+        -1.47196793556213
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@92",
+      "elapsed_s": 7.164,
+      "forward_dot_velocity": -0.99999988079071,
+      "forward_from_landmarks": [
+        -0.562190234661102,
+        0.0,
+        0.82700788974762
+      ],
+      "head_rest_world": [
+        26.3639526367188,
+        1.50999999046326,
+        -9.3618688583374
+      ],
+      "input_phase": 8,
+      "mean_eye_rest_world": [
+        26.3144798278809,
+        1.63399994373322,
+        -9.28909206390381
+      ],
+      "position_world": [
+        26.3639526367188,
+        0.0,
+        -9.3618688583374
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@92/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.10176825523376,
+        0.0,
+        -1.62076270580292
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@95",
+      "elapsed_s": 7.164,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.835426390171051,
+        0.0,
+        0.549602329730988
+      ],
+      "head_rest_world": [
+        9.45687675476074,
+        1.4222092628479,
+        -10.2215881347656
+      ],
+      "input_phase": 8,
+      "mean_eye_rest_world": [
+        9.38763332366943,
+        1.53899991512299,
+        -10.1760349273682
+      ],
+      "position_world": [
+        9.45687675476074,
+        0.0,
+        -10.2215881347656
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@95/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.63723313808441,
+        0.0,
+        -1.07709753513336
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@101",
+      "elapsed_s": 7.164,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.772828221321106,
+        0.0,
+        0.634615242481232
+      ],
+      "head_rest_world": [
+        16.7484245300293,
+        1.4222092628479,
+        -11.183741569519
+      ],
+      "input_phase": 8,
+      "mean_eye_rest_world": [
+        16.6843700408936,
+        1.53899991512299,
+        -11.131142616272
+      ],
+      "position_world": [
+        16.7484245300293,
+        0.0,
+        -11.183741569519
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@101/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.51458084583282,
+        0.0,
+        -1.24369442462921
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@104",
+      "elapsed_s": 7.164,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.728200972080231,
+        0.0,
+        0.685363590717316
+      ],
+      "head_rest_world": [
+        20.2431926727295,
+        1.4222092628479,
+        -11.7581996917725
+      ],
+      "input_phase": 8,
+      "mean_eye_rest_world": [
+        20.1828365325928,
+        1.53899991512299,
+        -11.7013940811157
+      ],
+      "position_world": [
+        20.2431926727295,
+        0.0,
+        -11.7581996917725
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@104/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.42711222171783,
+        0.0,
+        -1.34314799308777
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@107",
+      "elapsed_s": 7.164,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.676077783107758,
+        0.0,
+        0.736830234527588
+      ],
+      "head_rest_world": [
+        23.6529502868652,
+        1.4222092628479,
+        -12.3408508300781
+      ],
+      "input_phase": 8,
+      "mean_eye_rest_world": [
+        23.5969142913818,
+        1.53899991512299,
+        -12.2797794342041
+      ],
+      "position_world": [
+        23.6529502868652,
+        0.0,
+        -12.3408508300781
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@107/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.32492530345917,
+        0.0,
+        -1.44400322437286
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@110",
+      "elapsed_s": 7.164,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.642939448356628,
+        0.0,
+        0.765917003154755
+      ],
+      "head_rest_world": [
+        27.2780685424805,
+        1.4222092628479,
+        -12.6701955795288
+      ],
+      "input_phase": 8,
+      "mean_eye_rest_world": [
+        27.2247791290283,
+        1.53899991512299,
+        -12.6067132949829
+      ],
+      "position_world": [
+        27.2780685424805,
+        0.0,
+        -12.6701955795288
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@110/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.26002478599548,
+        0.0,
+        -1.50105404853821
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@113",
+      "elapsed_s": 7.164,
+      "forward_dot_velocity": -0.999999940395355,
+      "forward_from_landmarks": [
+        -0.850878238677979,
+        0.0,
+        0.525362968444824
+      ],
+      "head_rest_world": [
+        9.63179969787598,
+        1.50999999046326,
+        -13.9469871520996
+      ],
+      "input_phase": 8,
+      "mean_eye_rest_world": [
+        9.55692195892334,
+        1.63399994373322,
+        -13.9007549285889
+      ],
+      "position_world": [
+        9.63179969787598,
+        0.0,
+        -13.9469871520996
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@113/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.66751074790955,
+        0.0,
+        -1.02957856655121
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@119",
+      "elapsed_s": 7.164,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.790949821472168,
+        0.0,
+        0.611880958080292
+      ],
+      "head_rest_world": [
+        16.9536266326904,
+        1.4222092628479,
+        -14.9262752532959
+      ],
+      "input_phase": 8,
+      "mean_eye_rest_world": [
+        16.888069152832,
+        1.53899991512299,
+        -14.8755598068237
+      ],
+      "position_world": [
+        16.9536266326904,
+        0.0,
+        -14.9262752532959
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@119/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.55004489421844,
+        0.0,
+        -1.19911909103394
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@122",
+      "elapsed_s": 7.164,
+      "forward_dot_velocity": -1.00000011920929,
+      "forward_from_landmarks": [
+        -0.794661164283752,
+        0.0,
+        0.607053279876709
+      ],
+      "head_rest_world": [
+        20.9956703186035,
+        1.4222092628479,
+        -14.8716144561768
+      ],
+      "input_phase": 8,
+      "mean_eye_rest_world": [
+        20.9298057556152,
+        1.53899991512299,
+        -14.8212995529175
+      ],
+      "position_world": [
+        20.9956703186035,
+        0.0,
+        -14.8716144561768
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@122/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.55733394622803,
+        0.0,
+        -1.189657330513
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@125",
+      "elapsed_s": 7.164,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.70560359954834,
+        0.0,
+        0.708606719970703
+      ],
+      "head_rest_world": [
+        23.9873371124268,
+        1.4222092628479,
+        -16.0213470458984
+      ],
+      "input_phase": 8,
+      "mean_eye_rest_world": [
+        23.9288539886475,
+        1.53899991512299,
+        -15.9626150131226
+      ],
+      "position_world": [
+        23.9873371124268,
+        0.0,
+        -16.0213470458984
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@125/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.38281726837158,
+        0.0,
+        -1.38870453834534
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@128",
+      "elapsed_s": 7.164,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.707676112651825,
+        0.0,
+        0.706537008285522
+      ],
+      "head_rest_world": [
+        28.0108242034912,
+        1.4222092628479,
+        -15.9978637695312
+      ],
+      "input_phase": 8,
+      "mean_eye_rest_world": [
+        27.952169418335,
+        1.53899991512299,
+        -15.9393033981323
+      ],
+      "position_world": [
+        28.0108242034912,
+        0.0,
+        -15.9978637695312
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@128/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.38688230514526,
+        0.0,
+        -1.38463950157166
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@131",
+      "elapsed_s": 7.164,
+      "forward_dot_velocity": -1.00000011920929,
+      "forward_from_landmarks": [
+        -0.876870810985565,
+        0.0,
+        0.480726182460785
+      ],
+      "head_rest_world": [
+        9.92612075805664,
+        1.4222092628479,
+        -17.4417514801025
+      ],
+      "input_phase": 8,
+      "mean_eye_rest_world": [
+        9.85344219207764,
+        1.53899991512299,
+        -17.4019069671631
+      ],
+      "position_world": [
+        9.92612075805664,
+        0.0,
+        -17.4417514801025
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@131/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.71846401691437,
+        0.0,
+        -0.942109942436218
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@137",
+      "elapsed_s": 7.164,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.835845232009888,
+        0.0,
+        0.548965036869049
+      ],
+      "head_rest_world": [
+        17.4615135192871,
+        1.50999999046326,
+        -18.2144336700439
+      ],
+      "input_phase": 8,
+      "mean_eye_rest_world": [
+        17.3879585266113,
+        1.63399994373322,
+        -18.1661243438721
+      ],
+      "position_world": [
+        17.4615135192871,
+        0.0,
+        -18.2144336700439
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@137/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.63807427883148,
+        0.0,
+        -1.07583606243134
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@140",
+      "elapsed_s": 7.164,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.831780076026917,
+        0.0,
+        0.555105268955231
+      ],
+      "head_rest_world": [
+        21.4157581329346,
+        1.50999999046326,
+        -18.2835483551025
+      ],
+      "input_phase": 8,
+      "mean_eye_rest_world": [
+        21.3425617218018,
+        1.63399994373322,
+        -18.2346992492676
+      ],
+      "position_world": [
+        21.4157581329346,
+        0.0,
+        -18.2835483551025
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@140/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.63008427619934,
+        0.0,
+        -1.08789098262787
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@143",
+      "elapsed_s": 7.164,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.777148425579071,
+        0.0,
+        0.629317402839661
+      ],
+      "head_rest_world": [
+        24.7976131439209,
+        1.4222092628479,
+        -19.1234741210938
+      ],
+      "input_phase": 8,
+      "mean_eye_rest_world": [
+        24.7332000732422,
+        1.53899991512299,
+        -19.0713138580322
+      ],
+      "position_world": [
+        24.7976131439209,
+        0.0,
+        -19.1234741210938
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@143/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.52299129962921,
+        0.0,
+        -1.23325145244598
+      ]
+    },
+    {
+      "body_path": "/root/Boot/@Node3D@146",
+      "elapsed_s": 7.164,
+      "forward_dot_velocity": -1.0,
+      "forward_from_landmarks": [
+        -0.734624326229095,
+        0.0,
+        0.678474128246307
+      ],
+      "head_rest_world": [
+        28.3160514831543,
+        1.4222092628479,
+        -19.6804733276367
+      ],
+      "input_phase": 8,
+      "mean_eye_rest_world": [
+        28.255163192749,
+        1.53899991512299,
+        -19.6242389678955
+      ],
+      "position_world": [
+        28.3160514831543,
+        0.0,
+        -19.6804733276367
+      ],
+      "role": "npc",
+      "skeleton_path": "/root/Boot/@Node3D@146/HumanSkeleton/Skeleton3D",
+      "velocity_world_m_s": [
+        1.43972790241241,
+        0.0,
+        -1.32969129085541
+      ]
+    }
+  ],
+  "scenario": "m1_view (actual Boot scene and SimHost UpdatePlay)",
+  "shutdown": "Key release; Boot close notification stops audio; Boot _ExitTree disposes SimRunner and jobs; process exit code reflects audit.",
+  "source_sha256_at_start": "e3d17c78e6425bfd537c784e215520ce1230c4233635ba0e06718bdb9b89bcc4"
+}
