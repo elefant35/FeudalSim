@@ -49,3 +49,4 @@
 - { id: opinion.lowballed_me,           number: 60, value: -5,  half_life_days: 8,  stacking: add,      cap: -30, notes: "15 §5.4: −(5 + 20·(g − τ)) for an offer past the insult tolerance; the caller passes the multiplier" }
 - { id: opinion.false_argument,         number: 61, value: -3,  half_life_days: 8,  stacking: add,      cap: -15, notes: "15 §5.6: a haggling argument the listener knows is false (\"tried to cheat me with lies\")" }
 - { id: opinion.reconciled,             number: 62, value: 5,   half_life_days: 8,  stacking: saturate, cap: 5,   notes: "16 §9.4 mediation: a third party settled our quarrel (M2-26)" }
+- { id: opinion.time_together,          number: 63, value: 1,   half_life_days: 8,  stacking: saturate, cap: 8,   notes: "16 §4.9a (owner, 2026-10-04): each game hour spent within 6 m of someone (awake together or sharing a shelter at night), unless animosity is brewing (Op < 0, Anger ≥ 40, or an open quarrel between them)" }

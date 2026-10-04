@@ -116,7 +116,58 @@ public sealed class SocialSystem : ISimSystem
             var partners = 0;
             for (var j = next[i]; j >= 0 && partners < TeamSize - 1; j = next[j], partners++) { world.Relationships.CoWorkHour(people.Ids[i], people.Ids[j]); }
         }
+
+        TimeTogether(world);
     }
+
+    /// <summary>Within this distance at the hour mark, two people are spending time together (16 §4.9a).</summary>
+    public const float TogetherM = 6f;
+
+    /// <summary>
+    /// 16 §4.9a time together (owner direction, 2026-10-04): people who keep spending hours close to each other warm to
+    /// each other, unless animosity is brewing. Sampled once a game hour among LOD0/1 people, so a pair earns
+    /// <c>opinion.time_together</c> (saturating, cap 15, half-life 8 d) only through long stretches nearby. Animosity
+    /// (the holder's Op &lt; 0 or Anger ≥ 40 toward the world, or an open quarrel between them) blocks that direction.
+    /// Talk alone saturates near Op 20 (16 §5.6), so cohabitants who never quarrel can now become friends.
+    /// </summary>
+    internal static void TimeTogether(SimWorld world)
+    {
+        var people = world.People;
+        Span<int> local = stackalloc int[people.Count];
+        var n = 0;
+        for (var i = 0; i < people.Count; i++)
+        {
+            if (Local(people, i) && !world.IsDead(i) && (world.CanAct(i) || people.Activity[i].Has(ActivityState.Asleep))) { local[n++] = i; }   // asleep in a shelter counts; the player too (parity)
+        }
+
+        // Each holder counts at most Companions people an hour, scanning from a rotating start (no row-order favourites);
+        // 200 people at one site would otherwise give 20,000 pairs an hour (S6), and nobody keeps company with 200.
+        var rel = world.Relationships;
+        var rotate = n == 0 ? 0 : (int)(world.Clock.GameMinute / 60 % n);
+        for (var x = 0; x < n; x++)
+        {
+            var i = local[x];
+            if (!Warm(world, i)) { continue; }
+            ref readonly var ti = ref people.Transforms[i];
+            var found = 0;
+            for (var k = 1; k < n && found < Companions; k++)
+            {
+                var j = local[(x + rotate + k) % n];
+                if (j == i) { continue; }
+                ref readonly var tj = ref people.Transforms[j];
+                float dx = ti.X - tj.X, dz = ti.Z - tj.Z;
+                if ((dx * dx) + (dz * dz) > TogetherM * TogetherM) { continue; }
+                found++;
+                if (world.Relationships.Opinion(people.Ids[i], people.Ids[j]) < 0f || world.Confrontations.Between(people.Ids[i], people.Ids[j]) is not null) { continue; }
+                rel.ApplyModifier(people.Ids[i], people.Ids[j], "opinion.time_together");
+            }
+        }
+    }
+
+    /// <summary>The most people one person keeps company with in an hour (16 §4.9a).</summary>
+    public const int Companions = 6;
+
+    private static bool Warm(SimWorld world, int holder) => world.People.Emotions[holder].Anger < 40f;
 
     /// <summary>
     /// Co-working counts within work teams: each person pairs with the next <c>TeamSize − 1</c> people on the same task (in

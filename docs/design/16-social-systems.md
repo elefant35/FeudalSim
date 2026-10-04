@@ -386,6 +386,18 @@ Decay: after 4 days without contact, `F` decays with half-life **64 d** toward a
 co-residence ≈ 4.8 %/day) reaches **F 50 in ~15 days (two seasons)**, satisfying the canon §12
 lineage fallback (Opinion ≥ 50 ∧ Familiarity ≥ 50) for genuine friends.
 
+### 4.9a Time together (owner direction, 2026-10-04)
+
+People who keep spending long hours close to each other warm to each other, unless animosity is brewing. Once a game
+hour, each LOD0/1 person who is awake and able (or asleep in a shelter) counts up to **6** people within **6 m**,
+scanning from a rotating start. Toward each one the holder gains `opinion.time_together` (#63: +1, saturating, cap +8,
+half-life 8 days), unless the holder's Opinion of them is below 0, the holder's Anger is 40 or more, or a quarrel
+between them is open. The hour sample plus the saturating cap means only sustained company counts. (Values below 1
+are dropped by §4.5's negligible rule, so +1 per hour is the smallest step that accumulates.) This is the missing
+source §5.6 named: talk alone saturates near Op 20, so before this a camp's friendships were a tail event (31 D46).
+**Camp (300 seeds × 30 days):** friends per person 1.35 (p5 0.50, p95 2.46), in band [0.08, 3] in 99 % of seeds (was
+84 %); brawls per 300 camp-days 142 → 115 (10 worlds); S6 Social 7.9 µs/step.
+
 ### 4.10 Fear
 
 Event fear (decays, half-life 8 d; Paranoid ×2, Brave ×0.5): threatened +15, struck +10, beat me +15,
