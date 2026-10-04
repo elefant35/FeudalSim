@@ -62,6 +62,7 @@ public partial class SimHost : Node3D
     {
         // Keep receiving input and frames while the tree is paused, or Space could never resume.
         ProcessMode = ProcessModeEnum.Always;
+        GetTree().AutoAcceptQuit = false;   // closing the window stops the campfire first (see _Notification)
         _autotest = OS.GetCmdlineUserArgs().Contains("--autotest");
         _autotestStartMs = Time.GetTicksMsec();
         _overlay = GetNode<Label>("Overlay/Label");
@@ -237,7 +238,7 @@ public partial class SimHost : Node3D
             GetViewport().GetTexture().GetImage().SavePng(_shotPath);
             GD.Print($"SimHost: screenshot → {_shotPath}");
             _shotPath = null;
-            GetTree().Quit();
+            QuitCleanly();
         }
 
         _lines.RemoveAll(l => _clock - l.At > 14);
@@ -422,6 +423,21 @@ public partial class SimHost : Node3D
         _timeScale = scale;
         _runner!.SetTimeScale(scale);
         Engine.TimeScale = scale;   // Godot bodies follow sim time (20 §5.3)
+    }
+
+    /// <summary>
+    /// Window close: stop the looping campfire, give the audio server a moment to free its playback (it does so on its own
+    /// thread), then quit — otherwise Godot reports the stream as leaked at exit.
+    /// </summary>
+    public override void _Notification(int what)
+    {
+        if (what == NotificationWMCloseRequest) { QuitCleanly(); }
+    }
+
+    private void QuitCleanly()
+    {
+        _campfire?.Stop();
+        GetTree().CreateTimer(0.25, processAlways: true, ignoreTimeScale: true).Timeout += () => GetTree().Quit();
     }
 
     public override void _ExitTree()
