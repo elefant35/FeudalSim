@@ -12,6 +12,7 @@ public static class Program
         {
             config.SetApplicationName("feudalsim");
             config.AddCommand<SweepCommand>("sweep").WithDescription("Run a scenario over many seeds and check 21 §19 camp metrics against their bands.");
+            config.AddCommand<SocialCommand>("social").WithDescription("M1-22: the camp for 30 days per seed — no deadlocks, ≥ 1 emergent dispute per 10 days.");
             config.AddCommand<RumorCommand>("rumor").WithDescription("Seed one claim with 3 witnesses and measure its spread (16 §7.8 propagation speeds).");
             config.AddCommand<ReplayCommand>("replay").WithDescription("Replay a recorded input log headless and print the final state hash.");
             config.AddCommand<BenchCommand>("bench").WithDescription("Time a scenario per step and per system against the 20 §19 budgets (spike S6).");

@@ -934,6 +934,10 @@ camp, 6 in town; 200 runs). **Targets to confirm in M1 headless runs, not measur
 
 Mutated variants should reach 15–35 % of holders by t50 (§22).
 
+*M1-22 (public event at the evening fire, 10 worlds, `rumor --witnesses 0 --days 3`):* notable and juicy events reach
+≥ 80% of the camp within 3 days in 10/10 worlds (`cheated` 95%, `dead` 99% heard; t90 0.8–0.9 d); a mundane one
+(`helped`, J 0.2) reaches 69% (≥ 80% in 3/10) — as intended, since mundane news is rarely retold.
+
 **Cross-settlement:** travelers (traders on market days 4/8, messengers, visitors, immigrants) share
 their top-5 claims by `Tell` on arrival with `interest × 1.5` ("news from Eastwick") and `P_mut + 0.05`;
 only claims with `J_eff ≥ 0.4` usually make it. Expected: juicy news about a Renown ≥ 60 person reaches
@@ -1244,6 +1248,17 @@ replaces the stub in M2. Not yet: rungs 6–7 (no weapons; lethal context), `cha
 (no alcohol), status bands and authority (17), kin (§11). NPC insults now enter the ladder (policy), and each response
 is a provocation back (retort 2, threaten 3, shove 5) until someone settles it (≤ 12 exchanges as a safety stop).
 A quarrel left alone for an hour is over.
+
+*M1-22 (2026-10-04):* NPC **arguments** now reach the ladder as §5.2 says: a persuasion contest
+(`P(win) = σ((Persuasion_i − Persuasion_j)/20)`) picks the loser, who answers the winner's severity-2 provocation
+on the §9 menu (laughing it off and walking away included); the retort rung carries `argued_with_me`. Before this
+the camp had no emergent quarrels at all (0 in 10 worlds × 30 days). `feudalsim social` (10 worlds × 30 days): **21.6
+disputes per 10 days** (min 9.3), no deadlocks; by highest rung — argument 373, threat 102, shove 37, **brawl 137**.
+*Calibration finding:* 137 brawls in 300 camp-days is **0.46 per camp-day** for 24 people, against 18 §16's "1–4 brawls
+per season" for a village of 100 (season = 8 days → 0.03–0.12 per day scaled to 24): **≈ 4–15× too many**. The
+`authority present` and `outranked` terms are fixed `false` in M1 and there is no drink, mediation or kin, so some
+excess is expected; friends per person fell from 0.47 to 0.22 (band [0.08, 3] still holds in 90% of seeds, the CI
+threshold). Kept as written (rule: never loosen a band); open question 22.
 
 ### 9.6 The response decision point (player provocations & bystanders)
 
@@ -1988,3 +2003,7 @@ betray a confidence, an Honest guard asked to ignore a theft) refuse in ≥ 95% 
 21. **Conditional yes when hostile (M1-16):** should `accept_with_condition` scale with Willingness (e.g. `(1 − p)·0.35·
     clamp(1 + Opinion/100, 0.2, 1)`) and should long favors cost more? Applied default (reversible): the formula as
     written; 22's refusal suite counts only the unconditional yes (22 Q17).
+22. **NPC↔NPC escalation is too violent (M1-22):** arguments on the ladder give 0.46 brawls per camp-day vs ≈ 0.03–0.12
+    (18 §16 scaled). Levers in the doc's own fix order: authority/status terms (17, M4–M5), mediation (§9.4), a
+    stronger walk-away at low rungs, the argue weight, or the ladder's noise `ε`. Applied default (reversible): the
+    formulas as written; re-measure with `feudalsim social` after each lever.

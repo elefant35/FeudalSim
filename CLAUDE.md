@@ -68,6 +68,7 @@ dotnet run --project src/FeudalSim.Headless -- content validate          # YAML 
 dotnet run --project src/FeudalSim.Headless -- content schemas [--check] # regenerate / verify JSON Schemas
 dotnet run --project src/FeudalSim.Headless -- run --scenario content/scenarios/m0_smoke.yaml --verify-determinism [--threads 4]
 dotnet run --project src/FeudalSim.Headless -- run --realtime --seconds 60   # SimRunner at 10 steps/s
+dotnet run --project src/FeudalSim.Headless -- social --seeds 10 --days 30            # M1-22: deadlocks, emergent disputes, brawl rungs
 dotnet run --project src/FeudalSim.Headless -- complete --seeds 10 [--verbose]   # 22 §13.3 golden goals in template mode (CI)
 dotnet run --project src/FeudalSim.Headless -- ai ping                   # one chat completion (key from .env, never printed)
 dotnet run --project src/FeudalSim.Headless -- ai decide                 # one fast-decider question (option probabilities)

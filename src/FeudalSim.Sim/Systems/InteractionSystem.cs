@@ -385,12 +385,19 @@ public sealed class InteractionSystem : ISimSystem
                 break;
 
             case Kind.Argue:
-                rel.ApplyModifier(a, b, "opinion.argued_with_me");
-                rel.ApplyModifier(b, a, "opinion.argued_with_me");
-                Anger(world, i, j, 10f);
-                Anger(world, j, i, 10f);
+            {
+                // 16 §5.2: a persuasion contest decides the "winner"; the loser feels provoked (severity 2) and answers on
+                // the §9 ladder — "may escalate": laughing it off or walking away are on the same menu. The retort rung
+                // carries `argued_with_me` and the raised voices, so it is not applied twice here (M1-22).
+                var pi = people.SkillLevels(i)[_persuasion];
+                var pj = people.SkillLevels(j)[_persuasion];
+                var iWins = rng.Chance(1f / (1f + SimMath.Exp(-(pi - pj) / 20f)));
+                success = iWins;
+                Anger(world, iWins ? j : i, iWins ? i : j, 5f);
                 Both(mem, a, b, MemoryKind.Argue, now, 20, 10, valence: -40);
+                Escalation.Provoke(world, iWins ? i : j, iWins ? j : i, 2, Decisions.DeciderKind.Policy, Decisions.DecisionRulesEngine.ConversationDeadlineSteps);
                 break;
+            }
 
             case Kind.Insult:
                 // The act (16 §5.2), then the target's answer on the escalation ladder, decided by the policy (16 §9.2, §9.6).

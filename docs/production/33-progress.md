@@ -114,7 +114,7 @@ the M1 spikes. Items are sized ≈ ½–2 days; split them (`M1-12a`…) when th
 
 | ID | Item | Status | Evidence |
 |----|------|--------|----------|
-| M1-22 | Headless social sim: 30 game days of the camp, no deadlocks; a public event's rumor reaches ≥ 80% within 3 days; ≥ 1 emergent dispute per 10 days | [ ] | |
+| M1-22 | Headless social sim: 30 game days of the camp, no deadlocks; a public event's rumor reaches ≥ 80% within 3 days; ≥ 1 emergent dispute per 10 days | [x] | `FeudalSim.Hosting/SocialCheck.cs` + **`feudalsim social`** (+ CI step): a dispute = a settler answering another's provocation at Argument or above, one per pair-day; a deadlock = awake on one activity > 16 game h or walking > 2 h, or no activity starts. Fix: NPC arguments reach 16 §9's ladder via §5.2's persuasion contest (before: **0 disputes** in 10 worlds). **10 worlds × 30 days: disputes 21.6 / 10 days (min 9.3) PASS · deadlocks 0 PASS** (longest awake activity 1.0 h, travel 0.7 h). **Rumor** (`rumor --witnesses 0 --days 3`, 10 worlds): notable/juicy public events ≥ 80% in 10/10 (95–99%) PASS; mundane 69%. Sweep (20 × 30) all bands ≥ 90% (friends 0.47 → 0.22, 90% in band). **Finding:** brawls 0.46 / camp-day ≈ 4–15× 18 §16 → 16 Q22, 31 D36. `SocialCheckTests` 1. 243 tests |
 | M1-23 | Cost and latency report at verified prices: ≤ $0.05 per typical play-hour (22 §17.2 #1, #8) | [ ] | |
 | M1-24 | **Playtest** (owner-run: ≥ 5 people × ≥ 45 min; 22 §17.2 #11 rubric + 30's feel criteria) | [!] awaiting owner | Needs the owner to recruit ≥ 5 testers for ≥ 45 min each, once the dialogue UI (M1-19) and the camp scene (M1-18) are in; Claude prepares the rubric sheet and build |
 | M1-25 | ADR-0010 step 3: spike a `net10.0` game project on Godot 4.7.x (or adopt a Godot release whose GodotSharp targets net10) — .NET 8 support ends 2026-11-10 | [ ] | |
@@ -214,6 +214,7 @@ record in 31 §2.
 | 2026-10-04 | 20 §19 per-agent sim budgets multiply out above the year targets (S6) | Year targets bind; per-agent rows read as worst single-update ceilings (averages ≤ 50 µs LOD2 hour, ≤ 100 µs LOD3 day) | 31 D33, 20 Q17 |
 | 2026-10-04 | Conversations end quickly mid-shift: 21 §14.4's p_end gives 0.6–0.9 per turn while work outscores talk (M1-04b) | Keep the formula; `action.converse` sits in the `social` schedule block (stable evening talk, p_end < 0.2); revisit after the M1 playtest | 21 Q13 |
 | 2026-10-04 | Dialogue model is mode-seeking on inclination words alone (M1-16: gap 14.6, lift +7.3) | Prompt rules v2.1 show the DRE's pre-drawn pick as a LEANING (gap ≈ 10, lift ≈ +6) | 31 D34, 22 Q16 |
+| 2026-10-04 | NPC↔NPC brawls ≈ 4–15× 18 §16's rate once arguments reach the ladder (M1-22) | Keep 16's formulas; calibrate before M2 (authority, mediation, walk-away, argue weight, ε) | 31 D36, 16 Q22 |
 | 2026-10-04 | 16 §5.4's conditional yes keeps ≈ ⅓ of the mass when the NPC hates the asker | Keep the formula; the refusal suite counts only the unconditional yes | 31 D35, 16 Q21, 22 Q17 |
 | 2026-10-04 | The player's character is a Person row (parity), not a separate struct | `PersonFlags.Player`; AI/psych/NPC-talk skip it; relationships and DPs key on its id | 20 §6.4 note |
 
@@ -236,6 +237,7 @@ Items found while working that belong to a later milestone or need triage.
 | 2026-10-04 | Ship Terrain3D's MIT notice in builds (Godot export filters drop `LICENSE.txt`) | M8 | ADR-0009 |
 | 2026-10-04 | ~~**Choice skew vs inclinations**~~ — **measured in M1-16:** qwen3-14b is near-deterministic per scenario (gap 14.6 at rules v2.0); the LEANING (v2.1) brings it to ≈ 10 | M1 → **M1-16** | S2 |
 | 2026-10-04 | **Acceptance lift +5.8–6.3 (target ≤ +5) and request/accept gap ≈ 10.0 at rules v2.1** — next per 22 §15.3's fix order: gloss wording for `dp.request`, then menu shape; re-run `ai calibrate --suite neutral` (≈ $0.16); also run the suites on the §17.2 dialogue bake-off models | **M1 gate** (22 §17.2 #3) | M1-16 |
+| 2026-10-04 | **Calibrate NPC↔NPC escalation** (0.46 brawls / camp-day vs ≈ 0.03–0.12): 16 Q22's levers, re-measured with `feudalsim social`; watch friends per person (now 0.22, band edge) | **M1 gate / before M2** | M1-22 |
 | 2026-10-04 | ~~**Speech must carry the option's price**~~ — **done in M1-13** (`SpeechChecks.CarriesPrice`) | M1 → **M1-13** | S2 |
 | 2026-10-04 | **Quick choices are injectable** (S3: +0.33 mean, +0.98 max sway on 4 red-team pairs): red-team the whole turn (classifier → injection gate → DP) and measure quick-choice deadline expiries (p95 613 ms vs 0.5 s) | M1 → **M1 gate** (M1-16 red-teamed conversation DPs only) | S3 |
 | 2026-10-04 | **Grow the golden suite** beyond S3's 103 authored lines (owner review welcome); fix `accept_offer`/`trade_offer` and `command`/`request` glosses | M1 → **M1-11 / M1-16** | S3 |
@@ -259,6 +261,7 @@ Newest first. One entry per session or work item: date, what changed, evidence, 
 | 2026-10-04 | **M1-15** an hour of conversation replays identically (menus, decisions, state); live talk log replays to the same hash | SessionReplayTests; live f70e09b8… | M1-16 calibration & red-team harness |
 | 2026-10-04 | **M1-16** calibration & red-team harness + `ai calibrate`; leaning prompt v2.1: gap 9.9–10.0, lift +5.8–6.3 (carried to the gate), refusal 100%, pressure 0%, arguments +27, red-team 0 off-menu executions | CalibrationHarnessTests; live runs ≈ $0.80 | M1-17 template-mode completability in CI |
 | 2026-10-04 | **M1-17** template-mode completability: `complete --seeds 10` in CI (haggle, apology, report a deed, favor kept); claim extraction from free text; heuristic sharpened; headless LOD0 bodies | CompletabilityTests; 10/10 worlds | M1-S1 crowd render spike |
+| 2026-10-04 | **M1-22** headless social sim: `social` (30 days × 10 worlds) — disputes 21.6/10 d, no deadlocks; public-event rumor ≥ 80% in 3 d; NPC arguments now reach the §9 ladder; brawl-rate finding (16 Q22) | SocialCheckTests; social + sweep + rumor runs | M1-S1 crowd render spike |
 | 2026-10-04 | **M1-14** resilience: latency breaker, reply-route breaker + TTFT fail-over, sim never waits | ResilienceTests 5; 236 tests | M1-15 determinism of a recorded session |
 | 2026-10-04 | **M1-13** persona voice phrases, price must-say, template/prompt tests | PromptAndTemplateTests 7; 229 tests | M1-14 resilience |
 | 2026-10-04 | **M1-12** decision-first reply route, templates, dialogue host, `feudalsim talk` | ReplyRouterTests 6, DialogueHostTests 2; 222 tests; live 4-turn talk | M1-13 prompt/persona depth + template coverage |

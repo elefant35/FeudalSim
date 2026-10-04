@@ -117,6 +117,7 @@ default**, which the plan already assumes. Confirm or override; record the answe
 | D33 | **Per-agent vs year sim budgets** (S6 calibration finding): 20 §19's per-agent ceilings (LOD2 hour 400 µs, LOD3 day 150 µs) multiply out to 461 s / 7.2 s for a 1,500-person year, against 60 s / 5 s | **Applied (reversible, pending owner):** the year targets bind; the per-agent rows are worst single-update ceilings, averages ≤ 50 µs (LOD2 hour) and ≤ 100 µs (LOD3 day). Measured 18.6 / 35 µs | [20 Q17](../tech/20-architecture.md#open-questions), [s6](../spikes/s6-sim-scale.md) |
 | D34 | **Leaning in the dialogue prompt** (M1-16 calibration): without it the model is mode-seeking (gap 14.6 pts, lift +7.3) | **Applied (reversible, pending owner):** rules v2.1 shows the policy's pre-drawn pick as a LEANING (gap ≈ 10, lift ≈ +6; still iterating at the M1 gate) | [22 Q16](../tech/22-llm-integration.md#open-questions) |
 | D35 | **Conditional yes when hostile** (M1-16): 16 §5.4's `accept_with_condition` keeps ≈ ⅓ of the mass even at Opinion −60 | **Applied (reversible, pending owner):** keep the formula; refusal suite counts only the unconditional yes | [16 Q21](../design/16-social-systems.md#open-questions), [22 Q17](../tech/22-llm-integration.md#open-questions) |
+| D36 | **NPC↔NPC brawl rate** (M1-22): with arguments on the §9 ladder (16 §5.2) the camp has 0.46 brawls per day for 24 people, ≈ 4–15× 18 §16's target; friends per person 0.47 → 0.22 | **Applied (reversible, pending owner):** keep 16's formulas (no authority/status/mediation in M1); calibrate before M2 with `feudalsim social` | [16 Q22](../design/16-social-systems.md#open-questions) |
 
 ## 3. Per-document open questions
 
@@ -132,7 +133,7 @@ marked **[Resolved — canon v0.2]** in place.
 | [13 Crafting & minigames](../design/13-crafting-and-minigames.md#open-questions) | 10 (5 resolved) |
 | [14 Technology & buildings](../design/14-technology-and-buildings.md#open-questions) | 7 (2 resolved) |
 | [15 Economy & trade](../design/15-economy-and-trade.md#open-questions) | 8 (2 resolved) |
-| [16 Social systems](../design/16-social-systems.md#open-questions) | 21 |
+| [16 Social systems](../design/16-social-systems.md#open-questions) | 22 |
 | [17 Governance & law](../design/17-governance-and-law.md#open-questions) | 7 |
 | [18 Conflict & warfare](../design/18-conflict-and-warfare.md#open-questions) | 8 (1 resolved) |
 | [19 Player experience](../design/19-player-experience.md#open-questions) | 7 (1 resolved) |
