@@ -125,7 +125,7 @@ public sealed class UtilityAiTests
 
         var restored = SaveCodec.Restore(image, out _);
         restored.Content = Content;
-        restored.AddSystem(new LodSystem()).AddSystem(new ActivitySystem()).AddSystem(new NeedsDecaySystem()).AddSystem(new PsychologySystem()).AddSystem(new SocialSystem());
+        restored.AddSystem(new LodSystem()).AddSystem(new ActivitySystem()).AddSystem(new NeedsDecaySystem()).AddSystem(new PsychologySystem()).AddSystem(new SocialSystem()).AddSystem(new InteractionSystem());
         restored.Camp.Active.ShouldBe((byte)1);
         RunUntilMinute(restored, 2, 6 * 60);
         StateHasher.Hash(restored).ShouldBe(StateHasher.Hash(straight));

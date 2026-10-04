@@ -36,6 +36,9 @@ public sealed class SimWorld
     public EntityIdAllocator Ids { get; } = new();
     public PersonTable People { get; } = new();
 
+    /// <summary>Episodic memories (16 §6).</summary>
+    public Social.MemoryStore Memories { get; } = new();
+
     /// <summary>Relationships (16 §4): opinion, trust, familiarity, fear, tags.</summary>
     public Social.RelationshipStore Relationships { get; }
 

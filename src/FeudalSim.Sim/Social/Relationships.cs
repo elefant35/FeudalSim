@@ -24,7 +24,8 @@ public sealed class RelationshipEdge
     public long FearTimeMin, LastContactMin, FriendSinceMin = -1, EnemyCalmSinceMin = -1;
     public RelTags Tags;
     public float SocialContactToday, WorkHoursToday;
-    public long SocialContactDay = -1, WorkDay = -1;
+    public long SocialContactDay = -1, WorkDay = -1, InteractionDay = -1;
+    public int InteractionsToday;
     public List<ModSlot> Mods { get; } = [];
 }
 
@@ -242,11 +243,11 @@ public sealed class RelationshipStore
             e.Trust = e.Trust0 + ((e.Trust - e.Trust0) * MathF.Pow(0.9f, 1f / 32f));
             var hp = Holder(h);
             e.Mods.RemoveAll(slot => { Decayed(slot, hp, now, out var negligible); return negligible && slot.Floor == 0f; });
-            UpdateTags(e, Opinion(h, o), now);
+            UpdateTags(e, Opinion(h, o), now, _world.Memories.HasGraveMemoryAbout(h, o, now));
         }
     }
 
-    private static void UpdateTags(RelationshipEdge e, float op, long now)
+    private static void UpdateTags(RelationshipEdge e, float op, long now, bool graveMemory)
     {
         // Acquaintance: F ≥ 10, exit F < 5.
         if (e.Familiarity >= 10f) { e.Tags |= RelTags.Acquaintance; } else if (e.Familiarity < 5f) { e.Tags &= ~RelTags.Acquaintance; }
@@ -269,8 +270,8 @@ public sealed class RelationshipStore
         if (op >= 60f && e.Familiarity >= 60f && e.Trust >= 60f) { e.Tags |= RelTags.CloseFriend; }
         else if (op < 40f || e.Trust < 45f) { e.Tags &= ~RelTags.CloseFriend; }
 
-        // Enemy: Op ≤ −50 ∧ a grave harm (proxy for 16's memory rule until M1-06: a slot ≤ −25 or a lasting floor); exit Op > −25 for 8 days.
-        var grave = e.Mods.Any(s => s.Value <= -25f || s.Floor <= -5f);
+        // Enemy: Op ≤ −50 ∧ a memory with salience ≥ 50 and valence ≤ −50 about B (16 §4.12); exit Op > −25 for 8 days.
+        var grave = graveMemory;
         if ((e.Tags & RelTags.Enemy) == 0)
         {
             if (op <= -50f && grave) { e.Tags |= RelTags.Enemy; e.EnemyCalmSinceMin = -1; }
@@ -403,7 +404,7 @@ public sealed class RelationshipStore
             L(h, (long)holder); L(h, (long)other);
             F(h, e.Trust); F(h, e.Trust0); F(h, e.Familiarity); F(h, e.PeakFamiliarity); F(h, e.FearEvent);
             L(h, e.FearTimeMin); L(h, e.LastContactMin); L(h, e.FriendSinceMin); L(h, e.EnemyCalmSinceMin); L(h, (long)e.Tags);
-            F(h, e.SocialContactToday); L(h, e.SocialContactDay); F(h, e.WorkHoursToday); L(h, e.WorkDay);
+            F(h, e.SocialContactToday); L(h, e.SocialContactDay); F(h, e.WorkHoursToday); L(h, e.WorkDay); L(h, e.InteractionDay); L(h, e.InteractionsToday);
             foreach (var s in e.Mods) { L(h, s.Modifier); F(h, s.Value); F(h, s.Floor); L(h, s.TimeMin); L(h, s.Count); }
         }
     }
@@ -427,7 +428,8 @@ public sealed class RelationshipStore
     {
         public ulong Holder, Other;
         public float Trust, Trust0, Familiarity, PeakFamiliarity, FearEvent, SocialContactToday, WorkHoursToday;
-        public long FearTimeMin, LastContactMin, FriendSinceMin, EnemyCalmSinceMin, SocialContactDay, WorkDay;
+        public long FearTimeMin, LastContactMin, FriendSinceMin, EnemyCalmSinceMin, SocialContactDay, WorkDay, InteractionDay;
+        public int InteractionsToday;
         public ushort Tags;
         public int ModStart, ModCount;
     }
@@ -443,7 +445,7 @@ public sealed class RelationshipStore
                 Holder = holder, Other = other, Trust = e.Trust, Trust0 = e.Trust0, Familiarity = e.Familiarity, PeakFamiliarity = e.PeakFamiliarity,
                 FearEvent = e.FearEvent, SocialContactToday = e.SocialContactToday, FearTimeMin = e.FearTimeMin, LastContactMin = e.LastContactMin,
                 FriendSinceMin = e.FriendSinceMin, EnemyCalmSinceMin = e.EnemyCalmSinceMin, SocialContactDay = e.SocialContactDay,
-                WorkHoursToday = e.WorkHoursToday, WorkDay = e.WorkDay,
+                WorkHoursToday = e.WorkHoursToday, WorkDay = e.WorkDay, InteractionDay = e.InteractionDay, InteractionsToday = e.InteractionsToday,
                 Tags = (ushort)e.Tags, ModStart = mods.Count, ModCount = e.Mods.Count,
             });
             mods.AddRange(e.Mods);
@@ -462,7 +464,7 @@ public sealed class RelationshipStore
                 Trust = r.Trust, Trust0 = r.Trust0, Familiarity = r.Familiarity, PeakFamiliarity = r.PeakFamiliarity, FearEvent = r.FearEvent,
                 SocialContactToday = r.SocialContactToday, FearTimeMin = r.FearTimeMin, LastContactMin = r.LastContactMin,
                 FriendSinceMin = r.FriendSinceMin, EnemyCalmSinceMin = r.EnemyCalmSinceMin, SocialContactDay = r.SocialContactDay, Tags = (RelTags)r.Tags,
-                WorkHoursToday = r.WorkHoursToday, WorkDay = r.WorkDay,
+                WorkHoursToday = r.WorkHoursToday, WorkDay = r.WorkDay, InteractionDay = r.InteractionDay, InteractionsToday = r.InteractionsToday,
             };
             for (var k = 0; k < r.ModCount; k++) { e.Mods.Add(mods[r.ModStart + k]); }
             _edges.Add((r.Holder, r.Other), e);

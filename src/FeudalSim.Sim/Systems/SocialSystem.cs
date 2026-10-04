@@ -44,7 +44,7 @@ public sealed class SocialSystem : ISimSystem
     {
         var people = world.People;
         Span<int> group = stackalloc int[people.Count];
-        foreach (var (action, modifier, social) in new[] { (_socialize, "opinion.chatted", true), (_eat, "opinion.shared_meal", false) })
+        foreach (var (action, modifier, social) in new[] { (_eat, "opinion.shared_meal", false) })   // talk itself: InteractionSystem (M1-06)
         {
             if (action < 0) { continue; }
             var n = 0;
@@ -98,6 +98,7 @@ public sealed class SocialSystem : ISimSystem
             }
         }
 
+        world.Memories.Compact(world.Clock.GameMinute);
         world.Relationships.DailyUpdate();
     }
 }

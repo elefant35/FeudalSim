@@ -70,6 +70,29 @@ public sealed class SweepCommand : Command<SweepSettings>
         Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
             $"  camp: final food mean {food.Average():F0} (min {food.Min():F0}) · fire burning {summaries.Average(x => x.S.FireShare):P0} of the time · seeds with food left {food.Count(f => f > 0) / (double)food.Length:P0}"));
 
+        if (summaries.Any(x => x.S.InteractionMix is not null))
+        {
+            var mix = summaries[0].S.InteractionMix!.Keys.Select(k => $"{k.ToLowerInvariant()} {summaries.Average(x => x.S.InteractionMix![k]):P0}");
+            Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+                $"  social (16 §5.6): {summaries.Average(x => x.S.InteractionsPerDay):F1} interactions / person / day · {string.Join(" · ", mix)}"));
+            if (summaries[0].S.InteractionFunnel is not null)
+            {
+                double F(int k) => summaries.Sum(x => x.S.InteractionFunnel![k]);
+                Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+                    $"  social funnel: eligible quarter-hours {F(0) / F(0):P0} → initiated {F(1) / F(0):P1} · of those no one in range {F(2) / F(1):P0} · no type {F(3) / F(1):P0}"));
+            }
+
+            if (summaries[0].S.FriendGates is not null)
+            {
+                double G(int k) => summaries.Average(x => x.S.FriendGates![k]);
+                Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+                    $"  friend gates (end, share of edges): Op ≥ 30 {G(0):P0} · F ≥ 30 {G(1):P0} · T ≥ 40 {G(2):P0} · all {G(3):P1} · Op p50 {G(4):F1} p90 {G(5):F1} max {G(6):F1}"));
+            }
+
+            Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+                $"  social (end): friends / person {summaries.Average(x => x.S.FinalFriends):F2} (seeds with any {summaries.Count(x => x.S.FinalFriends > 0) / (double)summaries.Count:P0}) · enemies / person {summaries.Average(x => x.S.FinalEnemies):F2}"));
+        }
+
         Directory.CreateDirectory(settings.Out);
         var csv = Path.Combine(settings.Out, $"sweep-{scenario.Id.Replace("scenario.", "", StringComparison.Ordinal)}-{DateTime.UtcNow:yyyyMMdd-HHmmss}.csv");
         var sb = new StringBuilder("seed,idle_rate,low_need_share,mood_mean,breaking_share,divergence,task_failure,final_food,fire_share,final_hash\n");

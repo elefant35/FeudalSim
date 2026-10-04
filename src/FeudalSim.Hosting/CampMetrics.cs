@@ -131,6 +131,24 @@ public sealed class CampMetrics
         return (friends / (double)n, enemies / (double)n, edges == 0 ? 0 : opinion / edges);
     }
 
+    /// <summary>Share of directed edges passing each 16 §4.12 Friend gate: Op ≥ 30, F ≥ 30, T ≥ 40, all three. Read-only.</summary>
+    public static double[] FriendGates(SimWorld world)
+    {
+        double op = 0, f = 0, t = 0, all = 0, n = 0;
+        var ops = new List<float>();
+        foreach (var ((holder, other), e) in world.Relationships.Edges)
+        {
+            var opinion = world.Relationships.Opinion(new Sim.Core.EntityId(holder), new Sim.Core.EntityId(other));
+            ops.Add(opinion);
+            var o = opinion >= 30f;
+            bool ff = e.Familiarity >= 30f, tt = e.Trust >= 40f;
+            op += o ? 1 : 0; f += ff ? 1 : 0; t += tt ? 1 : 0; all += o && ff && tt ? 1 : 0; n++;
+        }
+
+        ops.Sort();
+        return n == 0 ? [0, 0, 0, 0, 0, 0, 0] : [op / n, f / n, t / n, all / n, ops[ops.Count / 2], ops[(int)(0.9 * (ops.Count - 1))], ops[^1]];
+    }
+
     /// <summary>21 §19 task failure for the run (activities failed / started).</summary>
     public static double TaskFailure(SimWorld world)
         => world.Systems.OfType<ActivitySystem>().FirstOrDefault() is { Started: > 0 } a ? a.Abandoned / (double)a.Started : 0;

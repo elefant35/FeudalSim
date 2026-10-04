@@ -42,6 +42,7 @@ public static class StateHasher
         h.Append(people.SkillAptitudeAll);
         world.Decisions.HashInto(h);
         world.Relationships.HashInto(h);
+        world.Memories.HashInto(h);
         return h.GetCurrentHashAsUInt64();
     }
 }

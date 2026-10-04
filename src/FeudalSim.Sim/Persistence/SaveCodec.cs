@@ -26,6 +26,16 @@ public static class SaveCodec
         return chunk;
     }
 
+    public const string MemoriesTable = "memories";
+
+    private static TableChunk MemoriesChunk(Social.MemoryStore store)
+    {
+        var rows = store.Export();
+        var chunk = new TableChunk { Table = MemoriesTable, RowCount = rows.Length };
+        chunk.Columns.Add(new ColumnBlock { Name = "rows", LayoutVersion = 1, ElementSize = Marshal.SizeOf<Social.MemoryStore.Row>(), Data = MemoryMarshal.AsBytes(rows.AsSpan()).ToArray() });
+        return chunk;
+    }
+
     private static TableChunk CampChunk(in CampRecord camp)
     {
         var chunk = new TableChunk { Table = CampTable, RowCount = 1 };
@@ -94,7 +104,7 @@ public static class SaveCodec
                 LastCommandSeq = world.LastCommandSeq,
             },
             IdCounters = counters,
-            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships)],
+            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories)],
         };
     }
 
@@ -163,6 +173,12 @@ public static class SaveCodec
             {
                 notes.Add("Relationships table has an unknown layout; relationships reset.");
             }
+        }
+
+        if (image.Tables.FirstOrDefault(t => t.Table == MemoriesTable)?.Columns.FirstOrDefault(c => c.Name == "rows") is { } mrows)
+        {
+            if (mrows.ElementSize == Marshal.SizeOf<Social.MemoryStore.Row>()) { world.Memories.Import(MemoryMarshal.Cast<byte, Social.MemoryStore.Row>(mrows.Data).ToArray()); }
+            else { notes.Add("Memories table has an unknown layout; memories reset."); }
         }
 
         warnings = notes;

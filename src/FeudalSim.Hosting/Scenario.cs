@@ -70,6 +70,7 @@ public sealed record ScenarioDef
         {
             world.Camp = (Camp ?? new CampDef()).ToRecord(content);
             world.AddSystem(new SocialSystem());
+            world.AddSystem(new InteractionSystem());
         }
         if (AiPingStep is { } at) { world.AddSystem(new AiPingSystem(at, AiPingDeadlineSteps)); }
         if (DecisionPingStep is { } dpAt)
@@ -128,7 +129,7 @@ public sealed record RunResult(long Steps, ulong FinalHash, IReadOnlyList<DayMet
 
 /// <summary>21 §19 camp metrics over a whole run (means of the daily values; task failure over all activities).</summary>
 public sealed record CampSummary(double IdleRate, double LowNeedShare, double MoodMean, double BreakingShare, double Divergence, double TaskFailure,
-    double FinalFood, double FireShare);
+    double FinalFood, double FireShare, double FinalFriends = 0, double FinalEnemies = 0, double InteractionsPerDay = 0, IReadOnlyDictionary<string, double>? InteractionMix = null, double[]? InteractionFunnel = null, double[]? FriendGates = null);
 
 /// <summary>Runs a scenario at max speed, collecting daily metrics (20 §13).</summary>
 public static class ScenarioRunner
@@ -162,7 +163,18 @@ public static class ScenarioRunner
         if (camp is { Days.Count: > 0 } cm)
         {
             summary = new CampSummary(cm.Days.Average(d => d.IdleRate), cm.Days.Average(d => d.LowNeedShare), cm.Days.Average(d => d.MoodMean),
-                cm.Days.Average(d => d.BreakingShare), cm.Days.Average(d => d.Divergence), CampMetrics.TaskFailure(world), world.Camp.Food, cm.Days.Average(d => d.FireShare));
+                cm.Days.Average(d => d.BreakingShare), cm.Days.Average(d => d.Divergence), CampMetrics.TaskFailure(world), world.Camp.Food, cm.Days.Average(d => d.FireShare),
+                cm.Days[^1].FriendsPerPerson, cm.Days[^1].EnemiesPerPerson, FriendGates: CampMetrics.FriendGates(world));
+            if (world.Systems.OfType<InteractionSystem>().FirstOrDefault() is { } ix)
+            {
+                var total = ix.Counts.Sum();
+                summary = summary with
+                {
+                    InteractionsPerDay = total / (double)Math.Max(1, world.People.Count * cm.Days.Count),
+                    InteractionFunnel = [ix.Eligible, ix.Initiated, ix.NoPartner, ix.NoKind],
+                    InteractionMix = Enum.GetValues<InteractionSystem.Kind>().ToDictionary(k => k.ToString(), k => total == 0 ? 0 : ix.Counts[(int)k] / (double)total),
+                };
+            }
         }
 
         return new RunResult(world.Clock.Step, StateHasher.Hash(world), days, clock.Elapsed.TotalSeconds, summary);

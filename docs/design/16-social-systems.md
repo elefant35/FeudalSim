@@ -639,6 +639,20 @@ severity 2).
 Per adult per day: ~10 interactions, of which chat 45 %, gossip 20 %, joke 10 %, work/help/trade
 15 %, comfort/praise 5 %, argue 4 %, insult/threaten ≤ 1 %, flirt (eligible adults) 2 %.
 
+*Implemented (M1-06, 2026-10-04):* `FeudalSim.Sim.Systems.InteractionSystem` runs the NPC↔NPC policy for Chat,
+Joke, Praise, Comfort, Request help, Argue, Insult and Apologize (Gossip and Warn need claims → M1-07; Confide,
+Flirt, Threaten, Lie, Debate, Trade and Teach wait for their owners). Each quarter-hour an awake person initiates with
+probability `I / 32` (half while working). 64 waking quarters would realize only ≈ 0.5·I, because work halves the
+rate and ≈ 29 % of draws find no one in range, so the camp sweep calibrated the divisor to realize ≈ I. An
+opportunity is the same task site (both performing) or ≤ 4 m (walkers included). Partners follow §5.3; types are a
+softmax over log-weights at `T = 0.5 + Vo/100`. In the camp, Request help means "a hand with this task": the asker is
+working, the weight is `2·(1 + fatigue)` × pride, and Willingness (§5.4) includes reciprocity from remembered favors.
+A grant also gives `helped_my_work`. Insult adds the modifier and 21 §6.1 anger; the §9 ladder is M1-08. ≤ 4 per pair
+per day, kept on the edge. **Camp sweep (20 seeds × 30 days):** 5.0 initiations / person / day (≈ 10 participations),
+of which chat 70 %, joke 21 %, request 6 %, argue 2 %, praise 1 %, comfort/insult/apology < 1 %. Friends form in every
+seed (0.12 / person by day 30). Talk alone saturates near Op 20 (`chatted` + `joked_together` caps), so friendship
+needs help, comfort or rapport, as in §4.13. All 21 §19 bands hold.
+
 ### 5.7 Rendering (interface to [22-llm-integration](../tech/22-llm-integration.md))
 
 The **policy decides** every NPC↔NPC exchange first (canon §13.2) — including ones the player
@@ -722,6 +736,13 @@ Compaction runs nightly for LOD0–2 people and once per season at LOD3:
 
 Opinion modifiers outlive their memories: a slot whose `SourceMemoryId` is gone stays and is
 voiced as a vague feeling ("I don't recall why, but I've never liked him").
+
+*Implemented (M1-06, 2026-10-04):* `FeudalSim.Sim.Social.MemoryStore` (`world.Memories`) implements §6.2 S0 (stored
+if ≥ 5), half-life `2 + 0.3·S0` days and core memories (floor 0.5·S0). Nightly compaction (`SocialSystem`) deletes
+S < 3, merges `(kind, actor, target)` into patterns at `max + 5·log2(Count)` and enforces the caps 160 / 24. It is saved
+(memories table) and hashed. The Enemy tag (§4.12) now requires a grave memory (S ≥ 50, valence ≤ −50) instead of
+the M1-05 proxy. Not yet: step 1's "backs a belief / live slot" exception (beliefs → M1-07; slots carry no
+`SourceMemoryId` yet), and the player bias in step 3 (no player memories until M1-09).
 
 ### 6.4 Conversation summaries
 
@@ -1795,6 +1816,9 @@ betray a confidence, an Honest guard asked to ignore a theft) refuse in ≥ 95% 
 13. How many bystander DPs per exchange can the fast decider afford in a crowded tavern (cap 3 now),
     and should called allies always get one?
 14. Should the player be told (UI) when a pick was blocked by a guard, or should it stay invisible?
+15. **Friendship formation rate.** The M1 camp makes 0.12 friends / person by day 30 with no rapport DPs and no
+    gossip yet. What target (e.g. 1–2 friends / person by day 30) should the 21 §19 sweep enforce? It interacts
+    with Q12.
 
 ---
 
