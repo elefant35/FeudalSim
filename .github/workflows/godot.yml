@@ -103,6 +103,16 @@ jobs:
           "$GODOT" --headless --path game res://scenes/dev/TerrainSpike.tscn -- --terrain3d --check 2>&1 | tee terrain.log
           grep -q "CHECK PASS" terrain.log
 
+      - name: "Island autotest (M2-FP1: the generated island in Terrain3D, the camp at the landing, bodies on the ground)"
+        env:
+          FEUDALSIM_WORLD_CACHE: ${{ runner.temp }}/worlds
+        run: |
+          # Generate the region once with the Release CLI into the shared cache (the game's Debug build is far slower at it).
+          dotnet run -c Release --project src/FeudalSim.Headless -- run --scenario content/scenarios/m2_landfall.yaml --days 1
+          "$GODOT" --headless --max-fps 60 --path game -- --autotest-island 2>&1 | tee island.log
+          grep -E "autotest FAIL|ISLAND AUTOTEST|Unhandled|Exception" island.log | sed 's/^/::error title=island autotest::/' || true
+          grep -q "ISLAND AUTOTEST PASS" island.log
+
       - name: Embodiment check (LOD0 bodies, headless replay of the client session)
         run: GODOT="$GODOT" tools/godot/embodiment_check.sh
 
@@ -113,6 +123,7 @@ jobs:
           name: godot-smoke
           path: |
             boot.log
+            island.log
             camp.log
             terrain.log
             sim_runs/

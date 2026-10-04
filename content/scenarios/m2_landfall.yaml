@@ -1,0 +1,20 @@
+# M2 first playable (M2-FP1): the M1 camp on the generated island. `camp.anchor: landing` moves the camp's places, the
+# settlers and the player from these camp-local metres onto the landing above the beach (Hosting/CampAnchor.cs), with
+# the wreck on its reef offshore. What `$GODOT --path game` opens on.
+id: scenario.m2_landfall
+seed: 42
+start: Y0 Spring 1 16:00
+days: 30
+settlers: 24
+ai: utility
+player: [12, -6]
+player_items: { item.hammerstone: 1, item.antler_billet: 1, item.pressure_flaker: 1, item.flint_nodules: 3 }   # [K] knaps a flint knife (M2-11b)
+world:
+  spec: worldspec.farstrand_default
+camp:
+  anchor: landing
+  food: 32000
+  firewood: 10
+  fire_fuel_min: 240
+  bedding: 0.85
+  schedule: schedule.landfall_communal

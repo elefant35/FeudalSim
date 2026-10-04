@@ -1149,6 +1149,14 @@ person is Downed at ≈ 1.4 h, not §2.3's ≈ 1.6 h. Death at ≈ 2.5 h is as w
 | S4 | **Weather lock, first 36 h:** Storm → Rain (06–12) → Cloudy (12–18) → **Clear, cold night** (beach −2 to +2 °C) → Cloudy morning → Drizzle on Day 2 afternoon. **Tide phase:** low water ≈ 09:30 and ≈ 21:55 on Day 1, then ≈ 10:20 on Day 2 | The first night must be cold; the first salvage window must be in daylight |
 | S5 | **Wreck guarantees:** no section is lost before Day 3 06:00; all sections are gone by Spring 8 24:00 | A fair but finite salvage window |
 
+*M2-FP1 (2026-10-04): where the camp stands.* Scenarios with `camp.anchor: landing` (`m2_landfall`) put the fire on the
+nearest dry, gentle cell (slope ≤ 8°) 30–120 m from the shore above the landing beach, and move the camp's other places,
+the settlers and the player with it (`Hosting/CampAnchor.cs`). Places that would fall in the sea or a lake are pulled
+back to land; the water place snaps to the nearest spring, stream, lake shore or brook (≥ 0.25 km² of catchment,
+recomputed as stage 5 does) within 600 m. On seed 42 the fire is 32 m above the beach, 248 m from the wreck, with the
+brook 184 m away (the generator measured 194 m from the beach); over 3 headless days the camp keeps Satiety ≈ 78 and
+Hydration 69–77 with no low-need hours. B15 (moving camp) is unchanged.
+
 ### 15.3 What came ashore & what is in the wreck
 
 Canonical salvage per canon §5.3 and [15](15-economy-and-trade.md) §10.2. Items marked **[P]** are

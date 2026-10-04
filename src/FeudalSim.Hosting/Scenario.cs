@@ -111,15 +111,30 @@ public sealed record ScenarioDef
         return date.ToGameMinute() * SimClock.MsPerGameMinute;
     }
 
+    /// <summary>
+    /// M2-FP1: with a generated region and <c>camp.anchor: landing</c>, where the camp goes (<see cref="CampAnchor"/>);
+    /// null keeps the scenario's own coordinates. A pure function of the map, so the client asks it too.
+    /// </summary>
+    public CampAnchor.Result? Anchor(Sim.World.WorldMap? map)
+        => map is not null && Camp is { Anchor: "landing" } camp ? CampAnchor.Resolve(map, camp) : null;
+
+    /// <summary>The player's start in world metres (the scenario's <c>player</c> moved with the camp).</summary>
+    public float[]? PlayerStart(CampAnchor.Result? anchor)
+        => Player is [var px, var pz] ? [px + (anchor?.Dx ?? 0f), pz + (anchor?.Dz ?? 0f)] : null;
+
     /// <summary>Builds the world, registers the M0 systems and queues the spawn commands (all logged).</summary>
     public SimWorld CreateWorld(ContentDatabase content, IJobScheduler jobs, Action<CommandEnvelope>? log = null)
     {
         var utility = string.Equals(Ai, "utility", StringComparison.OrdinalIgnoreCase);
         var world = new SimWorld(Seed, StartGameMs(), DayLengthMinutes) { Content = content, Jobs = jobs };
         if (World is { } region) { world.AttachMap(WorldCache.GetOrGenerate(content, region.Spec, region.Seed ?? Seed, jobs: jobs)); }   // M2-02
+        var anchor = Anchor(world.Map);   // M2-FP1: the camp at the landing
+        var (dx, dz) = anchor is null ? (0f, 0f) : (anchor.Dx, anchor.Dz);
         if (utility)
         {
-            world.Camp = (Camp ?? new CampDef()).ToRecord(content);
+            var campDef = Camp ?? new CampDef();
+            if (anchor is not null) { campDef = campDef with { Places = anchor.Places, ElevationM = anchor.ElevationM, Coastal = true }; }
+            world.Camp = campDef.ToRecord(content);
             AddCampSystems(world);
         }
         else
@@ -137,12 +152,12 @@ public sealed record ScenarioDef
         for (var i = 0; i < Settlers; i++)
         {
             var command = new CommandEnvelope(i + 1, 0, CommandSource.Scenario,
-                new SpawnPerson("", i % 6 * 4f, i / 6 * -4f));   // M1-30: named by the sim from the culture's lists
+                new SpawnPerson("", (i % 6 * 4f) + dx, (i / 6 * -4f) + dz));   // M1-30: named by the sim from the culture's lists
             world.Enqueue(command);
         }
 
         var seq = (long)Settlers;
-        if (Player is [var px, var pz])
+        if (PlayerStart(anchor) is [var px, var pz])
         {
             world.Enqueue(new CommandEnvelope(++seq, 0, CommandSource.Scenario, new SpawnPerson(PlayerName, px, pz, IsPlayer: true)));
             world.Enqueue(new CommandEnvelope(++seq, 0, CommandSource.Scenario, new PlayerMoved(px, pz, 0f)));
@@ -188,6 +203,9 @@ public sealed record CampDef
     public ShelterDef Shelter { get; init; } = new();
 
     public float ElevationM { get; init; } = 3f;         // the beach (10 §6.2 worked example)
+
+    /// <summary>M2-FP1: <c>landing</c> moves the camp onto the generated island's landing (<see cref="CampAnchor"/>); empty keeps the coordinates.</summary>
+    public string? Anchor { get; init; }
 
     /// <summary>11 §11.1: the camp's water place — spring, stream, river, lake or marsh (c_src 0 / 0.02 / 0.04 / 0.05 / 0.30).</summary>
     public string WaterSource { get; init; } = "stream";
@@ -280,10 +298,16 @@ public static class ScenarioRunner
         var clock = System.Diagnostics.Stopwatch.StartNew();
         var events = 0;
         var camp = world.Camp.Active != 0 ? new CampMetrics(content) : null;
+        var bodies = scenario.Player is not null && macro == 0 ? new HeadlessBodies() : null;
         for (var day = 1; day <= scenario.Days; day++)
         {
             for (var s = 0; s < stepsPerDay; s++)
             {
+                if (bodies is not null)   // with a player, LOD0 settlers need bodies to walk (ADR-0007); headless stands in for the client
+                {
+                    foreach (var r in bodies.Step(world)) { world.Enqueue(new CommandEnvelope(world.LastCommandSeq + 1, 0, CommandSource.Embodiment, r)); }
+                }
+
                 var output = macro > 0 ? world.StepMacro(macro) : world.Step();
                 camp?.Sample(world);
                 LogOpenedDecisions(world, output);

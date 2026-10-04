@@ -20,6 +20,29 @@ public sealed class WorldMapTests
     });
 
     [Fact]
+    public void TheCamp_AnchorsAboveTheLandingBeach_OnDryLand_WithFreshWaterNearby()   // M2-FP1 (Hosting/CampAnchor)
+    {
+        var map = Map.Value;
+        var g = map.Grid;
+        var scenario = ScenarioDef.Load(Path.Combine(RepoRoot(), "content", "scenarios", "m2_landfall.yaml"));
+        var a = scenario.Anchor(map).ShouldNotBeNull();
+        var landing = map.Landing.ShouldNotBeNull();
+        var fire = CampAnchor.Cell(g, a.FireX, a.FireZ);
+        g.Land[fire].ShouldBe((byte)1);
+        g.CoastDistM[fire].ShouldBeInRange(CampAnchor.MinCoastM, CampAnchor.MaxCoastM);
+        g.Slope[fire].ShouldBeLessThanOrEqualTo((byte)CampAnchor.MaxSlopeDeg);
+        MathF.Sqrt(((a.FireX - landing.BeachX) * (a.FireX - landing.BeachX)) + ((a.FireZ - landing.BeachZ) * (a.FireZ - landing.BeachZ))).ShouldBeLessThan(600f);
+        foreach (var (key, p) in a.Places) { g.Land[CampAnchor.Cell(g, p[0], p[1])].ShouldBe((byte)1, key); }
+        a.WaterSnapped.ShouldBeTrue();   // 10 §3.9 guarantees fresh water ≤ 400 m of the beach
+        var w = a.Places["water"];
+        MathF.Sqrt(((w[0] - a.FireX) * (w[0] - a.FireX)) + ((w[1] - a.FireZ) * (w[1] - a.FireZ))).ShouldBeLessThanOrEqualTo(CampAnchor.WaterSnapM);
+        scenario.PlayerStart(a).ShouldBe([12f + a.Dx, -6f + a.Dz]);
+        var again = scenario.Anchor(map)!;   // a pure function of the map
+        (again.FireX, again.FireZ, again.Dx, again.Dz).ShouldBe((a.FireX, a.FireZ, a.Dx, a.Dz));
+        foreach (var (key, p) in a.Places) { again.Places[key].ShouldBe(p, key); }
+    }
+
+    [Fact]
     public void TheCodec_RoundTripsEveryGridAndRecord()
     {
         var map = Map.Value;

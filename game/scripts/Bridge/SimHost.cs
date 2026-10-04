@@ -111,7 +111,8 @@ public partial class SimHost : Node3D
         var fps = Array.IndexOf(args, "--fps");   // dev: `-- --fps 60` logs frame-time percentiles over 60 s (after 3 s warm-up) and quits
         if (fps >= 0 && fps + 1 < args.Length) { _fpsSeconds = double.Parse(args[fps + 1], System.Globalization.CultureInfo.InvariantCulture); }
         var at = Array.IndexOf(args, "--scenario");
-        var name = at >= 0 && at + 1 < args.Length ? args[at + 1] : _autotest ? "m0_smoke" : "m1_view";
+        var flatCampTest = args.Contains("--autotest-camp") || args.Contains("--autotest-dialogue") || args.Contains("--autotest-knap");
+        var name = at >= 0 && at + 1 < args.Length ? args[at + 1] : _autotest ? "m0_smoke" : flatCampTest ? "m1_view" : args.Contains("--autotest-island") ? "m2_landfall" : "m2_landfall";   // M2-FP1: the island by default; the M1 autotests keep the flat camp
         var scenario = ScenarioDef.Load(System.IO.Path.Combine(repo, "content", "scenarios", name.EndsWith(".yaml", StringComparison.Ordinal) ? name : name + ".yaml"));
         _content = compiled.Database!;
         _scenarioId = scenario.Id;
@@ -124,7 +125,8 @@ public partial class SimHost : Node3D
         }
         _openKnap = args.Contains("--open-knap");
         _autotestCamp = _autotestDialogue || args.Contains("--autotest-camp");
-        var templateOnly = _autotestCamp || _autotestKnap;   // autotests never call a model (unless --live)
+        _autotestIsland = args.Contains("--autotest-island");
+        var templateOnly = _autotestCamp || _autotestKnap || _autotestIsland || _shotPath is not null;   // autotests and screenshots never call a model (unless --live)
         FeudalSim.AI.AiConfig? config = null;
         if (scenario.Player is not null && !_autotest)   // a player can overhear talk: live AI if the key is set, else templates
         {
@@ -136,7 +138,27 @@ public partial class SimHost : Node3D
             GD.Print($"SimHost: ai key {(config.ChatKey.IsSet ? "set" : "missing")}, {(config.TemplateMode ? "template" : "live")}");
         }
 
-        _runner = new SimRunner(scenario.CreateWorld(compiled.Database!, _jobs), gateway: _gateway);
+        if (scenario.World is { } region)   // M2-FP1: generate (or load) the region on all cores before the sim's single-thread runner gets it
+        {
+            using var gen = new JobRunner(Math.Max(1, System.Environment.ProcessorCount - 1));
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            WorldCache.GetOrGenerate(compiled.Database!, region.Spec, region.Seed ?? scenario.Seed, jobs: gen);
+            GD.Print($"SimHost: world map ready in {sw.Elapsed.TotalMilliseconds:F0} ms");
+        }
+
+        var world = scenario.CreateWorld(compiled.Database!, _jobs);
+        var anchor = scenario.Anchor(world.Map);
+        if (world.Map is { } map)
+        {
+            using var gen = new JobRunner(Math.Max(1, System.Environment.ProcessorCount - 1));
+            _island = World.Island.Build(this, map, _camera, gen);
+            World.Island.Atmosphere(GetNode<WorldEnvironment>("WorldEnvironment"));
+            GetNode<Node3D>("Ground").Visible = false;
+            if (anchor is not null) { _camera.Position = new Vector3(anchor.FireX, Ground(anchor.FireX, anchor.FireZ) + 34, anchor.FireZ + 26); }
+        }
+
+        _campRecord = world.Camp;
+        _runner = new SimRunner(world, gateway: _gateway);
         var settlerMaterial = new StandardMaterial3D { VertexColorUseAsAlbedo = true, AlbedoColor = new Color(1, 1, 1) };
         _settlers.MaterialOverride = settlerMaterial;
         _settlers.Multimesh = new MultiMesh
@@ -147,18 +169,75 @@ public partial class SimHost : Node3D
             InstanceCount = 0,
         };
         GD.Print($"SimHost: started {scenario.Id} (seed {scenario.Seed}, {scenario.Settlers} settlers); content {compiled.Database!.Hash:x16}");
-        if (scenario.Camp is { } camp) { PlaceMarkers(camp); }
-        if (scenario.Player is [var px, var pz])
+        if (scenario.Camp is not null) { PlaceMarkers(_campRecord); }
+        if (scenario.PlayerStart(anchor) is [var px, var pz])
         {
             if (!_autotest && !args.Contains("--view")) { InitPlay(new Vector2(px, pz), config, compiled.Database!); }
-            else { AddMarker(new Vector3(px, 0, pz), "you", new Color(0.2f, 0.9f, 0.9f), 0.25f, 2.2f); }
+            else { AddMarker(new Vector3(px, Ground(px, pz), pz), "you", new Color(0.2f, 0.9f, 0.9f), 0.25f, 2.2f); }
         }
-        PlaceTrees();
+
+        if (_island is null) { PlaceTrees(); }   // the flat camp's ring of pines; the island's trees are its nodes (M2-FP3)
         StartCampfireAudio(compiled.Database!);
     }
 
-    /// <summary>Graybox markers for the camp's places (M1 camp; the real scene is M1-18).</summary>
-    private void PlaceMarkers(CampDef camp)
+    private World.Island? _island;
+    private Sim.World.CampRecord _campRecord;
+    private bool _autotestIsland;
+
+    /// <summary>
+    /// `--autotest-island` (M2-FP1): Terrain3D draws the sim's 2 m heights (64 points over the map and 64 around the camp
+    /// within 1 cm), the camp's places and the player stand on dry land, every settler has a body standing on the ground,
+    /// and the wreck lies offshore. Exit 0/1.
+    /// </summary>
+    private void IslandAutotest()
+    {
+        _autotestPhase = 1;
+        var island = _island;
+        Expect("island built", island is null ? 0 : 1, 1, 0);
+        if (island is not null)
+        {
+            var g = island.Map.Grid;
+            var half = (g.Size - 1) * g.CellM / 2f;
+            float maxErr = 0f, campErr = 0f;
+            for (var i = 0; i < 64; i++)
+            {
+                float x = ((i * 7919) % 4000 * 2f) - half + 1f, z = ((i * 104729) % 4000 * 2f) - half + 1f;   // on vertices, away from the far edge
+                if (island.Terrain is { } t) { maxErr = Math.Max(maxErr, Math.Abs(t.HeightAt(new Vector3(x, 0, z)) - island.HeightAt(x, z))); }
+                float cx = _campRecord.FireX + (((i * 37) % 64) - 32) * 16f, cz = _campRecord.FireZ + (((i * 53) % 64) - 32) * 16f;
+                cx = MathF.Round(cx / 2f) * 2f;
+                cz = MathF.Round(cz / 2f) * 2f;
+                if (island.Terrain is { } t2) { campErr = Math.Max(campErr, Math.Abs(t2.HeightAt(new Vector3(cx, 0, cz)) - island.HeightAt(cx, cz))); }
+            }
+
+            Expect($"Terrain3D matches the sim heights over the map (max error {maxErr:F3} m ≤ 0.01)", maxErr <= 0.01f ? 1 : 0, 1, 0);
+            Expect($"Terrain3D matches the sim heights around the camp (max error {campErr:F3} m ≤ 0.01)", campErr <= 0.01f ? 1 : 0, 1, 0);
+            bool Dry(float x, float z) => Hosting.CampAnchor.Cell(g, x, z) is var c and >= 0 && g.Land[c] == 1 && island.HeightAt(x, z) > 0f;
+            var dryPlaces = 0;
+            foreach (var kind in new[] { Sim.Content.PlaceKind.Fire, Sim.Content.PlaceKind.Stores, Sim.Content.PlaceKind.Shelter, Sim.Content.PlaceKind.Water, Sim.Content.PlaceKind.Woods, Sim.Content.PlaceKind.ForageGround })
+            {
+                var (x, z) = _campRecord.Place(kind);
+                if (Dry(x, z)) { dryPlaces++; }
+            }
+
+            Expect("camp places on dry land", dryPlaces, 6, 0);
+            Expect("player on dry land", Dry(_player.X, _player.Y) ? 1 : 0, 1, 0);
+            if (island.Map.Landing is { } l) { Expect("wreck offshore (ground below sea level)", island.HeightAt(l.WreckX, l.WreckZ) < 0f ? 1 : 0, 1, 0); }
+            var standing = _people.Values.Count(p => Math.Abs(p.Body.Position.Y - Ground(p.Body.Position.X, p.Body.Position.Z)) < 0.2f);
+            Expect("settlers with bodies on the ground", standing, 24, 0);
+            GD.Print("SimHost: " + island.Report);
+        }
+
+        foreach (var line in _autotestResults) { GD.Print(line); }
+        GD.Print($"SimHost: ISLAND AUTOTEST {(_autotestFailed ? "FAIL" : "PASS")}");
+        _campfire?.Stop();
+        GetTree().Quit(_autotestFailed ? 1 : 0);
+    }
+
+    /// <summary>Ground height for anything standing in the world (0 on the flat camp; the island's 2 m field, or the sea surface).</summary>
+    private float Ground(float x, float z) => _island?.StandAt(x, z) ?? 0f;
+
+    /// <summary>Graybox markers for the camp's places, where the sim put them (anchored on the island; M1 camp otherwise).</summary>
+    private void PlaceMarkers(in Sim.World.CampRecord camp)
     {
         var looks = new Dictionary<string, (Color Color, string Label)>
         {
@@ -166,10 +245,11 @@ public partial class SimHost : Node3D
             ["shelter"] = (new Color(0.45f, 0.4f, 0.35f), "shelters"), ["water"] = (new Color(0.2f, 0.45f, 0.9f), "stream"),
             ["woods"] = (new Color(0.25f, 0.4f, 0.2f), "woods"), ["forage_ground"] = (new Color(0.4f, 0.65f, 0.3f), "forage ground"),
         };
-        foreach (var (key, pos) in camp.Places)
+        foreach (var (key, kind) in new[] { ("fire", Sim.Content.PlaceKind.Fire), ("stores", Sim.Content.PlaceKind.Stores), ("shelter", Sim.Content.PlaceKind.Shelter), ("water", Sim.Content.PlaceKind.Water), ("woods", Sim.Content.PlaceKind.Woods), ("forage_ground", Sim.Content.PlaceKind.ForageGround) })
         {
-            if (pos.Length != 2 || !looks.TryGetValue(key, out var look)) { continue; }
-            AddMarker(new Vector3(pos[0], 0, pos[1]), look.Label, look.Color, key == "fire" ? 0.8f : 2.5f, 0.15f);
+            var look = looks[key];
+            var (x, z) = camp.Place(kind);
+            AddMarker(new Vector3(x, Ground(x, z), z), look.Label, look.Color, key == "fire" ? 0.8f : 2.5f, 0.15f);
         }
     }
 
@@ -218,7 +298,7 @@ public partial class SimHost : Node3D
             stream.LoopEnd = (int)(stream.GetLength() * stream.MixRate);
         }
 
-        _campfire = new AudioStreamPlayer3D { Stream = stream, Position = new Vector3(10, 0.5f, -6), UnitSize = 6, Autoplay = true };
+        _campfire = new AudioStreamPlayer3D { Stream = stream, Position = new Vector3(_campRecord.FireX, Ground(_campRecord.FireX, _campRecord.FireZ) + 0.5f, _campRecord.FireZ), UnitSize = 6, Autoplay = true };
         AddChild(_campfire);
         GD.Print($"SimHost: audio {mapping.Id} → {mapping.Files[0]} (bus {mapping.Bus}, loop {mapping.Loop}, spatial {mapping.Spatial}), playing {_campfire.Playing || _campfire.Autoplay}");
     }
@@ -262,7 +342,7 @@ public partial class SimHost : Node3D
 
             var basis = new Basis(Vector3.Up, -snapshot.Yaw[i]);
             var at = _bodies.TryGetValue(snapshot.Ids[i], out var body) ? body : new Vector2(snapshot.X[i], snapshot.Z[i]);
-            mm.SetInstanceTransform(i, new Transform3D(basis, new Vector3(at.X, 0.85f, at.Y)));
+            mm.SetInstanceTransform(i, new Transform3D(basis, new Vector3(at.X, Ground(at.X, at.Y) + 0.85f, at.Y)));
             var action = snapshot.Action[i];
             counts[action < 0 ? counts.Length - 1 : action]++;
             mm.SetInstanceColor(i, action >= 0 && ActivityLook.TryGetValue(_content.Actions[action].Id, out var look) ? look.Color : new Color(0.85f, 0.72f, 0.56f));
@@ -316,6 +396,7 @@ public partial class SimHost : Node3D
         _lines.RemoveAll(l => _clock - l.At > 14);
         _subtitles.Text = string.Join("\n", _lines.Select(l => l.Text));
         if (_autotest) { Autotest(snapshot); }
+        if (_autotestIsland && _clock > 4 && _autotestPhase == 0) { IslandAutotest(); }
     }
 
     /// <summary>

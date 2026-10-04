@@ -44,7 +44,7 @@ public partial class SimHost
         _characterScene = GD.Load<PackedScene>(CharacterModel);
         (_playerBody, _playerAnim) = Spawn();
         _playerBody.AddChild(new Label3D { Text = "you", Position = new Vector3(0, 2.15f, 0), Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, FontSize = 48, OutlineSize = 12, PixelSize = 0.012f, Modulate = new Color(0.4f, 1f, 1f) });
-        AddChild(new MeshInstance3D { Mesh = new PlaneMesh { Size = new Vector2(240, 240) }, Position = new Vector3(10, -0.01f, -6), MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.36f, 0.45f, 0.28f) } });
+        if (_island is null) { AddChild(new MeshInstance3D { Mesh = new PlaneMesh { Size = new Vector2(240, 240) }, Position = new Vector3(10, -0.01f, -6), MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.36f, 0.45f, 0.28f) } }); }
         AddChild(_sun = new DirectionalLight3D { RotationDegrees = new Vector3(-55, 35, 0), ShadowEnabled = true, LightEnergy = 1.0f });
 
         // The dialogue host: classification, DPs and lines for the player's conversation (the panel is M1-19's).
@@ -135,8 +135,13 @@ public partial class SimHost
         if (vital is Sim.Health.VitalState.Downed or Sim.Health.VitalState.Dying or Sim.Health.VitalState.Recovering) { (gait, speed) = (0, 0.5f); }   // 11 §14: crawl
         if (vital == Sim.Health.VitalState.Dead) { input = Vector2.Zero; }
         var moved = input.LengthSquared() > 0;
-        if (moved) { _player += input.Normalized() * speed * delta; }
-        _playerBody!.Position = new Vector3(_player.X, 0, _player.Y);
+        if (moved)
+        {
+            var next = _player + (input.Normalized() * speed * delta);
+            if (_island is null || _island.HeightAt(next.X, next.Y) > -1.2f) { _player = next; }   // wade, but not out to sea (swimming is M2-08)
+        }
+
+        _playerBody!.Position = new Vector3(_player.X, Ground(_player.X, _player.Y), _player.Y);
         if (moved) { _playerBody.Rotation = new Vector3(0, Mathf.Atan2(input.X, input.Y), 0); }
         Animate(_playerAnim, moved, speed / WalkSpeed);
         if (snap.Step != _lastPlayerStep && _runner!.Mode != RunMode.Paused && _player != _lastReportedPlayer)
@@ -168,7 +173,7 @@ public partial class SimHost
             var step = at - p.Last;
             var asleep = (snap.ActivityFlags[i] & Sim.World.ActivityState.Asleep) != 0 || snap.Vital[i] >= (byte)Sim.Health.VitalState.Downed;   // lying down: asleep, down or dead
             var walking = !asleep && delta > 0 && step.Length() / delta > 0.3f;
-            p.Body.Position = new Vector3(at.X, asleep ? 0.15f : 0, at.Y);
+            p.Body.Position = new Vector3(at.X, Ground(at.X, at.Y) + (asleep ? 0.15f : 0), at.Y);
             p.Body.Rotation = asleep ? new Vector3(-Mathf.Pi / 2, 0, 0) : new Vector3(0, walking ? Mathf.Atan2(step.X, step.Y) : -snap.Yaw[i], 0);
             Animate(p.Anim, walking, Math.Clamp(step.Length() / Math.Max(delta, 1e-3f) / WalkSpeed, 0.6f, 2.5f));
             var action = snap.Action[i];
@@ -186,8 +191,9 @@ public partial class SimHost
         _talkTarget = nearest;
 
         // Camera: behind and above the player, north up; wheel zoom.
-        _camera.Position = new Vector3(_player.X, 7.5f * _zoom, _player.Y + (10f * _zoom));
-        _camera.LookAt(new Vector3(_player.X, 1.2f, _player.Y));
+        var ground = Ground(_player.X, _player.Y);
+        _camera.Position = new Vector3(_player.X, ground + (7.5f * _zoom), _player.Y + (10f * _zoom));
+        _camera.LookAt(new Vector3(_player.X, ground + 1.2f, _player.Y));
 
         // Conversation entry; the dialogue panel (M1-19) takes over while one is open.
         _panel!.Text = _dialogue?.Conversation is null && nearest != 0 && !Knapping ? $"[E] talk to {_names.GetValueOrDefault(nearest, "them")}   ·   [P] people" : "";
