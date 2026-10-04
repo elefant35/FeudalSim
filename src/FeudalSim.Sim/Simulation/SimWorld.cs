@@ -25,6 +25,7 @@ public sealed class SimWorld
 
     public SimWorld(ulong worldSeed, long startGameMs = 0, int dayLengthMinutes = SimClock.DefaultDayLengthMinutes)
     {
+        Holdings = new Economy.Holdings(this);
         WorldSeed = worldSeed;
         Clock = new SimClock(startGameMs, dayLengthMinutes);
         Decisions = new DecisionRulesEngine(this);
@@ -56,7 +57,10 @@ public sealed class SimWorld
     public Social.RelationshipStore Relationships { get; }
 
     /// <summary>Coin and goods (M1 prototype of 15's purses and inventories).</summary>
-    public Economy.Holdings Holdings { get; } = new();
+    public Economy.Holdings Holdings { get; }
+
+    /// <summary>Containers and item instances (20 §6.5, 13 §5; M2-09). Saved and hashed.</summary>
+    public Items.InventoryStore Inventory { get; } = new();
 
     /// <summary>Open haggles with the player (15 §5).</summary>
     public Economy.NegotiationStore Negotiations { get; } = new();

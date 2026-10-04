@@ -756,7 +756,7 @@ Total dense data is about **0.6 KB per person**. Variable-size data lives in spa
 | **RelationGraph** | Per person, a contiguous block of edges **sorted by target id** in a pooled arena. `RelationEdge { EntityId Target; short OpinionCached; byte Trust, Familiarity, Fear, Attraction; ulong Tags; int ModifierHead }` (~32 B). Opinion modifiers live in a second arena: `{ ushort Reason; short Value; long ExpiresMinute }` (16 B). | Directed edges (canon §10.6). Binary-search lookup (~150 edges per person). Daily compaction prunes weak, untagged edges under a degree cap; cap and rules owned by [16](../design/16-social-systems.md). |
 | **MemoryStore** | Per person, a salience-ordered pool: `Memory { long Minute; MemoryKind Kind; EntityId Subject, Object; short Valence; ushort Salience; uint EventSeqRef; uint TextRef }` (~48 B) | Active cap (e.g. 256 per person; [16](../design/16-social-systems.md)/[21](21-npc-ai.md) set it). LLM summaries are `TextRef`s into the string arena. |
 | **BeliefStore** | `Belief { ClaimKey; Value; Confidence; Source; LearnedMinute }` | Rumors are beliefs in transit ([16](../design/16-social-systems.md)). |
-| **InventoryStore** | Per container: `Slot { ItemDefHandle; int Qty; byte QualityBucket; EntityId Instance }` | Commodities are quantities; unique crafted items are `ItemInstance` entities. |
+| **InventoryStore** | Per container: `Slot { ItemDefHandle; int Qty; byte QualityBucket; EntityId Instance }` | Commodities are quantities; unique crafted items are `ItemInstance` entities. *Implemented (M2-09, `Sim/Items`):* the slot's quality byte is the stack's exact mean Q (13 §5.9), not a bucket. Slots are sorted by (item, instance), a person's id is their own container, and instances live in the same store with Q, flaw mask, durability and provenance. |
 | **KnowHowStore** | Per person, sorted `(KnowHowHandle, proficiency)` | [12](../design/12-skills-and-professions.md) |
 | **ReputationStore** | (person, community) → renown + 6 axes + competence map | [16](../design/16-social-systems.md) |
 | **StringArena** | Interned UTF-8 strings with ref counts | Components hold `uint` handles, which keeps tables blittable. |
@@ -1135,6 +1135,11 @@ public interface ISaveMigration
 | M0–M2 | None (saves are dev artifacts) |
 | M3–M7 | Best effort between consecutive milestones. Breaking changes are called out in the commit footer `BREAKING-SAVE:`. |
 | M8+ (Early Access) | **Every release loads every earlier EA save.** CI loads a save corpus (small scenario saves in `tests/save-corpus/`; large ones in nightly artifacts). |
+
+*Content handles in saves (M2-09):* inventories, injuries and worn clothing store content handles (indices in ordinal
+id order), so adding an item or flaw shifts the handles after it. Saves are dev artifacts until M3, so this is fine
+for now. A content-id → handle remap on load (save the id table with the image, remap in `ISaveMigration`) is needed
+before saves must survive content changes.
 
 ### 9.6 Autosave and save slots
 

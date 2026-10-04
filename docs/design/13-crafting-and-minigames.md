@@ -424,6 +424,20 @@ UI: grade name always; exact number only if s ≥ 40; maker sees own result exac
 This feeds haggling in [15](15-economy-and-trade.md) (e.g. its `quality_flaw` argument) and
 reputation in [16](16-social-systems.md).
 
+*Implemented (M2-09):*
+- **Quality functions:** `Sim/Items/Quality.cs` has the grades, §5.6's curves, the §5.2 quality function with its
+  whole cap chain (rounded half away from zero — the §5.3 table's 42.5 → 43), flaw caps, and §5.8 appraisal (seeded
+  per viewer and item; flaw sighting per flaw).
+- **Flaws:** content (`content/flaws/flaws.yaml`, 16 flaws). The `hidden_difficulty` values are proposals; the
+  table above gives none.
+- **Inventory:** `InventoryStore` holds per-container slots and the instance table. Commodities stack, and unique
+  items carry Q, flaws, durability and provenance.
+- **Holdings:** people's goods now live there.
+- **Not yet:**
+  - The process model and stage aggregation that produce `PS_proc` (M2-10).
+  - Marks, and `ProductObserved`.
+  - Material features.
+
 ### 5.9 Provenance and maker's marks
 
 Every non-commodity item carries immutable **provenance**: maker id(s) with stage weights, recipe,

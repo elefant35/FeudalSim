@@ -37,6 +37,27 @@ public sealed record ItemDef
 
     /// <summary>Clothing only (11 §9.2): how the item is worn and what it does against cold and rain.</summary>
     public WearDef? Wear { get; init; }
+
+    /// <summary>13 §5.9: commodities stack (a quantity with a mean Q); unique items are instances. Unset: raw, metal,
+    /// food, drink and misc stack; tools, weapons, clothing and containers don't.</summary>
+    public bool? Stackable { get; init; }
+
+    public bool IsStackable => Stackable ?? Category is ItemCategory.Raw or ItemCategory.Metal or ItemCategory.Food or ItemCategory.Drink or ItemCategory.Misc;
+}
+
+/// <summary>13 §5.7 flaw: a partial success's tag — its quality cap, how hard it is to spot (13 §5.8) and its effects.</summary>
+public sealed record FlawDef
+{
+    public required string Id { get; init; }
+    public required string Name { get; init; }
+    public required int Cap { get; init; }
+    public required int HiddenDifficulty { get; init; }
+
+    /// <summary>Stat changes as fractions (durability −0.4, draw −0.1 …); read by the consuming system.</summary>
+    public IReadOnlyDictionary<string, float>? Effects { get; init; }
+
+    public string? Fix { get; init; }
+    public string? Source { get; init; }
 }
 
 /// <summary>11 §9.2 slots; a shirt or shift sits under the tunic (Under), so the homeland kit fills six slots.</summary>
@@ -550,9 +571,10 @@ public sealed class ContentDatabase
         IReadOnlyList<ActionDef>? actions = null, IReadOnlyList<ScheduleDef>? schedules = null,
         IReadOnlyList<OpinionModifierDef>? opinionModifiers = null, IReadOnlyList<ClaimPredicateDef>? claimPredicates = null,
         IReadOnlyList<OverheardLineDef>? overheardLines = null, IReadOnlyList<DecisionDef>? decisions = null, IReadOnlyList<LineTemplateDef>? lines = null,
-        IReadOnlyList<WorldSpecDef>? worldSpecs = null)
+        IReadOnlyList<WorldSpecDef>? worldSpecs = null, IReadOnlyList<FlawDef>? flaws = null)
     {
         WorldSpecs = worldSpecs ?? [];
+        Flaws = flaws ?? [];
         Lines = lines ?? [];
         Decisions = decisions ?? [];
         OverheardLines = overheardLines ?? [];
@@ -590,6 +612,13 @@ public sealed class ContentDatabase
 
     /// <summary>10 §3.1 world-generation profiles (M2-01).</summary>
     public IReadOnlyList<WorldSpecDef> WorldSpecs { get; }
+
+    /// <summary>13 §5.7 flaws (≤ 64: an instance holds them as a bit mask over handles).</summary>
+    public IReadOnlyList<FlawDef> Flaws { get; }
+
+    public int FlawHandle(string id) => HandleOf(Flaws, id, f => f.Id);
+
+    public int ItemHandle(string id) => HandleOf(Items, id, i => i.Id);
 
     public WorldSpecDef? WorldSpec(string id) => WorldSpecs.FirstOrDefault(w => w.Id == id);
     public IReadOnlyList<ProfessionDef> Professions { get; }

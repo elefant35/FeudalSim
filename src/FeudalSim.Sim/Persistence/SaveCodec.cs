@@ -59,6 +59,7 @@ public static class SaveCodec
     public const string PlayerTable = "player";
     public const string WeatherTable = "weather";
     public const string InjuriesTable = "injuries";
+    public const string InventoryTable = "inventory";
     public const string ConfrontationsTable = "confrontations";
     public const string FavorsTable = "favors";
     public const string HoldingsTable = "holdings";
@@ -66,10 +67,18 @@ public static class SaveCodec
 
     private static TableChunk HoldingsChunk(Economy.Holdings store)
     {
-        var (coin, goods) = store.Export();
-        var chunk = new TableChunk { Table = HoldingsTable, RowCount = coin.Length + goods.Length };
+        var coin = store.Export();
+        var chunk = new TableChunk { Table = HoldingsTable, RowCount = coin.Length };
         chunk.Columns.Add(new ColumnBlock { Name = "coin", LayoutVersion = 1, ElementSize = Marshal.SizeOf<Economy.Holdings.CoinRow>(), Data = MemoryMarshal.AsBytes(coin.AsSpan()).ToArray() });
-        chunk.Columns.Add(new ColumnBlock { Name = "goods", LayoutVersion = 1, ElementSize = Marshal.SizeOf<Economy.Holdings.GoodsRow>(), Data = MemoryMarshal.AsBytes(goods.AsSpan()).ToArray() });
+        return chunk;
+    }
+
+    private static TableChunk InventoryChunk(Items.InventoryStore store)
+    {
+        var (slots, instances) = store.Export();
+        var chunk = new TableChunk { Table = InventoryTable, RowCount = slots.Length };
+        chunk.Columns.Add(new ColumnBlock { Name = "slots", LayoutVersion = 1, ElementSize = Marshal.SizeOf<Items.InventoryStore.Row>(), Data = MemoryMarshal.AsBytes(slots.AsSpan()).ToArray() });
+        chunk.Columns.Add(new ColumnBlock { Name = "instances", LayoutVersion = 1, ElementSize = Marshal.SizeOf<Items.ItemInstance>(), Data = MemoryMarshal.AsBytes(instances.AsSpan()).ToArray() });
         return chunk;
     }
 
@@ -245,7 +254,7 @@ public static class SaveCodec
                 LastCommandSeq = world.LastCommandSeq,
             },
             IdCounters = counters,
-            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories), ClaimsChunk(world.Claims), BeliefsChunk(world.Beliefs), RenownChunk(world.Reputation), DecisionsChunk(world.Decisions), AiChunk(world), ConversationsChunk(world.Conversations), PlayerChunk(world.Player), ConfrontationsChunk(world.Confrontations), FavorsChunk(world.Favors), HoldingsChunk(world.Holdings), NegotiationsChunk(world.Negotiations), WeatherChunk(world.WeatherRef), InjuriesChunk(world.Injuries)],
+            Tables = [people, CampChunk(world.Camp), RelationshipsChunk(world.Relationships), MemoriesChunk(world.Memories), ClaimsChunk(world.Claims), BeliefsChunk(world.Beliefs), RenownChunk(world.Reputation), DecisionsChunk(world.Decisions), AiChunk(world), ConversationsChunk(world.Conversations), PlayerChunk(world.Player), ConfrontationsChunk(world.Confrontations), FavorsChunk(world.Favors), HoldingsChunk(world.Holdings), NegotiationsChunk(world.Negotiations), WeatherChunk(world.WeatherRef), InjuriesChunk(world.Injuries), InventoryChunk(world.Inventory)],
         };
     }
 
@@ -415,14 +424,20 @@ public static class SaveCodec
             else { notes.Add("Favors table has an unknown layout; favors dropped."); }
         }
 
-        if (image.Tables.FirstOrDefault(t => t.Table == HoldingsTable) is { } hold
-            && hold.Columns.FirstOrDefault(c => c.Name == "coin") is { } coinCol && hold.Columns.FirstOrDefault(c => c.Name == "goods") is { } goodsCol)
+        if (image.Tables.FirstOrDefault(t => t.Table == HoldingsTable)?.Columns.FirstOrDefault(c => c.Name == "coin") is { } coinCol)
         {
-            if (coinCol.ElementSize == Marshal.SizeOf<Economy.Holdings.CoinRow>() && goodsCol.ElementSize == Marshal.SizeOf<Economy.Holdings.GoodsRow>())
+            if (coinCol.ElementSize == Marshal.SizeOf<Economy.Holdings.CoinRow>()) { world.Holdings.Import(MemoryMarshal.Cast<byte, Economy.Holdings.CoinRow>(coinCol.Data).ToArray()); }
+            else { notes.Add("Holdings table has an unknown layout; coin reset."); }
+        }
+
+        if (image.Tables.FirstOrDefault(t => t.Table == InventoryTable) is { } inv
+            && inv.Columns.FirstOrDefault(c => c.Name == "slots") is { } slotCol && inv.Columns.FirstOrDefault(c => c.Name == "instances") is { } instCol)
+        {
+            if (slotCol.ElementSize == Marshal.SizeOf<Items.InventoryStore.Row>() && instCol.ElementSize == Marshal.SizeOf<Items.ItemInstance>())
             {
-                world.Holdings.Import(MemoryMarshal.Cast<byte, Economy.Holdings.CoinRow>(coinCol.Data).ToArray(), MemoryMarshal.Cast<byte, Economy.Holdings.GoodsRow>(goodsCol.Data).ToArray());
+                world.Inventory.Import(MemoryMarshal.Cast<byte, Items.InventoryStore.Row>(slotCol.Data).ToArray(), MemoryMarshal.Cast<byte, Items.ItemInstance>(instCol.Data).ToArray());
             }
-            else { notes.Add("Holdings table has an unknown layout; holdings reset."); }
+            else { notes.Add("Inventory table has an unknown layout; goods dropped."); }
         }
 
         if (image.Tables.FirstOrDefault(t => t.Table == NegotiationsTable) is { } negs)

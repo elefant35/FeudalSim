@@ -54,6 +54,7 @@ public static class ContentCompiler
         var decisions = new List<(DecisionDef Def, string Rel, Mark Mark)>();
         var lines = new List<LineTemplateDef>();
         var worldSpecs = new List<WorldSpecDef>();
+        var flaws = new List<FlawDef>();
         var repoRoot = Path.GetDirectoryName(Path.GetFullPath(contentRoot).TrimEnd(Path.DirectorySeparatorChar)) ?? contentRoot;
         var seen = new Dictionary<string, string>(StringComparer.Ordinal);
         var files = 0;
@@ -120,6 +121,10 @@ public static class ContentCompiler
 
                             worldSpecs.Add(w);
                             break;
+                        case FlawDef f:
+                            if (f.Cap is < 0 or > 100 || f.HiddenDifficulty is < 0 or > 100) { errors.Add(new(rel, mark.Line, mark.Column, $"{f.Id}: cap and hidden_difficulty are 0–100.")); }
+                            flaws.Add(f);
+                            break;
                         case LineTemplateDef l:
                             if (l.Variants.Count == 0) { errors.Add(new(rel, mark.Line, mark.Column, $"{l.Id}: at least one variant.")); }
                             lines.Add(l);
@@ -155,8 +160,10 @@ public static class ContentCompiler
         var decisionDefs = decisions.Select(d => d.Def).OrderBy(d => d.Id, StringComparer.Ordinal).ToList();
         lines.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         worldSpecs.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
-        var hash = Hash(skills, items, needs, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs, worldSpecs);
-        return new Result(new ContentDatabase(skills, items, needs, hash, assets, audio, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs, lines, worldSpecs), errors, files);
+        flaws.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
+        if (flaws.Count > 64) { errors.Add(new("flaws", 0, 0, "At most 64 flaws (an instance holds them as a bit mask).")); return new Result(null, errors, files); }
+        var hash = Hash(skills, items, needs, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs, worldSpecs, flaws);
+        return new Result(new ContentDatabase(skills, items, needs, hash, assets, audio, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs, lines, worldSpecs, flaws), errors, files);
     }
 
     private static IEnumerable<(JsonNode Node, Mark Mark)> ParseFile(string path, string rel, string kind, JsonSchema schema, List<ContentError> errors)
@@ -271,7 +278,7 @@ public static class ContentCompiler
     private static ulong Hash(IEnumerable<SkillDef> skills, IEnumerable<ItemDef> items, IEnumerable<NeedDef> needs,
         IEnumerable<TraitDef> traits, IEnumerable<CultureDef> cultures, IEnumerable<ProfessionDef> professions,
         IEnumerable<ActionDef> actions, IEnumerable<ScheduleDef> schedules, IEnumerable<OpinionModifierDef> opinionMods, IEnumerable<ClaimPredicateDef> claims, IEnumerable<OverheardLineDef> overheard,
-        IEnumerable<DecisionDef> decisions, IEnumerable<WorldSpecDef>? worldSpecs = null)
+        IEnumerable<DecisionDef> decisions, IEnumerable<WorldSpecDef>? worldSpecs = null, IEnumerable<FlawDef>? flaws = null)
     {
         var h = new XxHash64();
         foreach (var d in worldSpecs ?? []) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }   // M2-01: world generation inputs
@@ -289,6 +296,7 @@ public static class ContentCompiler
         foreach (var d in claims) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
         foreach (var d in overheard) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
         foreach (var d in decisions) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
+        foreach (var d in flaws ?? []) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }   // M2-09
         return h.GetCurrentHashAsUInt64();
     }
 

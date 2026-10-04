@@ -92,6 +92,9 @@
           "rain_resist"
         ],
         "additionalProperties": false
+      },
+      "stackable": {
+        "type": "boolean"
       }
     },
     "required": [

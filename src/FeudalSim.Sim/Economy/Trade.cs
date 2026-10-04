@@ -10,70 +10,73 @@ using MessagePack;
 namespace FeudalSim.Sim.Economy;
 
 /// <summary>
-/// What people own (M1 prototype for 15's purses and 14/15's inventories): coin in farthings and goods by item handle.
-/// Saved and hashed. Real containers, quality per stack and household stores arrive in M2–M3.
+/// What people own: coin in farthings (15's purses), and their goods, which live in the person's own container in the
+/// <see cref="Items.InventoryStore"/> (M2-09; commodities at Q 50 unless made otherwise, unique items as instances).
+/// This API is what trade and theft use; coin is saved and hashed here, goods with the inventory.
 /// </summary>
 public sealed class Holdings
 {
     private readonly SortedDictionary<ulong, long> _coin = [];
-    private readonly SortedDictionary<(ulong Person, int Item), int> _goods = [];
+    private readonly SimWorld _world;
+
+    internal Holdings(SimWorld world) => _world = world;
 
     public long Coin(EntityId person) => _coin.GetValueOrDefault(person.Value);
 
-    public int Goods(EntityId person, int item) => _goods.GetValueOrDefault((person.Value, item));
+    public int Goods(EntityId person, int item) => _world.Inventory.Count(person, item);
 
+    /// <summary>Scenario/dev: sets a person's count of one item (creating or removing goods) and their coin.</summary>
     internal void Set(EntityId person, int item, int qty, long coin)
     {
-        if (item >= 0) { if (qty > 0) { _goods[(person.Value, item)] = qty; } else { _goods.Remove((person.Value, item)); } }
+        if (item >= 0)
+        {
+            var have = Goods(person, item);
+            if (qty < have) { _world.Inventory.Remove(person, item, have - qty); }
+            else if (qty > have) { Give(person, item, qty - have); }
+        }
+
         if (coin > 0) { _coin[person.Value] = coin; } else { _coin.Remove(person.Value); }
+    }
+
+    /// <summary>A faucet for ordinary goods (Q 50): a stack for commodities, new instances for unique items.</summary>
+    internal void Give(EntityId person, int item, int qty)
+    {
+        var def = _world.Content.Items[item];
+        if (def.IsStackable) { _world.Inventory.Add(person, item, qty); return; }
+        for (var k = 0; k < qty; k++)
+        {
+            _world.Inventory.Create(person, item, 50, Items.Quality.MaxDurability(def.Durability ?? 100, 50), _world.Ids.Next(EntityKind.ItemInstance).Value,
+                madeMin: _world.Clock.GameMinute);
+        }
     }
 
     /// <summary>Moves goods from the seller and coin from the buyer at the agreed price. False if either can't.</summary>
     internal bool Settle(EntityId seller, EntityId buyer, int item, int qty, long price)
     {
         if (Goods(seller, item) < qty || Coin(buyer) < price) { return false; }
-        Add(seller, item, -qty);
-        Add(buyer, item, qty);
+        _world.Inventory.Move(seller, buyer, item, qty);
         _coin[buyer.Value] = Coin(buyer) - price;
         _coin[seller.Value] = Coin(seller) + price;
         return true;
     }
 
     /// <summary>Moves goods without payment (a theft, 16 §10). False if the holder lacks them.</summary>
-    internal bool Take(EntityId from, EntityId to, int item, int qty)
-    {
-        if (qty <= 0 || Goods(from, item) < qty) { return false; }
-        Add(from, item, -qty);
-        Add(to, item, qty);
-        return true;
-    }
-
-    private void Add(EntityId person, int item, int delta)
-    {
-        var q = Goods(person, item) + delta;
-        if (q > 0) { _goods[(person.Value, item)] = q; } else { _goods.Remove((person.Value, item)); }
-    }
+    internal bool Take(EntityId from, EntityId to, int item, int qty) => qty > 0 && _world.Inventory.Move(from, to, item, qty);
 
     public struct CoinRow { public ulong Person; public long Coin; }
 
-    public struct GoodsRow { public ulong Person; public int Item, Qty; }
+    internal CoinRow[] Export() => [.. _coin.Select(kv => new CoinRow { Person = kv.Key, Coin = kv.Value })];
 
-    internal (CoinRow[] Coin, GoodsRow[] Goods) Export()
-        => ([.. _coin.Select(kv => new CoinRow { Person = kv.Key, Coin = kv.Value })], [.. _goods.Select(kv => new GoodsRow { Person = kv.Key.Person, Item = kv.Key.Item, Qty = kv.Value })]);
-
-    internal void Import(CoinRow[] coin, GoodsRow[] goods)
+    internal void Import(CoinRow[] coin)
     {
         _coin.Clear();
-        _goods.Clear();
         foreach (var c in coin) { _coin[c.Person] = c.Coin; }
-        foreach (var g in goods) { _goods[(g.Person, g.Item)] = g.Qty; }
     }
 
     internal void HashInto(XxHash64 h)
     {
         Span<byte> b = stackalloc byte[8];
         foreach (var (p, c) in _coin) { BitConverter.TryWriteBytes(b, (long)p); h.Append(b); BitConverter.TryWriteBytes(b, c); h.Append(b); }
-        foreach (var ((p, i), q) in _goods) { BitConverter.TryWriteBytes(b, (long)p); h.Append(b); BitConverter.TryWriteBytes(b, ((long)i << 32) | (uint)q); h.Append(b); }
     }
 }
 

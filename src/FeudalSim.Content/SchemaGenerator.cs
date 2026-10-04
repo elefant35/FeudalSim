@@ -22,6 +22,7 @@ public static class SchemaGenerator
         ("audio", "audio", typeof(AudioEventDef)),
         ("social/claim_predicates.yaml", "claim", typeof(ClaimPredicateDef)),
         ("cultures", "culture", typeof(CultureDef)),
+        ("flaws", "flaw", typeof(FlawDef)),
         ("decisions", "dp", typeof(DecisionDef)),
         ("items", "item", typeof(ItemDef)),
         ("lines", "line", typeof(LineTemplateDef)),

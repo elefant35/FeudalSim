@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=../schemas/flaw.schema.json
+# 13 §5.7 flaws: a failed (or non-catastrophic critically failed) stage attaches its flaw instead of ruining the item.
+# cap = the quality ceiling it imposes; hidden_difficulty = how hard it is to spot on appraisal (13 §5.8; proposed values:
+# the doc gives none); effects are fractions read by the consuming system.
+- { id: flaw.hinge,          name: Hinge,          cap: 55, hidden_difficulty: 35, effects: { durability: -0.4 }, fix: re-tiller (lighter bow), source: uneven tiller }
+- { id: flaw.follows_string, name: Follows the string, cap: 70, hidden_difficulty: 30, effects: { draw: -0.1 }, source: green stave or overdraw }
+- { id: flaw.cold_shut,      name: Cold shut,      cap: 60, hidden_difficulty: 50, effects: { break_heavy: 0.1 }, fix: reforge, source: forge weld too cool }
+- { id: flaw.slag_inclusion, name: Slag inclusion, cap: 65, hidden_difficulty: 45, effects: { durability: -0.25 }, source: poor consolidation }
+- { id: flaw.soft_edge,      name: Soft edge,      cap: 70, hidden_difficulty: 40, effects: { edge: -0.2 }, fix: re-harden, source: late or slow quench }
+- { id: flaw.warp,           name: Warp,           cap: 75, hidden_difficulty: 20, effects: { handling: -0.1 }, fix: straightening stage (30 s), source: uneven quench }
+- { id: flaw.hairline_crack, name: Hairline crack, cap: 50, hidden_difficulty: 45, effects: { holds_liquid: -1 }, source: fast kiln ramp or bubbles }
+- { id: flaw.misfit_joint,   name: Misfit joint,   cap: 60, hidden_difficulty: 25, effects: { wear: 1.0 }, fix: shim or peg, source: loose tenon }
+- { id: flaw.uneven_yarn,    name: Uneven yarn,    cap: 65, hidden_difficulty: 20, effects: { warmth: -0.1 }, source: spinning drift }
+- { id: flaw.mispick,        name: Mispick,        cap: 65, hidden_difficulty: 25, effects: { warmth: -0.1 }, source: weaving drift }
+- { id: flaw.loose_seam,     name: Loose seam,     cap: 70, hidden_difficulty: 15, effects: { durability: -0.3 }, fix: resew, source: stitching drift }
+- { id: flaw.scorched,       name: Scorched,       cap: 45, hidden_difficulty: 5,  effects: { mood: -1 }, source: cooking heat }
+- { id: flaw.undercooked,    name: Undercooked,    cap: 45, hidden_difficulty: 25, effects: { mood: -1, disease_risk: 1 }, source: cooking heat }
+- { id: flaw.off_flavor,     name: Off flavor,     cap: 45, hidden_difficulty: 15, effects: { mood: -1, sour_early: 1 }, source: brewing infection }
+- { id: flaw.tainted_meat,   name: Tainted meat,   cap: 50, hidden_difficulty: 30, effects: { spoil_rate: 1.0 }, fix: trim (loses 10% of the meat), source: gut puncture in dressing }
+- { id: flaw.knot,           name: Knot,           cap: 60, hidden_difficulty: 40, effects: { break_risk: 0.1 }, source: stave or board with a hidden knot }
