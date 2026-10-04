@@ -60,11 +60,13 @@ public class ContentPipelineTests
     public void Id_prefix_must_match_the_folder_kind()
     {
         var root = CopyContent();
-        File.AppendAllText(Path.Combine(root, "items", "tools.yaml"),
+        var tools = Path.Combine(root, "items", "tools.yaml");
+        var index = File.ReadAllLines(tools).Count(l => l.StartsWith("- ", StringComparison.Ordinal));   // the appended entry's position
+        File.AppendAllText(tools,
             "- { id: skill.misplaced, name: Misplaced, category: tool, tier: t0, trade_unit: each, mass_kg: 1, base_value_f: 1 }\n");
         var result = ContentCompiler.Compile(root);
         // The schema's id pattern (^item\.…) rejects it first; the compiler's prefix check is the backstop.
-        result.Errors.ShouldContain(e => e.File == "items/tools.yaml" && e.Message.Contains("/4/id") && e.Message.Contains("pattern"),
+        result.Errors.ShouldContain(e => e.File == "items/tools.yaml" && e.Message.Contains($"/{index}/id") && e.Message.Contains("pattern"),
             string.Join("\n", result.Errors));
     }
 

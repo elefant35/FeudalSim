@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=../schemas/recipe.schema.json
+# 13 §8.1 flint knapping (Masonry, T0, M2). Stages and weights from the spec; labor within its 30–60 game-minute range.
+# Roughing out and thinning are catastrophic (a snap ruins the blade: salvage flakes). Hafting (birch tar, binding) is a
+# separate assembly recipe (M2-11/15).
+- id: recipe.flint_knife
+  output: { item: item.flint_knife }
+  skill: skill.masonry
+  difficulty: 20
+  tier: t0
+  tools:
+    - { tag: tool.hammerstone }
+    - { tag: tool.billet, required: false, cap_without: 55 }
+    - { tag: tool.pressure_flaker, required: false, cap_without: 55 }
+  inputs:
+    - { slot: nodule, tag: stone.flint, qty: 1, weight: 1.0 }
+  stages:
+    - { id: choose,   kind: active, primitive: inspect, labor_min: 5,  weight: 0.10 }
+    - { id: rough,    kind: active, primitive: strike,  labor_min: 15, weight: 0.35, catastrophic: true, flaw: flaw.blunt_edge, wear: 2 }
+    - { id: thin,     kind: active, primitive: strike,  labor_min: 15, weight: 0.30, catastrophic: true, signature: true, flaw: flaw.blunt_edge, wear: 1 }
+    - { id: pressure, kind: active, primitive: trace,   labor_min: 10, weight: 0.25, flaw: flaw.blunt_edge, wear: 1 }
+  salvage_on_ruin: [ { item: item.flint_flake, qty: 3 } ]
+  intensity: light

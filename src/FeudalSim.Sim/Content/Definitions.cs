@@ -42,7 +42,90 @@ public sealed record ItemDef
     /// food, drink and misc stack; tools, weapons, clothing and containers don't.</summary>
     public bool? Stackable { get; init; }
 
+    /// <summary>13 §4.5 / §16.1 tags a recipe can ask for (<c>tool.hammerstone</c>, <c>stone.flint</c>, <c>wood.bow_stave</c> …).</summary>
+    public IReadOnlyList<string>? Tags { get; init; }
+
+    public bool HasTag(string tag) => Tags is { } t && t.Contains(tag);
+
     public bool IsStackable => Stackable ?? Category is ItemCategory.Raw or ItemCategory.Metal or ItemCategory.Food or ItemCategory.Drink or ItemCategory.Misc;
+}
+
+/// <summary>13 §16.1 recipe: a process from inputs to an output through scored and passive stages.</summary>
+public sealed record RecipeDef
+{
+    public required string Id { get; init; }
+    public required RecipeOutput Output { get; init; }
+    public required string Skill { get; init; }
+    public required int Difficulty { get; init; }
+
+    /// <summary>Default min(100, 60 + D): a nail is never a masterwork (13 §5.2).</summary>
+    public int? MaxQuality { get; init; }
+
+    public string? Knowhow { get; init; }
+    public required TechTier Tier { get; init; }
+    public IReadOnlyList<RecipeTool> Tools { get; init; } = [];
+    public IReadOnlyList<RecipeInput> Inputs { get; init; } = [];
+    public required IReadOnlyList<RecipeStage> Stages { get; init; }
+    public IReadOnlyList<RecipeOutput> SalvageOnRuin { get; init; } = [];
+    public ActivityLevel Intensity { get; init; } = ActivityLevel.Moderate;
+
+    public int Cap => MaxQuality ?? Math.Min(100, 60 + Difficulty);
+}
+
+public sealed record RecipeOutput
+{
+    public required string Item { get; init; }
+    public int Qty { get; init; } = 1;
+}
+
+/// <summary>A tool by tag; <c>CapWithout</c> caps quality when an optional tool is missing (13 §8.1).</summary>
+public sealed record RecipeTool
+{
+    public required string Tag { get; init; }
+    public bool Required { get; init; } = true;
+    public int? CapWithout { get; init; }
+}
+
+/// <summary>An input slot: a specific item or any item with a tag; <c>Weight</c> is its share of material quality M.</summary>
+public sealed record RecipeInput
+{
+    public required string Slot { get; init; }
+    public string? Item { get; init; }
+    public string? Tag { get; init; }
+    public int Qty { get; init; } = 1;
+    public float Weight { get; init; } = 1f;
+}
+
+public enum StageKind : byte { Active, Passive, Tend, Assembly }
+
+/// <summary>13 §16.1 stage. Active and assembly stages are scored (weight); passive and tend stages are timers.</summary>
+public sealed record RecipeStage
+{
+    public required string Id { get; init; }
+    public required StageKind Kind { get; init; }
+    public string? Primitive { get; init; }
+    public float LaborMin { get; init; }
+    public float Weight { get; init; }
+    public bool Signature { get; init; }
+    public bool Catastrophic { get; init; }
+    public string? Flaw { get; init; }
+    public int DOffset { get; init; }
+    public StageDays? DurationDays { get; init; }
+
+    /// <summary>Overrun past the ideal window: Q lost per day, and ruin after this many days over (13 §4.3).</summary>
+    public float OverrunQPerDay { get; init; }
+    public float? RuinAfterDays { get; init; }
+
+    /// <summary>Tool durability consumed per labor-hour (13 §4.5).</summary>
+    public float Wear { get; init; } = 1f;
+
+    public bool Scored => Kind is StageKind.Active or StageKind.Assembly;
+}
+
+public sealed record StageDays
+{
+    public required float Min { get; init; }
+    public required float Ideal { get; init; }
 }
 
 /// <summary>13 §5.7 flaw: a partial success's tag — its quality cap, how hard it is to spot (13 §5.8) and its effects.</summary>
@@ -571,8 +654,9 @@ public sealed class ContentDatabase
         IReadOnlyList<ActionDef>? actions = null, IReadOnlyList<ScheduleDef>? schedules = null,
         IReadOnlyList<OpinionModifierDef>? opinionModifiers = null, IReadOnlyList<ClaimPredicateDef>? claimPredicates = null,
         IReadOnlyList<OverheardLineDef>? overheardLines = null, IReadOnlyList<DecisionDef>? decisions = null, IReadOnlyList<LineTemplateDef>? lines = null,
-        IReadOnlyList<WorldSpecDef>? worldSpecs = null, IReadOnlyList<FlawDef>? flaws = null)
+        IReadOnlyList<WorldSpecDef>? worldSpecs = null, IReadOnlyList<FlawDef>? flaws = null, IReadOnlyList<RecipeDef>? recipes = null)
     {
+        Recipes = recipes ?? [];
         WorldSpecs = worldSpecs ?? [];
         Flaws = flaws ?? [];
         Lines = lines ?? [];
@@ -617,6 +701,11 @@ public sealed class ContentDatabase
     public IReadOnlyList<FlawDef> Flaws { get; }
 
     public int FlawHandle(string id) => HandleOf(Flaws, id, f => f.Id);
+
+    /// <summary>13 §16.1 recipes.</summary>
+    public IReadOnlyList<RecipeDef> Recipes { get; }
+
+    public int RecipeHandle(string id) => HandleOf(Recipes, id, r => r.Id);
 
     public int ItemHandle(string id) => HandleOf(Items, id, i => i.Id);
 

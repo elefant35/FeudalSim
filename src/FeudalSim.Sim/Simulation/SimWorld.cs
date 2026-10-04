@@ -62,6 +62,9 @@ public sealed class SimWorld
     /// <summary>Containers and item instances (20 §6.5, 13 §5; M2-09). Saved and hashed.</summary>
     public Items.InventoryStore Inventory { get; } = new();
 
+    /// <summary>Open crafting processes and completions (13 §4; M2-10). Saved and hashed.</summary>
+    public Crafting.ProcessStore Processes { get; } = new();
+
     /// <summary>Open haggles with the player (15 §5).</summary>
     public Economy.NegotiationStore Negotiations { get; } = new();
 
@@ -302,6 +305,41 @@ public sealed class SimWorld
                     People.Lod[row].Tier = c.Tier;
                 }
 
+                break;
+            }
+
+            case StartProcess c:
+            {
+                var row = People.IndexOf(c.Worker);
+                var recipe = Content.RecipeHandle(c.Recipe);
+                if (row < 0 || (command.Source == CommandSource.Player && row != PlayerRow)) { Reject(command, "StartProcess: the player works as themselves."); break; }
+                var container = c.Container.IsNone ? c.Worker : c.Container;
+                if (Crafting.Processes.Start(this, row, recipe, container, c.Masterwork, out _) is { } why) { Reject(command, $"StartProcess: {why}."); }
+                break;
+            }
+
+            case WorkStage c:
+            {
+                if (Processes.Get(c.Process) is not { } proc) { Reject(command, "WorkStage: no such process."); break; }
+                if (command.Source == CommandSource.Player && proc.Worker != PlayerId) { Reject(command, "WorkStage: not your work."); break; }
+                var m = float.IsNaN(c.MinigameM) ? (float?)null : Math.Clamp(c.MinigameM, -1f, 1f);
+                if (Crafting.Processes.Work(this, proc, m, Math.Max(0f, c.RealSeconds)) is { } why) { Reject(command, $"WorkStage: {why}."); }
+                break;
+            }
+
+            case ResumeProcess c:
+            {
+                if (Processes.Get(c.Process) is not { } proc) { Reject(command, "ResumeProcess: no such process."); break; }
+                if (command.Source == CommandSource.Player && proc.Worker != PlayerId) { Reject(command, "ResumeProcess: not your work."); break; }
+                if (Crafting.Processes.Resume(this, proc) is { } why) { Reject(command, $"ResumeProcess: {why}."); }
+                break;
+            }
+
+            case StartBatch c:
+            {
+                var row = People.IndexOf(c.Worker);
+                if (row < 0 || (command.Source == CommandSource.Player && row != PlayerRow)) { Reject(command, "StartBatch: the player works as themselves."); break; }
+                if (Crafting.Processes.Batch(this, row, Content.RecipeHandle(c.Recipe), c.Count, c.Worker) is { } why) { Reject(command, $"StartBatch: {why}."); }
                 break;
             }
 

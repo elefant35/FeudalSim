@@ -30,6 +30,10 @@ public enum CommandSource : byte { Player, Embodiment, Ai, Settings, Scenario, D
 [Union(18, typeof(Steal))]
 [Union(19, typeof(InflictTrauma))]
 [Union(20, typeof(TreatWound))]
+[Union(21, typeof(StartProcess))]
+[Union(22, typeof(WorkStage))]
+[Union(23, typeof(ResumeProcess))]
+[Union(24, typeof(StartBatch))]
 public abstract record StateCommand;
 
 /// <summary>Changes the real-minutes-per-game-day setting (canon §6). Logged; applies at the next step.</summary>
@@ -118,6 +122,24 @@ public sealed record InflictTrauma([property: Key(0)] Core.EntityId Person, [pro
 [MessagePackObject]
 public sealed record TreatWound([property: Key(0)] Core.EntityId Healer, [property: Key(1)] Core.EntityId Patient, [property: Key(2)] ulong Injury,
     [property: Key(3)] byte Procedure) : StateCommand;
+
+/// <summary>13 §4: start a recipe (inputs from <c>Container</c>, default the worker's own carry).</summary>
+[MessagePackObject]
+public sealed record StartProcess([property: Key(0)] Core.EntityId Worker, [property: Key(1)] string Recipe, [property: Key(2)] bool Masterwork = false,
+    [property: Key(3)] Core.EntityId Container = default) : StateCommand;
+
+/// <summary>13 §7.2 minigame contract: work a process's next stage. <c>MinigameM</c> ∈ [−1, +1] is the player's result
+/// (NaN = auto-resolve as an NPC draw); <c>RealSeconds</c> is how long it was played (13 §3.1 paid labor).</summary>
+[MessagePackObject]
+public sealed record WorkStage([property: Key(0)] ulong Process, [property: Key(1)] float MinigameM, [property: Key(2)] float RealSeconds = 0f) : StateCommand;
+
+/// <summary>13 §3.1: resume a held process, paying the owed labor.</summary>
+[MessagePackObject]
+public sealed record ResumeProcess([property: Key(0)] ulong Process) : StateCommand;
+
+/// <summary>13 §12 Batch: n items resolved as NPC draws, from the worker's own carry.</summary>
+[MessagePackObject]
+public sealed record StartBatch([property: Key(0)] Core.EntityId Worker, [property: Key(1)] string Recipe, [property: Key(2)] int Count) : StateCommand;
 
 /// <summary>Scenario/dev: sets a person's holding of one item (−1 for none) and their coin (farthings). M1 has no other source of goods.</summary>
 [MessagePackObject]

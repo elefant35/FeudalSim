@@ -150,6 +150,17 @@ public sealed class InventoryStore
         if (list.Count == 0) { _byContainer.Remove(from); }
     }
 
+    /// <summary>Destroys one instance a holder carries (a tool worn out, an item eaten or burnt): a sink.</summary>
+    internal bool Destroy(EntityId holder, ulong instance)
+    {
+        if (!_byContainer.TryGetValue(holder.Value, out var list)) { return false; }
+        var at = list.FindIndex(s => s.Instance == instance);
+        if (at < 0) { return false; }
+        list.RemoveAt(at);
+        if (list.Count == 0) { _byContainer.Remove(holder.Value); }
+        return _instances.Remove(instance);
+    }
+
     /// <summary>Updates an instance (wear, repair, flaws found); its slot's Q follows.</summary>
     internal void Update(in ItemInstance instance) => _instances[instance.Id] = instance;
 

@@ -28,6 +28,7 @@ public static class SchemaGenerator
         ("lines", "line", typeof(LineTemplateDef)),
         ("needs", "need", typeof(NeedDef)),
         ("professions", "profession", typeof(ProfessionDef)),
+        ("recipes", "recipe", typeof(RecipeDef)),
         ("schedules", "schedule", typeof(ScheduleDef)),
         ("social/opinion_modifiers.yaml", "opinion", typeof(OpinionModifierDef)),
         ("social/overheard_lines.yaml", "overheard", typeof(OverheardLineDef)),

@@ -18,3 +18,4 @@
 - { id: flaw.off_flavor,     name: Off flavor,     cap: 45, hidden_difficulty: 15, effects: { mood: -1, sour_early: 1 }, source: brewing infection }
 - { id: flaw.tainted_meat,   name: Tainted meat,   cap: 50, hidden_difficulty: 30, effects: { spoil_rate: 1.0 }, fix: trim (loses 10% of the meat), source: gut puncture in dressing }
 - { id: flaw.knot,           name: Knot,           cap: 60, hidden_difficulty: 40, effects: { break_risk: 0.1 }, source: stave or board with a hidden knot }
+- { id: flaw.blunt_edge,     name: Blunt edge,     cap: 55, hidden_difficulty: 20, effects: { edge: -0.2 }, source: repeated step fractures in knapping }

@@ -1,0 +1,221 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://feudalsim.dev/schemas/recipe.schema.json",
+  "title": "RecipeDef",
+  "description": "A list of recipe definitions (generated from FeudalSim.Sim.Content.RecipeDef; do not edit).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^recipe(\\.[a-z0-9_]\u002B)\u002B$"
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "string",
+            "minLength": 1
+          },
+          "qty": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "item"
+        ],
+        "additionalProperties": false
+      },
+      "skill": {
+        "type": "string",
+        "minLength": 1
+      },
+      "difficulty": {
+        "type": "integer"
+      },
+      "max_quality": {
+        "type": "integer"
+      },
+      "knowhow": {
+        "type": "string",
+        "minLength": 1
+      },
+      "tier": {
+        "type": "string",
+        "enum": [
+          "t0",
+          "t1",
+          "t2",
+          "t3",
+          "t4"
+        ]
+      },
+      "tools": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "tag": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "cap_without": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "tag"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "inputs": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "slot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "item": {
+              "type": "string",
+              "minLength": 1
+            },
+            "tag": {
+              "type": "string",
+              "minLength": 1
+            },
+            "qty": {
+              "type": "integer"
+            },
+            "weight": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "slot"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "stages": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "active",
+                "passive",
+                "tend",
+                "assembly"
+              ]
+            },
+            "primitive": {
+              "type": "string",
+              "minLength": 1
+            },
+            "labor_min": {
+              "type": "number"
+            },
+            "weight": {
+              "type": "number"
+            },
+            "signature": {
+              "type": "boolean"
+            },
+            "catastrophic": {
+              "type": "boolean"
+            },
+            "flaw": {
+              "type": "string",
+              "minLength": 1
+            },
+            "d_offset": {
+              "type": "integer"
+            },
+            "duration_days": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "number"
+                },
+                "ideal": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "min",
+                "ideal"
+              ],
+              "additionalProperties": false
+            },
+            "overrun_q_per_day": {
+              "type": "number"
+            },
+            "ruin_after_days": {
+              "type": "number"
+            },
+            "wear": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "id",
+            "kind"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "salvage_on_ruin": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "type": "string",
+              "minLength": 1
+            },
+            "qty": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "item"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "intensity": {
+        "type": "string",
+        "enum": [
+          "sleep",
+          "rest",
+          "light",
+          "moderate",
+          "heavy"
+        ]
+      }
+    },
+    "required": [
+      "id",
+      "output",
+      "skill",
+      "difficulty",
+      "tier",
+      "stages"
+    ],
+    "additionalProperties": false
+  }
+}

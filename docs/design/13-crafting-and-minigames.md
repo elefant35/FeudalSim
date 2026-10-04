@@ -180,6 +180,27 @@ stateDiagram-v2
 - **Anyone can continue a WIP** if they have the know-how; the final item's provenance lists every
   contributor with their stage weights (maker = largest weight).
 
+*Implemented (M2-10), `Sim/Crafting`:*
+- **Content:** recipes are a content kind (§16.1 shape, validated). Items carry `tags` for tools and inputs.
+- **Starting:** `Processes.Start` checks tools (carried, best tier then Q) and inputs, consumes the inputs and sets
+  `M`. A missing optional tool applies its `cap_without`.
+- **Working:** `Work` resolves one scored stage with 12's `Resolve()`. The player's m ∈ [−1, 1] is the minigame
+  contract; NaN means auto-resolve as an NPC draw. The RNG is keyed per process and stage, which is the save-scum
+  plumbing §13.1 asks for. Each stage commits its PS and flaw, or ruins the work with salvage. L_eff follows §3.1,
+  with the player's real seconds × 0.8 counted against it. Tools wear per labor-hour and break at zero, and XP is 10
+  per labor-hour.
+- **Clock:** `ProcessSystem` runs the §4.2 machine each game minute: Held with owed labor when the worker goes
+  down, then passive Waiting → Ready → Overrun (Q per day, ruin limit), then completion through §5.2's
+  `Quality.Process`. `ResumeProcess` pays owed labor.
+- **Batch (§12):** needs 3 completions and E − D ≥ +10, resolves whole items as NPC draws, and scales labor ×0.9
+  for 5 or more.
+- **Not yet:**
+  - The paid-labor time-lapse is the client's (a Wait-style speed-up, not built); the sim just keeps the worker busy.
+  - Needs drain at the recipe's intensity during labor (it arrives with the work actions, M2-21).
+  - `tend` check-in events are treated as plain timers.
+  - Stations, team stages, contributors' weights, and Quick Work's real-time saving. Quick Work is a client choice,
+    since auto-resolving any stage is always allowed (§7.5).
+
 ### 4.3 Passive & tend durations (game days unless noted)
 
 | Process | Min | Ideal | Overrun effect |

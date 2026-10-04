@@ -2,6 +2,7 @@
 # Base values in farthings from docs/design/15-economy-and-trade.md §3 (starter price table).
 - { id: item.firewood,      name: Firewood,                 category: raw, tier: t0, trade_unit: bundle 15 kg, mass_kg: 15,  base_value_f: 2 }
 - { id: item.rough_log,     name: Rough log (3 m),          category: raw, tier: t0, trade_unit: each,         mass_kg: 80,  base_value_f: 3 }
-- { id: item.flint_nodules, name: Flint nodules,            category: raw, tier: t0, trade_unit: kg,           mass_kg: 1,   base_value_f: 2 }
+- { id: item.flint_nodules, name: Flint nodules,            category: raw, tier: t0, trade_unit: kg,           mass_kg: 1,   base_value_f: 2, tags: [stone.flint] }
 - { id: item.clay,          name: Clay,                     category: raw, tier: t0, trade_unit: basket 20 kg, mass_kg: 20,  base_value_f: 1 }
 - { id: item.reed_thatch,   name: Reed thatch,              category: raw, tier: t0, trade_unit: bundle,       mass_kg: 5,   base_value_f: 1 }
+- { id: item.flint_flake,   name: Flint flake,              category: raw, tier: t0, trade_unit: each,         mass_kg: 0.05, base_value_f: 0, tags: [stone.flint_flake] }

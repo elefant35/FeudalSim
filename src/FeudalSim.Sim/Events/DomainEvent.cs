@@ -39,6 +39,11 @@ public enum Salience : byte { Trace, Minor, Notable, Major, Historic }
 [Union(30, typeof(PersonDied))]
 [Union(31, typeof(WoundInfected))]
 [Union(32, typeof(WoundTreated))]
+[Union(33, typeof(ProcessStarted))]
+[Union(34, typeof(StageResolved))]
+[Union(35, typeof(ProcessCompleted))]
+[Union(36, typeof(ProcessRuined))]
+[Union(37, typeof(ToolBroke))]
 public abstract record DomainEvent;
 
 [MessagePackObject]
@@ -205,3 +210,23 @@ public sealed record WoundInfected([property: Key(0)] EntityId Person, [property
 [MessagePackObject]
 public sealed record WoundTreated([property: Key(0)] EntityId Healer, [property: Key(1)] EntityId Patient, [property: Key(2)] ulong Injury,
     [property: Key(3)] byte Procedure, [property: Key(4)] float Q, [property: Key(5)] bool Applied) : DomainEvent;
+
+/// <summary>13 §4: a process began (recipe as its handle).</summary>
+[MessagePackObject]
+public sealed record ProcessStarted([property: Key(0)] ulong Process, [property: Key(1)] EntityId Worker, [property: Key(2)] int Recipe) : DomainEvent;
+
+/// <summary>13 §5.2: a scored stage committed (outcome as 12's byte; M is the player's minigame m, NaN for an NPC draw).</summary>
+[MessagePackObject]
+public sealed record StageResolved([property: Key(0)] ulong Process, [property: Key(1)] int Stage, [property: Key(2)] byte Outcome, [property: Key(3)] float Ps, [property: Key(4)] float M) : DomainEvent;
+
+/// <summary>13 §5: a process completed (instance 0 for a commodity stack).</summary>
+[MessagePackObject]
+public sealed record ProcessCompleted([property: Key(0)] ulong Process, [property: Key(1)] EntityId Worker, [property: Key(2)] int Item, [property: Key(3)] int Q, [property: Key(4)] ulong Instance, [property: Key(5)] ulong Flaws) : DomainEvent;
+
+/// <summary>13 §5.2: a catastrophic stage critically failed (or an overrun passed its limit): salvage only.</summary>
+[MessagePackObject]
+public sealed record ProcessRuined([property: Key(0)] ulong Process, [property: Key(1)] EntityId Worker, [property: Key(2)] int Stage) : DomainEvent;
+
+/// <summary>13 §4.5: a tool's condition reached zero.</summary>
+[MessagePackObject]
+public sealed record ToolBroke([property: Key(0)] EntityId Holder, [property: Key(1)] int Item, [property: Key(2)] ulong Instance) : DomainEvent;

@@ -55,6 +55,7 @@ public static class ContentCompiler
         var lines = new List<LineTemplateDef>();
         var worldSpecs = new List<WorldSpecDef>();
         var flaws = new List<FlawDef>();
+        var recipes = new List<(RecipeDef Def, string Rel, Mark Mark)>();
         var repoRoot = Path.GetDirectoryName(Path.GetFullPath(contentRoot).TrimEnd(Path.DirectorySeparatorChar)) ?? contentRoot;
         var seen = new Dictionary<string, string>(StringComparer.Ordinal);
         var files = 0;
@@ -121,6 +122,7 @@ public static class ContentCompiler
 
                             worldSpecs.Add(w);
                             break;
+                        case RecipeDef r: recipes.Add((r, rel, mark)); break;   // checked once items, skills and flaws are loaded
                         case FlawDef f:
                             if (f.Cap is < 0 or > 100 || f.HiddenDifficulty is < 0 or > 100) { errors.Add(new(rel, mark.Line, mark.Column, $"{f.Id}: cap and hidden_difficulty are 0–100.")); }
                             flaws.Add(f);
@@ -161,9 +163,12 @@ public static class ContentCompiler
         lines.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         worldSpecs.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         flaws.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
+        foreach (var (r, rel, mark) in recipes) { ValidateRecipe(r, rel, mark, items, skills, flaws, errors); }
+        if (errors.Count > 0) { return new Result(null, errors, files); }
+        var recipeDefs = recipes.Select(r => r.Def).OrderBy(r => r.Id, StringComparer.Ordinal).ToList();
         if (flaws.Count > 64) { errors.Add(new("flaws", 0, 0, "At most 64 flaws (an instance holds them as a bit mask).")); return new Result(null, errors, files); }
-        var hash = Hash(skills, items, needs, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs, worldSpecs, flaws);
-        return new Result(new ContentDatabase(skills, items, needs, hash, assets, audio, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs, lines, worldSpecs, flaws), errors, files);
+        var hash = Hash(skills, items, needs, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs, worldSpecs, flaws, recipeDefs);
+        return new Result(new ContentDatabase(skills, items, needs, hash, assets, audio, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs, lines, worldSpecs, flaws, recipeDefs), errors, files);
     }
 
     private static IEnumerable<(JsonNode Node, Mark Mark)> ParseFile(string path, string rel, string kind, JsonSchema schema, List<ContentError> errors)
@@ -203,6 +208,36 @@ public static class ContentCompiler
         for (var i = 0; i < list.Count; i++)
         {
             yield return (list[i]!, marks[$"/{i}"]);
+        }
+    }
+
+    private static void ValidateRecipe(RecipeDef r, string rel, Mark m, List<ItemDef> items, List<SkillDef> skills, List<FlawDef> flaws, List<ContentError> errors)
+    {
+        void Err(string msg) => errors.Add(new(rel, (int)m.Line, (int)m.Column, $"{r.Id}: {msg}"));
+        bool ItemExists(string id) => items.Any(i => i.Id == id);
+        bool TagExists(string tag) => items.Any(i => i.Tags?.Contains(tag) == true);
+        if (!ItemExists(r.Output.Item)) { Err($"unknown output item {r.Output.Item}."); }
+        if (!skills.Any(s => s.Id == r.Skill)) { Err($"unknown skill {r.Skill}."); }
+        if (r.Difficulty is < 0 or > 120) { Err("difficulty is 0–120."); }
+        foreach (var t in r.Tools) { if (!TagExists(t.Tag)) { Err($"no item carries tool tag {t.Tag}."); } }
+        foreach (var i in r.Inputs)
+        {
+            if ((i.Item is null) == (i.Tag is null)) { Err($"input {i.Slot} names an item or a tag (exactly one)."); }
+            else if (i.Item is not null && !ItemExists(i.Item)) { Err($"input {i.Slot}: unknown item {i.Item}."); }
+            else if (i.Tag is not null && !TagExists(i.Tag)) { Err($"input {i.Slot}: no item carries tag {i.Tag}."); }
+        }
+
+        foreach (var s in r.SalvageOnRuin) { if (!ItemExists(s.Item)) { Err($"unknown salvage item {s.Item}."); } }
+        if (r.Inputs.Count > 0 && Math.Abs(r.Inputs.Sum(i => i.Weight) - 1f) > 0.01f) { Err("input weights sum to 1 (13 §5.2 M)."); }
+        var scored = r.Stages.Where(s => s.Scored).ToList();
+        if (scored.Count == 0 || Math.Abs(scored.Sum(s => s.Weight) - 1f) > 0.01f) { Err("scored stage weights sum to 1 (13 §5.2)."); }
+        if (r.Stages.Count > 16) { Err("at most 16 stages."); }
+        if (scored.Count(s => s.Signature) != 1) { Err("exactly one signature stage."); }
+        foreach (var s in r.Stages)
+        {
+            if (s.Flaw is { } f && !flaws.Any(x => x.Id == f)) { Err($"stage {s.Id}: unknown flaw {f}."); }
+            if (!s.Scored && s.DurationDays is null) { Err($"stage {s.Id}: passive and tend stages need duration_days."); }
+            if (s.Scored && s.LaborMin <= 0f) { Err($"stage {s.Id}: active stages need labor_min."); }
         }
     }
 
@@ -278,7 +313,7 @@ public static class ContentCompiler
     private static ulong Hash(IEnumerable<SkillDef> skills, IEnumerable<ItemDef> items, IEnumerable<NeedDef> needs,
         IEnumerable<TraitDef> traits, IEnumerable<CultureDef> cultures, IEnumerable<ProfessionDef> professions,
         IEnumerable<ActionDef> actions, IEnumerable<ScheduleDef> schedules, IEnumerable<OpinionModifierDef> opinionMods, IEnumerable<ClaimPredicateDef> claims, IEnumerable<OverheardLineDef> overheard,
-        IEnumerable<DecisionDef> decisions, IEnumerable<WorldSpecDef>? worldSpecs = null, IEnumerable<FlawDef>? flaws = null)
+        IEnumerable<DecisionDef> decisions, IEnumerable<WorldSpecDef>? worldSpecs = null, IEnumerable<FlawDef>? flaws = null, IEnumerable<RecipeDef>? recipes = null)
     {
         var h = new XxHash64();
         foreach (var d in worldSpecs ?? []) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }   // M2-01: world generation inputs
@@ -297,6 +332,7 @@ public static class ContentCompiler
         foreach (var d in overheard) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
         foreach (var d in decisions) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
         foreach (var d in flaws ?? []) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }   // M2-09
+        foreach (var d in recipes ?? []) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }   // M2-10
         return h.GetCurrentHashAsUInt64();
     }
 
