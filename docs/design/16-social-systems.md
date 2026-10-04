@@ -1249,6 +1249,19 @@ replaces the stub in M2. Not yet: rungs 6–7 (no weapons; lethal context), `cha
 is a provocation back (retort 2, threaten 3, shove 5) until someone settles it (≤ 12 exchanges as a safety stop).
 A quarrel left alone for an hour is over.
 
+*M2-26 (2026-10-04):* two §9.4 rules that were specified but not yet in code are now in.
+- **Walking away:** once a quarrel is under way, an NPC↔NPC exchange ends when `E < θ_current − 10`. With the player as a
+  party, the response DP's `walk_away` mass covers this.
+- **Mediation after the fact** (`Social/Mediation.cs`): when a quarrel that reached an argument ends (walked away,
+  backed down, fought out, or idle for an hour), the camp member with the highest `min(Op→A, Op→B) ≥ 20` tries once, at
+  the §9.4 P (authority 0 until 17; the player never stands in as an NPC mediator). Success: Anger −30 for both, the
+  quarrel's grievance slots ×0.7 both ways, and `opinion.reconciled` +5 (#62, h 8 d). A `QuarrelMediated` event is emitted.
+- **A bug fix:** the hour-long expiry of idle quarrels ran only once, at shipmate seeding (misplaced in `SocialSystem`
+  since M1-08), so idle quarrels lingered until the pair's next provocation reset them.
+
+`feudalsim social` (20 worlds × 30 days): brawls 306 → **195** (0.33 per camp-day; still above 18 §16, Q22). The sweep's
+friends per person is in band for **91%** of 100 seeds (was 83%) and 95% of CI's 20 seeds.
+
 *M1-22 (2026-10-04):* NPC **arguments** now reach the ladder as §5.2 says: a persuasion contest
 (`P(win) = σ((Persuasion_i − Persuasion_j)/20)`) picks the loser, who answers the winner's severity-2 provocation
 on the §9 menu (laughing it off and walking away included); the retort rung carries `argued_with_me`. Before this
@@ -2015,3 +2028,7 @@ betray a confidence, an Honest guard asked to ignore a theft) refuse in ≥ 95% 
     (18 §16 scaled). Levers in the doc's own fix order: authority/status terms (17, M4–M5), mediation (§9.4), a
     stronger walk-away at low rungs, the argue weight, or the ladder's noise `ε`. Applied default (reversible): the
     formulas as written; re-measure with `feudalsim social` after each lever.
+    *M2-26 (2026-10-04):* the two §9.4 rules that were written but not in code are now in: the hard end and mediation.
+    Idle quarrels also expire again (see §9.5). Brawls fell from 306 to 195 per 600 camp-days (20 worlds × 30 days),
+    i.e. 0.33 per camp-day, still ≈ 3–11× 18 §16. Friends: 91% of seeds in band (100 × 30; was 83%). **Owner decision
+    still open:** accept the rate until 17's authority/status terms land (M4–M5), or apply one of the later levers now.

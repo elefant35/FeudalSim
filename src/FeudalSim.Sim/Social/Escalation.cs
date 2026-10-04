@@ -40,6 +40,9 @@ public sealed class Confrontation
 
     /// <summary>Allies the responder called (each gets a bystander DP with <c>called</c> set).</summary>
     [Key(13)] public List<ulong> CalledAllies { get; set; } = [];
+
+    /// <summary>The highest rung this quarrel reached (16 §9.4 mediation follows quarrels that reached an argument).</summary>
+    [Key(14)] public byte Peak { get; set; }
 }
 
 /// <summary>Open quarrels by id. State: saved (<c>confrontations</c>) and hashed.</summary>
@@ -72,12 +75,13 @@ public sealed class ConfrontationStore
 
     internal bool Remove(ulong id) => _open.Remove(id);
 
-    /// <summary>Quarrels idle for over an hour are over (rung back to calm).</summary>
-    internal void Expire(long nowMin)
+    /// <summary>Quarrels idle for over an hour are over (rung back to calm); returns them in id order, or null.</summary>
+    internal List<Confrontation>? Expire(long nowMin)
     {
-        List<ulong>? stale = null;
-        foreach (var c in _open.Values) { if (nowMin - c.LastMin > Escalation.QuietAfterMin) { (stale ??= []).Add(c.Id); } }
-        if (stale is not null) { foreach (var id in stale) { _open.Remove(id); } }
+        List<Confrontation>? stale = null;
+        foreach (var c in _open.Values) { if (nowMin - c.LastMin > Escalation.QuietAfterMin) { (stale ??= []).Add(c); } }
+        if (stale is not null) { foreach (var c in stale) { _open.Remove(c.Id); } }
+        return stale;
     }
 
     internal (Confrontation[] Open, ulong LastId) Export() => ([.. _open.Values], _lastId);
@@ -99,7 +103,7 @@ public sealed class ConfrontationStore
             Put((long)c.Id, b); Put((long)c.A.Value, b); Put((long)c.B.Value, b); Put(c.Rung, b); Put(c.LastMin, b);
             Put(BitConverter.SingleToInt32Bits(c.CalmA), b); Put(BitConverter.SingleToInt32Bits(c.CalmB), b); Put(c.Called ? 1 : 0, b);
             Put(c.Exchanges, b); Put((long)c.Responder.Value, b); Put((long)c.Provoker.Value, b); Put(c.Severity, b);
-            Put(BitConverter.SingleToInt32Bits(c.E), b);
+            Put(BitConverter.SingleToInt32Bits(c.E), b); Put(c.Peak, b);
             foreach (var ally in c.CalledAllies) { Put((long)ally, b); }
         }
     }
@@ -252,6 +256,16 @@ public static class Escalation
         var calm = r == conf.A ? conf.CalmA : conf.CalmB;
         if (r == conf.A) { conf.CalmA = 0f; } else { conf.CalmB = 0f; }
         (conf.Responder, conf.Provoker, conf.Severity, conf.E) = (r, p, severity, Pressure(inputs) - calm);
+
+        // 16 §9.4 walking away: once a quarrel is under way, if E < θ_current − 10 the exchange ends. NPC↔NPC only — with the
+        // player as a party the response DP carries walk_away's mass instead (§9.6), so the reply still gets a say.
+        if (conf.Rung >= 1 && conf.E < Theta[conf.Rung] - 10f && !world.IsPlayer(provoker) && !world.IsPlayer(responder))
+        {
+            world.Confrontations.Remove(conf.Id);
+            Mediation.AfterQuarrel(world, conf);
+            return 0;
+        }
+
         return world.Decisions.Open(EscalationOwner.Id, new DpContext(EscalationOwner.Kind, r, p, (long)conf.Id), decider, deadlineSteps);
     }
 

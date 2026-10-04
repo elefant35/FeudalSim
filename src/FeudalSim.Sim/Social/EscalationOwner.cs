@@ -92,19 +92,23 @@ public sealed class EscalationOwner : IDecisionPointOwner
                 Escalation.Emit(world, conf, 5, FightIntent.Subdue, witnesses);
                 EndConversationsOf(world, conf, "fight");
                 BrawlStub.Resolve(world, conf, starter: r, other: p);
+                conf.Peak = Math.Max(conf.Peak, conf.Rung);
                 world.Confrontations.Remove(conf.Id);   // the fight settles it
+                Mediation.AfterQuarrel(world, conf);
                 return;
 
             case "walk_away":
                 conf.Rung = 0;
                 EndConversationsOf(world, conf, "npc");
                 world.Confrontations.Remove(conf.Id);
+                Mediation.AfterQuarrel(world, conf);
                 break;
 
             case "deescalate":
                 conf.Rung = 0;
                 people.Emotions[r].Anger = MathF.Max(0f, people.Emotions[r].Anger - 15f);
                 world.Confrontations.Remove(conf.Id);
+                Mediation.AfterQuarrel(world, conf);
                 break;
 
             case "call_others":
@@ -112,6 +116,7 @@ public sealed class EscalationOwner : IDecisionPointOwner
                 break;
         }
 
+        conf.Peak = Math.Max(conf.Peak, conf.Rung);
         if (conf.Rung >= 2 && world.Confrontations.Get(conf.Id) is not null) { BystanderOwner.OpenFor(world, conf, r, p); }
 
         // Each response is a provocation back (16 §9.2). With the player on the other side it is the player's turn.

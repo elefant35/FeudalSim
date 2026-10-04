@@ -227,6 +227,87 @@ public sealed class EscalationTests
         StateHasher.Hash(restored).ShouldBe(StateHasher.Hash(h.W));
     }
 
+    // ---- M2-26: 16 §9.4 walking away, mediation, quarrels that go quiet -------------------------------------------
+
+    [Fact]
+    public void AQuarrelLeftAloneForAnHour_IsOver()
+    {
+        var h = new Harness { W = Camp.CreateWorld(Content, SerialJobScheduler.Instance) };
+        h.Steps(20);
+        var w = h.W;
+        var conf = w.Confrontations.GetOrCreate(w.People.Ids[1], w.People.Ids[2], w.Clock.GameMinute);
+        conf.Rung = 2;
+        h.Steps((int)(61 * 60_000 / w.Clock.GameMsPerStep) + 2);   // an hour and a minute of game time
+        w.Confrontations.Get(conf.Id).ShouldBeNull();   // regression: Expire ran only once, at shipmate seeding, until M2-26
+        w.Confrontations.Open.ShouldAllBe(c => w.Clock.GameMinute - c.LastMin <= Escalation.QuietAfterMin + 1);
+    }
+
+    [Fact]
+    public void MediationChance_FollowsTheFormula()
+    {
+        var w = Camp.CreateWorld(Content, SerialJobScheduler.Instance);
+        w.Step();
+        var lead = Content.SkillHandle("skill.leadership");
+        var pers = Content.SkillHandle("skill.persuasion");
+        var stubborn = Content.TraitHandle("trait.stubborn");
+        w.People.SkillLevels(3)[lead] = 40;
+        w.People.SkillLevels(3)[pers] = 20;
+        w.People.Personality[1].Traits &= ~(1UL << stubborn);
+        w.People.Personality[2].Traits |= 1UL << stubborn;
+        Mediation.Chance(w, 3, 1, 2).ShouldBe(0.3f + 0.2f + 0.05f - 0.2f, 0.0001f);   // 0.3 + 40/200 + 20/400 − 0.2·1
+    }
+
+    [Fact]
+    public void AFinishedArgument_IsMediatedBySomeoneBothLike_AndSuccessReconciles()
+    {
+        var w = Camp.CreateWorld(Content, SerialJobScheduler.Instance);
+        w.Step();
+        var (a, b, m) = (1, 2, 3);
+        var ids = w.People.Ids;
+        var rel = w.Relationships;
+        rel.ApplyModifier(ids[m], ids[a], "opinion.saved_my_life");
+        rel.ApplyModifier(ids[m], ids[b], "opinion.saved_my_life");
+        rel.ApplyModifier(ids[a], ids[b], "opinion.argued_with_me");
+        rel.ApplyModifier(ids[b], ids[a], "opinion.argued_with_me");
+        var lead = Content.SkillHandle("skill.leadership");
+        w.People.SkillLevels(m)[lead] = 100;
+        w.People.SkillLevels(m)[Content.SkillHandle("skill.persuasion")] = 100;   // P = 0.3 + 0.5 + 0.25 → 1
+        var stubborn = Content.TraitHandle("trait.stubborn");
+        w.People.Personality[a].Traits &= ~(1UL << stubborn);
+        w.People.Personality[b].Traits &= ~(1UL << stubborn);
+        w.People.Emotions[a].Anger = 50f;
+        w.People.Emotions[b].Anger = 20f;
+        var before = rel.Opinion(ids[a], ids[b]);
+
+        var calm = new Confrontation { Id = 900, A = ids[a], B = ids[b], Peak = 1 };
+        Mediation.AfterQuarrel(w, calm);   // never reached an argument: nothing to mediate
+        w.People.Emotions[a].Anger.ShouldBe(50f);
+
+        var quarrel = new Confrontation { Id = 901, A = ids[a], B = ids[b], Peak = 2 };
+        Mediation.AfterQuarrel(w, quarrel);
+        (w.People.Emotions[a].Anger, w.People.Emotions[b].Anger).ShouldBe((20f, 0f));
+        rel.Opinion(ids[a], ids[b]).ShouldBeGreaterThan(before + 5f);   // grievance ×0.7 and reconciled +5
+        var ev = w.Step().Events.Select(e => e.Payload).OfType<QuarrelMediated>().Single();
+        (ev.Mediator, ev.Success).ShouldBe((ids[m], true));
+    }
+
+    [Fact]
+    public void ACalmResponderWalksAway_WhenPressureFallsTenBelowTheCurrentRung()
+    {
+        var h = new Harness { W = Camp.CreateWorld(Content, SerialJobScheduler.Instance) };
+        h.Steps(20);
+        var w = h.W;
+        var (a, b) = (4, 5);
+        ref var pb = ref w.People.Personality[b];
+        pb.Volatility = 10;   // E for a mocking remark at Anger ≈ 0: 16 − 12 + … well under θ_2 − 10 = 15
+        pb.Traits &= ~(1UL << Content.TraitHandle("trait.hot_tempered"));
+        w.People.Emotions[b].Anger = 0f;
+        var conf = w.Confrontations.GetOrCreate(w.People.Ids[a], w.People.Ids[b], w.Clock.GameMinute);
+        conf.Rung = 2;
+        Escalation.Provoke(w, a, b, 1, DeciderKind.Policy, DecisionRulesEngine.ConversationDeadlineSteps).ShouldBe(0UL);
+        w.Confrontations.Between(w.People.Ids[a], w.People.Ids[b]).ShouldBeNull();
+    }
+
     private static string RepoRoot()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);

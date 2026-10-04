@@ -32,6 +32,7 @@ public enum Salience : byte { Trace, Minor, Notable, Major, Historic }
 [Union(23, typeof(NegotiationEnded))]
 [Union(24, typeof(TheftCommitted))]
 [Union(25, typeof(HypothermiaRose))]
+[Union(26, typeof(QuarrelMediated))]
 public abstract record DomainEvent;
 
 [MessagePackObject]
@@ -169,3 +170,7 @@ public sealed record NegotiationEnded([property: Key(0)] ulong Negotiation, [pro
 /// <summary>11 §9.4: a person's hypothermia crossed 50 (confused) or 80 (Downed — incapacitation is M2-06).</summary>
 [MessagePackObject]
 public sealed record HypothermiaRose([property: Key(0)] EntityId Person, [property: Key(1)] int Level) : DomainEvent;
+
+/// <summary>16 §9.4: a third party tried to settle a finished quarrel between A and B (M2-26).</summary>
+[MessagePackObject]
+public sealed record QuarrelMediated([property: Key(0)] ulong Confrontation, [property: Key(1)] EntityId Mediator, [property: Key(2)] EntityId A, [property: Key(3)] EntityId B, [property: Key(4)] bool Success) : DomainEvent;

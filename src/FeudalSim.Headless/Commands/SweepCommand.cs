@@ -98,11 +98,11 @@ public sealed class SweepCommand : Command<SweepSettings>
 
         Directory.CreateDirectory(settings.Out);
         var csv = Path.Combine(settings.Out, $"sweep-{scenario.Id.Replace("scenario.", "", StringComparison.Ordinal)}-{DateTime.UtcNow:yyyyMMdd-HHmmss}.csv");
-        var sb = new StringBuilder("seed,idle_rate,low_need_share,mood_mean,breaking_share,divergence,task_failure,final_food,fire_share,final_hash\n");
+        var sb = new StringBuilder("seed,idle_rate,low_need_share,mood_mean,breaking_share,divergence,task_failure,final_food,fire_share,final_hash,friends,enemies,interactions_per_day,argue_share,insult_share,opinion_p50,opinion_p90,opinion_max,mean_warmth\n");
         foreach (var (seed, run) in results)
         {
             var s = run.Camp!;
-            sb.Append(CultureInfo.InvariantCulture, $"{seed},{s.IdleRate:F4},{s.LowNeedShare:F5},{s.MoodMean:F2},{s.BreakingShare:F4},{s.Divergence:F4},{s.TaskFailure:F4},{s.FinalFood:F0},{s.FireShare:F3},{run.FinalHash:x16}\n");
+            sb.Append(CultureInfo.InvariantCulture, $"{seed},{s.IdleRate:F4},{s.LowNeedShare:F5},{s.MoodMean:F2},{s.BreakingShare:F4},{s.Divergence:F4},{s.TaskFailure:F4},{s.FinalFood:F0},{s.FireShare:F3},{run.FinalHash:x16},{s.FinalFriends:F3},{s.FinalEnemies:F3},{s.InteractionsPerDay:F2},{s.InteractionMix?.GetValueOrDefault("Argue"):F4},{s.InteractionMix?.GetValueOrDefault("Insult"):F4},{s.FriendGates?[4]:F1},{s.FriendGates?[5]:F1},{s.FriendGates?[6]:F1},{s.MeanWarmth:F1}\n");
         }
 
         File.WriteAllText(csv, sb.ToString());

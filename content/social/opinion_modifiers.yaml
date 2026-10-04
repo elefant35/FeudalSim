@@ -48,3 +48,4 @@
 - { id: opinion.cooled_on_me,           number: 59, value: -1,  half_life_days: 6,  stacking: saturate, cap: -20, notes: "Rapport DP; value = −(Familiarity step 1–4)" }
 - { id: opinion.lowballed_me,           number: 60, value: -5,  half_life_days: 8,  stacking: add,      cap: -30, notes: "15 §5.4: −(5 + 20·(g − τ)) for an offer past the insult tolerance; the caller passes the multiplier" }
 - { id: opinion.false_argument,         number: 61, value: -3,  half_life_days: 8,  stacking: add,      cap: -15, notes: "15 §5.6: a haggling argument the listener knows is false (\"tried to cheat me with lies\")" }
+- { id: opinion.reconciled,             number: 62, value: 5,   half_life_days: 8,  stacking: saturate, cap: 5,   notes: "16 §9.4 mediation: a third party settled our quarrel (M2-26)" }

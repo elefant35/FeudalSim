@@ -37,8 +37,11 @@ public sealed class SocialSystem : ISimSystem
             // (the live fallback in Rumors.JEff costs O(people) per call: fine for 24, not for 1,500 — S6).
             rel.SeedShipmates();
             world.Reputation.Recompute();
-        world.Confrontations.Expire(world.Clock.GameMinute);
         }
+
+        // A quarrel left alone for an hour is over (16 §9); a finished argument may be mediated (§9.4). This sat inside the
+        // shipmate-seeding block until M2-26, so idle quarrels never expired (Provoke's reset hid it).
+        if (world.Confrontations.Expire(world.Clock.GameMinute) is { } over) { foreach (var c in over) { Social.Mediation.AfterQuarrel(world, c); } }
 
         var prevMinute = (ctx.GameMs - ctx.DtGameMs) / 60_000;
         var minute = ctx.GameMs / 60_000;
