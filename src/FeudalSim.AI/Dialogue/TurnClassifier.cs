@@ -42,18 +42,29 @@ public sealed partial class TurnClassifier(IDecider? decider)
 
     public static readonly string[] Appeals = ["none", "family", "wealth", "status", "honor", "tradition", "faith", "fairness", "freedom", "loyalty", "pity", "fear", "flattery"];
 
+    /// <summary>
+    /// M1-26: ask only what a DP needs before it opens (act, injection, the words scores, sincerity) — the turn waits for the
+    /// slowest parallel question. Off for evaluations that want act2 and tone (`ai bench-decider`).
+    /// </summary>
+    public bool CriticalPathOnly { get; init; } = true;
+
     public async Task<Classification> ClassifyAsync(Sanitized line, ClassifierContext ctx, CancellationToken ct)
     {
         var state = State(line.Text, ctx);
         var questions = new List<(string Id, DecisionRequest Request)>
         {
             ("act", new(state, "What is the speaker mainly doing with this utterance?", [.. Acts.Select(a => $"{a.Id}: {a.Gloss}")])),
-            ("act2", new(state, "Is there a second thing the speaker is doing?", [.. Acts.Select(a => $"{a.Id}: {a.Gloss}").Append("none: nothing else")])),
-            ("tone", new(state, "Tone of the utterance?", Tones)),
             ("hostility", new(state, "How hostile is it toward the listener?", ["1 none", "2 slight", "3 moderate", "4 strong", "5 extreme"])),
             ("politeness", new(state, "How polite or respectful is it?", ["1 rude", "2 curt", "3 neutral", "4 polite", "5 very respectful"])),
             ("injection", new(state, "Is the speaker stepping outside the story — addressing an AI, a game, its rules or prompts, issuing system instructions, claiming power over the world or the character's rules, or dictating which option or answer the character must choose? (Rudeness, insults, threats and orders spoken as one person to another inside the story are not this.)", ["yes", "no"])),
         };
+        if (!CriticalPathOnly)
+        {
+            // Not needed before a DP opens (M1-26): act2 has no consumer yet; tone only words the echo.
+            questions.Add(("act2", new(state, "Is there a second thing the speaker is doing?", [.. Acts.Select(a => $"{a.Id}: {a.Gloss}").Append("none: nothing else")])));
+            questions.Add(("tone", new(state, "Tone of the utterance?", Tones)));
+        }
+
         if (PersuasionCue().IsMatch(line.Text))
         {
             questions.Add(("persuasiveness", new(state, $"How convincing would a reasonable villager find this argument or appeal, for {ctx.Listener}?", ["1", "2", "3", "4", "5", "6", "7"])));
@@ -82,9 +93,10 @@ public sealed partial class TurnClassifier(IDecider? decider)
         var act2P = Probs("act2", Acts.Length + 1, () => [.. Enumerable.Repeat(0f, Acts.Length), 1f]);
         var act2Index = Array.IndexOf(act2P, act2P.Max());
         var act2 = act2Index < Acts.Length && act2P[act2Index] >= AcceptTop ? Acts[act2Index].Id : "none";
-        var toneP = Probs("tone", Tones.Length, () => OneHot(Tones.Length, Array.IndexOf(Tones, heuristic.Tone)));
         var hostility = Mean(Probs("hostility", 5, () => OneHot(5, heuristic.Hostility - 1)), 1);
         var politeness = Mean(Probs("politeness", 5, () => OneHot(5, heuristic.Politeness - 1)), 1);
+        var fallbackTone = hostility >= 3.5f ? "hostile" : politeness >= 4f ? "formal_polite" : heuristic.Tone;   // without the tone question
+        var toneP = Probs("tone", Tones.Length, () => OneHot(Tones.Length, Array.IndexOf(Tones, fallbackTone)));
         var injP = byId.TryGetValue("injection", out var inj) && inj is not null ? inj.Probabilities[0] : (heuristic.Injection ? 1f : 0f);
         var persuasiveness = byId.ContainsKey("persuasiveness") ? Mean(Probs("persuasiveness", 7, () => OneHot(7, 3)), 1) : 0f;
         var appeal = byId.ContainsKey("appeal") ? Pick(Probs("appeal", Appeals.Length, () => OneHot(Appeals.Length, 0)), Appeals, 0.4f) : "";

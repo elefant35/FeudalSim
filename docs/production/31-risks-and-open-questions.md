@@ -118,6 +118,7 @@ default**, which the plan already assumes. Confirm or override; record the answe
 | D34 | **Leaning in the dialogue prompt** (M1-16 calibration): without it the model is mode-seeking (gap 14.6 pts, lift +7.3) | **Applied (reversible, pending owner):** rules v2.1 shows the policy's pre-drawn pick as a LEANING (gap ≈ 10, lift ≈ +6; still iterating at the M1 gate) | [22 Q16](../tech/22-llm-integration.md#open-questions) |
 | D35 | **Conditional yes when hostile** (M1-16): 16 §5.4's `accept_with_condition` keeps ≈ ⅓ of the mass even at Opinion −60 | **Applied (reversible, pending owner):** keep the formula; refusal suite counts only the unconditional yes | [16 Q21](../design/16-social-systems.md#open-questions), [22 Q17](../tech/22-llm-integration.md#open-questions) |
 | D36 | **NPC↔NPC brawl rate** (M1-22): with arguments on the §9 ladder (16 §5.2) the camp has 0.46 brawls per day for 24 people, ≈ 4–15× 18 §16's target; friends per person 0.47 → 0.22 | **Applied (reversible, pending owner):** keep 16's formulas (no authority/status/mediation in M1); calibrate before M2 with `feudalsim social` | [16 Q22](../design/16-social-systems.md#open-questions) |
+| D37 | **Cloud latency targets** (22 §17.2 #1, M1-26): classification ≤ 0.3 s is below one logprob call (≈ 0.39 s p50), so gesture 1.6 s / first words 2.1 s miss 1.1 / 1.2 s | **Applied (reversible, pending owner):** keep 22's targets; the 0.3 s take keeps the first reaction < 0.4 s (canon §13.5); revisit with the single-call variant or Laya (M4). **Owner: may M1 close with #1 failing, or should targets be revised / M2 wait?** | [22 Q18](../tech/22-llm-integration.md#open-questions) |
 
 ## 3. Per-document open questions
 
@@ -139,6 +140,6 @@ marked **[Resolved — canon v0.2]** in place.
 | [19 Player experience](../design/19-player-experience.md#open-questions) | 7 (1 resolved) |
 | [20 Architecture](../tech/20-architecture.md#open-questions) | 17 (2 resolved) |
 | [21 NPC AI](../tech/21-npc-ai.md#open-questions) | 13 (1 resolved) |
-| [22 LLM integration](../tech/22-llm-integration.md#open-questions) | 17 (1 resolved) |
+| [22 LLM integration](../tech/22-llm-integration.md#open-questions) | 18 (1 resolved) |
 | [30 Roadmap](30-roadmap.md#10-open-questions) | 3 |
 | [32 Art & audio production](32-art-and-audio-production.md#19-open-questions) | 5 |

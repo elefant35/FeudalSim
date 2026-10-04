@@ -2077,6 +2077,13 @@ margin. See [m1-23-cost-latency](../spikes/m1-23-cost-latency.md).
 1.70–1.90 / 3.0 s, deadline expiries 2.5–3.4% — **above target**, bound by the 12-question classification (the slowest
 of 12 parallel calls). Carried to the M1 gate (§17.2 #1).
 
+*M1-26 (calibration finding):* only the questions a DP needs before it opens stay on the critical path (act, injection,
+hostility, politeness; persuasiveness, appeal and sincerity when cued; act2 and tone dropped — act2 had no consumer, tone
+only words the echo): classification p50 **0.71 s**, gesture **1.62 s**, first words **2.10 s**, TTFT 0.63 s (40 live
+turns). With `openrouter-llm` one logprob call is already ≈ 0.39 s p50 (S3) — above the 0.3 s classification target —
+so the gesture cannot reach 1.1 s by trimming. The **take** at 0.3 s (19 §6.4) keeps canon §13.5's first reaction
+under 0.4 s. Open question 18.
+
 | Metric | Cloud p50 / p95 | Local p50 / p95 (recommended spec) |
 |--------|-----------------|-------------------------------------|
 | Neutral reaction after the player's line (beat 1) | ≤ 0.4 s / ≤ 0.8 s | ≤ 0.6 s / ≤ 1.0 s |
@@ -2582,6 +2589,12 @@ by construction).
 17. **Refusal suite vs conditional yes (M1-16):** 16 §5.4 gives `accept_with_condition` `(1 − p)·0.35` whatever the
     relationship, so a hostile NPC's "player-favoring" mass never drops below ≈ 0.33; the refusal suite counts only the
     unconditional grant (`accept_request`, `accept_apology`). Applied default (reversible): that definition; see 16 Q21.
+18. **Cloud latency targets vs the logprob decider (M1-26):** classification ≤ 0.3 s is below one `openrouter-llm` call
+    (p50 ≈ 0.39 s), so gesture ≤ 1.1 s and first words ≤ 1.2 s are not reachable with this provider (measured 1.6 / 2.1 s).
+    Options: revise the cloud targets (gesture ≤ 1.7 s, first words ≤ 2.2 s, keeping the 0.3 s take), the single-call
+    multi-answer variant (§17.2), Laya local (M4), or a faster provider. Applied default (reversible): keep the targets,
+    rely on the take for the first reaction, revisit with Laya / the single-call variant; the owner decides whether M1
+    may close on it (31 D37).
 
 ## Proposed canon additions
 

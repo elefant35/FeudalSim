@@ -131,10 +131,12 @@ public sealed class DialogueInputTests
     {
         var down = new TurnClassifier(new FakeDecider(_ => null));
         var c = await down.ClassifyAsync(Sanitizer.Clean("Thank you kindly, sir."), Ctx, TestContext.Current.CancellationToken);
-        (c.Act, c.Fallbacks, c.Questions).ShouldBe(("thank", 6, 6));   // Core only: no persuasion or apology cue
+        (c.Act, c.Fallbacks, c.Questions).ShouldBe(("thank", 4, 4));   // the critical path only (M1-26): act, hostility, politeness, injection
         var sorry = await down.ClassifyAsync(Sanitizer.Clean("I'm sorry, please forgive me, it was my fault"), Ctx, TestContext.Current.CancellationToken);
         sorry.Act.ShouldBe("apologize");
-        sorry.Questions.ShouldBe(9);   // + persuasiveness, appeal ("please") and sincerity
+        sorry.Questions.ShouldBe(7);   // + persuasiveness, appeal ("please") and sincerity
+        var full = new TurnClassifier(new FakeDecider(_ => null)) { CriticalPathOnly = false };
+        (await full.ClassifyAsync(Sanitizer.Clean("Thank you kindly, sir."), Ctx, TestContext.Current.CancellationToken)).Questions.ShouldBe(6);   // + act2, tone
         var none = new TurnClassifier(null);
         (await none.ClassifyAsync(Sanitizer.Clean("You fool, your axe is rubbish"), Ctx, TestContext.Current.CancellationToken)).Act.ShouldBe("insult");
 
