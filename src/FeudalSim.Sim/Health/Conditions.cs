@@ -14,7 +14,7 @@ public struct Condition
     [MessagePack.Key(0)] public long StageEndsMin;
     [MessagePack.Key(1)] public int Disease;
     [MessagePack.Key(2)] public byte Stage;
-    [MessagePack.Key(3)] public byte Reserved0;
+    [MessagePack.Key(3)] public byte DosePct;   // toxins: % of the lethal dose taken (11 §8.1; 0 = not dose-scaled)
     [MessagePack.Key(4)] public byte Reserved1;
     [MessagePack.Key(5)] public byte Reserved2;
 }
@@ -116,6 +116,25 @@ public static class Conditions
         return true;
     }
 
+    /// <summary>
+    /// 11 §8.1 poisoning by eating: starts the toxin (or adds to a course already running) with the dose taken, as % of
+    /// the lethal dose (capped at 255). Returns whether the toxin is now in them.
+    /// </summary>
+    public static bool Poison(SimWorld world, int row, int toxin, float dose, ulong salt)
+    {
+        var id = world.People.Ids[row];
+        if (toxin < 0 || world.IsDead(row)) { return false; }
+        var pct = (int)MathF.Round(dose * 100f);
+        if (!world.Conditions.Has(id, toxin) && !Infect(world, row, toxin, salt)) { return false; }
+        var list = world.Conditions.ListOf(id)!;
+        for (var k = 0; k < list.Count; k++)
+        {
+            if (list[k].Disease == toxin) { list[k] = list[k] with { DosePct = (byte)Math.Min(255, list[k].DosePct + pct) }; }
+        }
+
+        return true;
+    }
+
     private static Rng Draw(SimWorld world, EntityId id, int disease, int stage, ulong salt)
         => new(SplitMix64.Mix(world.WorldSeed, (ulong)RngStream.Health, id.Value, ((ulong)(uint)disease << 8) | (uint)stage, salt ^ Salt.Condition));
 
@@ -161,7 +180,10 @@ public static class Conditions
     }
 
     private static bool Dies(SimWorld world, int row, DiseaseDef def, Condition c)
-        => def.Grave is not null && Draw(world, world.People.Ids[row], c.Disease, 99, (ulong)c.StageEndsMin).Chance(GraveChance(world, row, def));
+        => def.Grave is not null && Draw(world, world.People.Ids[row], c.Disease, 99, (ulong)c.StageEndsMin).Chance(GraveChance(world, row, def) * DoseFactor(c));
+
+    /// <summary>11 §8.1: below a lethal dose the toxin's fatality scales down (linearly); at or above it, the listed figure.</summary>
+    public static float DoseFactor(in Condition c) => c.DosePct == 0 ? 1f : Math.Min(1f, c.DosePct / 100f);
 
     /// <summary>
     /// The grave branch's death chance for this person now: base × child (&lt; 14) / adult / elder (≥ 65) × malnourished

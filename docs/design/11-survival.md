@@ -830,6 +830,16 @@ The deficiency conditions (Scurvy, Wasting) are in §6.3. That is the whole nutr
 **Rationale:** three groups make foraging greens, root cellars, dried fruit and fishing matter
 without per-vitamin bookkeeping. NPC food choice prefers the group they lack (21).
 
+*Implementation notes (M2-07b-i):* items carry a `food` block (Sat and Hyd per unit, group shares, shelf days, raw
+multiplier and raw poisoning chance). Per-unit values are this table's per-kg figures × the unit's edible mass. Toxic
+look-alikes carry their twin's food value and `toxin_dose` 1.0 (one lethal dose per unit), because they are eaten as
+food. Eating one unit (`Eat`, chosen by what the eater believes it is) applies what it truly is. Satiety is × the raw
+multiplier (there is no cooking yet, so everything counts as raw) × a sick gut's `satiety_absorb`, capped at 100. A
+toxin adds its dose to the course; the grave branch scales with min(1, dose). Raw meat and fish poison with
+`raw_poison_p`. Nutrition is a `Diet` column (Satiety per group, decayed with a 6-day time constant). The camp's
+communal meals count as provisions (staple 0.6, protein 0.4), so a camp living on them alone is *Plain* (2 groups).
+The diet's effects (Comfort, mood, healing), spoilage and rationing are M2-07b-ii.
+
 ### 10.4 Spoilage
 
 Each stack has a **freshness** F from 1 to 0, evaluated lazily on access using its container

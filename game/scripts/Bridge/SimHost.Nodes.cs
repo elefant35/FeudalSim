@@ -52,8 +52,10 @@ public partial class SimHost
         _lookables.Clear();
         foreach (var n in _nodes.Near)
         {
-            if (new Vector2(n.At.X, n.At.Z).DistanceTo(_player) > ReachM + 1f) { continue; }
             var def = _content!.Nodes[n.Type];
+            // Within the sim's reach, less a step of position lag: plants 3 m (Foraging.ReachM), trees 4 m (Processes.SiteProblem).
+            var reach = def.Kind == NodeKind.Tree ? ReachM : Sim.Crafting.Foraging.ReachM - 0.5f;
+            if (new Vector2(n.At.X, n.At.Z).DistanceTo(_player) > reach) { continue; }
             var height = def.Kind switch { NodeKind.Tree => n.State == World.NodeDressing.Felled ? 0.4f : 1.4f, NodeKind.Bush => 0.8f, _ => 0.2f };
             _lookables.Add(new LookTarget(def.Kind.ToString().ToLowerInvariant(), ((ulong)(uint)n.Chunk << 20) | (uint)n.Index, NodeLabel(def, n.Size, n.State), n.At + new Vector3(0, height, 0)));
         }

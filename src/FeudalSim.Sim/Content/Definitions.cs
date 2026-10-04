@@ -38,6 +38,12 @@ public sealed record ItemDef
     /// <summary>A toxin the item carries (11 §8.1): the disease id eating it starts (M2-07).</summary>
     public string? Toxin { get; init; }
 
+    /// <summary>11 §8.1 dose per unit eaten, as a fraction of the lethal dose (severity = 100 × amount ÷ lethal dose).</summary>
+    public float ToxinDose { get; init; } = 1f;
+
+    /// <summary>11 §10.2 food value per unit (M2-07b): what eating one gives, its nutrition groups and raw penalties.</summary>
+    public FoodDef? Food { get; init; }
+
     /// <summary>Clothing only (11 §9.2): how the item is worn and what it does against cold and rain.</summary>
     public WearDef? Wear { get; init; }
 
@@ -51,6 +57,27 @@ public sealed record ItemDef
     public bool HasTag(string tag) => Tags is { } t && t.Contains(tag);
 
     public bool IsStackable => Stackable ?? Category is ItemCategory.Raw or ItemCategory.Metal or ItemCategory.Food or ItemCategory.Drink or ItemCategory.Misc;
+}
+
+/// <summary>11 §10.2–10.3: one unit's food value. Toxic look-alikes carry food values too: people eat what they believe is food.</summary>
+public sealed record FoodDef
+{
+    /// <summary>Satiety per unit (1 Sat = 25 kcal; 1 ration = 100).</summary>
+    public required float Sat { get; init; }
+
+    /// <summary>Hydration per unit (milk, ale).</summary>
+    public float Hyd { get; init; }
+
+    /// <summary>11 §10.3 group shares (staple, protein, fresh), summing to 1.</summary>
+    public required IReadOnlyDictionary<string, float> Groups { get; init; }
+
+    /// <summary>11 §10.4 shelf life in game days at 10 °C in an open store (spoilage: M2-07b-ii).</summary>
+    public float ShelfDays { get; init; } = 1f;
+
+    /// <summary>Eaten without cooking (M2 has no cooking yet): Satiety × <see cref="RawMult"/> and food poisoning with <see cref="RawPoisonP"/>.</summary>
+    public float RawMult { get; init; } = 1f;
+
+    public float RawPoisonP { get; init; }
 }
 
 /// <summary>

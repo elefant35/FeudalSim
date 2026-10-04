@@ -64,6 +64,37 @@
         "type": "string",
         "minLength": 1
       },
+      "toxin_dose": {
+        "type": "number"
+      },
+      "food": {
+        "type": "object",
+        "properties": {
+          "sat": {
+            "type": "number"
+          },
+          "hyd": {
+            "type": "number"
+          },
+          "groups": {
+            "type": "object"
+          },
+          "shelf_days": {
+            "type": "number"
+          },
+          "raw_mult": {
+            "type": "number"
+          },
+          "raw_poison_p": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "sat",
+          "groups"
+        ],
+        "additionalProperties": false
+      },
       "wear": {
         "type": "object",
         "properties": {

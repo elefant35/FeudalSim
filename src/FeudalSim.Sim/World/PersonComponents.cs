@@ -64,6 +64,16 @@ public struct Body
     public float Wetness, Hypothermia;
 }
 
+/// <summary>
+/// 11 §10.3 nutrition (M2-07b): Satiety eaten per group, decayed with a 6-day time constant up to <see cref="AtMin"/>
+/// (so the shares are a rolling 6-day mix). Updated lazily when someone eats.
+/// </summary>
+public struct Diet
+{
+    public float Staple, Protein, Fresh;
+    public long AtMin;
+}
+
 /// <summary>Needs, 0–100 where 100 = fully satisfied (canon §10.5).</summary>
 public struct Needs
 {

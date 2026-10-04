@@ -21,7 +21,7 @@ public partial class SimHost
 
     private LookTarget? _look;
 
-    private bool UiOpen => _dialogue?.Conversation is not null || Knapping || _peoplePage?.Visible == true;
+    private bool UiOpen => _dialogue?.Conversation is not null || Knapping || _peoplePage?.Visible == true || InventoryOpen;
 
     private void InitCamera()
     {
@@ -124,7 +124,7 @@ public partial class SimHost
 
         foreach (var t in _lookables)
         {
-            if (new Vector2(t.At.X, t.At.Z).DistanceTo(_player) > ReachM) { continue; }
+
             var angle = forward.AngleTo(t.At - eye);
             if (angle < bestAngle) { (best, bestAngle) = (t, angle); }
         }

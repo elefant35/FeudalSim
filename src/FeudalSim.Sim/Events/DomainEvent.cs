@@ -48,6 +48,7 @@ public enum Salience : byte { Trace, Minor, Notable, Major, Historic }
 [Union(39, typeof(ItemInspected))]
 [Union(40, typeof(ConditionStarted))]
 [Union(41, typeof(ConditionEnded))]
+[Union(42, typeof(Ate))]
 public abstract record DomainEvent;
 
 [MessagePackObject]
@@ -250,3 +251,7 @@ public sealed record ConditionStarted([property: Key(0)] EntityId Person, [prope
 /// <summary>11 §7: a condition ran its course (immunity follows where the disease gives it).</summary>
 [MessagePackObject]
 public sealed record ConditionEnded([property: Key(0)] EntityId Person, [property: Key(1)] int Disease) : DomainEvent;
+
+/// <summary>11 §10 (M2-07b): someone ate a unit. <c>Item</c> is what it truly was, <c>Seen</c> what they thought; Satiety gained.</summary>
+[MessagePackObject]
+public sealed record Ate([property: Key(0)] EntityId Eater, [property: Key(1)] int Item, [property: Key(2)] int Seen, [property: Key(3)] float Sat) : DomainEvent;

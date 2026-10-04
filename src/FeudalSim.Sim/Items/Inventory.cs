@@ -144,6 +144,27 @@ public sealed class InventoryStore
         return true;
     }
 
+    /// <summary>
+    /// Takes one unit from the first commodity stack its holders see as <paramref name="seen"/> (11 §8.2: a mislabelled
+    /// stack gives up what it truly is). False if there is none.
+    /// </summary>
+    public bool TakeOneSeen(EntityId container, int seen, out int item, out int q)
+    {
+        (item, q) = (-1, 0);
+        if (!_byContainer.TryGetValue(container.Value, out var list)) { return false; }
+        for (var k = 0; k < list.Count; k++)
+        {
+            var s = list[k];
+            if (s.Instance != 0 || s.Seen != seen) { continue; }
+            (item, q) = (s.Item, s.Q);
+            if (--s.Qty == 0) { list.RemoveAt(k); } else { list[k] = s; }
+            if (list.Count == 0) { _byContainer.Remove(container.Value); }
+            return true;
+        }
+
+        return false;
+    }
+
     /// <summary>Moves a quantity between containers, conserving it (the stack keeps its Q; instances move whole).</summary>
     public bool Move(EntityId from, EntityId to, int item, int qty)
     {

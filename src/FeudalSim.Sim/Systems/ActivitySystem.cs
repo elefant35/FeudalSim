@@ -386,6 +386,7 @@ public sealed class ActivitySystem : ISimSystem
                 {
                     gain = MathF.Min(gain, world.Camp.Stock(cons.Stock) / cons.Ratio);
                     world.Camp.AddStock(cons.Stock, -gain * cons.Ratio);
+                    if (cons.Stock == "food" && gain > 0f) { Survival.Eating.Record(world, i, 0.6f * gain, 0.4f * gain, 0f); }   // 11 §10.3: provisions (biscuit, salt pork)
                 }
 
                 SetNeed(ref n, need, Need(n, need) + MathF.Max(0f, gain));

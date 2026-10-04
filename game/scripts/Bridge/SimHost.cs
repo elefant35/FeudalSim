@@ -249,7 +249,7 @@ public partial class SimHost : Node3D
     private Vector2? _autotestWalkTo;
     private float _autotestLookY = 1.4f;   // how high above the ground the autotest looks (a trunk, or a plant at 0.2 m)
     private (int Chunk, int Index)? _islandTarget;
-    private int _foraged, _felled;
+    private int _foraged, _felled, _eaten;
 
     /// <summary>
     /// FP3: walk to the nearest standing tree, look at it, [E] fells it (the stages work themselves), then the nearest
@@ -289,8 +289,8 @@ public partial class SimHost : Node3D
                 break;
             case 4 when t > 2:
                 Expect("the tree shows as a stump", _islandTarget is { } tt && _nodes!.Nearest(_player.X, _player.Y, (d, n, s) => s == World.NodeDressing.Felled) is { } stump && (stump.Chunk, stump.Index) == tt ? 1 : 0, 1, 0);
-                var plant = _nodes!.Nearest(_player.X, _player.Y, (d, n, s) => d.Forage is not null && s == 0 && (d.Seasons.Count == 0 || d.Seasons.Contains(season)));
-                Expect($"an in-season plant to gather ({season})", plant is null ? 0 : 1, 1, 0);
+                var plant = _nodes!.Nearest(_player.X, _player.Y, (d, n, s) => d.Forage is { } f && _content!.Items[_content.ItemHandle(f.Item)].Food is not null && s == 0 && (d.Seasons.Count == 0 || d.Seasons.Contains(season)));
+                Expect($"an in-season food plant to gather ({season})", plant is null ? 0 : 1, 1, 0);
                 if (plant is not { } p) { _autotestPhase = 9; break; }
                 (_autotestWalkTo, _autotestLookY) = (new Vector2(p.At.X, p.At.Z), 0.2f);
                 (_autotestPhase, _islandMark) = (5, _clock);
@@ -306,6 +306,22 @@ public partial class SimHost : Node3D
                 break;
             case 6 when _foraged > 0 || t > 10:
                 Expect("gathered it", _foraged, 1, null);
+                if (_foraged == 0) { _autotestPhase = 9; break; }
+                ToggleInventory();
+                (_autotestPhase, _islandMark) = (7, _clock);
+                break;
+            case 7 when InventoryOpen && _invItems.Any(i => i.Sat >= 0):
+                _invSelected = _invItems.FindIndex(i => i.Sat >= 0);
+                Expect($"[I] lists it as food ({_invItems[_invSelected].Name}, {_invItems[_invSelected].Sat:0} Sat)", 1, 1, 0);
+                InventoryKey(Key.Enter);
+                (_autotestPhase, _islandMark) = (8, _clock);
+                break;
+            case 7 when t > 10:
+                Expect("[I] lists the gathered food", 0, 1, 0);
+                _autotestPhase = 9;
+                break;
+            case 8 when _eaten > 0 || t > 10:
+                Expect("ate it ([Enter] → Eat → Ate)", _eaten, 1, null);
                 _autotestPhase = 9;
                 break;
             case 9:
@@ -452,7 +468,7 @@ public partial class SimHost : Node3D
         var minute = snapshot.GameMs / Sim.Time.SimClock.MsPerGameMinute;
         UpdateSun(snapshot.Weather, minute);
         _overlay.Text = $"FeudalSim · {_scenarioId} · {date} · {snapshot.Weather.Sky} {Sim.Climate.Weather.AirTempC(snapshot.Weather, minute):F0} °C · wind {snapshot.Weather.WindMs:F0} m/s · step {snapshot.Step} · {_stepsPerSecond:F1} steps/s · ×{_timeScale} · {_runner.Mode}\n" +
-                        $"{snapshot.Count - (snapshot.IsPlayer.AsSpan(0, snapshot.Count).Contains(true) ? 1 : 0)} settlers · [Space] pause · [1][2][4][8] speed · {(_play ? "WASD walk · mouse look · Shift jog · Ctrl sprint · [E] interact · [V] view · [K] knap · [Esc] leave · [Tab] mouse" : "WASD/arrows pan · wheel zoom")}" +
+                        $"{snapshot.Count - (snapshot.IsPlayer.AsSpan(0, snapshot.Count).Contains(true) ? 1 : 0)} settlers · [Space] pause · [1][2][4][8] speed · {(_play ? "WASD walk · mouse look · Shift jog · Ctrl sprint · [E] interact · [I] carry/eat · [V] view · [K] knap · [Esc] leave · [Tab] mouse" : "WASD/arrows pan · wheel zoom")}" +
                         (_aiStatus.Length > 0 ? $" · {_aiStatus}" : "");
         if (_play && snapshot.PlayerStaminaMax > 0f)
         {
@@ -524,6 +540,7 @@ public partial class SimHost : Node3D
             if (_play && e.Payload is Sim.Events.TradeOffered or Sim.Events.TradeSettled or Sim.Events.NegotiationEnded) { OnTradeEvent(e.Payload); continue; }
             if (_play && OnKnapEvent(e.Payload)) { continue; }
             if (_play && OnNodeEvent(e.Payload)) { continue; }
+            if (_play && OnEatEvent(e.Payload)) { continue; }
             if (e.Payload is not Sim.Events.AiResultApplied r || string.IsNullOrWhiteSpace(r.Text)) { continue; }
             if (r.UsedFallback || !r.Text.TrimStart().StartsWith('['))
             {
@@ -647,6 +664,7 @@ public partial class SimHost : Node3D
         }
 
         if (_runner is null || @event is not InputEventKey { Pressed: true, Echo: false } key) { return; }
+        if (_play && InventoryKey(key.Keycode)) { return; }
         switch (key.Keycode)
         {
             case Key.Space: TogglePause(); break;
@@ -660,6 +678,7 @@ public partial class SimHost : Node3D
             case Key.K when _play: TryKnap(); break;
             case Key.P when _play: TogglePeople(); break;
             case Key.T when _play: TrySteal(); break;
+            case Key.I when _play && !Knapping && _dialogue?.Conversation is null: ToggleInventory(); break;
         }
     }
 

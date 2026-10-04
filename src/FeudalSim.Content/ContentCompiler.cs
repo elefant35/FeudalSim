@@ -110,7 +110,7 @@ public static class ContentCompiler
                         case AudioEventDef e: ValidateAudio(e, rel, mark, repoRoot, errors); audio.Add(e); break;
                         case TraitDef t: traits.Add((t, rel, mark)); break;
                         case CultureDef c:
-                            foreach (var f in c.FemaleNames ?? [])
+                            foreach (var f in c.FemaleNames ?? Array.Empty<string>())
                             {
                                 if (c.GivenNames?.Contains(f) != true) { errors.Add(new(rel, mark.Line, mark.Column, $"{c.Id}: female name '{f}' is not in given_names.")); }
                             }
@@ -213,6 +213,15 @@ public static class ContentCompiler
         nodes.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         diseases.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         foreach (var it in items.Where(i => i.Toxin is { } t && !diseases.Any(d => d.Id == t))) { errors.Add(new("items", 0, 0, $"{it.Id}: unknown toxin {it.Toxin}.")); }
+        foreach (var it in items.Where(i => i.Food is not null))   // 11 §10.3: three groups, shares summing to 1
+        {
+            var f = it.Food!;
+            if (f.Groups.Keys.Any(k => k is not ("staple" or "protein" or "fresh")) || MathF.Abs(f.Groups.Values.Sum() - 1f) > 0.01f || f.Sat < 0f || f.RawMult is < 0f or > 1f || f.RawPoisonP is < 0f or > 1f)
+            {
+                errors.Add(new("items", 0, 0, $"{it.Id}: food groups are staple/protein/fresh summing to 1; sat ≥ 0; raw_mult and raw_poison_p in [0, 1]."));
+            }
+        }
+
         foreach (var nd in nodes.Where(nd => nd.Confusable is { } c && !nodes.Any(x => x.Id == c))) { errors.Add(new("nodes", 0, 0, $"{nd.Id}: unknown confusable {nd.Confusable}.")); }
         foreach (var nd in nodes.Where(nd => nd.Forage is { } f && !items.Any(i => i.Id == f.Item))) { errors.Add(new("nodes", 0, 0, $"{nd.Id}: unknown forage item {nd.Forage!.Item}.")); }
         if (nodes.Count > 65535) { errors.Add(new("nodes", 0, 0, "At most 65,535 node types.")); }

@@ -247,6 +247,7 @@ public static class SaveCodec
         ("worn", 1, Marshal.SizeOf<Worn>()),                                             // M2-05a
         ("body", 1, Marshal.SizeOf<Body>()),                                             // M2-05a
         ("stamina", 1, Marshal.SizeOf<Stamina>()),                                       // M2-05b
+        ("diet", 1, Marshal.SizeOf<Diet>()),                                             // M2-07b
         ("vitals", 1, Marshal.SizeOf<Health.Vitals>()),                                  // M2-06a
     ];
 
@@ -272,6 +273,7 @@ public static class SaveCodec
         people.Columns.Add(Column("worn", (ReadOnlySpan<Worn>)p.Worn));
         people.Columns.Add(Column("body", (ReadOnlySpan<Body>)p.Body));
         people.Columns.Add(Column("stamina", (ReadOnlySpan<Stamina>)p.Stamina));
+        people.Columns.Add(Column("diet", (ReadOnlySpan<Diet>)p.Diet));
         people.Columns.Add(Column("vitals", (ReadOnlySpan<Health.Vitals>)p.Vitals));
         people.Strings.Add(new StringColumn { Name = "name", Values = p.Names.ToArray() });
 
@@ -340,6 +342,7 @@ public static class SaveCodec
         CopyOrDefault(chunk, "worn", p.Worn, notes, static _ => Worn.None);
         CopyOrDefault(chunk, "body", p.Body, notes, static _ => default);
         CopyOrDefault(chunk, "stamina", p.Stamina, notes, static _ => new Stamina { Value = Survival.StaminaRules.Full });
+        CopyOrDefault(chunk, "diet", p.Diet, notes, static _ => default);
         CopyOrDefault(chunk, "vitals", p.Vitals, notes, static _ => Health.Vitals.Healthy);
 
         foreach (var c in chunk.Columns.Where(c => PeopleColumns.All(k => k.Name != c.Name)))

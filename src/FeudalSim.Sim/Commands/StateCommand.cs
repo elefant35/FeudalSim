@@ -36,6 +36,7 @@ public enum CommandSource : byte { Player, Embodiment, Ai, Settings, Scenario, D
 [Union(24, typeof(StartBatch))]
 [Union(25, typeof(Forage))]
 [Union(26, typeof(InspectItem))]
+[Union(27, typeof(Eat))]
 public abstract record StateCommand;
 
 /// <summary>Changes the real-minutes-per-game-day setting (canon §6). Logged; applies at the next step.</summary>
@@ -146,6 +147,11 @@ public sealed record StartBatch([property: Key(0)] Core.EntityId Worker, [proper
 /// <summary>13 §9.5: a gathering trip to one plant or bush node (chunk, index in the chunk's generated list).</summary>
 [MessagePackObject]
 public sealed record Forage([property: Key(0)] Core.EntityId Worker, [property: Key(1)] int Chunk, [property: Key(2)] int Index) : StateCommand;
+
+/// <summary>11 §10 (M2-07b): eat one unit of something the eater carries, chosen by what they believe it is (<c>Item</c> is the
+/// item as seen; a mislabelled stack is eaten for what it truly is).</summary>
+[MessagePackObject]
+public sealed record Eat([property: Key(0)] Core.EntityId Eater, [property: Key(1)] string Item) : StateCommand;
 
 /// <summary>11 §8.2 second chances: <c>Inspector</c> looks over what <c>Container</c> holds as <c>Item</c> (the label).</summary>
 [MessagePackObject]

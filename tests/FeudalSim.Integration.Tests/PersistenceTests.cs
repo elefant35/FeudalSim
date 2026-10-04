@@ -172,6 +172,7 @@ public sealed class PersistenceTests : IDisposable
             ["attribute_training"] = (1, "Strength:Single@0|Endurance:Single@4|Dexterity:Single@8|Perception:Single@12|Intellect:Single@16|Charisma:Single@20"),
             ["worn"] = (1, "Under:Int16@0|Torso:Int16@2|Legs:Int16@4|Feet:Int16@6|Cloak:Int16@8|Head:Int16@10|Hands:Int16@12|Reserved:Int16@14"),   // M2-05a
             ["body"] = (1, "Wetness:Single@0|Hypothermia:Single@4"),   // M2-05a
+            ["diet"] = (1, "Staple:Single@0|Protein:Single@4|Fresh:Single@8|AtMin:Int64@16"),   // M2-07b
             ["stamina"] = (1, "Value:Single@0|Spent:Single@4|LastSpendStep:Int64@8|WindedUntilStep:Int64@16|GaitUntilStep:Int64@24|Gait:Byte@32|Reserved0:Byte@33|Reserved1:Byte@34|Reserved2:Byte@35"),   // M2-05b
             ["vitals"] = (1, "Blood:Single@0|Bruise:Single@4|Pain:Single@8|Health:Single@12|DownedSinceMin:Int64@16|StableSinceMin:Int64@24|Dehydration:Single@32|Starvation:Single@36|State:VitalState@40|Cause:VitalCause@41|Fever:Byte@42|DiseaseFever:Byte@43"),   // M2-06a
         };
@@ -181,7 +182,7 @@ public sealed class PersistenceTests : IDisposable
             ["lod"] = typeof(LodState), ["wander"] = typeof(WanderState),
             ["attributes"] = typeof(Attributes), ["personality"] = typeof(Personality), ["emotions"] = typeof(Emotions), ["mood"] = typeof(Mood),
             ["activity"] = typeof(ActivityState), ["skill_progress"] = typeof(SkillProgress), ["attribute_training"] = typeof(AttributeTraining),
-            ["worn"] = typeof(Worn), ["body"] = typeof(Body), ["stamina"] = typeof(Stamina), ["vitals"] = typeof(FeudalSim.Sim.Health.Vitals),
+            ["worn"] = typeof(Worn), ["body"] = typeof(Body), ["diet"] = typeof(Diet), ["stamina"] = typeof(Stamina), ["vitals"] = typeof(FeudalSim.Sim.Health.Vitals),
         };
 
         // Every persisted struct column is fingerprinted here (id and the per-row byte columns excepted).

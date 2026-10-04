@@ -47,6 +47,7 @@ public static class StateHasher
         h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<Worn>)people.Worn));
         h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<Body>)people.Body));
         h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<Stamina>)people.Stamina));
+        h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<Diet>)people.Diet));
         h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<Health.Vitals>)people.Vitals));
         world.Injuries.HashInto(h);
         world.Conditions.HashInto(h);

@@ -376,6 +376,10 @@ public sealed class SimWorld
                 Crafting.Foraging.Inspect(this, command, c);
                 break;
 
+            case Eat c:
+                Survival.Eating.Command(this, command, c);
+                break;
+
             case TreatWound c:
                 Health.Treatment.Command(this, command, c);
                 break;

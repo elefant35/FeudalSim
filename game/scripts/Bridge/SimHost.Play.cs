@@ -58,6 +58,7 @@ public partial class SimHost
         InitDialogue();
         InitKnapping();
         InitCamera();
+        InitInventory();
 
         _panel = new Label { Position = new Vector2(12, 300), Size = new Vector2(760, 220), AutowrapMode = TextServer.AutowrapMode.WordSmart };
         _panel.AddThemeColorOverride("font_color", new Color(1, 0.95f, 0.8f));
