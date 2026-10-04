@@ -44,6 +44,43 @@ public partial class SimHost : Node3D
             InstanceCount = 0,
         };
         GD.Print($"SimHost: started {scenario.Id} (seed {scenario.Seed}, {scenario.Settlers} settlers); content {compiled.Database!.Hash:x16}");
+        PlaceTrees();
+        StartCampfireAudio(compiled.Database!);
+    }
+
+    /// <summary>M0-A4: the generated pine (art pipeline → .glb → Godot import) placed around the camp.</summary>
+    private void PlaceTrees()
+    {
+        var pine = GD.Load<PackedScene>("res://assets/flora/pine_a.glb");
+        for (var i = 0; i < 14; i++)
+        {
+            var angle = i * 0.449f + 0.3f;   // deterministic ring, no randomness in the client
+            var radius = 26f + (i % 4) * 5f;
+            var tree = pine.Instantiate<Node3D>();
+            tree.Position = new Vector3(10 + Mathf.Cos(angle) * radius, 0, -6 + Mathf.Sin(angle) * radius);
+            tree.RotationDegrees = new Vector3(0, i * 37, 0);
+            tree.Scale = Vector3.One * (0.9f + (i % 3) * 0.15f);
+            AddChild(tree);
+        }
+
+        GD.Print("SimHost: placed 14 × res://assets/flora/pine_a.glb");
+    }
+
+    /// <summary>M0-AU3: play a sound through its content mapping (content/audio/events.yaml → AudioStreamPlayer3D).</summary>
+    private void StartCampfireAudio(Sim.Content.ContentDatabase content)
+    {
+        var mapping = content.Audio.FirstOrDefault(a => a.Id == "audio.world.campfire");
+        if (mapping is null) { GD.PushWarning("audio.world.campfire is not mapped"); return; }
+        var stream = GD.Load<AudioStreamWav>("res://" + mapping.Files[0]["game/".Length..]);
+        if (mapping.Loop)
+        {
+            stream.LoopMode = AudioStreamWav.LoopModeEnum.Forward;
+            stream.LoopEnd = (int)(stream.GetLength() * stream.MixRate);
+        }
+
+        var player = new AudioStreamPlayer3D { Stream = stream, Position = new Vector3(10, 0.5f, -6), UnitSize = 6, Autoplay = true };
+        AddChild(player);
+        GD.Print($"SimHost: audio {mapping.Id} → {mapping.Files[0]} (bus {mapping.Bus}, loop {mapping.Loop}, spatial {mapping.Spatial}), playing {player.Playing || player.Autoplay}");
     }
 
     public override void _Process(double delta)
@@ -98,5 +135,6 @@ public partial class SimHost : Node3D
     {
         _runner?.Dispose();
         _jobs?.Dispose();
+        _settlers.Multimesh = null;   // release the MultiMesh/CapsuleMesh before engine shutdown
     }
 }
