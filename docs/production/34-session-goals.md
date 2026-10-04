@@ -68,6 +68,18 @@ Replace `<SPIKE>` (e.g. `S1 Crowd render`, `S3 Fast decider`, `S6 Sim scale`).
 /goal Run spike <SPIKE> from docs/production/30-roadmap.md section 4 to a clear answer. The goal is met when the transcript shows the measurements the spike's pass condition requires, a short write-up exists at docs/spikes/<spike-id>.md stating pass or fail with the numbers and the exact setup, 33-progress.md records the result, any ADR whose "Revisit if" clause the result triggers has been updated, and everything is committed. Stop and report if the spike needs hardware, accounts or spend that the tracker does not approve, or after 40 turns.
 ```
 
+## Goal F — Overnight: as many milestones as possible
+
+For unattended runs (the owner asleep). It keeps going across milestones instead of stopping at owner-only work: playtests,
+asset approvals and undelegated choices are marked *awaiting owner* (with the doc's reversible default applied and
+logged), and the session ends with a morning summary in the tracker. The full game won't fit in one night. Expect
+a session to finish several M1 items, or a milestone at most, before a stop condition (turns, spend, blockers).
+Paste the same goal again to continue; the tracker holds the state.
+
+```text
+/goal Develop FeudalSim milestone by milestone, M1 through M8, overnight and unattended, using the /advance-plan skill one verified work item at a time. Scope, order, approvals and blockers come from docs/production/33-progress.md; milestones and exit criteria from docs/production/30-roadmap.md; canon in docs/01-canon.md wins. Rules: (a) Every item is implemented, verified with command output shown in the transcript, recorded [x] with evidence in 33-progress.md, committed and pushed to origin/main (never force-push). (b) Never weaken a test, band, exit criterion or guard to make it pass; if a target looks wrong, record a calibration finding and an open question in the owning doc and 31-risks-and-open-questions.md. (c) Owner-only work (playtests with people, approving an asset's look, choices the tracker doesn't delegate): don't block on it. Mark the item 'awaiting owner' with what is needed. For a design choice, apply the doc's recommended default if it is reversible, record it under Owner decisions pending, and move on. (d) When a milestone's remaining items are all awaiting owner, run /advance-plan gate for everything else, mark the milestone 'complete except owner items' in the tracker, list the next milestone's breakdown, and continue with next-milestone items whose dependencies (30 section 3) are met. (e) Before each milestone transition, a fresh dotnet build, dotnet test, content validate, schemas check, the determinism smoke with --threads 4, the camp sweep and the Godot autotest all pass, with output shown. (f) Keep CLAUDE.md rules: sim purity, determinism, content as data, allocation-free hot paths, no keys printed or committed, assets with license entries, no binaries without Git LFS. (g) Use the advisor before each new milestone and before declaring a milestone done. The goal is met when 33-progress.md shows M8 complete (owner items aside) with the final checks passing in this session, or it stops early. Stop early, write a morning summary in 33-progress.md (done, awaiting owner, decisions taken on your behalf, spend, next step), commit, push, and report if: LLM spend this session would exceed $15 (keep the running tally in 33); the same failure survives three different fix attempts and nothing else can proceed; every remaining item is blocked on the owner; a needed install, account or purchase isn't approved in the tracker; git or CI is broken in a way you can't fix safely; or 600 turns have passed.
+```
+
 ---
 
 ## Writing your own goals
