@@ -38,7 +38,7 @@ public sealed class InteractionSystem : ISimSystem
     private Belief? _warning;
 
     // The claim voiced in this interaction and the listener's choice (for overheard rendering); −1 if none.
-    private int _voiced = -1;
+    private int _voiced = -1, _voicedBy = -1;
     private ToldOption _voicedOption;
     private long _overheardRequest = -1;
 
@@ -181,7 +181,7 @@ public sealed class InteractionSystem : ISimSystem
             case Kind.Warn:
                 // The listener learns what is said about them (16 §5.2): the claim at the warner's word, and a loyal act.
                 _warning!.ToldTo.Add(b.Value);
-                (_voiced, _voicedOption) = (_warning.Claim, Rumors.Hear(world, j, i, _warning.Claim, _warning.C, _warning.Hop + 1, ref rng));
+                (_voiced, _voicedOption, _voicedBy) = (_warning.Claim, Rumors.Hear(world, j, i, _warning.Claim, _warning.C, _warning.Hop + 1, ref rng), i);
                 rel.TrustEvidence(b, a, 2f);
                 mem.Remember(b, MemoryKind.Warned, a, b, now, 20, 1f, 0f, 30);
                 break;
@@ -296,7 +296,10 @@ public sealed class InteractionSystem : ISimSystem
         world.Emit(Salience.Trace, a, new InteractionResolved(a, b, KindNames[(int)kind], success));
         if (world.Player.Present && (_overheardRequest < 0 || !world.IsAiPending(_overheardRequest)) && (Near(world, i) || Near(world, j)))
         {
-            _overheardRequest = Overheard.Request(world, i, j, KindNames[(int)kind], success, _voiced, _voicedOption);
+            // The facts' "a" is whoever voiced the claim (the responder, when only the share-back carried news).
+            _overheardRequest = _voiced >= 0 && _voicedBy == j
+                ? Overheard.Request(world, j, i, KindNames[(int)kind], success, _voiced, _voicedOption)
+                : Overheard.Request(world, i, j, KindNames[(int)kind], success, _voiced, _voicedOption);
         }
     }
 
@@ -316,7 +319,7 @@ public sealed class InteractionSystem : ISimSystem
         var jNov = world.Content.ClaimPredicates[claim.Predicate].Juiciness * Rumors.Nov(world, topic, claim);
         if (!rng.Chance(rate * Rumors.PShare(world, teller, jNov)) || !rng.Chance(tell / (tell + 0.6f))) { return false; }
         var (option, heard) = Rumors.Exchange(world, teller, listener, topic, ref rng);
-        if (_voiced < 0) { (_voiced, _voicedOption) = (heard, option); }
+        if (_voiced < 0) { (_voiced, _voicedOption, _voicedBy) = (heard, option, teller); }
         ref readonly var pl = ref world.People.Personality[listener];
         if (pl.HasTrait(_gossip) || pl.Sociability >= 65) { world.Relationships.ApplyModifier(world.People.Ids[listener], world.People.Ids[teller], "opinion.chatted"); }
         return true;

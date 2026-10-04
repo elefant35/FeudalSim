@@ -651,7 +651,9 @@ A grant also gives `helped_my_work`. Insult adds the modifier and 21 §6.1 anger
 per day, kept on the edge. Interactions don't refill the Social need; the `socialize` action does (40/h). A +10 per
 chat let idle time displace socializing and pushed the idle rate out of band. **Camp sweep (100 seeds × 30 days):**
 5.5 initiations / person / day (≈ 11 participations), of which chat 70 %, joke 21 %, request 5 %, argue 2 %, praise 1 %,
-comfort/insult/apology < 1 %. Friends form in 87 % of seeds (0.09 / person by day 30). Talk alone saturates near Op 20 (`chatted` + `joked_together` caps), so friendship
+comfort/insult/apology < 1 %. Friends form in 87 % of seeds (0.09 / person by day 30). *(M1-07a:)* gossip is 6 % of the mix against 20 %,
+because the camp's only claim supply is `helped` plus rare insults. It should rise once thefts, courting and work
+claims exist (M1-08 onward). Talk alone saturates near Op 20 (`chatted` + `joked_together` caps), so friendship
 needs help, comfort or rapport, as in §4.13. All 21 §19 bands hold.
 
 ### 5.7 Rendering (interface to [22-llm-integration](../tech/22-llm-integration.md))

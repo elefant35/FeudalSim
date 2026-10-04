@@ -187,10 +187,11 @@ public static class Rumors
         ref readonly var claim = ref world.Claims[b.Claim];
         EntityId a = people.Ids[teller], l = people.Ids[listener], subject = new(claim.Subject);
         if (l == subject || b.QuietUntilMin > now) { return 0f; }
+        var def = world.Content.ClaimPredicates[claim.Predicate];
+        if (a == subject && def.Valence == ClaimValence.Negative) { return 0f; }   // nobody spreads their own misdeed
         foreach (var t in b.ToldTo) { if (t == l.Value) { return 0f; } }
 
         ref readonly var pa = ref people.Personality[teller];
-        var def = world.Content.ClaimPredicates[claim.Predicate];
         var discretion = 1f;
         if (def.Valence == ClaimValence.Negative && pa.Values.Loyalty >= 60 && world.Relationships.TryGet(a, subject, out var mine) && (mine.Tags & RelTags.CloseFriend) != 0) { discretion *= 0.3f; }
         if (pa.HasTrait(h.Honest) && b.C < 0.7f) { discretion *= 0.5f; }

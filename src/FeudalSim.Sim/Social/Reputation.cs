@@ -62,6 +62,7 @@ public sealed class ReputationStore
         return Math.Clamp(sum / 100f, -25f, 25f);
     }
 
+    // The cache is written on read: Opinion → Derived → D9 must stay off jobbed (parallel) row loops.
     private (RepAxes Full, RepAxes Third) Impressions(EntityId holder, EntityId subject)
     {
         var day = _world.Clock.GameMinute / 1440;

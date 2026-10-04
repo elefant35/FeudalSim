@@ -37,6 +37,11 @@ public sealed class OverheardTests
         requests.ShouldAllBe(r => r.Kind == AiTaskKind.Overheard && r.Priority == AiPriority.Proximate);
         requests.ShouldAllBe(r => r.DeadlineStep - r.IssuedStep == Sim.Systems.InteractionSystem.OverheardDeadlineSteps);
         requests.ShouldAllBe(r => r.Context.Contains("\"setting\":") && r.Context.Contains("\"names\":["));
+        foreach (var r in requests)   // the hand-built facts must be valid JSON, or every render would fail as a provider error
+        {
+            var facts = System.Text.Json.Nodes.JsonNode.Parse(r.Context)!.AsObject();
+            facts["names"]!.AsArray().Select(n => (string)n!).ShouldContain((string)facts["a"]!["name"]!);
+        }
         applied.Count.ShouldBe(requests.Count - w.PendingAiRequests);
         applied.ShouldAllBe(a => a.UsedFallback && a.ProviderTag == "fallback:deadline");
         applied.ShouldAllBe(a => a.Text.Contains("Settler "));   // a filled template subtitle
