@@ -1,0 +1,234 @@
+[
+  {
+    "id": "asset.hunting_p2.wooden_spear",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/hunting/hunting.py",
+      "params": {
+        "item": "wooden_spear",
+        "seed": 701
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/wooden_spear.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 340,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P2 primitive hunting/combat equipment; own-work palette geometry."
+  },
+  {
+    "id": "asset.hunting_p2.sling",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/hunting/hunting.py",
+      "params": {
+        "item": "sling",
+        "seed": 701
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/sling.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 208,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P2 primitive hunting/combat equipment; own-work palette geometry."
+  },
+  {
+    "id": "asset.hunting_p2.self_bow",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/hunting/hunting.py",
+      "params": {
+        "item": "self_bow",
+        "seed": 701
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/self_bow.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 412,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P2 primitive hunting/combat equipment; own-work palette geometry."
+  },
+  {
+    "id": "asset.hunting_p2.arrows",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/hunting/hunting.py",
+      "params": {
+        "item": "arrows",
+        "seed": 701
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/arrows.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 144,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P2 primitive hunting/combat equipment; own-work palette geometry."
+  },
+  {
+    "id": "asset.hunting_p2.round_shield",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/hunting/hunting.py",
+      "params": {
+        "item": "round_shield",
+        "seed": 701
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/round_shield.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 416,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P2 primitive hunting/combat equipment; own-work palette geometry."
+  },
+  {
+    "id": "asset.hunting_p2.deer_carcass",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/hunting/hunting.py",
+      "params": {
+        "item": "deer_carcass",
+        "seed": 701
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/deer_carcass.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 514,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P2 primitive hunting/combat equipment; own-work palette geometry."
+  },
+  {
+    "id": "asset.hunting_p2.hide_frame",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/hunting/hunting.py",
+      "params": {
+        "item": "hide_frame",
+        "seed": 701
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/hide_frame.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 316,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P2 primitive hunting/combat equipment; own-work palette geometry."
+  },
+  {
+    "id": "asset.hunting_p2.snare",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/hunting/hunting.py",
+      "params": {
+        "item": "snare",
+        "seed": 701
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/props/snare.glb"
+    ],
+    "budget_class": "prop_handheld",
+    "measured": {
+      "tris_lod0": 328,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "P2 primitive hunting/combat equipment; own-work palette geometry."
+  }
+]
