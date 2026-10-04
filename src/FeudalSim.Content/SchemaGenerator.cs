@@ -32,6 +32,7 @@ public static class SchemaGenerator
         ("social/overheard_lines.yaml", "overheard", typeof(OverheardLineDef)),
         ("skills", "skill", typeof(SkillDef)),
         ("traits", "trait", typeof(TraitDef)),
+        ("world", "worldspec", typeof(WorldSpecDef)),
     ];
 
     public static string Generate(string kind, Type type)

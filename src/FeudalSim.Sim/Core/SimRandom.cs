@@ -28,6 +28,12 @@ public static class Salt
     public const uint LieTest = 16;
     public const uint PersonName = 17;
     public const uint TheftDetect = 18;
+    public const uint WorldGenLandmass = 19;
+    public const uint WorldGenRelief = 20;
+    public const uint WorldGenErosion = 21;
+    public const uint WorldGenLithology = 22;
+    public const uint WorldGenHydrology = 23;
+    public const uint WorldGenCoast = 24;
 }
 
 /// <summary>SplitMix64 finalizer-based mixing (Steele, Lea &amp; Flood 2014).</summary>

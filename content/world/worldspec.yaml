@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../schemas/worldspec.schema.json
+# 10 §3.1: the hard constraints and target bands of world generation ([min, max]). M2-01 reads the landmass, relief,
+# rivers, estuary and lakes bands; deposits, landing and expedition sites join with stages 9-10 (M2-01b/c).
+- id: worldspec.farstrand_default
+  region_m: 8192
+  land_area_km2: [35, 45]
+  relief_archetype_weights: { spine: 0.40, massif: 0.35, twin_ridges: 0.25 }
+  peak_m: [900, 1250]
+  rivers_major: [2, 4]
+  estuary: { primary: 1, secondary_chance: 0.3, mouth_width_m: [300, 900], tidal_reach_m: [1500, 3000] }
+  lakes: { count: [2, 6], min_area_ha: 2, at_least_one_over_ha: 10 }
+  biome_share:
+    coast_dunes: [0.05, 0.09]
+    meadow: [0.12, 0.20]
+    broadleaf: [0.22, 0.32]
+    pine: [0.08, 0.15]
+    wetland: [0.05, 0.10]
+    river_valley: [0.07, 0.12]
+    hills_moor: [0.10, 0.16]
+    highland: [0.05, 0.10]
+  deposits:
+    tin_placer: { count: [1, 2], min_path_m_from_landing: 2000 }
+    hill_iron: { count: [2, 3], min_m_from_breadbasket: 3000 }
+    copper: { count: [2, 4], at_least_one_within_path_m_of_landing: 4000 }
+    bog_iron: { count: [2, 5], at_least_one_within_path_m_of_landing: 3000 }
+    galena: { count: [1, 1] }
+    sea_coal: { count: [0, 1], chance: 0.5 }
+  landing:
+    fresh_water_within_m: 400
+    flint_within_m: 1000
+    clay_within_m: 1500
+    broadleaf_within_m: 600
+    fertile_ha_within1500m: 40   # 10 §3.1 fertile_ha_within_1500m (snake-case of the C# name)
+    wreck_reef_offshore_m: [150, 300]
+  expedition_sites: { candidates_min: 3, min_path_m_from_landing: 2500, min_path_m_between: 2500 }
+  max_attempts: 16

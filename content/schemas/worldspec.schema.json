@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://feudalsim.dev/schemas/worldspec.schema.json",
+  "title": "WorldSpecDef",
+  "description": "A list of worldspec definitions (generated from FeudalSim.Sim.Content.WorldSpecDef; do not edit).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^worldspec(\\.[a-z0-9_]\u002B)\u002B$"
+      },
+      "region_m": {
+        "type": "integer"
+      },
+      "land_area_km2": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        }
+      },
+      "relief_archetype_weights": {
+        "type": "object"
+      },
+      "peak_m": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        }
+      },
+      "rivers_major": {
+        "type": "array",
+        "items": {
+          "type": "integer"
+        }
+      },
+      "estuary": {
+        "type": "object",
+        "properties": {
+          "primary": {
+            "type": "integer"
+          },
+          "secondary_chance": {
+            "type": "number"
+          },
+          "mouth_width_m": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "tidal_reach_m": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "lakes": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "min_area_ha": {
+            "type": "number"
+          },
+          "at_least_one_over_ha": {
+            "type": "number"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "biome_share": {
+        "type": "object"
+      },
+      "deposits": {
+        "type": "object"
+      },
+      "landing": {
+        "type": "object",
+        "properties": {
+          "fresh_water_within_m": {
+            "type": "number"
+          },
+          "flint_within_m": {
+            "type": "number"
+          },
+          "clay_within_m": {
+            "type": "number"
+          },
+          "broadleaf_within_m": {
+            "type": "number"
+          },
+          "fertile_ha_within1500m": {
+            "type": "number"
+          },
+          "wreck_reef_offshore_m": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "expedition_sites": {
+        "type": "object",
+        "properties": {
+          "candidates_min": {
+            "type": "integer"
+          },
+          "min_path_m_from_landing": {
+            "type": "number"
+          },
+          "min_path_m_between": {
+            "type": "number"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "max_attempts": {
+        "type": "integer"
+      }
+    },
+    "required": [
+      "id",
+      "region_m",
+      "land_area_km2",
+      "relief_archetype_weights",
+      "peak_m"
+    ],
+    "additionalProperties": false
+  }
+}

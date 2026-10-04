@@ -53,6 +53,7 @@ public static class ContentCompiler
         var schedules = new List<ScheduleDef>();
         var decisions = new List<(DecisionDef Def, string Rel, Mark Mark)>();
         var lines = new List<LineTemplateDef>();
+        var worldSpecs = new List<WorldSpecDef>();
         var repoRoot = Path.GetDirectoryName(Path.GetFullPath(contentRoot).TrimEnd(Path.DirectorySeparatorChar)) ?? contentRoot;
         var seen = new Dictionary<string, string>(StringComparer.Ordinal);
         var files = 0;
@@ -104,6 +105,14 @@ public static class ContentCompiler
                         case ClaimPredicateDef c: claims.Add((c, rel, mark)); break;   // the ladder is checked once all are loaded
                         case OverheardLineDef o: ValidateOverheard(o, rel, mark, errors); overheard.Add((o, rel, mark)); break;
                         case DecisionDef d: decisions.Add((d, rel, mark)); break;
+                        case WorldSpecDef w:
+                            if (w.LandAreaKm2.Count != 2 || w.PeakM.Count != 2 || w.LandAreaKm2[0] > w.LandAreaKm2[1] || w.PeakM[0] > w.PeakM[1])
+                            {
+                                errors.Add(new(rel, mark.Line, mark.Column, $"{w.Id}: bands are [min, max]."));
+                            }
+
+                            worldSpecs.Add(w);
+                            break;
                         case LineTemplateDef l:
                             if (l.Variants.Count == 0) { errors.Add(new(rel, mark.Line, mark.Column, $"{l.Id}: at least one variant.")); }
                             lines.Add(l);
@@ -138,8 +147,9 @@ public static class ContentCompiler
         var overheardDefs = overheard.Select(o => o.Def).OrderBy(o => o.Id, StringComparer.Ordinal).ToList();
         var decisionDefs = decisions.Select(d => d.Def).OrderBy(d => d.Id, StringComparer.Ordinal).ToList();
         lines.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
-        var hash = Hash(skills, items, needs, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs);
-        return new Result(new ContentDatabase(skills, items, needs, hash, assets, audio, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs, lines), errors, files);
+        worldSpecs.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
+        var hash = Hash(skills, items, needs, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs, worldSpecs);
+        return new Result(new ContentDatabase(skills, items, needs, hash, assets, audio, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs, lines, worldSpecs), errors, files);
     }
 
     private static IEnumerable<(JsonNode Node, Mark Mark)> ParseFile(string path, string rel, string kind, JsonSchema schema, List<ContentError> errors)
@@ -246,9 +256,10 @@ public static class ContentCompiler
     private static ulong Hash(IEnumerable<SkillDef> skills, IEnumerable<ItemDef> items, IEnumerable<NeedDef> needs,
         IEnumerable<TraitDef> traits, IEnumerable<CultureDef> cultures, IEnumerable<ProfessionDef> professions,
         IEnumerable<ActionDef> actions, IEnumerable<ScheduleDef> schedules, IEnumerable<OpinionModifierDef> opinionMods, IEnumerable<ClaimPredicateDef> claims, IEnumerable<OverheardLineDef> overheard,
-        IEnumerable<DecisionDef> decisions)
+        IEnumerable<DecisionDef> decisions, IEnumerable<WorldSpecDef>? worldSpecs = null)
     {
         var h = new XxHash64();
+        foreach (var d in worldSpecs ?? []) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }   // M2-01: world generation inputs
         foreach (var d in skills) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
         foreach (var d in items) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
         foreach (var d in needs) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }

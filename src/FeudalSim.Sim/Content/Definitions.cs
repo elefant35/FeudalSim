@@ -429,6 +429,68 @@ public sealed record AudioEventDef
     public bool Loop { get; init; }
 }
 
+/// <summary>
+/// 10 §3.1 WorldSpec: the hard constraints and target bands for world generation (bands are [min, max]). Stages read
+/// only what they need; later milestones fill in the rest (deposits, landing, expedition sites).
+/// </summary>
+public sealed record WorldSpecDef
+{
+    public required string Id { get; init; }
+    public required int RegionM { get; init; }
+    public required IReadOnlyList<float> LandAreaKm2 { get; init; }
+    public required IReadOnlyDictionary<string, float> ReliefArchetypeWeights { get; init; }
+    public required IReadOnlyList<float> PeakM { get; init; }
+    public IReadOnlyList<int>? RiversMajor { get; init; }
+    public EstuarySpec? Estuary { get; init; }
+    public LakesSpec? Lakes { get; init; }
+    public IReadOnlyDictionary<string, IReadOnlyList<float>>? BiomeShare { get; init; }
+    public IReadOnlyDictionary<string, DepositSpec>? Deposits { get; init; }
+    public LandingSpec? Landing { get; init; }
+    public ExpeditionSitesSpec? ExpeditionSites { get; init; }
+    public int MaxAttempts { get; init; } = 16;
+}
+
+public sealed record EstuarySpec
+{
+    public int Primary { get; init; } = 1;
+    public float SecondaryChance { get; init; }
+    public IReadOnlyList<float>? MouthWidthM { get; init; }
+    public IReadOnlyList<float>? TidalReachM { get; init; }
+}
+
+public sealed record LakesSpec
+{
+    public IReadOnlyList<int>? Count { get; init; }
+    public float MinAreaHa { get; init; }
+    public float AtLeastOneOverHa { get; init; }
+}
+
+public sealed record DepositSpec
+{
+    public IReadOnlyList<int>? Count { get; init; }
+    public float Chance { get; init; } = 1f;
+    public float MinPathMFromLanding { get; init; }
+    public float MinMFromBreadbasket { get; init; }
+    public float AtLeastOneWithinPathMOfLanding { get; init; }
+}
+
+public sealed record LandingSpec
+{
+    public float FreshWaterWithinM { get; init; }
+    public float FlintWithinM { get; init; }
+    public float ClayWithinM { get; init; }
+    public float BroadleafWithinM { get; init; }
+    public float FertileHaWithin1500m { get; init; }
+    public IReadOnlyList<float>? WreckReefOffshoreM { get; init; }
+}
+
+public sealed record ExpeditionSitesSpec
+{
+    public int CandidatesMin { get; init; }
+    public float MinPathMFromLanding { get; init; }
+    public float MinPathMBetween { get; init; }
+}
+
 /// <summary>Canonical id lists the content must match exactly (canon §10.2, §10.5).</summary>
 public static class CanonLists
 {
@@ -469,8 +531,10 @@ public sealed class ContentDatabase
         IReadOnlyList<TraitDef>? traits = null, IReadOnlyList<CultureDef>? cultures = null, IReadOnlyList<ProfessionDef>? professions = null,
         IReadOnlyList<ActionDef>? actions = null, IReadOnlyList<ScheduleDef>? schedules = null,
         IReadOnlyList<OpinionModifierDef>? opinionModifiers = null, IReadOnlyList<ClaimPredicateDef>? claimPredicates = null,
-        IReadOnlyList<OverheardLineDef>? overheardLines = null, IReadOnlyList<DecisionDef>? decisions = null, IReadOnlyList<LineTemplateDef>? lines = null)
+        IReadOnlyList<OverheardLineDef>? overheardLines = null, IReadOnlyList<DecisionDef>? decisions = null, IReadOnlyList<LineTemplateDef>? lines = null,
+        IReadOnlyList<WorldSpecDef>? worldSpecs = null)
     {
+        WorldSpecs = worldSpecs ?? [];
         Lines = lines ?? [];
         Decisions = decisions ?? [];
         OverheardLines = overheardLines ?? [];
@@ -505,6 +569,11 @@ public sealed class ContentDatabase
     public IReadOnlyList<TraitDef> Traits { get; }
 
     public IReadOnlyList<CultureDef> Cultures { get; }
+
+    /// <summary>10 §3.1 world-generation profiles (M2-01).</summary>
+    public IReadOnlyList<WorldSpecDef> WorldSpecs { get; }
+
+    public WorldSpecDef? WorldSpec(string id) => WorldSpecs.FirstOrDefault(w => w.Id == id);
     public IReadOnlyList<ProfessionDef> Professions { get; }
     public IReadOnlyList<ActionDef> Actions { get; }
     public IReadOnlyList<ScheduleDef> Schedules { get; }
