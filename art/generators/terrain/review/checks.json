@@ -1,0 +1,357 @@
+{
+  "result": "pass",
+  "layers": [
+    {
+      "layer": "sand",
+      "size": [
+        1024,
+        1024
+      ],
+      "tile_m": 2,
+      "seed": 3101,
+      "relief_m": 0.018,
+      "files": {
+        "sand_albedo_height.png": {
+          "sha256": "e9544ce8fc9c08a26e6f7c6cd98dfc74b89534858d785c4a30eb1c5297b961b7",
+          "alpha_range": [
+            85,
+            161
+          ],
+          "wrap_difference_mean": 0.35266,
+          "interior_difference_mean": 0.33099,
+          "wrap_to_interior_ratio": 1.06546,
+          "rgb_mean": [
+            189.72,
+            169.27,
+            129.53
+          ],
+          "rgb_std": [
+            2.36,
+            2.35,
+            2.34
+          ]
+        },
+        "sand_normal_rough.png": {
+          "sha256": "55e7e1b24f3e606d062db531d4cd99fa2b73d564f362ce1b08d57a612fec3c61",
+          "alpha_range": [
+            207,
+            232
+          ],
+          "wrap_difference_mean": 0.79919,
+          "interior_difference_mean": 0.78964,
+          "wrap_to_interior_ratio": 1.0121,
+          "normal_length_max_error": 0.004312,
+          "normal_z_min": 0.98431
+        }
+      }
+    },
+    {
+      "layer": "shingle",
+      "size": [
+        1024,
+        1024
+      ],
+      "tile_m": 2,
+      "seed": 3102,
+      "relief_m": 0.028,
+      "files": {
+        "shingle_albedo_height.png": {
+          "sha256": "d7e23fc1fafc7fd06aea2ddf20c7fa840e6dc66541acb22e38238569f9e79ce9",
+          "alpha_range": [
+            88,
+            211
+          ],
+          "wrap_difference_mean": 1.0968,
+          "interior_difference_mean": 1.19411,
+          "wrap_to_interior_ratio": 0.91851,
+          "rgb_mean": [
+            127.35,
+            123.19,
+            119.11
+          ],
+          "rgb_std": [
+            11.34,
+            10.27,
+            7.55
+          ]
+        },
+        "shingle_normal_rough.png": {
+          "sha256": "b8e3da360ff27715c91a7d88561d5bedbd2076165e594d346124e6785ae45b42",
+          "alpha_range": [
+            187,
+            211
+          ],
+          "wrap_difference_mean": 3.1842,
+          "interior_difference_mean": 3.20451,
+          "wrap_to_interior_ratio": 0.99366,
+          "normal_length_max_error": 0.00627,
+          "normal_z_min": 0.51373
+        }
+      }
+    },
+    {
+      "layer": "grass",
+      "size": [
+        1024,
+        1024
+      ],
+      "tile_m": 2,
+      "seed": 3103,
+      "relief_m": 0.022,
+      "files": {
+        "grass_albedo_height.png": {
+          "sha256": "1a7f45f32fa3ddd8fbb676a025f6488b95c3f430b96ce231c34c744cb924efc7",
+          "alpha_range": [
+            85,
+            165
+          ],
+          "wrap_difference_mean": 0.81042,
+          "interior_difference_mean": 0.86636,
+          "wrap_to_interior_ratio": 0.93544,
+          "rgb_mean": [
+            104.44,
+            128.88,
+            54.45
+          ],
+          "rgb_std": [
+            2.49,
+            2.94,
+            2.34
+          ]
+        },
+        "grass_normal_rough.png": {
+          "sha256": "5fb7426cdc71003c1ac75eb2e470010e2cf2e91660d6e4ba8a8f4ad3d2265200",
+          "alpha_range": [
+            227,
+            252
+          ],
+          "wrap_difference_mean": 2.29663,
+          "interior_difference_mean": 2.54525,
+          "wrap_to_interior_ratio": 0.90232,
+          "normal_length_max_error": 0.00523,
+          "normal_z_min": 0.89804
+        }
+      }
+    },
+    {
+      "layer": "grass_rough",
+      "size": [
+        1024,
+        1024
+      ],
+      "tile_m": 2,
+      "seed": 3104,
+      "relief_m": 0.04,
+      "files": {
+        "grass_rough_albedo_height.png": {
+          "sha256": "e63f6245b19d9de0eba5427623f92dd08d3a3ace57a856d03b25dc25b6e2ce70",
+          "alpha_range": [
+            73,
+            177
+          ],
+          "wrap_difference_mean": 1.30505,
+          "interior_difference_mean": 1.29234,
+          "wrap_to_interior_ratio": 1.00983,
+          "rgb_mean": [
+            137.95,
+            148.21,
+            83.75
+          ],
+          "rgb_std": [
+            4.07,
+            3.06,
+            3.64
+          ]
+        },
+        "grass_rough_normal_rough.png": {
+          "sha256": "9a07aabc87219243c55c3c569d122d0452af69f0571a79dd20c9b98768b56dda",
+          "alpha_range": [
+            227,
+            252
+          ],
+          "wrap_difference_mean": 4.55054,
+          "interior_difference_mean": 4.47874,
+          "wrap_to_interior_ratio": 1.01603,
+          "normal_length_max_error": 0.005784,
+          "normal_z_min": 0.74902
+        }
+      }
+    },
+    {
+      "layer": "forest_floor",
+      "size": [
+        1024,
+        1024
+      ],
+      "tile_m": 2,
+      "seed": 3105,
+      "relief_m": 0.04,
+      "files": {
+        "forest_floor_albedo_height.png": {
+          "sha256": "b97fe09c675989e64175a5597ca5148fe500da2e7594c3bee86605126013cd43",
+          "alpha_range": [
+            83,
+            158
+          ],
+          "wrap_difference_mean": 0.68555,
+          "interior_difference_mean": 0.62705,
+          "wrap_to_interior_ratio": 1.09328,
+          "rgb_mean": [
+            94.13,
+            74.33,
+            49.89
+          ],
+          "rgb_std": [
+            4.02,
+            3.6,
+            2.79
+          ]
+        },
+        "forest_floor_normal_rough.png": {
+          "sha256": "f6be836f1ce17f8ab0b80d3e860df80b7ce3d68d9f568cdf74426019ad6a5dec",
+          "alpha_range": [
+            222,
+            247
+          ],
+          "wrap_difference_mean": 2.47876,
+          "interior_difference_mean": 2.36536,
+          "wrap_to_interior_ratio": 1.04794,
+          "normal_length_max_error": 0.00572,
+          "normal_z_min": 0.79608
+        }
+      }
+    },
+    {
+      "layer": "heather_moor",
+      "size": [
+        1024,
+        1024
+      ],
+      "tile_m": 2,
+      "seed": 3106,
+      "relief_m": 0.04,
+      "files": {
+        "heather_moor_albedo_height.png": {
+          "sha256": "07deec697d9afb9dbecd716b7fc8505efa13fefc027e991abcfff1754dc4cbf0",
+          "alpha_range": [
+            88,
+            168
+          ],
+          "wrap_difference_mean": 0.53418,
+          "interior_difference_mean": 0.5374,
+          "wrap_to_interior_ratio": 0.99401,
+          "rgb_mean": [
+            81.02,
+            89.51,
+            44.26
+          ],
+          "rgb_std": [
+            3.32,
+            2.75,
+            2.34
+          ]
+        },
+        "heather_moor_normal_rough.png": {
+          "sha256": "562852e9f67a220dc9d7a3d68d597fd9bf20d9b83cdf3da83000234afd4cf279",
+          "alpha_range": [
+            230,
+            252
+          ],
+          "wrap_difference_mean": 2.21313,
+          "interior_difference_mean": 2.27427,
+          "wrap_to_interior_ratio": 0.97312,
+          "normal_length_max_error": 0.005475,
+          "normal_z_min": 0.81176
+        }
+      }
+    },
+    {
+      "layer": "mud",
+      "size": [
+        1024,
+        1024
+      ],
+      "tile_m": 2,
+      "seed": 3107,
+      "relief_m": 0.018,
+      "files": {
+        "mud_albedo_height.png": {
+          "sha256": "e243b3e2adf88c9b6d0b64d426650b31cd2d795c6ae3dfa47326331c63bccf44",
+          "alpha_range": [
+            72,
+            155
+          ],
+          "wrap_difference_mean": 0.32043,
+          "interior_difference_mean": 0.31305,
+          "wrap_to_interior_ratio": 1.0236,
+          "rgb_mean": [
+            82.63,
+            58.95,
+            42.82
+          ],
+          "rgb_std": [
+            2.43,
+            2.43,
+            2.44
+          ]
+        },
+        "mud_normal_rough.png": {
+          "sha256": "b88ad73cf2716e8999226d8309bc8e1e7fe32199373f05981396b7096f7a9339",
+          "alpha_range": [
+            96,
+            150
+          ],
+          "wrap_difference_mean": 0.87622,
+          "interior_difference_mean": 0.8678,
+          "wrap_to_interior_ratio": 1.00971,
+          "normal_length_max_error": 0.004423,
+          "normal_z_min": 0.98431
+        }
+      }
+    },
+    {
+      "layer": "rock",
+      "size": [
+        1024,
+        1024
+      ],
+      "tile_m": 2,
+      "seed": 3108,
+      "relief_m": 0.045,
+      "files": {
+        "rock_albedo_height.png": {
+          "sha256": "27ac2d91b88e99dc602278d2f42a039d16098c40579edc68277d2a90ed61808d",
+          "alpha_range": [
+            83,
+            164
+          ],
+          "wrap_difference_mean": 0.44031,
+          "interior_difference_mean": 0.42811,
+          "wrap_to_interior_ratio": 1.02848,
+          "rgb_mean": [
+            116.12,
+            115.93,
+            120.8
+          ],
+          "rgb_std": [
+            2.35,
+            2.33,
+            2.27
+          ]
+        },
+        "rock_normal_rough.png": {
+          "sha256": "0a2ca5a799c1bb67d9ecb30d182abc811a92530400a76b2e387ea214014bd236",
+          "alpha_range": [
+            202,
+            226
+          ],
+          "wrap_difference_mean": 2.20752,
+          "interior_difference_mean": 2.17714,
+          "wrap_to_interior_ratio": 1.01396,
+          "normal_length_max_error": 0.005169,
+          "normal_z_min": 0.87451
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+# yaml-language-server: $schema=../schemas/asset.schema.json
+# Original procedural P0.3 terrain; packed-channel measurements in art/generators/terrain/review/checks.json.
+- id: asset.terrain.sand
+  kind: texture
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/terrain/terrain.py
+    params: { layer: sand, seed: 3101, size: 1024, tile_m: 2 }
+    tool: Python 3 with NumPy and Pillow
+  outputs: [game/assets/terrain/sand_albedo_height.png, game/assets/terrain/sand_normal_rough.png]
+  measured: {}
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "P0.3; two tileable 1024x1024 RGBA maps over 2m. RGB albedo/A height; OpenGL RGB normal/A roughness. Relief 0.018m. Palette-derived sand, soil. Texture checker and tiled previews pass; owner look review pending."
+- id: asset.terrain.shingle
+  kind: texture
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/terrain/terrain.py
+    params: { layer: shingle, seed: 3102, size: 1024, tile_m: 2 }
+    tool: Python 3 with NumPy and Pillow
+  outputs: [game/assets/terrain/shingle_albedo_height.png, game/assets/terrain/shingle_normal_rough.png]
+  measured: {}
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "P0.3; two tileable 1024x1024 RGBA maps over 2m. RGB albedo/A height; OpenGL RGB normal/A roughness. Relief 0.028m. Palette-derived granite, sand, flint. Texture checker and tiled previews pass; owner look review pending."
+- id: asset.terrain.grass
+  kind: texture
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/terrain/terrain.py
+    params: { layer: grass, seed: 3103, size: 1024, tile_m: 2 }
+    tool: Python 3 with NumPy and Pillow
+  outputs: [game/assets/terrain/grass_albedo_height.png, game/assets/terrain/grass_normal_rough.png]
+  measured: {}
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "P0.3; two tileable 1024x1024 RGBA maps over 2m. RGB albedo/A height; OpenGL RGB normal/A roughness. Relief 0.022m. Palette-derived grass, moss, soil. Texture checker and tiled previews pass; owner look review pending."
+- id: asset.terrain.grass_rough
+  kind: texture
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/terrain/terrain.py
+    params: { layer: grass_rough, seed: 3104, size: 1024, tile_m: 2 }
+    tool: Python 3 with NumPy and Pillow
+  outputs: [game/assets/terrain/grass_rough_albedo_height.png, game/assets/terrain/grass_rough_normal_rough.png]
+  measured: {}
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "P0.3; two tileable 1024x1024 RGBA maps over 2m. RGB albedo/A height; OpenGL RGB normal/A roughness. Relief 0.04m. Palette-derived grass, moss, sand. Texture checker and tiled previews pass; owner look review pending."
+- id: asset.terrain.forest_floor
+  kind: texture
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/terrain/terrain.py
+    params: { layer: forest_floor, seed: 3105, size: 1024, tile_m: 2 }
+    tool: Python 3 with NumPy and Pillow
+  outputs: [game/assets/terrain/forest_floor_albedo_height.png, game/assets/terrain/forest_floor_normal_rough.png]
+  measured: {}
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "P0.3; two tileable 1024x1024 RGBA maps over 2m. RGB albedo/A height; OpenGL RGB normal/A roughness. Relief 0.04m. Palette-derived soil, bark, moss. Texture checker and tiled previews pass; owner look review pending."
+- id: asset.terrain.heather_moor
+  kind: texture
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/terrain/terrain.py
+    params: { layer: heather_moor, seed: 3106, size: 1024, tile_m: 2 }
+    tool: Python 3 with NumPy and Pillow
+  outputs: [game/assets/terrain/heather_moor_albedo_height.png, game/assets/terrain/heather_moor_normal_rough.png]
+  measured: {}
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "P0.3; two tileable 1024x1024 RGBA maps over 2m. RGB albedo/A height; OpenGL RGB normal/A roughness. Relief 0.04m. Palette-derived moss, leaf_dark, soil. Texture checker and tiled previews pass; owner look review pending."
+- id: asset.terrain.mud
+  kind: texture
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/terrain/terrain.py
+    params: { layer: mud, seed: 3107, size: 1024, tile_m: 2 }
+    tool: Python 3 with NumPy and Pillow
+  outputs: [game/assets/terrain/mud_albedo_height.png, game/assets/terrain/mud_normal_rough.png]
+  measured: {}
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "P0.3; two tileable 1024x1024 RGBA maps over 2m. RGB albedo/A height; OpenGL RGB normal/A roughness. Relief 0.018m. Palette-derived soil, soil_dark, clay. Texture checker and tiled previews pass; owner look review pending."
+- id: asset.terrain.rock
+  kind: texture
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/terrain/terrain.py
+    params: { layer: rock, seed: 3108, size: 1024, tile_m: 2 }
+    tool: Python 3 with NumPy and Pillow
+  outputs: [game/assets/terrain/rock_albedo_height.png, game/assets/terrain/rock_normal_rough.png]
+  measured: {}
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "P0.3; two tileable 1024x1024 RGBA maps over 2m. RGB albedo/A height; OpenGL RGB normal/A roughness. Relief 0.045m. Palette-derived granite, granite_dark, limestone. Texture checker and tiled previews pass; owner look review pending."
