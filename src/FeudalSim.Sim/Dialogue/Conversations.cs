@@ -53,6 +53,17 @@ public sealed class Conversation
     /// <summary>The last turn was flagged as injection (≥ 0.3): its DPs, including a closing rapport DP, go to the policy.</summary>
     [Key(15)] public bool PolicyTurn { get; set; }
 
+    /// <summary>The last lines of the conversation, "Name: text" (both sides), for prompts and the journal.</summary>
+    [Key(16)] public List<string> Transcript { get; set; } = [];
+
+    public const int TranscriptLines = 12;
+
+    internal void AddLine(string line)
+    {
+        Transcript.Add(line.Length > 600 ? line[..600] : line);
+        if (Transcript.Count > TranscriptLines) { Transcript.RemoveAt(0); }
+    }
+
     [IgnoreMember] public float MeanWords => WordsN == 0 ? 0f : WordsSum / WordsN;
 }
 
@@ -106,6 +117,7 @@ public sealed class ConversationStore
         {
             L(h, (long)c.Id); L(h, (long)c.Npc.Value); L(h, (long)c.Player.Value); L(h, c.OpenedStep); L(h, c.Turn); L(h, c.PrevAction);
             L(h, BitConverter.SingleToInt32Bits(c.WordsSum)); L(h, c.WordsN); L(h, c.RapportCount); L(h, c.PolicyTurn ? 1 : 0);
+            foreach (var line in c.Transcript) { S(h, line); }
             S(h, c.LastAct); S(h, c.PendingOffer); S(h, c.Agenda);
             foreach (var (k, v) in c.LastActed) { S(h, k); L(h, v); }
             foreach (var (k, v) in c.Declined) { S(h, k); L(h, v); }

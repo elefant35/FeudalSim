@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=../schemas/line.schema.json
+# Template lines (canon §13.5: every line has a template; 22 §4.12 fallback; template mode). One entry per decision option
+# (coverage is checked against content/decisions/) plus reply.<act> answers for turns whose only DP is the initiative.
+# Slots: {player} {npc} {price} {item} {task} {claim} {reason}. Gestures are the choice's public face (22 §4.2).
+# Initiative (21 §14.5)
+- { id: line.none,              option: none,             gesture: listening,         variants: ["Mm.", "Aye.", "Go on."] }
+- { id: line.end_conversation,  option: end_conversation, gesture: turns_away,        variants: ["I've work to see to, {player}. Another time.", "That'll do for now — {reason}.", "I must be off."] }
+- { id: line.ask_favor,         option: ask_favor,        gesture: beckons,           variants: ["Would you lend me a hand with {task} for an hour?", "I could use help with {task}, if you've the time."] }
+- { id: line.challenge,         option: challenge,        gesture: squares_up,        variants: ["Settle it at the fire, then. You and me, a wrestling bout.", "Words are cheap. Wrestle me for it."] }
+- { id: line.accuse,            option: accuse,           gesture: points,            variants: ["I know what you did, {player}. {claim}.", "Don't think I haven't heard. {claim}."] }
+- { id: line.warn,              option: warn,             gesture: leans_in,          variants: ["Watch yourself, {player}. People are saying {claim}.", "A word of warning: {claim}. That's what's going round."] }
+- { id: line.share_gossip,      option: share_gossip,     gesture: leans_in,          variants: ["Have you heard? {claim}.", "Between us — {claim}."] }
+- { id: line.invite,            option: invite,           gesture: warm_smile,        variants: ["Sit with us at the fire tonight.", "Come to the fire this evening, {player}. There'll be talk."] }
+# Escalation (16 §9.6) and bystanders
+- { id: line.laugh_off,         option: laugh_off,        gesture: laughs,            variants: ["Ha. Is that the worst you've got?", "Say what you like. I've heard worse from gulls."] }
+- { id: line.retort,            option: retort,           gesture: scowls,            variants: ["Look who's talking.", "Mind your own work before you mock mine."] }
+- { id: line.threaten,          option: threaten,         gesture: squares_up,        variants: ["Say that again. Go on.", "One more word and you'll regret it."] }
+- { id: line.shove,             option: shove,            gesture: shoves,            variants: ["Get away from me!", "Enough!"] }
+- { id: line.attack_brawl,      option: attack_brawl,     gesture: swings,            variants: ["That's it!", "You asked for this!"] }
+- { id: line.attack_armed,      option: attack_armed,     gesture: draws_weapon,      variants: ["Come on, then!"] }
+- { id: line.attack_to_kill,    option: attack_to_kill,   gesture: draws_weapon,      variants: ["You'll not walk away from this."] }
+- { id: line.walk_away,         option: walk_away,        gesture: turns_away,        variants: ["I'm done here.", "Not worth it."] }
+- { id: line.deescalate,        option: deescalate,       gesture: palms_up,          variants: ["Let's not do this.", "Peace. I spoke in anger."] }
+- { id: line.call_others,       option: call_others,      gesture: shouts,            variants: ["Over here! Someone come!", "Hey! A hand here!"] }
+- { id: line.step_in,           option: step_in,          gesture: steps_between,     variants: ["Easy, both of you. Step back.", "That's enough! Leave it."] }
+- { id: line.ignore,            option: ignore,           gesture: looks_away,        variants: ["…", "Not my quarrel."] }
+# Rapport (16 §4.15)
+- { id: line.warm_to_speaker,   option: warm_to_speaker,  gesture: warm_smile,        variants: ["Good talking with you, {player}.", "You're decent company."] }
+- { id: line.stay_neutral,      option: stay_neutral,     gesture: nods,              variants: ["Right then.", "Well."] }
+- { id: line.cool_to_speaker,   option: cool_to_speaker,  gesture: cold_look,         variants: ["Hm.", "If that's all."] }
+# Apology (16 §4.14)
+- { id: line.accept_apology,    option: accept_apology,   gesture: nods,              variants: ["All right. Let's leave it there.", "Apology taken. Don't do it again."] }
+- { id: line.demand_amends,     option: demand_amends,    gesture: hand_out,          variants: ["Words won't mend it. Make it right first."] }
+- { id: line.refuse_apology,    option: refuse_apology,   gesture: turns_away,        variants: ["Sorry doesn't cut it.", "Keep your apology."] }
+# Requests (16 §5.4)
+- { id: line.accept_request,         option: accept_request,        gesture: nods,       variants: ["Aye, I'll help with {task}.", "All right, I'll give you an hour on {task}."] }
+- { id: line.accept_with_condition,  option: accept_with_condition, gesture: hand_out,   variants: ["I'll help with {task} — if you do the same for me after.", "An hour of mine for an hour of yours."] }
+- { id: line.defer,                  option: defer,                 gesture: shakes_head, variants: ["Not now. Tomorrow, first thing.", "I can't today. Ask me tomorrow and I'll come."] }
+- { id: line.refuse_request,         option: refuse_request,        gesture: shakes_head, variants: ["No. I've my own work.", "Can't help you there."] }
+# Being told (16 §7.10)
+- { id: line.believe,           option: believe,          gesture: nods,              variants: ["Is that so? I'll remember it.", "I believe you."] }
+- { id: line.doubt,             option: doubt,            gesture: raised_brow,       variants: ["I'll believe that when I see it.", "Who told you that?"] }
+- { id: line.repeat,            option: repeat,           gesture: wide_eyes,         variants: ["Truly? The others should hear this.", "Well! That'll be round the fire tonight."] }
+- { id: line.keep_quiet,        option: keep_quiet,       gesture: nods,              variants: ["I'll keep that to myself.", "That stays between us."] }
+# Trade (15 §5.6)
+- { id: line.accept_offer,      option: accept_offer,     gesture: hand_out_for_coin, variants: ["Done. {price} for the {item}.", "Fair enough — {price}, and it's yours."] }
+- { id: line.buy_at_ask,        option: buy_at_ask,       gesture: hand_out,          variants: ["{price} it is. I'll take the {item}.", "All right, {price}. Hand it over."] }
+- { id: line.counter_step_0,    option: counter_step_0,   gesture: shakes_head,       variants: ["{price}, and I'm being generous.", "I'll not go below {price}."] }
+- { id: line.counter_step_1,    option: counter_step_1,   gesture: shakes_head,       variants: ["{price}. That's my word.", "Make it {price}."] }
+- { id: line.counter_step_2,    option: counter_step_2,   gesture: considers,         variants: ["You drive a hard bargain. {price}.", "For you, {price}."] }
+- { id: line.counter_step_3,    option: counter_step_3,   gesture: considers,         variants: ["{price}, and not a farthing less.", "{price}. Last offer."] }
+- { id: line.refuse,            option: refuse,           gesture: crosses_arms,      variants: ["My price stands at {price}.", "No. {price}."] }
+# Replies to acts with no response DP of their own (22 §6.1: the initiative carries the turn)
+- { id: line.reply.greet_farewell, option: reply.greet_farewell, gesture: nods,       variants: ["Good day to you, {player}.", "Well met."] }
+- { id: line.reply.small_talk,     option: reply.small_talk,     gesture: nods,       variants: ["Aye, so it is.", "That it is."] }
+- { id: line.reply.ask,            option: reply.ask,            gesture: considers,  variants: ["I couldn't rightly say.", "Ask someone who'd know better than me."] }
+- { id: line.reply.why_did_you,    option: reply.why_did_you,    gesture: considers,  variants: ["I had my reasons.", "It seemed right at the time."] }
+- { id: line.reply.praise,         option: reply.praise,         gesture: warm_smile, variants: ["Kind of you to say.", "I do my best."] }
+- { id: line.reply.thank,          option: reply.thank,          gesture: nods,       variants: ["No need to thank me.", "You're welcome."] }
+- { id: line.reply.comfort,        option: reply.comfort,        gesture: nods,       variants: ["Thank you. It helps to hear it."] }
+- { id: line.reply.persuade,       option: reply.persuade,       gesture: considers,  variants: ["I'll think on it."] }
+- { id: line.reply.promise,        option: reply.promise,        gesture: nods,       variants: ["I'll hold you to that."] }
+- { id: line.reply.command,        option: reply.command,        gesture: raised_brow, variants: ["You don't give me orders."] }
+- { id: line.reply.flirt,          option: reply.flirt,          gesture: looks_away, variants: ["Is that so?"] }
+- { id: line.reply.trade_offer,    option: reply.trade_offer,    gesture: considers,  variants: ["Show me what you've got, then."] }
+- { id: line.reply.accept_offer,   option: reply.accept_offer,   gesture: nods,       variants: ["Good."] }
+- { id: line.reply.reject_offer,   option: reply.reject_offer,   gesture: shrugs,     variants: ["Suit yourself."] }
+- { id: line.reply.tell,           option: reply.tell,           gesture: raised_brow, variants: ["Is that so?"] }
+- { id: line.reply.request,        option: reply.request,        gesture: considers,  variants: ["Let me think on it."] }
+- { id: line.reply.apologize,      option: reply.apologize,      gesture: nods,       variants: ["Well."] }
+- { id: line.reply.insult,         option: reply.insult,         gesture: scowls,     variants: ["Watch your tongue."] }
+- { id: line.reply.threaten,       option: reply.threaten,       gesture: squares_up, variants: ["Is that a threat?"] }
+- { id: line.reply.nonsense_or_meta, option: reply.nonsense_or_meta, gesture: baffled, variants: ["You're talking nonsense, friend.", "I don't follow you."] }

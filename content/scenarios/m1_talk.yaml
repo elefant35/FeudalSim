@@ -1,0 +1,14 @@
+# M1 dialogue pipeline (22 §4): the camp at the evening gathering with the player beside a settler — `feudalsim talk`.
+id: scenario.m1_talk
+seed: 42
+start: Y0 Spring 1 19:30
+days: 1
+settlers: 24
+ai: utility
+player: [12, -6]
+camp:
+  food: 32000
+  firewood: 10
+  fire_fuel_min: 240
+  bedding: 0.85
+  schedule: schedule.landfall_communal

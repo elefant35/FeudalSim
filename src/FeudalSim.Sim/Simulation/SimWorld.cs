@@ -310,6 +310,10 @@ public sealed class SimWorld
                 Dialogue.ConversationSystem.EndByPlayer(this, command, c);
                 break;
 
+            case DialogueLineRendered c:
+                Dialogue.ConversationSystem.Line(this, command, c);
+                break;
+
             case PlayerUtteranceClassified c:
                 Dialogue.ConversationSystem.Utterance(this, command, c);
                 break;

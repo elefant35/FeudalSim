@@ -8,7 +8,7 @@ namespace FeudalSim.AI;
 
 public sealed record ChatMessage(string Role, string Content);
 
-public sealed record ChatRequest(string Model, IReadOnlyList<ChatMessage> Messages, int MaxTokens = 120, double Temperature = 0.7);
+public sealed record ChatRequest(string Model, IReadOnlyList<ChatMessage> Messages, int MaxTokens = 120, double Temperature = 0.7, IReadOnlyList<string>? Stop = null);
 
 public sealed record ChatResult(string Text, int TokensIn, int TokensOut, int LatencyMs, double CostUsd, string ProviderTag);
 
@@ -58,20 +58,36 @@ public sealed class OpenAiCompatibleChatProvider : IChatProvider
             (int)sw.ElapsedMilliseconds, (double?)usage?["cost"] ?? 0, Tag);
     }
 
+    /// <summary>Raised when a stream ends with its billed usage (OpenRouter <c>usage.include</c>), for the spend tally.</summary>
+    public event Action<ChatResult>? StreamFinished;
+
     public async IAsyncEnumerable<string> StreamAsync(ChatRequest request, [EnumeratorCancellation] CancellationToken ct)
     {
-        using var response = await _http.SendAsync(Build(request, stream: true), HttpCompletionOption.ResponseHeadersRead, ct).ConfigureAwait(false);
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        using var response = await _http.SendAsync(Build(request, stream: true, extra: p => p["usage"] = new JsonObject { ["include"] = true }), HttpCompletionOption.ResponseHeadersRead, ct).ConfigureAwait(false);
         if (!response.IsSuccessStatusCode) { throw new AiProviderException($"HTTP {(int)response.StatusCode}", (int)response.StatusCode); }
         using var stream = await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false);
         using var reader = new StreamReader(stream);
+        int tokensIn = 0, tokensOut = 0;
+        double cost = 0;
         while (await reader.ReadLineAsync(ct).ConfigureAwait(false) is { } line)
         {
             if (!line.StartsWith("data:", StringComparison.Ordinal)) { continue; }
             var data = line[5..].Trim();
-            if (data == "[DONE]") { yield break; }
-            var delta = JsonNode.Parse(data)?["choices"]?[0]?["delta"]?["content"]?.GetValue<string>();
+            if (data == "[DONE]") { break; }
+            var json = JsonNode.Parse(data);
+            if (json?["usage"] is JsonObject usage)
+            {
+                tokensIn = (int?)usage["prompt_tokens"] ?? tokensIn;
+                tokensOut = (int?)usage["completion_tokens"] ?? tokensOut;
+                cost = (double?)usage["cost"] ?? cost;
+            }
+
+            var delta = json?["choices"]?[0]?["delta"]?["content"]?.GetValue<string>();
             if (!string.IsNullOrEmpty(delta)) { yield return delta; }
         }
+
+        StreamFinished?.Invoke(new ChatResult("", tokensIn, tokensOut, (int)sw.ElapsedMilliseconds, cost, Tag));
     }
 
     internal HttpRequestMessage Build(ChatRequest request, bool stream, Action<JsonObject>? extra = null)
@@ -96,6 +112,7 @@ public sealed class OpenAiCompatibleChatProvider : IChatProvider
             ["stream"] = stream,
             ["reasoning"] = new JsonObject { ["enabled"] = false },
         };
+        if (request.Stop is { Count: > 0 } stop) { payload["stop"] = new JsonArray([.. stop.Select(x => (JsonNode)x)]); }
         if (_providerSort is not null && _baseUrl.Contains("openrouter", StringComparison.OrdinalIgnoreCase))
         {
             payload["provider"] = new JsonObject { ["sort"] = _providerSort };

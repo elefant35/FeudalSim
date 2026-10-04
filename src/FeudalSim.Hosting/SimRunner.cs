@@ -48,6 +48,9 @@ public sealed class SimRunner : IDisposable
     }
 
     public TripleBuffer<RenderSnapshot> Snapshots { get; }
+
+    /// <summary>The dialogue turn pipeline (set once, before the player talks). Its submissions go through <see cref="Submit"/>.</summary>
+    public DialogueHost? Dialogue { get; set; }
     public EventRing Events { get; } = new();
     public RunMode Mode => _mode;
     public long StepsExecuted => Interlocked.Read(ref _steps);
@@ -178,10 +181,11 @@ public sealed class SimRunner : IDisposable
         foreach (var c in output.AppliedCommands) { _log?.Append(c); }
         foreach (var e in output.Events) { Events.Push(e); }
         foreach (var r in output.AiRequests) { _gateway?.Submit(r); }
+        var talked = Dialogue?.OnStep(_world, output);   // the player's conversation partner's DPs: one decision-first reply (22 §4)
         foreach (var dp in output.OpenedDecisions)
         {
             Submit(CommandSource.Integrity, dp);   // logged + verified next step, live and in replay
-            _gateway?.Open(dp);                    // after the integrity record, so an inline "policy, now" queues behind it
+            if (talked is null || !talked.Contains(dp.Id)) { _gateway?.Open(dp); }   // after the integrity record, so an inline "policy, now" queues behind it
         }
         Snapshots.Back.CopyFrom(_world);
         Snapshots.Publish();

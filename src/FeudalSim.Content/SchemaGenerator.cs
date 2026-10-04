@@ -24,6 +24,7 @@ public static class SchemaGenerator
         ("cultures", "culture", typeof(CultureDef)),
         ("decisions", "dp", typeof(DecisionDef)),
         ("items", "item", typeof(ItemDef)),
+        ("lines", "line", typeof(LineTemplateDef)),
         ("needs", "need", typeof(NeedDef)),
         ("professions", "profession", typeof(ProfessionDef)),
         ("schedules", "schedule", typeof(ScheduleDef)),

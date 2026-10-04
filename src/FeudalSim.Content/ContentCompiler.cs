@@ -52,6 +52,7 @@ public static class ContentCompiler
         var overheard = new List<(OverheardLineDef Def, string Rel, Mark Mark)>();
         var schedules = new List<ScheduleDef>();
         var decisions = new List<(DecisionDef Def, string Rel, Mark Mark)>();
+        var lines = new List<LineTemplateDef>();
         var repoRoot = Path.GetDirectoryName(Path.GetFullPath(contentRoot).TrimEnd(Path.DirectorySeparatorChar)) ?? contentRoot;
         var seen = new Dictionary<string, string>(StringComparer.Ordinal);
         var files = 0;
@@ -103,6 +104,10 @@ public static class ContentCompiler
                         case ClaimPredicateDef c: claims.Add((c, rel, mark)); break;   // the ladder is checked once all are loaded
                         case OverheardLineDef o: ValidateOverheard(o, rel, mark, errors); overheard.Add((o, rel, mark)); break;
                         case DecisionDef d: decisions.Add((d, rel, mark)); break;
+                        case LineTemplateDef l:
+                            if (l.Variants.Count == 0) { errors.Add(new(rel, mark.Line, mark.Column, $"{l.Id}: at least one variant.")); }
+                            lines.Add(l);
+                            break;
                     }
                 }
             }
@@ -115,6 +120,7 @@ public static class ContentCompiler
         foreach (var (c, rel, mark) in claims) { ValidateClaim(c, rel, mark, claims.Select(x => x.Def.Id).ToHashSet(StringComparer.Ordinal), errors); }
         if (overheard.Count > 0) { CheckOverheardCoverage(overheard, errors); }
         foreach (var (d, rel, mark) in decisions) { ValidateDecision(d, rel, mark, symmetricTraits, errors); }
+        CheckLineCoverage(decisions.Select(d => d.Def), lines, errors);
         if (errors.Count > 0) { return new Result(null, errors, files); }
 
         skills.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
@@ -131,8 +137,9 @@ public static class ContentCompiler
         var claimDefs = claims.Select(c => c.Def).OrderBy(c => c.Id, StringComparer.Ordinal).ToList();
         var overheardDefs = overheard.Select(o => o.Def).OrderBy(o => o.Id, StringComparer.Ordinal).ToList();
         var decisionDefs = decisions.Select(d => d.Def).OrderBy(d => d.Id, StringComparer.Ordinal).ToList();
+        lines.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         var hash = Hash(skills, items, needs, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs);
-        return new Result(new ContentDatabase(skills, items, needs, hash, assets, audio, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs), errors, files);
+        return new Result(new ContentDatabase(skills, items, needs, hash, assets, audio, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs, decisionDefs, lines), errors, files);
     }
 
     private static IEnumerable<(JsonNode Node, Mark Mark)> ParseFile(string path, string rel, string kind, JsonSchema schema, List<ContentError> errors)
@@ -330,6 +337,20 @@ public static class ContentCompiler
                     var (_, rel, mark) = lines[0];
                     errors.Add(new(rel, mark.Line, mark.Column, $"overheard lines: no subtitle for '{kind}' ({(outcome ? "success" : "failure")})."));
                 }
+            }
+        }
+    }
+
+    /// <summary>Canon §13.5: every option of every decision menu has a template line (only when templates exist at all).</summary>
+    private static void CheckLineCoverage(IEnumerable<DecisionDef> decisions, List<LineTemplateDef> lines, List<ContentError> errors)
+    {
+        if (lines.Count == 0) { return; }
+        var covered = lines.Select(l => l.Option).ToHashSet(StringComparer.Ordinal);
+        foreach (var d in decisions)
+        {
+            foreach (var o in d.Options)
+            {
+                if (!covered.Contains(o.Id)) { errors.Add(new("lines", 0, 0, $"{d.Id}/{o.Id} has no template line (canon §13.5: template mode must stay playable).")); }
             }
         }
     }

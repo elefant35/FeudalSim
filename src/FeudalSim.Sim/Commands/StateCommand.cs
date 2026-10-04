@@ -26,6 +26,7 @@ public enum CommandSource : byte { Player, Embodiment, Ai, Settings, Scenario, D
 [Union(14, typeof(TradeOffer))]
 [Union(15, typeof(TradeAccept))]
 [Union(16, typeof(TradeWalkAway))]
+[Union(17, typeof(DialogueLineRendered))]
 public abstract record StateCommand;
 
 /// <summary>Changes the real-minutes-per-game-day setting (canon §6). Logged; applies at the next step.</summary>
@@ -124,6 +125,16 @@ public sealed record TradeAccept([property: Key(0)] ulong Negotiation) : StateCo
 
 [MessagePackObject]
 public sealed record TradeWalkAway([property: Key(0)] ulong Negotiation) : StateCommand;
+
+/// <summary>
+/// 22 §4.10: the line an NPC actually said this turn (LLM, regenerated or template), as a logged input. Cosmetic for
+/// mechanics — the world changed when the decision executed — but kept in the conversation's transcript for prompts,
+/// the journal and gists.
+/// </summary>
+[MessagePackObject]
+public sealed record DialogueLineRendered(
+    [property: Key(0)] ulong Conversation, [property: Key(1)] int TurnIndex, [property: Key(2)] Core.EntityId Speaker,
+    [property: Key(3)] string Text, [property: Key(4)] string Source, [property: Key(5)] string Flags) : StateCommand;
 
 /// <summary>The player's body position as reported by the client each step (the player is always embodied).</summary>
 [MessagePackObject]

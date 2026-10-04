@@ -258,6 +258,22 @@ public sealed record DecisionOptionDef
     public required string Gloss { get; init; }
 }
 
+/// <summary>
+/// Template lines for one decision option (canon §13.5: every line has a template, so template mode stays playable;
+/// 22 §4.12: the fallback when generation fails or misses the speech cutoff). Slots: {player}, {npc}, {price}, {item},
+/// {task}, {claim}, {reason}. The gesture is the choice's public face (22 §4.2 <c>DecisionSurfaced</c>).
+/// </summary>
+public sealed record LineTemplateDef
+{
+    public required string Id { get; init; }
+
+    /// <summary>The option id this voices (e.g. <c>counter_step_1</c>, <c>retort</c>), or <c>reply.*</c> for answers to a player act with no DP.</summary>
+    public required string Option { get; init; }
+
+    public required IReadOnlyList<string> Variants { get; init; }
+    public string Gesture { get; init; } = "neutral";
+}
+
 public enum OpinionStacking { Add, Saturate, Refresh, Once }
 
 public enum OpinionScaling { None, Honor, FamilyFaith }
@@ -445,8 +461,9 @@ public sealed class ContentDatabase
         IReadOnlyList<TraitDef>? traits = null, IReadOnlyList<CultureDef>? cultures = null, IReadOnlyList<ProfessionDef>? professions = null,
         IReadOnlyList<ActionDef>? actions = null, IReadOnlyList<ScheduleDef>? schedules = null,
         IReadOnlyList<OpinionModifierDef>? opinionModifiers = null, IReadOnlyList<ClaimPredicateDef>? claimPredicates = null,
-        IReadOnlyList<OverheardLineDef>? overheardLines = null, IReadOnlyList<DecisionDef>? decisions = null)
+        IReadOnlyList<OverheardLineDef>? overheardLines = null, IReadOnlyList<DecisionDef>? decisions = null, IReadOnlyList<LineTemplateDef>? lines = null)
     {
+        Lines = lines ?? [];
         Decisions = decisions ?? [];
         OverheardLines = overheardLines ?? [];
         ClaimPredicates = claimPredicates ?? [];
@@ -491,6 +508,9 @@ public sealed class ContentDatabase
     public IReadOnlyList<ClaimPredicateDef> ClaimPredicates { get; }
 
     public int ClaimHandle(string id) => HandleOf(ClaimPredicates, id, c => c.Id);
+
+    /// <summary>Template lines in id order (<c>line.*</c>).</summary>
+    public IReadOnlyList<LineTemplateDef> Lines { get; }
 
     /// <summary>Decision-point menus in id order (<c>dp.*</c>).</summary>
     public IReadOnlyList<DecisionDef> Decisions { get; }

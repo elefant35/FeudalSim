@@ -111,6 +111,8 @@ public sealed class NegotiationStore
 
     public Negotiation? Get(ulong id) => _open.TryGetValue(id, out var n) ? n : null;
 
+    public IEnumerable<Negotiation> Open => _open.Values;
+
     internal Negotiation Add(Negotiation n)
     {
         n.Id = ++_lastId;

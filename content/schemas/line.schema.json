@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://feudalsim.dev/schemas/line.schema.json",
+  "title": "LineTemplateDef",
+  "description": "A list of line definitions (generated from FeudalSim.Sim.Content.LineTemplateDef; do not edit).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^line(\\.[a-z0-9_]\u002B)\u002B$"
+      },
+      "option": {
+        "type": "string",
+        "minLength": 1
+      },
+      "variants": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "gesture": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [
+      "id",
+      "option",
+      "variants"
+    ],
+    "additionalProperties": false
+  }
+}

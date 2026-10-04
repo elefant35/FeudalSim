@@ -100,6 +100,14 @@ public sealed class ConversationSystem : ISimSystem
         End(world, conv, "player");
     }
 
+    /// <summary>22 §4.10: the rendered NPC line joins the transcript (late lines for an ended conversation are dropped).</summary>
+    internal static void Line(SimWorld world, in CommandEnvelope command, DialogueLineRendered c)
+    {
+        if (world.Conversations.Get(c.Conversation) is not { } conv) { return; }
+        var speaker = world.People.IndexOf(c.Speaker);
+        conv.AddLine($"{(speaker >= 0 ? world.People.Names[speaker] : "?")}: {c.Text}");
+    }
+
     private static void Track(SimWorld world, Conversation conv, ulong dp)
     {
         if (world.Decisions.IsOpen(dp)) { conv.Dps.Add(dp); }
@@ -185,6 +193,7 @@ public sealed class ConversationSystem : ISimSystem
         }
 
         conv.PendingOffer = "";
+        conv.AddLine($"{(world.People.IndexOf(conv.Player) is var pr and >= 0 ? world.People.Names[pr] : "Player")}: {u.Text}");
         conv.Turn = u.TurnIndex;
         conv.LastAct = u.Act;
         var listener = world.People.IndexOf(conv.Npc);

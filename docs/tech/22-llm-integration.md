@@ -695,6 +695,19 @@ Two input events carry a turn into the sim:
    in the save for the journal (19), conversation history and gists, and the trigger for the
    choice's embodied consequences (§4.2).
 
+*Implemented (M1-12):* `FeudalSim.AI/Dialogue/ReplyRouter.cs` (the route above: header lines submitted as
+`DecisionMade` the moment they validate; `INITIATIVE:` as an extra header line when the turn has both a response DP and an
+initiative DP; Tier A sentence-by-sentence release through the rule checks; Tier B buffered + fast-decider verification;
+one speak-only regeneration; content templates (`content/lines/`, coverage checked against every menu option); policy
+turns decided inline are voiced speak-only), `SpeechChecks` (§4.9 numbers vs the chosen option's facts and the player's
+words, unknown names, out-of-world lexicon, script, refusals, stage directions, length), `PromptBuilder` (§7 layout,
+RULES v2.0, inclination words), Hosting `DialogueHost` + `TurnBundleBuilder` + `PersonaFacts` (bands of §7.4) and the
+`DialogueLineRendered` command (transcript). **Live (`feudalsim talk`, qwen3-14b + qwen3.5-9b, 4 turns, $0.0013):**
+classification p50 567 ms; decision gesture p50 1.64 s, first words p50 1.85 s, full line ≈ 2.1 s from the player's
+line — **above §17.2 #1's 1.1 s / 1.2 s** (classification is in the path); see M1-23. **Finding:** insults draw
+injection p 0.47–0.59 from the `injection` question, so most insults go to the policy (safe, but the LLM never answers
+them) — a calibration item for M1-16.
+
 ### 4.11 Conversation lifecycle
 
 - **Open:** player-initiated (talk key in range) or NPC-initiated (21 §14). On open, the sim
