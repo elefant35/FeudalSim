@@ -96,9 +96,12 @@ public partial class SimHost : Node3D
         _content = compiled.Database!;
         _scenarioId = scenario.Id;
         _jobs = new JobRunner(1);
+        _autotestCamp = args.Contains("--autotest-camp");
+        FeudalSim.AI.AiConfig? config = null;
         if (scenario.Player is not null && !_autotest)   // a player can overhear talk: live AI if the key is set, else templates
         {
-            var config = FeudalSim.AI.AiConfig.Load(FeudalSim.AI.AiConfig.FindEnvFile(repo));
+            config = _autotestCamp ? new FeudalSim.AI.AiConfig { LlmMode = "template" }   // the camp autotest never calls a model
+                : FeudalSim.AI.AiConfig.Load(FeudalSim.AI.AiConfig.FindEnvFile(repo));
             _aiStack = FeudalSim.AI.AiStack.Create(config);
             _gateway = _aiStack.CreateGateway();
             _aiStatus = config.TemplateMode ? "AI: template lines (no key)" : $"AI: live · {config.UtilityModel}";
@@ -117,7 +120,11 @@ public partial class SimHost : Node3D
         };
         GD.Print($"SimHost: started {scenario.Id} (seed {scenario.Seed}, {scenario.Settlers} settlers); content {compiled.Database!.Hash:x16}");
         if (scenario.Camp is { } camp) { PlaceMarkers(camp); }
-        if (scenario.Player is [var px, var pz]) { AddMarker(new Vector3(px, 0, pz), "you", new Color(0.2f, 0.9f, 0.9f), 0.25f, 2.2f); }
+        if (scenario.Player is [var px, var pz])
+        {
+            if (!_autotest && !args.Contains("--view")) { InitPlay(new Vector2(px, pz), config, compiled.Database!); }
+            else { AddMarker(new Vector3(px, 0, pz), "you", new Color(0.2f, 0.9f, 0.9f), 0.25f, 2.2f); }
+        }
         PlaceTrees();
         StartCampfireAudio(compiled.Database!);
     }
@@ -215,8 +222,10 @@ public partial class SimHost : Node3D
         if (mm.InstanceCount != snapshot.Count) { mm.InstanceCount = snapshot.Count; }
         Span<int> counts = stackalloc int[_content!.Actions.Count + 1];
         Embody(snapshot, (float)delta);
+        if (_play) { UpdatePlay(snapshot, (float)delta); }
         for (var i = 0; i < snapshot.Count; i++)
         {
+            if (_play) { counts[snapshot.Action[i] < 0 ? counts.Length - 1 : snapshot.Action[i]]++; continue; }
             if (snapshot.IsPlayer[i])
             {
                 mm.SetInstanceTransform(i, new Transform3D(Basis.Identity.Scaled(Vector3.Zero), Vector3.Zero));   // the "you" marker stands in
@@ -246,7 +255,7 @@ public partial class SimHost : Node3D
 
         var date = Sim.Time.GameDate.FromGameMs(snapshot.GameMs);
         _overlay.Text = $"FeudalSim · {_scenarioId} · {date} · step {snapshot.Step} · {_stepsPerSecond:F1} steps/s · ×{_timeScale} · {_runner.Mode}\n" +
-                        $"{snapshot.Count - (snapshot.IsPlayer.AsSpan(0, snapshot.Count).Contains(true) ? 1 : 0)} settlers · [Space] pause · [1][2][4][8] speed · WASD/arrows pan · wheel zoom" +
+                        $"{snapshot.Count - (snapshot.IsPlayer.AsSpan(0, snapshot.Count).Contains(true) ? 1 : 0)} settlers · [Space] pause · [1][2][4][8] speed · {(_play ? "WASD walk · Shift run · [E] talk · [Esc] leave" : "WASD/arrows pan")} · wheel zoom" +
                         (_aiStatus.Length > 0 ? $" · {_aiStatus}" : "");
         if (snapshot.CampActive)
         {
@@ -331,7 +340,7 @@ public partial class SimHost : Node3D
 
     private void MoveCamera(double delta)
     {
-        if (_autotest) { return; }
+        if (_autotest || _play) { return; }
         var pan = Vector3.Zero;
         if (Input.IsKeyPressed(Key.W) || Input.IsKeyPressed(Key.Up)) { pan.Z -= 1; }
         if (Input.IsKeyPressed(Key.S) || Input.IsKeyPressed(Key.Down)) { pan.Z += 1; }
@@ -419,6 +428,12 @@ public partial class SimHost : Node3D
 
     public override void _UnhandledInput(InputEvent @event)
     {
+        if (_play && @event is InputEventMouseButton { Pressed: true } z && z.ButtonIndex is MouseButton.WheelUp or MouseButton.WheelDown)
+        {
+            _zoom = Math.Clamp(_zoom * (z.ButtonIndex == MouseButton.WheelUp ? 0.9f : 1.1f), 0.4f, 4f);
+            return;
+        }
+
         if (@event is InputEventMouseButton { Pressed: true } wheel && wheel.ButtonIndex is MouseButton.WheelUp or MouseButton.WheelDown)
         {
             var forward = -_camera.GlobalTransform.Basis.Z;
@@ -436,6 +451,8 @@ public partial class SimHost : Node3D
             case Key.Key2: SetSpeed(2); break;
             case Key.Key4: SetSpeed(4); break;
             case Key.Key8: SetSpeed(8); break;
+            case Key.E when _play: TryTalk(); break;
+            case Key.Escape when _play: Leave(); break;
         }
     }
 
