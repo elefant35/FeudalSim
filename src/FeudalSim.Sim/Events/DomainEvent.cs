@@ -37,6 +37,8 @@ public enum Salience : byte { Trace, Minor, Notable, Major, Historic }
 [Union(28, typeof(PersonDowned))]
 [Union(29, typeof(PersonRecovered))]
 [Union(30, typeof(PersonDied))]
+[Union(31, typeof(WoundInfected))]
+[Union(32, typeof(WoundTreated))]
 public abstract record DomainEvent;
 
 [MessagePackObject]
@@ -194,3 +196,12 @@ public sealed record PersonRecovered([property: Key(0)] EntityId Person) : Domai
 /// <summary>11 §14: a person died (cause as <c>VitalCause</c>); the row stays as their body.</summary>
 [MessagePackObject]
 public sealed record PersonDied([property: Key(0)] EntityId Person, [property: Key(1)] byte Cause) : DomainEvent;
+
+/// <summary>11 §5.3: an open wound turned Inflamed.</summary>
+[MessagePackObject]
+public sealed record WoundInfected([property: Key(0)] EntityId Person, [property: Key(1)] ulong Injury) : DomainEvent;
+
+/// <summary>11 §5.2–5.3 / 13 §8: a procedure on a wound — q is 13's TreatmentResult Q / 100 (0 on a critical failure).</summary>
+[MessagePackObject]
+public sealed record WoundTreated([property: Key(0)] EntityId Healer, [property: Key(1)] EntityId Patient, [property: Key(2)] ulong Injury,
+    [property: Key(3)] byte Procedure, [property: Key(4)] float Q, [property: Key(5)] bool Applied) : DomainEvent;

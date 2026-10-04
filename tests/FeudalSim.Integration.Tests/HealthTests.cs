@@ -38,7 +38,7 @@ public sealed class HealthTests
     }
 
     private static Injury Wound(SimWorld w, InjuryType type, float severity, float bleed, BodyRegion region, byte flags = 0)
-        => new() { Id = w.Injuries.NextId(), CreatedMin = w.Clock.GameMinute, Severity = severity, BleedRate = bleed, Region = region, Type = type, Flags = flags };
+        => new() { Id = w.Injuries.NextId(), CreatedMin = w.Clock.GameMinute, Severity = severity, BleedRate = bleed, Region = region, Type = type, Flags = flags, TourniquetMin = -1 };
 
     [Fact]
     public void WolfBite_WorkedExample()   // 11 §4.4

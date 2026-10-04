@@ -56,7 +56,7 @@ public static class HealthRules
         for (var k = 0; k < injuries.Count; k++)
         {
             var i = injuries[k];
-            if (i.Region == region) { loss += i.Severity * Impair(i.Type, splinted: false) / 100f; }
+            if (i.Region == region) { loss += i.Severity * Impair(i.Type, (i.Treated & Treated.Splinted) != 0) / 100f; }
         }
 
         return Math.Clamp(1f - loss, 0f, 1f);
@@ -68,13 +68,18 @@ public static class HealthRules
     public static float Pain(IReadOnlyList<Injury> injuries)
     {
         var pain = 0f;
-        for (var k = 0; k < injuries.Count; k++) { pain += injuries[k].Severity * PainFactor(injuries[k].Type, splinted: false); }
+        for (var k = 0; k < injuries.Count; k++)
+        {
+            var i = injuries[k];
+            pain += (i.Severity * PainFactor(i.Type, (i.Treated & Treated.Splinted) != 0)) + (i.Infection != InfectionState.Clean ? 10f : 0f);   // Inflamed+: +10
+        }
+
         return Math.Clamp(pain, 0f, 100f);
     }
 
-    /// <summary>11 §4.1 Health = clamp(100 − Bruise − Σ sev − 0.8·(100 − Blood) − ConditionLoad, 0, 100); load: hypothermia 0.6.</summary>
-    public static float Health(float bruise, float severitySum, float blood, float hypothermia)
-        => Math.Clamp(100f - bruise - severitySum - (0.8f * (100f - blood)) - (0.6f * hypothermia), 0f, 100f);
+    /// <summary>11 §4.1 Health = clamp(100 − Bruise − Σ sev − 0.8·(100 − Blood) − ConditionLoad, 0, 100); load: hypothermia 0.6, infection 0.5.</summary>
+    public static float Health(float bruise, float severitySum, float blood, float hypothermia, float infection = 0f)
+        => Math.Clamp(100f - bruise - severitySum - (0.8f * (100f - blood)) - (0.6f * hypothermia) - (0.5f * infection), 0f, 100f);
 
     /// <summary>The §4.3 interface 18 queries (1 Hz and on change).</summary>
     public readonly record struct CombatPenalties(float AttackSpeedMult, float DamageMult, float MoveSpeedMult, float StaminaRegenMult, float PerceptionMod, bool CanUseTwoHanded);
@@ -98,7 +103,8 @@ public static class HealthRules
     /// <summary>11 §5.2 Max Stamina: Blood &lt; 80 ×0.85 (and &lt; 60 ×0.6, per 18's table row).</summary>
     public static float StaminaMaxMult(float blood) => blood < 60f ? 0.6f : blood < 80f ? 0.85f : 1f;
 
-    /// <summary>11 §5.4 healing multiplier M (infection, treatment: 06b — untreated 0.6, Clean 1).</summary>
+    /// <summary>11 §5.4 healing multiplier M without the wound's own terms (pass treatment 1 and apply <see cref="Treatment.HealFactor"/>
+    /// and the infection factor per wound; the default 0.6 is the untreated value).</summary>
     public static float HealMultiplier(ActivityLevel activity, float satiety, bool child, bool elder, float endurance, float warmth, float treatment = 0.6f)
     {
         var rest = activity switch { ActivityLevel.Sleep or ActivityLevel.Rest => 1.4f, ActivityLevel.Light => 1f, ActivityLevel.Moderate => 0.75f, _ => 0.5f };
@@ -142,6 +148,7 @@ public static class HealthRules
             Id = id, CreatedMin = world.Clock.GameMinute, Severity = MathF.Min(100f, effective), Region = region, Type = type,
             BleedRate = Bleed(type, tier),
             Contamination = source switch { TraumaSource.CleanBlade => 0.2f, TraumaSource.Animal => 0.8f, TraumaSource.Fire => 0.3f, _ => 0.5f },
+            TourniquetMin = -1,
         };
         if (type is InjuryType.Cut or InjuryType.Puncture || (type == InjuryType.Burn && effective >= 20f)) { injury.Flags |= Injury.OpenFlag; }
         if (type == InjuryType.Cut && tier == 3 && limb && rng.Chance(0.25f)) { (injury.BleedRate, injury.Flags) = (ArterialBleed, (byte)(injury.Flags | Injury.ArterialFlag)); }
@@ -155,7 +162,7 @@ public static class HealthRules
             world.Injuries.Add(person, new Injury
             {
                 Id = internalId, CreatedMin = injury.CreatedMin, Severity = injury.Severity * 0.5f, Region = region, Type = InjuryType.Internal,
-                BleedRate = rng.Uniform(3f, 8f), Contamination = 0f,   // hidden: diagnosed only by Healing ≥ 40 (06b)
+                BleedRate = rng.Uniform(3f, 8f), Contamination = 0f, TourniquetMin = -1,   // hidden: diagnosed only by Healing ≥ 40 (13 §8)
             });
         }
 

@@ -29,6 +29,7 @@ public enum CommandSource : byte { Player, Embodiment, Ai, Settings, Scenario, D
 [Union(17, typeof(DialogueLineRendered))]
 [Union(18, typeof(Steal))]
 [Union(19, typeof(InflictTrauma))]
+[Union(20, typeof(TreatWound))]
 public abstract record StateCommand;
 
 /// <summary>Changes the real-minutes-per-game-day setting (canon §6). Logged; applies at the next step.</summary>
@@ -110,6 +111,13 @@ public sealed record PlayerUtteranceClassified(
 [MessagePackObject]
 public sealed record InflictTrauma([property: Key(0)] Core.EntityId Person, [property: Key(1)] float Effective, [property: Key(2)] byte Damage,
     [property: Key(3)] byte Region, [property: Key(4)] byte Source) : StateCommand;
+
+/// <summary>11 §5.2–5.3 / 13 §8: <c>Healer</c> performs a procedure (<c>Health.Procedure</c> as a byte) on one of
+/// <c>Patient</c>'s wounds. From the player the healer must be the player, within arm's reach; the AI and scenarios may
+/// name any healer. The healer's Healing check decides q.</summary>
+[MessagePackObject]
+public sealed record TreatWound([property: Key(0)] Core.EntityId Healer, [property: Key(1)] Core.EntityId Patient, [property: Key(2)] ulong Injury,
+    [property: Key(3)] byte Procedure) : StateCommand;
 
 /// <summary>Scenario/dev: sets a person's holding of one item (−1 for none) and their coin (farthings). M1 has no other source of goods.</summary>
 [MessagePackObject]

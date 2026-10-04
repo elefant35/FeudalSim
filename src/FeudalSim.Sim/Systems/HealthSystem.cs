@@ -10,6 +10,8 @@ namespace FeudalSim.Sim.Systems;
 /// 0.8/h when nothing bleeds and Hydration ≥ 40 and Satiety ≥ 30 (×1.5 at rest); injuries heal by (50/baseDays)·M a day;
 /// then Pain and Health, and the §14 states: Downed at Health ≤ 0, Blood &lt; 35 or Hypothermia ≥ 80; Dying while a
 /// lethal track rises; conscious again after 2 h stable with no trigger left; dead at Blood 0 or Hypothermia 100.
+/// M2-06b: each 6-hour slot runs every wound's infection step (11 §5.3); treatment speeds healing (0.6 + 0.6q, stitched
+/// ×1.3), Inflamed halves it and Infected stops it; Septic ≥ 90 downs and 100 kills; Infected or worse is a fever.
 /// </summary>
 public sealed class HealthSystem : ISimSystem
 {
@@ -43,14 +45,28 @@ public sealed class HealthSystem : ISimSystem
         var list = world.Injuries.ListOf(people.Ids[i]);
         var bleeding = 0f;
         var severitySum = 0f;
+        var infection = 0f;
+        var septicRising = false;
         if (list is not null)
         {
             var level = people.Activity[i].Level;
             var age = (now - people.Core[i].BirthGameMinute) / Time.GameDate.MinutesPerYear;
-            var m = HealthRules.HealMultiplier(level, n.Satiety, age < 14, age >= 65, Skills.Skills.Attribute(world, i, "end"), n.Warmth);
+            var endurance = Skills.Skills.Attribute(world, i, "end");
+            var m = HealthRules.HealMultiplier(level, n.Satiety, age < 14, age >= 65, endurance, n.Warmth, treatment: 1f);
+            var bedRest = level is ActivityLevel.Sleep or ActivityLevel.Rest || v.Down;
+            var slotTo = now / 360;
+            var slotFrom = (now - (long)MathF.Round(dtH * 60f)) / 360;
+            var susceptibility = Treatment.Susceptibility(n.Satiety, age >= 65, n.Warmth);
             for (var k = list.Count - 1; k >= 0; k--)
             {
                 var inj = list[k];
+                for (var slot = slotFrom + 1; slot <= slotTo; slot++)   // 11 §5.3: one infection step per 6-hour slot
+                {
+                    var before = inj.InfectionSev;
+                    Treatment.Slot(world, people.Ids[i], ref inj, slot, susceptibility, endurance, bedRest);
+                    septicRising |= inj.Infection == InfectionState.Septic && inj.InfectionSev > before;
+                }
+
                 if (inj.BleedRate > 0f)
                 {
                     v.Blood = MathF.Max(0f, v.Blood - (inj.BleedRate * dtH));
@@ -64,11 +80,13 @@ public sealed class HealthSystem : ISimSystem
                     inj.ClotHours = (ushort)hours;
                 }
 
-                inj.Severity -= 50f / HealthRules.BaseHealDays(inj.Type) * m * dtH / 24f;
-                if (inj.Severity <= 0f && inj.BleedRate <= 0f) { list.RemoveAt(k); continue; }
+                var infectionF = inj.Infection switch { InfectionState.Clean => 1f, InfectionState.Inflamed => 0.5f, _ => 0f };
+                inj.Severity -= 50f / HealthRules.BaseHealDays(inj.Type) * m * Treatment.HealFactor(inj) * infectionF * dtH / 24f;
+                if (inj.Severity <= 0f && inj.BleedRate <= 0f && inj.Infection == InfectionState.Clean) { list.RemoveAt(k); continue; }
                 inj.Severity = MathF.Max(0f, inj.Severity);
                 bleeding += inj.BleedRate;
                 severitySum += inj.Severity;
+                infection = MathF.Max(infection, inj.InfectionSev);
                 list[k] = inj;
             }
         }
@@ -83,23 +101,25 @@ public sealed class HealthSystem : ISimSystem
         var hypo = people.Body[i].Hypothermia;
         IReadOnlyList<Injury> injuries = list ?? (IReadOnlyList<Injury>)[];
         v.Pain = HealthRules.Pain(injuries);
-        v.Health = HealthRules.Health(v.Bruise, severitySum, v.Blood, hypo);
-        Transition(world, i, ref v, bleeding > 0f || people.Needs[i].Warmth < 25f, hypo, injuries, now);
+        v.Health = HealthRules.Health(v.Bruise, severitySum, v.Blood, hypo, infection);
+        v.Fever = infection > 30f ? (byte)1 : (byte)0;
+        Transition(world, i, ref v, bleeding > 0f || people.Needs[i].Warmth < 25f || septicRising, hypo, infection, injuries, now);
     }
 
-    private static void Transition(SimWorld world, int i, ref Vitals v, bool lethalRising, float hypothermia, IReadOnlyList<Injury> injuries, long now)
+    private static void Transition(SimWorld world, int i, ref Vitals v, bool lethalRising, float hypothermia, float infection, IReadOnlyList<Injury> injuries, long now)
     {
         var people = world.People;
         var id = people.Ids[i];
-        if (v.Blood <= 0f || hypothermia >= 100f)
+        if (v.Blood <= 0f || hypothermia >= 100f || infection >= 100f)
         {
-            (v.State, v.Cause) = (VitalState.Dead, v.Blood <= 0f ? VitalCause.BloodLoss : VitalCause.Hypothermia);
+            (v.State, v.Cause) = (VitalState.Dead, v.Blood <= 0f ? VitalCause.BloodLoss : hypothermia >= 100f ? VitalCause.Hypothermia : VitalCause.Infection);
             people.Activity[i] = new ActivityState { Action = -1, Level = ActivityLevel.Rest };
             world.Emit(Events.Salience.Major, id, new Events.PersonDied(id, (byte)v.Cause));
             return;
         }
 
-        var trigger = v.Health <= 0f ? VitalCause.Trauma : v.Blood < 35f ? VitalCause.BloodLoss : hypothermia >= 80f ? VitalCause.Hypothermia : VitalCause.None;
+        var trigger = v.Health <= 0f ? VitalCause.Trauma : v.Blood < 35f ? VitalCause.BloodLoss : hypothermia >= 80f ? VitalCause.Hypothermia
+            : infection >= 90f ? VitalCause.Infection : VitalCause.None;
         if (!v.Down)
         {
             if (trigger != VitalCause.None)

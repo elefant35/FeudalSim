@@ -58,9 +58,10 @@ public sealed class NeedsDecaySystem : ISimSystem
             var dtH = due.Dt(k) / (float)Time.SimClock.MsPerGameHour;
             ref var n = ref people.Needs[i];
             var level = (int)people.Activity[i].Level;
-            n.Satiety = MathF.Max(0, n.Satiety - (sat[level] * Survival.Exposure.SatietyColdFactor(n.Warmth) * dtH));
-            n.Hydration = MathF.Max(0, n.Hydration - (hyd[level] * hot * dtH));
-            n.Energy = MathF.Max(0, n.Energy - (en[level] * Survival.Exposure.EnergyColdFactor(n.Warmth) * dtH));
+            var fever = people.Vitals[i].Fever != 0;   // 11 §2.1: fever Satiety ×1.1, Hydration ×1.3, Energy ×1.3
+            n.Satiety = MathF.Max(0, n.Satiety - (sat[level] * Survival.Exposure.SatietyColdFactor(n.Warmth) * (fever ? 1.1f : 1f) * dtH));
+            n.Hydration = MathF.Max(0, n.Hydration - (hyd[level] * hot * (fever ? 1.3f : 1f) * dtH));
+            n.Energy = MathF.Max(0, n.Energy - (en[level] * Survival.Exposure.EnergyColdFactor(n.Warmth) * (fever ? 1.3f : 1f) * dtH));
         }
     }
 

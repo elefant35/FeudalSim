@@ -301,6 +301,10 @@ public sealed class SimWorld
                 break;
             }
 
+            case TreatWound c:
+                Health.Treatment.Command(this, command, c);
+                break;
+
             case InflictTrauma c:
             {
                 var row = People.IndexOf(c.Person);

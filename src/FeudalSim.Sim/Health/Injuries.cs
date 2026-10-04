@@ -19,11 +19,20 @@ public enum TraumaSource : byte { CleanBlade, Tool, Animal, Fire }
 /// <summary>11 §5.3 infection track (M2-06b drives it; M2-06a creates wounds Clean).</summary>
 public enum InfectionState : byte { Clean, Inflamed, Infected, Septic }
 
+/// <summary>11 §5.2–5.3 procedures (13 §8's treat stage; byte values saved and logged; append only).</summary>
+public enum Procedure : byte { Bandage, Tourniquet, Stitch, Cautery, Clean, Honey, Poultice, SetAndSplint, Lance }
+
+/// <summary>Bits of <see cref="Injury.Treated"/>.</summary>
+public static class Treated
+{
+    public const ushort Bandaged = 1, Tourniquet = 2, Stitched = 4, Cauterized = 8, Cleaned = 16, Honey = 32, Poultice = 64, Set = 128, Splinted = 256, Lanced = 512;
+}
+
 /// <summary>11 §14 states (byte values saved; append only).</summary>
 public enum VitalState : byte { Active, Impaired, Downed, Dying, Recovering, Dead }
 
 /// <summary>Why someone went down or died (11 §14 triggers).</summary>
-public enum VitalCause : byte { None, Trauma, BloodLoss, Hypothermia }
+public enum VitalCause : byte { None, Trauma, BloodLoss, Hypothermia, Infection }
 
 /// <summary>11 §4.2 injury record (blittable, packed without padding: saved and hashed as bytes).</summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
@@ -38,7 +47,9 @@ public struct Injury
     public InjuryType Type;
     public InfectionState Infection;
     public byte Flags;
-    public ushort Treated, ClotHours;   // treatment flags (06b); whole hours of clotting applied so far
+    public ushort Treated, ClotHours;   // treatment flags (<see cref="Health.Treated"/>); whole hours of clotting applied so far
+    public long TourniquetMin;          // when a tourniquet went on (−1 none): necrosis after 2 h is M2-06c's
+    public float PoulticeQ;             // the poultice's q (its progression term is 2 + 4q)
 
     public readonly bool Open => (Flags & OpenFlag) != 0;
     public readonly bool Arterial => (Flags & ArterialFlag) != 0;
@@ -52,7 +63,7 @@ public struct Vitals
     public long DownedSinceMin, StableSinceMin;
     public VitalState State;
     public VitalCause Cause;
-    public byte Reserved0, Reserved1;
+    public byte Fever, Reserved1;   // Fever: any wound Infected or Septic (11 §5.3 → §2.1 need multipliers)
 
     public static Vitals Healthy => new() { Blood = 100f, Health = 100f, DownedSinceMin = -1, StableSinceMin = -1 };
 

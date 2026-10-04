@@ -36,6 +36,8 @@ public static class Salt
     public const uint WorldGenCoast = 24;
     public const uint Mediation = 25;
     public const uint Trauma = 26;
+    public const uint Infection = 27;
+    public const uint Treatment = 28;
 }
 
 /// <summary>SplitMix64 finalizer-based mixing (Steele, Lea &amp; Flood 2014).</summary>

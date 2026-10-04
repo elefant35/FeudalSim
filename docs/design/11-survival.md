@@ -340,6 +340,27 @@ stops limb gangrene, with survival `0.7 + 0.25q`, ×0.7 if Starving. [12](12-ski
 **Effects:** Inflamed Pain +10, healing ×0.5. Infected: fever (§2.1), healing 0, TempMod END −1.
 Septic: work ×0.3, **Downed at ≥ 90**.
 
+*Implemented (M2-06b), `Health/Treatment.cs`:*
+- **Procedures:** nine of them, sent with the `TreatWound` command — bandage, tourniquet, clean (boiled water), honey,
+  poultice (yarrow), stitch, lance, cautery, and set & splint.
+- **Quality q:** the healer's Healing check at 13 §8's difficulty. q is the check's performance score / 100 (13's
+  `TreatmentResult.Q`). A critical failure does nothing.
+- **Skill gates:** wound dressing ≈ Healing 5, poultice 10, stitch and lance 20, cautery 25, setting a bone 40.
+- **Reach:** the player can only treat as themselves, within 2.5 m.
+- **Infection:** runs every 6-hour slot as written. Fever (Infected or worse) applies §2.1's need multipliers.
+  Infection adds 0.5 × its severity to Health's condition load. Septic ≥ 90 downs and 100 kills.
+- **Healing:** treated wounds heal at 0.6 + 0.6q (stitched ×1.3); splinting changes pain and impairment.
+- **Not yet:**
+  - Supplies are not consumed (inventories: M2 items).
+  - Wine, vinegar and other poultice herbs wait for those goods.
+  - Procedures take no time yet (13's minigames).
+  - Pressure, extraction, amputation, tourniquet necrosis, malunion, scars and the rest of §5.5 are M2-06c.
+  - Analgesia is not modelled.
+  - No NPC tends the injured yet (21's NPC AI item).
+
+**Finding (Q10):** the §5.3 check says boiled water (q 0.7) and honey bring c from 0.8 to 0.12 (≈ 11% over ten slots).
+The cleaning formula `×(1 − 0.7q)` gives 0.8 × 0.51 × 0.5 = **0.204** (≈ 18.6%); 0.12 needs ×0.3, i.e. q = 1.
+
 ### 5.4 Healing
 
 Each day, severity falls by `(50 / baseDays) × M`, where
@@ -1470,6 +1491,8 @@ diagnosis, or how much food a ration holds.
 9. **Q9: the arterial-bleed anchor (§2.3).** By §4.1 a Critical arterial cut downs its victim on Health ≤ 0 at
    ≈ 1.4 h, before Blood < 35 (≈ 1.6 h). Should §2.3 say 1.4 h, or should severity count less toward Health while it
    bleeds? (M2-06a; 31 D41.)
+10. **Q10: the cleaning anchor (§5.3).** Boiled water at q 0.7 plus honey gives c 0.204 by the formula, not the
+    example's 0.12. Change the example (≈ 19% infected over ten slots) or the formula (e.g. ×(1 − q))? (M2-06b; 31 D42.)
 
 ## Proposed canon additions
 
