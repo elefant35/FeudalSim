@@ -1,0 +1,692 @@
+[
+  {
+    "id": "asset.trees.scots_pine_a",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "scots_pine",
+        "seed": 101,
+        "variant": "a"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/scots_pine_a.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 860,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size scots_pine; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.scots_pine_b",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "scots_pine",
+        "seed": 102,
+        "variant": "b"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/scots_pine_b.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 860,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size scots_pine; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.scots_pine_c",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "scots_pine",
+        "seed": 103,
+        "variant": "c"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/scots_pine_c.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 860,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size scots_pine; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.scots_pine_d",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "scots_pine",
+        "seed": 104,
+        "variant": "d"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/scots_pine_d.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 860,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size scots_pine; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.oak_a",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "oak",
+        "seed": 101,
+        "variant": "a"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/oak_a.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 950,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size oak; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.oak_b",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "oak",
+        "seed": 102,
+        "variant": "b"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/oak_b.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 950,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size oak; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.oak_c",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "oak",
+        "seed": 103,
+        "variant": "c"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/oak_c.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 950,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size oak; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.oak_d",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "oak",
+        "seed": 104,
+        "variant": "d"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/oak_d.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 950,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size oak; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.birch_a",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "birch",
+        "seed": 101,
+        "variant": "a"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/birch_a.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 908,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size birch; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.birch_b",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "birch",
+        "seed": 102,
+        "variant": "b"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/birch_b.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 908,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size birch; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.birch_c",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "birch",
+        "seed": 103,
+        "variant": "c"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/birch_c.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 908,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size birch; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.ash_a",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "ash",
+        "seed": 101,
+        "variant": "a"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/ash_a.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 860,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size ash; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.ash_b",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "ash",
+        "seed": 102,
+        "variant": "b"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/ash_b.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 860,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size ash; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.ash_c",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "ash",
+        "seed": 103,
+        "variant": "c"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/ash_c.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 860,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size ash; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.beech_a",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "beech",
+        "seed": 101,
+        "variant": "a"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/beech_a.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 950,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size beech; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.beech_b",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "beech",
+        "seed": 102,
+        "variant": "b"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/beech_b.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 950,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size beech; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.beech_c",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "beech",
+        "seed": 103,
+        "variant": "c"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/beech_c.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 950,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size beech; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.alder_a",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "alder",
+        "seed": 101,
+        "variant": "a"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/alder_a.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 980,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size alder; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.alder_b",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "alder",
+        "seed": 102,
+        "variant": "b"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/alder_b.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 980,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size alder; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.alder_c",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "alder",
+        "seed": 103,
+        "variant": "c"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/alder_c.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 980,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size alder; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.willow_a",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "willow",
+        "seed": 101,
+        "variant": "a"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/willow_a.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 1430,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size willow; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.willow_b",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "willow",
+        "seed": 102,
+        "variant": "b"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/willow_b.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 1430,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size willow; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  },
+  {
+    "id": "asset.trees.willow_c",
+    "kind": "model",
+    "status": "review",
+    "milestone": "M2",
+    "source": {
+      "type": "generator",
+      "generator": "art/generators/broadleaf/broadleaf.py",
+      "params": {
+        "species": "willow",
+        "seed": 103,
+        "variant": "c"
+      },
+      "tool": "Blender 5.1.0 (headless)"
+    },
+    "outputs": [
+      "game/assets/flora/trees/willow_c.glb"
+    ],
+    "budget_class": "tree",
+    "measured": {
+      "tris_lod0": 1430,
+      "materials": 1
+    },
+    "license": {
+      "name": "Proprietary-own-work",
+      "author": "FeudalSim",
+      "attribution_required": false
+    },
+    "notes": "Timber-size willow; species-specific crown, west-wind asymmetry, trunk-only convex collision; COLOR_0.R wind weights."
+  }
+]

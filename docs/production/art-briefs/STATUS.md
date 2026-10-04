@@ -6,6 +6,8 @@ The art agent keeps this current; the code agent reads it to wire assets in. New
 
 | Date | Asset(s) | Files | Notes |
 |------|----------|-------|-------|
+| 2026-10-04 | P0.4 Trees: all 23 timber variants | `game/assets/flora/trees/`, `content/assets/trees_m2.yaml`, `art/generators/broadleaf/broadleaf.py` | Scots pine/oak ×4; birch/ash/beech/alder/willow ×3. 860–1,430 tris, one palette, COLOR_0 wind masks, trunk-only convex collision. 10.9–21 m species scales. All turntables and silhouette sheets inspected; willow simplified to fit budget. |
+| 2026-10-04 | P0.6 Understory: all 17 variants | `game/assets/flora/bushes/`, `plants/`, `content/assets/understory_m2.yaml`, `art/generators/understory/` | Hazel ×3, bramble/gorse ×2, reeds ×3, grass ×4, fern ×3. 48–300 tris; grass 48, one palette, no collision, exported wind anchors/tips verified. Species contact sheets and silhouettes inspected. |
 | 2026-10-04 | P0.1 Settlers: two complete modular libraries | `game/assets/characters/body_male.glb`, `body_female.glb`, `content/assets/characters_m2.yaml`, `art/generators/settlers/` | Shared 40-bone rig; 4 heads/sex × 10 expression keys, 6 hair styles/sex, 3 male beards, 6 garments/sex. Largest assembled selections 3,600 / 3,524 tris, 2 palette material variants; full libraries 5,792 / 5,580. Neutral shapes, expressions, turntables, 40 m silhouette and eye-camera previews inspected. Body heights 1.72 / 1.62 m. |
 | 2026-10-04 | P0.2 Animations: 5 libraries / 27 clips | `game/assets/characters/anims/`, `content/assets/animations.yaml`, `art/generators/animations/` | All required names, 30 fps, static Root and horizontal Hips. Loop endpoints match within 1e-5. Sampled stance speed 1.600 / 4.000 / 6.500 m/s. Six work/needs eye-camera checks: at least one wrist in view in all 61 samples per clip; nearest wrist 0.200 m from camera. Third-person and first-person sheets inspected. Vertical posture offset exception documented below. |
 | 2026-10-04 | P0.7 Camp: 12 assets | `game/assets/buildings/`, exact props paths, `content/assets/camp_m2.yaml`, `art/generators/camp/camp.py` | Fire ring with separate Logs/Ash, two shelters, bough bed, crate/barrel/sack/chest, water skin/bucket, firewood pile/bundle. 188–642 tris, palette, cloth wind masks, appropriate post/container collision. Repaired low lean-to supports and open bucket bands after visual QA; turntables inspected. |
@@ -20,6 +22,8 @@ The art agent keeps this current; the code agent reads it to wire assets in. New
 - 2026-10-04: Extended `tools/art/check.py` and `preview.py` for M2 object names, collision exclusion, modular character assembly, expression keys, palette UV centres, and animation-only GLBs. Legacy graybox check passes. Tooling committed as `24517a4`.
 
 ## Requests to the code agent
+
+- Seasonally hide `bush_bramble_<variant>_berries` for bramble without fruit; berries export as separate meshes.
 
 - Imported `COLOR_0.R` is a **wind weight**, not albedo. Disable standard-material vertex-color multiplication and let the wind shader read R separately; glTF generic materials otherwise darken/tint these models. The preview tool reconnects the palette directly for visual QA. Blender 5 exporter now explicitly exports active vertex colors, including cloth/foliage masks.
 
