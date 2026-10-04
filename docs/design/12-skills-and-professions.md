@@ -745,7 +745,7 @@ used for first-ship settlers, later expeditions and resupply immigrants:
 |---------|------|
 | Homeland trade | Each adult gets a trade from the profession catalog (§10) or a background-equivalent |
 | Primary skill | `clamp(22 + 0.9 × (age − 18) + N(0, 6), 15, 65)` |
-| Secondary skills (2) | U(10, 30) |
+| Secondary skills (2) | U(10, 30) — the trade's listed secondaries first; if it lists fewer than two, the rest are drawn at random from non-primary skills (implemented M1-01a) |
 | Common skills (Farming, Foraging, Cooking, Woodcutting, Athletics) | U(5, 20) unless higher |
 | Everything else | U(0, 8) |
 | "Old hand" | One adult per expedition aged 45–55 with primary 60–72 (the settlement's first Expert) |

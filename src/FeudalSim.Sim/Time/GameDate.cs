@@ -10,6 +10,7 @@ public readonly record struct GameDate(int Year, Season Season, int Day, int Hou
     public const int DaysPerSeason = 8;
     public const int SeasonsPerYear = 4;
     public const int DaysPerYear = DaysPerSeason * SeasonsPerYear;
+    public const long MinutesPerYear = DaysPerYear * 1440L;
     public const int HearthdayDayOfSeason = 8;
 
     /// <summary>Day of year, 1…32 (Spring 1 = 1).</summary>

@@ -42,6 +42,9 @@ public static class ContentCompiler
         var needs = new List<NeedDef>();
         var assets = new List<AssetDef>();
         var audio = new List<AudioEventDef>();
+        var traits = new List<(TraitDef Def, string Rel, Mark Mark)>();
+        var cultures = new List<(CultureDef Def, string Rel, Mark Mark)>();
+        var professions = new List<(ProfessionDef Def, string Rel, Mark Mark)>();
         var repoRoot = Path.GetDirectoryName(Path.GetFullPath(contentRoot).TrimEnd(Path.DirectorySeparatorChar)) ?? contentRoot;
         var seen = new Dictionary<string, string>(StringComparer.Ordinal);
         var files = 0;
@@ -81,6 +84,9 @@ public static class ContentCompiler
                         case NeedDef n: ValidateNeed(n, rel, mark, errors); needs.Add(n); break;
                         case AssetDef a: ValidateAsset(a, rel, mark, repoRoot, errors); assets.Add(a); break;
                         case AudioEventDef e: ValidateAudio(e, rel, mark, repoRoot, errors); audio.Add(e); break;
+                        case TraitDef t: traits.Add((t, rel, mark)); break;
+                        case CultureDef c: cultures.Add((c, rel, mark)); break;
+                        case ProfessionDef p: professions.Add((p, rel, mark)); break;
                     }
                 }
             }
@@ -88,6 +94,7 @@ public static class ContentCompiler
 
         CheckCanonical("skills", CanonLists.SkillIds, skills.Select(s => s.Id), errors);
         CheckCanonical("needs", CanonLists.NeedIds, needs.Select(n => n.Id), errors);
+        var symmetricTraits = ValidatePeople(traits, cultures, professions, skills, errors);
         if (errors.Count > 0) { return new Result(null, errors, files); }
 
         skills.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
@@ -95,7 +102,11 @@ public static class ContentCompiler
         needs.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         assets.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         audio.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
-        return new Result(new ContentDatabase(skills, items, needs, Hash(skills, items, needs), assets, audio), errors, files);
+        var traitDefs = symmetricTraits.OrderBy(t => t.Id, StringComparer.Ordinal).ToList();
+        var cultureDefs = cultures.Select(c => c.Def).OrderBy(c => c.Id, StringComparer.Ordinal).ToList();
+        var professionDefs = professions.Select(p => p.Def).OrderBy(p => p.Id, StringComparer.Ordinal).ToList();
+        var hash = Hash(skills, items, needs, traitDefs, cultureDefs, professionDefs);
+        return new Result(new ContentDatabase(skills, items, needs, hash, assets, audio, traitDefs, cultureDefs, professionDefs), errors, files);
     }
 
     private static IEnumerable<(JsonNode Node, Mark Mark)> ParseFile(string path, string rel, string kind, JsonSchema schema, List<ContentError> errors)
@@ -199,12 +210,82 @@ public static class ContentCompiler
         if (extra.Length > 0) { errors.Add(new(what, 0, 0, $"Non-canonical {what} (change canon first): {string.Join(", ", extra)}")); }
     }
 
-    private static ulong Hash(IEnumerable<SkillDef> skills, IEnumerable<ItemDef> items, IEnumerable<NeedDef> needs)
+    private static ulong Hash(IEnumerable<SkillDef> skills, IEnumerable<ItemDef> items, IEnumerable<NeedDef> needs,
+        IEnumerable<TraitDef> traits, IEnumerable<CultureDef> cultures, IEnumerable<ProfessionDef> professions)
     {
         var h = new XxHash64();
         foreach (var d in skills) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
         foreach (var d in items) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
         foreach (var d in needs) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
+
+        // People content (M1-01): appended only when present, so content without it keeps its earlier hash.
+        foreach (var d in traits) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
+        foreach (var d in cultures) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
+        foreach (var d in professions) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
         return h.GetCurrentHashAsUInt64();
+    }
+
+    /// <summary>
+    /// Cross-checks the people content (M1-01): referenced trait/skill ids exist; facet, value, emotion and need keys
+    /// are canonical; multipliers are positive; at most 64 traits (a person's trait set is a 64-bit set). Returns the
+    /// traits with incompatibility made symmetric (A lists B ⇒ B excludes A).
+    /// </summary>
+    private static List<TraitDef> ValidatePeople(List<(TraitDef Def, string Rel, Mark Mark)> traits, List<(CultureDef Def, string Rel, Mark Mark)> cultures,
+        List<(ProfessionDef Def, string Rel, Mark Mark)> professions, List<SkillDef> skills, List<ContentError> errors)
+    {
+        var traitIds = traits.Select(t => t.Def.Id).ToHashSet(StringComparer.Ordinal);
+        var skillIds = skills.Select(s => s.Id).ToHashSet(StringComparer.Ordinal);
+        var needKeys = CanonLists.NeedIds.Select(n => n["need.".Length..]).ToHashSet(StringComparer.Ordinal);
+        if (traits.Count > 64) { errors.Add(new("traits", 0, 0, $"{traits.Count} traits; a person's trait set holds at most 64.")); }
+
+        void Keys(IEnumerable<string>? keys, IReadOnlyList<string> allowed, string what, string rel, Mark m)
+        {
+            foreach (var k in keys ?? []) { if (!allowed.Contains(k)) { errors.Add(new(rel, m.Line, m.Column, $"Unknown {what} '{k}' (canon §10: {string.Join(", ", allowed)}).")); } }
+        }
+
+        void Positive(IEnumerable<KeyValuePair<string, float>>? map, string what, string rel, Mark m)
+        {
+            foreach (var (k, v) in map ?? []) { if (!(v > 0)) { errors.Add(new(rel, m.Line, m.Column, $"{what} for '{k}' must be > 0 (got {v}).")); } }
+        }
+
+        var excludes = traits.ToDictionary(t => t.Def.Id, _ => new SortedSet<string>(StringComparer.Ordinal), StringComparer.Ordinal);
+        foreach (var (t, rel, m) in traits)
+        {
+            Keys(t.FacetAffinity?.Keys, CanonLists.Facets, "facet", rel, m);
+            Keys(t.Effects?.EmotionGain?.Keys, CanonLists.Emotions, "emotion", rel, m);
+            Keys(t.Effects?.HalfLife?.Keys, CanonLists.Emotions, "emotion", rel, m);
+            Keys(t.Effects?.HijackThreshold?.Keys, CanonLists.Emotions, "emotion", rel, m);
+            Keys(t.Effects?.NeedDecay?.Keys, [.. needKeys], "need", rel, m);
+            Keys(t.Effects?.ValueFloor?.Keys, CanonLists.Values, "value", rel, m);
+            Keys(t.Effects?.ValueCap?.Keys, CanonLists.Values, "value", rel, m);
+            Keys(t.Effects?.ValueShift?.Keys, CanonLists.Values, "value", rel, m);
+            Positive(t.Effects?.EmotionGain, "emotion_gain", rel, m);
+            Positive(t.Effects?.HalfLife, "half_life", rel, m);
+            Positive(t.Effects?.Utility, "utility", rel, m);
+            Positive(t.Effects?.NeedDecay, "need_decay", rel, m);
+            if (!(t.Prevalence > 0)) { errors.Add(new(rel, m.Line, m.Column, $"prevalence must be > 0 (got {t.Prevalence}).")); }
+            foreach (var other in t.Incompatible ?? [])
+            {
+                if (other == t.Id) { errors.Add(new(rel, m.Line, m.Column, $"{t.Id} cannot be incompatible with itself.")); }
+                else if (!traitIds.Contains(other)) { errors.Add(new(rel, m.Line, m.Column, $"Unknown trait '{other}' in incompatible.")); }
+                else { excludes[t.Id].Add(other); excludes[other].Add(t.Id); }
+            }
+        }
+
+        foreach (var (c, rel, m) in cultures)
+        {
+            Keys(c.ValueMeans?.Keys, CanonLists.Values, "value", rel, m);
+            foreach (var (k, v) in c.ValueMeans ?? new Dictionary<string, int>()) { if (v is < 0 or > 100) { errors.Add(new(rel, m.Line, m.Column, $"value_means.{k} must be 0–100 (got {v}).")); } }
+            foreach (var k in c.TraitMultipliers?.Keys ?? []) { if (!traitIds.Contains(k)) { errors.Add(new(rel, m.Line, m.Column, $"Unknown trait '{k}' in trait_multipliers.")); } }
+            Positive(c.TraitMultipliers, "trait_multipliers", rel, m);
+        }
+
+        foreach (var (p, rel, m) in professions)
+        {
+            if (p.Primary.Count == 0) { errors.Add(new(rel, m.Line, m.Column, $"{p.Id} needs at least one primary skill.")); }
+            foreach (var s in p.Primary.Concat(p.Secondary ?? [])) { if (!skillIds.Contains(s)) { errors.Add(new(rel, m.Line, m.Column, $"Unknown skill '{s}' in {p.Id}.")); } }
+        }
+
+        return [.. traits.Select(t => excludes[t.Def.Id].Count == 0 ? t.Def with { Incompatible = null } : t.Def with { Incompatible = [.. excludes[t.Def.Id]] })];
     }
 }

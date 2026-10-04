@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://feudalsim.dev/schemas/culture.schema.json",
+  "title": "CultureDef",
+  "description": "A list of culture definitions (generated from FeudalSim.Sim.Content.CultureDef; do not edit).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^culture(\\.[a-z0-9_]\u002B)\u002B$"
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "faith": {
+        "type": "string",
+        "minLength": 1
+      },
+      "value_means": {
+        "type": "object"
+      },
+      "trait_multipliers": {
+        "type": "object"
+      },
+      "description": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [
+      "id",
+      "name"
+    ],
+    "additionalProperties": false
+  }
+}

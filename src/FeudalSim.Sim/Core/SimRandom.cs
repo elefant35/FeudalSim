@@ -4,7 +4,7 @@ namespace FeudalSim.Sim.Core;
 public enum RngStream : ushort
 {
     WorldGen = 1, Needs, Ai, Social, Rumor, Combat, Crafting, Farming, Weather, Economy, Law,
-    Health, Births, Lod, Battle, Scenario,
+    Health, Births, Lod, Battle, Scenario, PersonGen,
 }
 
 /// <summary>Call-site salts. Every constant must be unique (enforced by a unit test).</summary>
@@ -15,6 +15,7 @@ public static class Salt
     public const uint DecisionPolicy = 3;
     public const uint ScenarioSpawn = 4;
     public const uint DecisionPolicyResample = 5;
+    public const uint PersonGen = 6;
 }
 
 /// <summary>SplitMix64 finalizer-based mixing (Steele, Lea &amp; Flood 2014).</summary>
@@ -85,6 +86,19 @@ public struct Rng
     }
 
     public bool Chance(float p) => NextFloat01() < p;
+
+    /// <summary>Uniform in [min, max).</summary>
+    public float Uniform(float min, float max) => min + ((max - min) * NextFloat01());
+
+    /// <summary>Standard normal N(0, 1) by Box–Muller (one value per call; transcendental math via <see cref="SimMath"/>).</summary>
+    public float NextNormal()
+    {
+        var u1 = 1f - NextFloat01();   // (0, 1]: avoids log(0)
+        var u2 = NextFloat01();
+        return MathF.Sqrt(-2f * SimMath.Log(u1)) * SimMath.Cos(2f * MathF.PI * u2);
+    }
+
+    public float Normal(float mean, float sd) => mean + (sd * NextNormal());
 
     private static uint RotateLeft(uint x, int k) => (x << k) | (x >> (32 - k));
 }

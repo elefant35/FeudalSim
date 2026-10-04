@@ -42,8 +42,8 @@ public sealed class WanderSystem : ISimSystem
                 var rng = SimRandom.For(ctx, RngStream.Ai, ids[i], Salt.WanderTarget);
                 var angle = rng.NextFloat01() * MathF.Tau;
                 var distance = rng.NextFloat01() * WanderRadiusMetres;
-                w.TargetX = w.HomeX + (MathF.Cos(angle) * distance);
-                w.TargetZ = w.HomeZ + (MathF.Sin(angle) * distance);
+                w.TargetX = w.HomeX + (SimMath.Cos(angle) * distance);
+                w.TargetZ = w.HomeZ + (SimMath.Sin(angle) * distance);
                 w.HasTarget = true;
             }
 

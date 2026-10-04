@@ -19,9 +19,12 @@ public static class SchemaGenerator
     [
         ("assets", "asset", typeof(AssetDef)),
         ("audio", "audio", typeof(AudioEventDef)),
+        ("cultures", "culture", typeof(CultureDef)),
         ("items", "item", typeof(ItemDef)),
         ("needs", "need", typeof(NeedDef)),
+        ("professions", "profession", typeof(ProfessionDef)),
         ("skills", "skill", typeof(SkillDef)),
+        ("traits", "trait", typeof(TraitDef)),
     ];
 
     public static string Generate(string kind, Type type)

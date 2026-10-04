@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=../schemas/culture.schema.json
+# Homeland cultures (canon §5). Value means: docs/tech/21-npc-ai.md §4.2 (unlisted values mean 50; each person
+# adds N(0, 15)). Trait multipliers: 21 §4.4. Profession prestige adjustments: 12 §10 (applied by 16/12).
+- id: culture.varrow
+  name: Kingdom of Varrow
+  faith: Ember Faith (orthodox)
+  value_means: { tradition: 60, loyalty: 60, faith: 55 }
+  trait_multipliers: { trait.loyal: 1.3, trait.pious: 1.2 }
+  description: "Feudal monarchy, orderly and hierarchical — the player's expedition."
+- id: culture.osmeri
+  name: Osmeri League
+  faith: Ember Faith (lax)
+  value_means: { wealth: 65, freedom: 55 }
+  trait_multipliers: { trait.greedy: 1.4, trait.frugal: 1.3 }
+  description: "Mercantile city-states, coin-minded (merchant prestige +15)."
+- id: culture.brannoch
+  name: Brannoch Holds
+  faith: Old ways / ancestor rites
+  value_means: { family: 65, honor: 65, loyalty: 65 }
+  trait_multipliers: { trait.brave: 1.6, trait.clannish: 1.5 }
+  description: "Highland clans, kin-loyal and martial (martial prestige +15, merchant −10)."
+- id: culture.ashen_reform
+  name: The Ashen Reform
+  faith: Ashen Reform (heterodox Ember sect)
+  value_means: { faith: 75, fairness: 60, tradition: 35 }
+  trait_multipliers: { trait.pious: 2.0, trait.stubborn: 1.4 }
+  description: "Religious dissenters fleeing persecution (priest and scribe prestige +10)."

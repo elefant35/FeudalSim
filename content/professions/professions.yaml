@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../schemas/profession.schema.json
+# The profession catalog: docs/design/12-skills-and-professions.md §10. Specializations (e.g. Healing–Midwife,
+# Woodcutting–Collier) are recorded as the base skill here; specializations are owned by 12 §7.
+- { id: profession.forager,       name: Forager,                   primary: [skill.foraging],                     secondary: [skill.cooking],                          tier: t0, first_era: 0, prestige: 15 }
+- { id: profession.hunter,        name: Hunter,                    primary: [skill.hunting, skill.archery],       secondary: [skill.stealth, skill.leatherworking],    tier: t0, first_era: 0, prestige: 30 }
+- { id: profession.fisher,        name: Fisher,                    primary: [skill.fishing],                      secondary: [skill.carpentry, skill.textiles],        tier: t0, first_era: 0, prestige: 20 }
+- { id: profession.woodcutter,    name: Woodcutter,                primary: [skill.woodcutting],                  secondary: [skill.athletics],                        tier: t0, first_era: 0, prestige: 20 }
+- { id: profession.laborer,       name: Laborer,                   primary: [skill.athletics],                    secondary: [],                                       tier: t0, first_era: 0, prestige: 10 }
+- { id: profession.cook,          name: Cook,                      primary: [skill.cooking],                      secondary: [],                                       tier: t0, first_era: 0, prestige: 20 }
+- { id: profession.healer,        name: Healer,                    primary: [skill.healing],                      secondary: [skill.foraging],                         tier: t0, first_era: 0, prestige: 50, critical: true }
+- { id: profession.midwife,       name: Midwife,                   primary: [skill.healing],                      secondary: [skill.persuasion],                       tier: t0, first_era: 0, prestige: 45, critical: true }
+- { id: profession.priest,        name: Priest,                    primary: [skill.letters, skill.persuasion],    secondary: [skill.healing],                          tier: t0, first_era: 0, prestige: 60 }
+- { id: profession.farmer,        name: Farmer,                    primary: [skill.farming],                      secondary: [skill.husbandry],                        tier: t0, first_era: 1, prestige: 25, critical: true }
+- { id: profession.herder,        name: Herder,                    primary: [skill.husbandry],                    secondary: [skill.athletics],                        tier: t1, first_era: 1, prestige: 20 }
+- { id: profession.carpenter,     name: Carpenter,                 primary: [skill.carpentry],                    secondary: [skill.woodcutting],                      tier: t0, first_era: 1, prestige: 40, critical: true }
+- { id: profession.mason,         name: Mason,                     primary: [skill.masonry],                      secondary: [skill.mining],                           tier: t1, first_era: 1, prestige: 40 }
+- { id: profession.collier,       name: Charcoal burner,           primary: [skill.woodcutting],                  secondary: [skill.metallurgy],                       tier: t1, first_era: 1, prestige: 10, critical: true }
+- { id: profession.miner,         name: Miner,                     primary: [skill.mining],                       secondary: [skill.athletics],                        tier: t1, first_era: 1, prestige: 15 }
+- { id: profession.smelter,       name: Smelter,                   primary: [skill.metallurgy],                   secondary: [skill.smithing],                         tier: t1, first_era: 1, prestige: 35 }
+- { id: profession.smith,         name: Smith,                     primary: [skill.smithing],                     secondary: [skill.metallurgy],                       tier: t1, first_era: 1, prestige: 50, critical: true }
+- { id: profession.bowyer,        name: Bowyer,                    primary: [skill.bowyery],                      secondary: [skill.woodcutting],                      tier: t0, first_era: 1, prestige: 40 }
+- { id: profession.tanner,        name: Tanner,                    primary: [skill.leatherworking],               secondary: [],                                       tier: t1, first_era: 1, prestige: 15 }
+- { id: profession.leatherworker, name: Cordwainer,                primary: [skill.leatherworking],               secondary: [skill.commerce],                         tier: t1, first_era: 2, prestige: 35 }
+- { id: profession.weaver,        name: Weaver,                    primary: [skill.textiles],                     secondary: [],                                       tier: t1, first_era: 1, prestige: 25 }
+- { id: profession.tailor,        name: Tailor,                    primary: [skill.textiles],                     secondary: [skill.commerce],                         tier: t1, first_era: 2, prestige: 35 }
+- { id: profession.potter,        name: Potter,                    primary: [skill.pottery],                      secondary: [],                                       tier: t1, first_era: 1, prestige: 30 }
+- { id: profession.brewer,        name: Brewer,                    primary: [skill.brewing],                      secondary: [skill.commerce],                         tier: t1, first_era: 1, prestige: 30 }
+- { id: profession.baker,         name: Baker,                     primary: [skill.cooking],                      secondary: [skill.commerce],                         tier: t1, first_era: 2, prestige: 30 }
+- { id: profession.miller,        name: Miller,                    primary: [skill.carpentry, skill.masonry],     secondary: [skill.commerce],                         tier: t2, first_era: 2, prestige: 40, critical: true }
+- { id: profession.innkeeper,     name: Innkeeper,                 primary: [skill.brewing, skill.cooking],       secondary: [skill.commerce, skill.persuasion],       tier: t1, first_era: 2, prestige: 40 }
+- { id: profession.merchant,      name: Merchant,                  primary: [skill.commerce, skill.persuasion],   secondary: [skill.letters],                          tier: t1, first_era: 2, prestige: 50 }
+- { id: profession.shopkeep,      name: Shopkeep,                  primary: [skill.commerce],                     secondary: [],                                       tier: t1, first_era: 2, prestige: 40 }
+- { id: profession.shipwright,    name: Shipwright,                primary: [skill.carpentry],                    secondary: [],                                       tier: t1, first_era: 2, prestige: 40 }
+- { id: profession.steward,       name: Steward,                   primary: [skill.stewardship],                  secondary: [skill.leadership, skill.letters],        tier: t1, first_era: 1, prestige: 55, critical: true }
+- { id: profession.scribe,        name: Scribe,                    primary: [skill.letters],                      secondary: [skill.stewardship],                      tier: t1, first_era: 2, prestige: 45 }
+- { id: profession.guard,         name: Guard,                     primary: [skill.melee],                        secondary: [skill.tactics, skill.athletics],         tier: t0, first_era: 1, prestige: 30 }
+- { id: profession.soldier,       name: Man-at-arms,               primary: [skill.melee, skill.archery],         secondary: [skill.tactics],                          tier: t2, first_era: 3, prestige: 45 }

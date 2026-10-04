@@ -1,0 +1,272 @@
+# yaml-language-server: $schema=../schemas/trait.schema.json
+# The trait catalog (canon §10.4: 2–4 traits per person; 45 traits; ★ canon = the 16 named in canon).
+# Rules and numbers: docs/tech/21-npc-ai.md §4.3 (effects), §4.4 (generation: prevalence × exp(Σ affinity·z_facet) × culture).
+# effects: emotion_gain / half_life / utility are multipliers; hijack_threshold is the new absolute threshold;
+# tau / susceptibility / mood_baseline are additive; value_floor / value_cap / value_shift act on the nine values.
+# Notes carry the ⚡ irrationality hooks and cross-system effects that their owning systems implement.
+
+# Temper & emotion
+- id: trait.hot_tempered
+  name: Hot-tempered
+  group: temper
+  canon: true
+  incompatible: [trait.even_tempered]
+  facet_affinity: { volatility: 0.6, warmth: -0.3 }
+  effects: { emotion_gain: { anger: 1.8 }, hijack_threshold: { anger: 55 }, utility: { confront: 1.5, insult: 1.5 }, notes: "⚡ escalates one rung faster on the fight ladder (18)." }
+- id: trait.even_tempered
+  name: Even-tempered
+  group: temper
+  incompatible: [trait.hot_tempered]
+  effects: { emotion_gain: { anger: 0.6 }, half_life: { anger: 0.7 }, hijack_threshold: { anger: 85 }, susceptibility: 0.05 }
+- id: trait.vengeful
+  name: Vengeful
+  group: temper
+  canon: true
+  incompatible: [trait.forgiving]
+  effects: { notes: "Anger peaks ≥ 60 at a target create a non-decaying grudge (16) and may seed Revenge; half-life of anger toward the grudge target ×3; ⚡ revenge bypasses the Warmth penalty." }
+- id: trait.forgiving
+  name: Forgiving
+  group: temper
+  incompatible: [trait.vengeful]
+  effects: { notes: "Negative opinion modifiers decay ×2 faster (16); apologies accepted at +20%." }
+- id: trait.cheerful
+  name: Cheerful
+  group: temper
+  incompatible: [trait.melancholic]
+  facet_affinity: { volatility: -0.5, sociability: 0.3 }
+  effects: { mood_baseline: 10, emotion_gain: { joy: 1.4 }, half_life: { grief: 0.7 } }
+- id: trait.melancholic
+  name: Melancholic
+  group: temper
+  incompatible: [trait.cheerful]
+  facet_affinity: { volatility: 0.5 }
+  effects: { mood_baseline: -10, half_life: { grief: 1.5 }, notes: "⚡ the 'withdraw' breaking point is more likely." }
+- id: trait.paranoid
+  name: Paranoid
+  group: temper
+  canon: true
+  incompatible: [trait.gullible]
+  facet_affinity: { volatility: 0.6, warmth: -0.3 }
+  effects: { emotion_gain: { fear: 1.4 }, notes: "Trust gains ×0.5; threat claims accepted ×1.5; ⚡ scapegoating ×2; out-group harm rumors +25%." }
+
+# Morality & honesty
+- id: trait.honest
+  name: Honest
+  group: morality
+  canon: true
+  incompatible: [trait.deceitful]
+  effects: { utility: { report_crime: 1.5 }, notes: "Never lies or deceives unless Fear ≥ 80 (eligibility rule); reveals true motive when asked why." }
+- id: trait.deceitful
+  name: Deceitful
+  group: morality
+  incompatible: [trait.honest]
+  effects: { utility: { lie: 1.5, slander: 1.5, steal: 1.5 }, notes: "Cover stories for 'why?' questions; ⚡ may seed self-serving false rumors." }
+- id: trait.greedy
+  name: Greedy
+  group: morality
+  canon: true
+  incompatible: [trait.charitable]
+  effects: { utility: { trade: 1.4, overtime: 1.4, hoard: 1.4, steal: 1.4 }, notes: "Loss aversion λ 2.0→2.5; price concession −30% (15); Jealousy from a neighbor's wealth ×1.5." }
+- id: trait.charitable
+  name: Charitable
+  group: morality
+  canon: true
+  incompatible: [trait.greedy]
+  effects: { utility: { gift: 1.6, share_food: 1.6, help: 1.6 }, notes: "Loss aversion λ 2.0→1.5; joy from giving ×1.5." }
+- id: trait.cruel
+  name: Cruel
+  group: morality
+  incompatible: [trait.compassionate]
+  facet_affinity: { warmth: -0.8 }
+  effects: { utility: { insult: 1.5, assault: 1.5, punish: 1.5 }, notes: "Warmth effect inverted for these; Joy +5 from others' misfortune; ⚡ harsh sentences in office (17)." }
+- id: trait.compassionate
+  name: Compassionate
+  group: morality
+  incompatible: [trait.cruel]
+  facet_affinity: { warmth: 0.7 }
+  effects: { utility: { comfort: 1.8, heal: 1.8, help_injured: 1.8 }, emotion_gain: { grief: 1.3 }, susceptibility: 0.05, notes: "Grief gain applies to others' deaths." }
+
+# Social
+- id: trait.gossip
+  name: Gossip
+  group: social
+  canon: true
+  incompatible: [trait.discreet]
+  effects: { utility: { gossip: 2.0 }, notes: "Rumor transmission ×1.8 (16); ⚡ passes on unverified claims at confidence ≥ 0.3 (default 0.5)." }
+- id: trait.discreet
+  name: Discreet
+  group: social
+  incompatible: [trait.gossip]
+  effects: { notes: "Never transmits secrets unless drunk; rumor transmission ×0.4; Trust gained from others ×1.2." }
+- id: trait.gregarious
+  name: Gregarious
+  group: social
+  incompatible: [trait.reclusive]
+  facet_affinity: { sociability: 0.8 }
+  effects: { need_decay: { social: 1.4 }, utility: { gather: 1.5, celebrate: 1.5 }, notes: "Joins mobs and work parties more readily." }
+- id: trait.reclusive
+  name: Reclusive
+  group: social
+  incompatible: [trait.gregarious]
+  facet_affinity: { sociability: -0.8 }
+  effects: { need_decay: { social: 0.5 }, utility: { gather: 0.5 }, notes: "Prefers solitary tasks and edge-of-settlement homes." }
+- id: trait.romantic
+  name: Romantic
+  group: social
+  canon: true
+  effects: { utility: { court: 1.6, flirt: 1.6, gift_beloved: 1.6 }, notes: "Attraction gains ×1.5 (16); heartbreak Grief ×1.5; ⚡ may pursue unwise matches." }
+- id: trait.jealous
+  name: Jealous
+  group: social
+  canon: true
+  effects: { emotion_gain: { jealousy: 2.0 }, half_life: { jealousy: 1.5 }, notes: "⚡ spite and sabotage toward rivals enabled at Jealousy ≥ 50 (default 70)." }
+- id: trait.loyal
+  name: Loyal
+  group: social
+  incompatible: [trait.fickle]
+  effects: { utility: { defend_friend: 1.5, follow_leader: 1.5, muster: 1.5 }, notes: "Opinion loss toward lord and friends ×0.6; ⚡ sticks with a failing leader." }
+- id: trait.fickle
+  name: Fickle
+  group: social
+  incompatible: [trait.loyal]
+  effects: { notes: "Opinion modifiers decay ×1.5 faster both ways; ambition re-roll ×2; switches factions easily." }
+
+# Courage & risk
+- id: trait.brave
+  name: Brave
+  group: courage
+  canon: true
+  incompatible: [trait.coward]
+  effects: { emotion_gain: { fear: 0.5 }, utility: { defend: 1.5, rescue: 1.5, muster: 1.5 }, notes: "Reduces nearby agents' Fear (21 §12.3); flee threshold +25." }
+- id: trait.coward
+  name: Coward
+  group: courage
+  canon: true
+  incompatible: [trait.brave, trait.reckless]
+  effects: { emotion_gain: { fear: 1.6 }, utility: { muster: 0.4 }, notes: "Flee threshold −20; ⚡ may desert under fear (18); Shame when cowardice is witnessed ×1.5." }
+- id: trait.reckless
+  name: Reckless
+  group: courage
+  incompatible: [trait.cautious, trait.coward]
+  effects: { tau: 0.03, utility: { gamble: 1.4, fight: 1.4, explore_wilds: 1.4 }, notes: "Danger curve ×0.5." }
+- id: trait.cautious
+  name: Cautious
+  group: courage
+  incompatible: [trait.reckless]
+  effects: { tau: -0.02, utility: { stockpile: 1.3, maintain: 1.3 }, notes: "Danger curve ×1.5; prefers known routes and larger groups." }
+
+# Work & mind
+- id: trait.industrious
+  name: Industrious
+  group: work
+  incompatible: [trait.lazy]
+  facet_affinity: { diligence: 0.7 }
+  effects: { utility: { work: 1.4 }, notes: "Purpose gain ×1.3; works through Hearthday unless Pious." }
+- id: trait.lazy
+  name: Lazy
+  group: work
+  canon: true
+  incompatible: [trait.industrious, trait.perfectionist]
+  facet_affinity: { diligence: -0.7 }
+  effects: { utility: { work: 0.6, idle: 1.6, rest: 1.6 }, need_decay: { purpose: 0.5 }, notes: "⚡ shirks task-board work when unobserved (×2 if not watched)." }
+- id: trait.perfectionist
+  name: Perfectionist
+  group: work
+  incompatible: [trait.lazy]
+  effects: { notes: "Work speed ×0.85, quality roll +1 tier step (13); refuses to sell below-standard goods; Shame from failure ×1.5." }
+- id: trait.inquisitive
+  name: Inquisitive
+  group: work
+  facet_affinity: { curiosity: 0.8 }
+  effects: { utility: { learn: 1.6, explore: 1.6, ask: 1.6 }, notes: "Know-how teaching receptivity ×1.3 (12); asks curious questions in dialogue." }
+
+# Ambition & self
+- id: trait.ambitious
+  name: Ambitious
+  group: ambition
+  canon: true
+  incompatible: [trait.humble]
+  effects: { utility: { ambition_step: 1.5 }, notes: "Status aspiration +15 (21 §5.2); always holds ≥ 1 ambition; Jealousy from rivals' promotion ×1.5." }
+- id: trait.humble
+  name: Humble
+  group: ambition
+  incompatible: [trait.ambitious, trait.proud]
+  effects: { susceptibility: 0.05, notes: "Status aspiration −15; no Shame from public praise." }
+- id: trait.proud
+  name: Proud
+  group: ambition
+  incompatible: [trait.humble]
+  effects: { emotion_gain: { shame: 1.5 }, half_life: { shame: 0.7 }, susceptibility: -0.08, notes: "50% of Shame converts to Anger at the shamer; apologizes ×0.4." }
+- id: trait.stubborn
+  name: Stubborn
+  group: ambition
+  canon: true
+  incompatible: [trait.gullible]
+  facet_affinity: { curiosity: -0.4 }
+  effects: { susceptibility: -0.15, notes: "Confirmation bias b +0.25; sunk-cost bonus ×2; ⚡ never reverses a public stance within the same season." }
+- id: trait.gullible
+  name: Gullible
+  group: ambition
+  incompatible: [trait.stubborn, trait.paranoid]
+  effects: { susceptibility: 0.15, notes: "Shown as 'Trusting'. Belief acceptance ×1.4 regardless of source trust; Trust gains ×1.5." }
+
+# Faith & group
+- id: trait.pious
+  name: Pious
+  group: faith
+  canon: true
+  incompatible: [trait.skeptic]
+  effects: { utility: { worship: 1.8, tithe: 1.8, rites: 1.8 }, value_floor: { faith: 70 }, notes: "Never works on Hearthday; Anger from blasphemy ×2." }
+- id: trait.skeptic
+  name: Skeptic
+  group: faith
+  incompatible: [trait.pious, trait.superstitious]
+  effects: { utility: { worship: 0.3 }, value_cap: { faith: 30 }, notes: "Immune to superstitious scapegoating; opinion penalties from Pious neighbors (16)." }
+- id: trait.superstitious
+  name: Superstitious
+  group: faith
+  incompatible: [trait.skeptic]
+  effects: { notes: "Omens raise Fear +15; ⚡ attributes unexplained misfortune to a person (scapegoating ×2)." }
+- id: trait.clannish
+  name: Clannish
+  group: faith
+  incompatible: [trait.tolerant]
+  effects: { notes: "⚡ in-group bias ×2 (21 §8.4); Opinion of out-culture/out-faith −10 baseline; joins mobs against out-groups." }
+- id: trait.tolerant
+  name: Tolerant
+  group: faith
+  incompatible: [trait.clannish]
+  effects: { utility: { mediate: 1.3 }, notes: "In-group bias ×0.3; no Tradition discomfort from foreign customs." }
+
+# Appetite & vice
+- id: trait.drunkard
+  name: Drunkard
+  group: appetite
+  canon: true
+  incompatible: [trait.ascetic]
+  effects: { utility: { drink_ale: 3.0 }, notes: "Hidden Craving need (21 §8.5); drunk: Anger hijack −15, work quality −1 tier step, blurts secrets; ⚡ spends household stores on drink." }
+- id: trait.gambler
+  name: Gambler
+  group: appetite
+  incompatible: [trait.frugal]
+  effects: { utility: { gamble: 3.0 }, notes: "Hidden Craving (gambling); gambler's-fallacy stake escalation (21 §8.5); debts → conflicts." }
+- id: trait.glutton
+  name: Glutton
+  group: appetite
+  incompatible: [trait.ascetic]
+  effects: { notes: "Satiety threshold for eating 50→70; eats ×1.3; ⚡ eats from communal stores out of turn in shortages." }
+- id: trait.ascetic
+  name: Ascetic
+  group: appetite
+  incompatible: [trait.drunkard, trait.glutton]
+  effects: { value_shift: { faith: 10 }, notes: "Comfort target weight ×0.5; Satiety/Comfort mood weights ×0.6." }
+- id: trait.frugal
+  name: Frugal
+  group: appetite
+  incompatible: [trait.spendthrift, trait.gambler]
+  effects: { utility: { repair: 1.5 }, notes: "Buys only below base value; hoards durable goods; loss aversion λ +0.3." }
+- id: trait.spendthrift
+  name: Spendthrift
+  group: appetite
+  incompatible: [trait.frugal]
+  effects: { utility: { buy_luxury: 1.6, host: 1.6, gift: 1.6 }, notes: "Ignores savings goals; mood thought from purchases +5." }

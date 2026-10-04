@@ -152,9 +152,20 @@ public sealed class SimWorld
                     break;
                 }
 
+                if (c.AgeYears is < 0 or > 120 || (c.Profession is { } pid && Content.Professions.Count > 0 && Content.ProfessionHandle(pid) < 0))
+                {
+                    Reject(command, "Invalid spawn (age or profession).");
+                    break;
+                }
+
                 var id = Ids.Next(EntityKind.Person);
-                People.Add(id, c.Name, new PersonCore { BirthGameMinute = Clock.GameMinute },
+                var newRow = People.Add(id, c.Name, new PersonCore { BirthGameMinute = Clock.GameMinute },
                     new Transform { X = c.X, Z = c.Z }, Needs.Full);
+                var culture = Content.CultureHandle(c.Culture ?? "culture.varrow");
+                var profession = c.Profession is null ? -1 : Content.ProfessionHandle(c.Profession);
+                var age = PersonGenerator.Generate(this, newRow, culture < 0 ? Personality.None : (ushort)culture,
+                    profession < 0 ? Personality.None : (ushort)profession, c.AgeYears);
+                People.Core[newRow].BirthGameMinute = Clock.GameMinute - (age * GameDate.MinutesPerYear);
                 Emit(Salience.Minor, id, new PersonSpawned(id, c.Name));
                 break;
 

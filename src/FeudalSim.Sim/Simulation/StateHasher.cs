@@ -32,6 +32,12 @@ public static class StateHasher
         h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<Needs>)people.Needs));
         h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<LodState>)people.Lod));
         h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<WanderState>)people.Wander));
+        h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<Attributes>)people.Attributes));
+        h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<Personality>)people.Personality));
+        h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<Emotions>)people.Emotions));
+        h.Append(MemoryMarshal.AsBytes((ReadOnlySpan<Mood>)people.Mood));
+        h.Append(people.SkillLevelsAll);
+        h.Append(people.SkillAptitudeAll);
         world.Decisions.HashInto(h);
         return h.GetCurrentHashAsUInt64();
     }

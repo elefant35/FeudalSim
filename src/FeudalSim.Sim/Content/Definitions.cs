@@ -55,6 +55,80 @@ public sealed record NeedDef
     public string? Description { get; init; }
 }
 
+public enum TraitGroup { Temper, Morality, Social, Courage, Work, Ambition, Faith, Appetite }
+
+/// <summary>
+/// Mechanical trait effects (21 §4.3) as data for their consuming systems: multipliers on emotion gain, emotion
+/// half-life, action-group utility and need decay; absolute hijack thresholds; additive τ, susceptibility and
+/// mood baseline; floors, caps and shifts on the nine values. <c>Notes</c> carries hooks owned by other systems.
+/// </summary>
+public sealed record TraitEffects
+{
+    public IReadOnlyDictionary<string, float>? EmotionGain { get; init; }
+    public IReadOnlyDictionary<string, float>? HalfLife { get; init; }
+    public IReadOnlyDictionary<string, float>? HijackThreshold { get; init; }
+    public IReadOnlyDictionary<string, float>? Utility { get; init; }
+    public IReadOnlyDictionary<string, float>? NeedDecay { get; init; }
+    public float? Tau { get; init; }
+    public float? Susceptibility { get; init; }
+    public float? MoodBaseline { get; init; }
+    public IReadOnlyDictionary<string, int>? ValueFloor { get; init; }
+    public IReadOnlyDictionary<string, int>? ValueCap { get; init; }
+    public IReadOnlyDictionary<string, int>? ValueShift { get; init; }
+    public string? Notes { get; init; }
+}
+
+/// <summary>A personality trait (canon §10.4; catalog and generation: 21 §4.3–4.4).</summary>
+public sealed record TraitDef
+{
+    public required string Id { get; init; }
+    public required string Name { get; init; }
+    public required TraitGroup Group { get; init; }
+
+    /// <summary>One of the 16 traits named in canon §10.4.</summary>
+    public bool Canon { get; init; }
+
+    /// <summary>Traits that cannot be held together (made symmetric at compile time).</summary>
+    public IReadOnlyList<string>? Incompatible { get; init; }
+
+    /// <summary>Base prevalence weight in generation (mean 1.0).</summary>
+    public float Prevalence { get; init; } = 1f;
+
+    /// <summary>Generation weight × exp(Σ coefficient · z_facet), keyed by facet name (21 §4.4).</summary>
+    public IReadOnlyDictionary<string, float>? FacetAffinity { get; init; }
+
+    public TraitEffects? Effects { get; init; }
+    public string? Description { get; init; }
+}
+
+/// <summary>A homeland culture (canon §5): value means and trait-generation multipliers (21 §4.2, §4.4).</summary>
+public sealed record CultureDef
+{
+    public required string Id { get; init; }
+    public required string Name { get; init; }
+    public string? Faith { get; init; }
+
+    /// <summary>Mean importance per value (0–100); unlisted values mean 50.</summary>
+    public IReadOnlyDictionary<string, int>? ValueMeans { get; init; }
+
+    public IReadOnlyDictionary<string, float>? TraitMultipliers { get; init; }
+    public string? Description { get; init; }
+}
+
+/// <summary>A profession (12 §10): the skills a homeland trade turns into (12 §8.5).</summary>
+public sealed record ProfessionDef
+{
+    public required string Id { get; init; }
+    public required string Name { get; init; }
+    public required IReadOnlyList<string> Primary { get; init; }
+    public IReadOnlyList<string>? Secondary { get; init; }
+    public required TechTier Tier { get; init; }
+    public required int FirstEra { get; init; }
+    public required int Prestige { get; init; }
+    public bool Critical { get; init; }
+    public string? Workplace { get; init; }
+}
+
 public enum AssetKind { Model, Animation, Texture, Vfx, Ui, Sfx, Ambience, Music, Vocal }
 
 public enum AssetStatus { Placeholder, Draft, Review, Approved, Final }
@@ -139,6 +213,12 @@ public static class CanonLists
         "skill.melee", "skill.archery", "skill.athletics", "skill.stealth", "skill.tactics",
     ];
 
+    public static readonly IReadOnlyList<string> Facets = ["curiosity", "diligence", "sociability", "warmth", "volatility"];
+
+    public static readonly IReadOnlyList<string> Values = ["family", "wealth", "status", "honor", "tradition", "faith", "fairness", "freedom", "loyalty"];
+
+    public static readonly IReadOnlyList<string> Emotions = ["anger", "fear", "grief", "joy", "shame", "jealousy"];
+
     public static readonly IReadOnlyList<string> NeedIds =
     [
         "need.satiety", "need.hydration", "need.energy", "need.warmth",
@@ -150,8 +230,12 @@ public static class CanonLists
 public sealed class ContentDatabase
 {
     public ContentDatabase(IReadOnlyList<SkillDef> skills, IReadOnlyList<ItemDef> items, IReadOnlyList<NeedDef> needs, ulong hash,
-        IReadOnlyList<AssetDef>? assets = null, IReadOnlyList<AudioEventDef>? audio = null)
+        IReadOnlyList<AssetDef>? assets = null, IReadOnlyList<AudioEventDef>? audio = null,
+        IReadOnlyList<TraitDef>? traits = null, IReadOnlyList<CultureDef>? cultures = null, IReadOnlyList<ProfessionDef>? professions = null)
     {
+        Traits = traits ?? [];
+        Cultures = cultures ?? [];
+        Professions = professions ?? [];
         Audio = audio ?? [];
         Skills = skills;
         Items = items;
@@ -171,6 +255,32 @@ public sealed class ContentDatabase
     public IReadOnlyList<SkillDef> Skills { get; }
     public IReadOnlyList<ItemDef> Items { get; }
     public IReadOnlyList<NeedDef> Needs { get; }
+
+    /// <summary>Traits in handle order (ordinal id); a person's trait set is a bitset over these handles (≤ 64).</summary>
+    public IReadOnlyList<TraitDef> Traits { get; }
+
+    public IReadOnlyList<CultureDef> Cultures { get; }
+    public IReadOnlyList<ProfessionDef> Professions { get; }
+
+    /// <summary>Handle of a definition id in a sorted list, or −1.</summary>
+    public static int HandleOf<T>(IReadOnlyList<T> defs, string id, Func<T, string> idOf)
+    {
+        int lo = 0, hi = defs.Count - 1;
+        while (lo <= hi)
+        {
+            var mid = (lo + hi) >>> 1;
+            var c = string.CompareOrdinal(idOf(defs[mid]), id);
+            if (c == 0) { return mid; }
+            if (c < 0) { lo = mid + 1; } else { hi = mid - 1; }
+        }
+
+        return -1;
+    }
+
+    public int TraitHandle(string id) => HandleOf(Traits, id, t => t.Id);
+    public int CultureHandle(string id) => HandleOf(Cultures, id, c => c.Id);
+    public int ProfessionHandle(string id) => HandleOf(Professions, id, p => p.Id);
+    public int SkillHandle(string id) => HandleOf(Skills, id, s => s.Id);
 
     /// <summary>XxHash64 of the canonical compiled content; recorded in saves and run outputs.</summary>
     public ulong Hash { get; }

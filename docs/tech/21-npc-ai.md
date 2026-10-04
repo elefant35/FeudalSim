@@ -233,6 +233,12 @@ public interface IWorkResolver {           // implemented per 13-crafting-and-mi
 }
 ```
 
+*Implemented (M1-01a, 2026-10-04):* `Attributes`, `Personality` (facets, `ValueBlock`, culture and profession
+handles, trait bitset), `Emotions` (with `UpdatedGameMs` for lazy decay), `Mood`, and per-person skill levels and
+aptitudes as flat byte columns (`PersonTable`); `Needs` keeps all nine needs in one column. Generation:
+`PersonGenerator` (stream `PersonGen`, keyed by world seed and person id) following §4.2 and §4.4 and 12's rules;
+trait effects are content data (`content/traits/traits.yaml`, `TraitEffects`) for the consuming systems.
+
 Per-agent memory: hot ≈ 160 B, cold ≈ 1.5 KB (plus decision log ring buffer, §17). Relationship and
 memory stores are owned by 16 and are not counted here.
 

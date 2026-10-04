@@ -15,6 +15,15 @@ public sealed class PersonTable
     private Needs[] _needs = new Needs[64];
     private LodState[] _lod = new LodState[64];
     private WanderState[] _wander = new WanderState[64];
+    private Attributes[] _attributes = new Attributes[64];
+    private Personality[] _personality = new Personality[64];
+    private Emotions[] _emotions = new Emotions[64];
+    private Mood[] _mood = new Mood[64];
+    private byte[] _skillLevels = new byte[64 * SkillCount];       // row-major: 28 skills per person, in skill-handle order
+    private byte[] _skillAptitude = new byte[64 * SkillCount];     // hidden aptitude × 100 (50–150), 12 §5.4
+
+    /// <summary>Skills per person (canon §10.2); skill handles are content order (ordinal id).</summary>
+    public const int SkillCount = 28;
 
     public int Count { get; private set; }
 
@@ -25,6 +34,19 @@ public sealed class PersonTable
     public Span<Needs> Needs => _needs.AsSpan(0, Count);
     public Span<LodState> Lod => _lod.AsSpan(0, Count);
     public Span<WanderState> Wander => _wander.AsSpan(0, Count);
+    public Span<Attributes> Attributes => _attributes.AsSpan(0, Count);
+    public Span<Personality> Personality => _personality.AsSpan(0, Count);
+    public Span<Emotions> Emotions => _emotions.AsSpan(0, Count);
+    public Span<Mood> Mood => _mood.AsSpan(0, Count);
+
+    /// <summary>All rows' skill levels (0–100), row-major, <see cref="SkillCount"/> per row.</summary>
+    public Span<byte> SkillLevelsAll => _skillLevels.AsSpan(0, Count * SkillCount);
+
+    /// <summary>All rows' hidden aptitudes × 100, row-major.</summary>
+    public Span<byte> SkillAptitudeAll => _skillAptitude.AsSpan(0, Count * SkillCount);
+
+    public Span<byte> SkillLevels(int row) => _skillLevels.AsSpan(row * SkillCount, SkillCount);
+    public Span<byte> SkillAptitude(int row) => _skillAptitude.AsSpan(row * SkillCount, SkillCount);
 
     public int Add(EntityId id, string name, in PersonCore core, in Transform transform, in Needs needs)
     {
@@ -43,6 +65,12 @@ public sealed class PersonTable
         _needs[i] = needs;
         _lod[i] = new LodState { Tier = LodTier.Lod1 };
         _wander[i] = new WanderState { HomeX = transform.X, HomeZ = transform.Z };
+        _attributes[i] = default;
+        _personality[i] = new Personality { Culture = World.Personality.None, Profession = World.Personality.None };
+        _emotions[i] = default;
+        _mood[i] = default;
+        SkillLevels(i).Clear();
+        SkillAptitude(i).Fill(100);
         return i;
     }
 
@@ -58,6 +86,8 @@ public sealed class PersonTable
         Count = 0;
         EnsureCapacity(ids.Length);
         Array.Clear(_core); Array.Clear(_transform); Array.Clear(_needs); Array.Clear(_lod); Array.Clear(_wander);
+        Array.Clear(_attributes); Array.Clear(_personality); Array.Clear(_emotions); Array.Clear(_mood);
+        Array.Clear(_skillLevels); Array.Clear(_skillAptitude);
         ids.CopyTo(_ids, 0);
         names.CopyTo(_names, 0);
         Count = ids.Length;
@@ -77,5 +107,11 @@ public sealed class PersonTable
         Array.Resize(ref _needs, size);
         Array.Resize(ref _lod, size);
         Array.Resize(ref _wander, size);
+        Array.Resize(ref _attributes, size);
+        Array.Resize(ref _personality, size);
+        Array.Resize(ref _emotions, size);
+        Array.Resize(ref _mood, size);
+        Array.Resize(ref _skillLevels, size * SkillCount);
+        Array.Resize(ref _skillAptitude, size * SkillCount);
     }
 }

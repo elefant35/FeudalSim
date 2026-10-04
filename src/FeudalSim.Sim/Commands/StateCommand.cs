@@ -22,12 +22,20 @@ public abstract record StateCommand;
 [MessagePackObject]
 public sealed record SetDayLength([property: Key(0)] int Minutes) : StateCommand;
 
-/// <summary>Scenario/dev command: create a person at a home position (metres, X east, −Z north).</summary>
+/// <summary>
+/// Scenario/dev command: create a person at a home position (metres, X east, −Z north). The sim generates their
+/// personality, attributes and skills from the world seed and their id (M1-01). Optional: culture and profession ids
+/// (default <c>culture.varrow</c>; a drawn homeland trade) and age in years (0 = drawn adult age). Keys 3–5 were added
+/// in M1; logs written before them read as the defaults.
+/// </summary>
 [MessagePackObject]
 public sealed record SpawnPerson(
     [property: Key(0)] string Name,
     [property: Key(1)] float X,
-    [property: Key(2)] float Z) : StateCommand;
+    [property: Key(2)] float Z,
+    [property: Key(3)] string? Culture = null,
+    [property: Key(4)] string? Profession = null,
+    [property: Key(5)] int AgeYears = 0) : StateCommand;
 
 /// <summary>The player's body position as reported by the client each step (the player is always embodied).</summary>
 [MessagePackObject]

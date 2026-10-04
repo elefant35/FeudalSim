@@ -110,12 +110,20 @@ public sealed class PersistenceTests : IDisposable
             ["needs"] = (1, "Satiety:Single@0|Hydration:Single@4|Energy:Single@8|Warmth:Single@12|Social:Single@16|Comfort:Single@20|Safety:Single@24|Purpose:Single@28|Status:Single@32"),
             ["lod"] = (2, "Tier:LodTier@0|LastUpdateGameMs:Int64@8|Embodied:Boolean@16|FarSinceStep:Int64@24"),
             ["wander"] = (1, "HomeX:Single@0|HomeZ:Single@4|TargetX:Single@8|TargetZ:Single@12|PauseUntilStep:Int64@16|HasTarget:Boolean@24"),
+            ["attributes"] = (1, "Strength:Single@0|Endurance:Single@4|Dexterity:Single@8|Perception:Single@12|Intellect:Single@16|Charisma:Single@20"),
+            ["personality"] = (1, "Curiosity:Byte@0|Diligence:Byte@1|Sociability:Byte@2|Warmth:Byte@3|Volatility:Byte@4|Values:ValueBlock@5|Culture:UInt16@14|Profession:UInt16@16|Traits:UInt64@24"),
+            ["emotions"] = (1, "Anger:Single@0|Fear:Single@4|Grief:Single@8|Joy:Single@12|Shame:Single@16|Jealousy:Single@20|AngerTarget:EntityId@24|FearSource:EntityId@32|JealousyTarget:EntityId@40|ShameAudience:EntityId@48|UpdatedGameMs:Int64@56"),
+            ["mood"] = (1, "Value:Single@0|Smoothed:Single@4"),
         };
         var types = new Dictionary<string, Type>
         {
             ["core"] = typeof(PersonCore), ["transform"] = typeof(Transform), ["needs"] = typeof(Needs),
             ["lod"] = typeof(LodState), ["wander"] = typeof(WanderState),
+            ["attributes"] = typeof(Attributes), ["personality"] = typeof(Personality), ["emotions"] = typeof(Emotions), ["mood"] = typeof(Mood),
         };
+
+        // Every persisted struct column is fingerprinted here (id and the per-row byte columns excepted).
+        SaveCodec.PeopleColumns.Select(c => c.Name).Except(["id", "skill_levels", "skill_aptitude"]).ShouldBe(types.Keys, ignoreOrder: true);
 
         foreach (var (name, type) in types)
         {

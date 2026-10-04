@@ -28,6 +28,55 @@ public struct Needs
     };
 }
 
+/// <summary>
+/// The six attributes (canon §10.1), internal float values (12 §3.2: display = clamp(round(·), 1, 10); checks use the
+/// unrounded value). Generated from Potential N(5, 1.4) clamped 2–8; Training, AgeMod, InjuryMod and TempMod come later.
+/// </summary>
+public struct Attributes
+{
+    public float Strength, Endurance, Dexterity, Perception, Intellect, Charisma;
+}
+
+/// <summary>The nine values (canon §10.4), importance 0–100.</summary>
+public struct ValueBlock
+{
+    public byte Family, Wealth, Status, Honor, Tradition, Faith, Fairness, Freedom, Loyalty;
+}
+
+/// <summary>
+/// Personality and origin (canon §10.4, 21 §3): five facets (0–100, mean 50, SD 15), nine values, homeland culture
+/// and profession as content handles, and the trait set as a bitset over trait handles. NB: <c>Values.Status</c> is how
+/// much the person cares about standing; <c>Needs.Status</c> is how satisfied that care is.
+/// </summary>
+public struct Personality
+{
+    public const ushort None = 0xFFFF;
+
+    public byte Curiosity, Diligence, Sociability, Warmth, Volatility;
+    public ValueBlock Values;
+    public ushort Culture, Profession;
+    public ulong Traits;
+
+    public readonly bool HasTrait(int handle) => (Traits & (1UL << handle)) != 0;
+}
+
+/// <summary>
+/// Emotions (canon §10.5), 0–100, decaying with half-lives (21 §6.2) evaluated lazily from <c>UpdatedGameMs</c>; the
+/// targets name who an emotion is about.
+/// </summary>
+public struct Emotions
+{
+    public float Anger, Fear, Grief, Joy, Shame, Jealousy;
+    public Core.EntityId AngerTarget, FearSource, JealousyTarget, ShameAudience;
+    public long UpdatedGameMs;
+}
+
+/// <summary>Mood (canon §10.5): −100…+100 composite (21 §6.4) and its one-game-hour EMA.</summary>
+public struct Mood
+{
+    public float Value, Smoothed;
+}
+
 public enum LodTier : byte { Lod0, Lod1, Lod2, Lod3, Lod0Battle }
 
 /// <summary>Simulation level of detail (canon §8.2).</summary>

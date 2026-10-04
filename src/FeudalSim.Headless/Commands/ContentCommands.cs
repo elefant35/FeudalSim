@@ -27,7 +27,7 @@ public sealed class ContentValidateCommand : Command<ContentSettings>
         }
 
         var db = result.Database!;
-        Console.WriteLine($"content: OK — {result.FileCount} files, {db.Skills.Count} skills, {db.Needs.Count} needs, {db.Items.Count} items; hash {db.Hash:x16}");
+        Console.WriteLine($"content: OK — {result.FileCount} files, {db.Skills.Count} skills, {db.Needs.Count} needs, {db.Items.Count} items, {db.Traits.Count} traits, {db.Cultures.Count} cultures, {db.Professions.Count} professions; hash {db.Hash:x16}");
         return 0;
     }
 }

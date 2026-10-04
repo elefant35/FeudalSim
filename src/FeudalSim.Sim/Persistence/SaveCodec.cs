@@ -25,6 +25,12 @@ public static class SaveCodec
         ("needs", 1, Marshal.SizeOf<Needs>()),
         ("lod", 2, Marshal.SizeOf<LodState>()),   // v2: Embodied, FarSinceStep (M0-13)
         ("wander", 1, Marshal.SizeOf<WanderState>()),
+        ("attributes", 1, Marshal.SizeOf<Attributes>()),     // M1-01
+        ("personality", 1, Marshal.SizeOf<Personality>()),
+        ("emotions", 1, Marshal.SizeOf<Emotions>()),
+        ("mood", 1, Marshal.SizeOf<Mood>()),
+        ("skill_levels", 1, PersonTable.SkillCount),          // 28 bytes per row, skill-handle order
+        ("skill_aptitude", 1, PersonTable.SkillCount),
     ];
 
     public static SaveImage Capture(SimWorld world)
@@ -37,6 +43,12 @@ public static class SaveCodec
         people.Columns.Add(Column("needs", (ReadOnlySpan<Needs>)p.Needs));
         people.Columns.Add(Column("lod", (ReadOnlySpan<LodState>)p.Lod));
         people.Columns.Add(Column("wander", (ReadOnlySpan<WanderState>)p.Wander));
+        people.Columns.Add(Column("attributes", (ReadOnlySpan<Attributes>)p.Attributes));
+        people.Columns.Add(Column("personality", (ReadOnlySpan<Personality>)p.Personality));
+        people.Columns.Add(Column("emotions", (ReadOnlySpan<Emotions>)p.Emotions));
+        people.Columns.Add(Column("mood", (ReadOnlySpan<Mood>)p.Mood));
+        people.Columns.Add(Column("skill_levels", (ReadOnlySpan<byte>)p.SkillLevelsAll));
+        people.Columns.Add(Column("skill_aptitude", (ReadOnlySpan<byte>)p.SkillAptitudeAll));
         people.Strings.Add(new StringColumn { Name = "name", Values = p.Names.ToArray() });
 
         var counters = new ulong[256];
@@ -87,6 +99,17 @@ public static class SaveCodec
         CopyOrDefault(chunk, "lod", p.Lod, notes, static _ => new LodState { Tier = LodTier.Lod1 });
         var transforms = p.Transforms.ToArray();
         CopyOrDefault(chunk, "wander", p.Wander, notes, i => new WanderState { HomeX = transforms[i].X, HomeZ = transforms[i].Z });
+        CopyOrDefault(chunk, "attributes", p.Attributes, notes, static _ => new Attributes { Strength = 5, Endurance = 5, Dexterity = 5, Perception = 5, Intellect = 5, Charisma = 5 });
+        CopyOrDefault(chunk, "personality", p.Personality, notes, static _ => new Personality
+        {
+            Curiosity = 50, Diligence = 50, Sociability = 50, Warmth = 50, Volatility = 50,
+            Values = new ValueBlock { Family = 50, Wealth = 50, Status = 50, Honor = 50, Tradition = 50, Faith = 50, Fairness = 50, Freedom = 50, Loyalty = 50 },
+            Culture = Personality.None, Profession = Personality.None,
+        });
+        CopyOrDefault(chunk, "emotions", p.Emotions, notes, _ => new Emotions { UpdatedGameMs = h.GameMs });
+        CopyOrDefault(chunk, "mood", p.Mood, notes, static _ => default);
+        CopyBytesOrDefault(chunk, "skill_levels", p.SkillLevelsAll, notes, 0);
+        CopyBytesOrDefault(chunk, "skill_aptitude", p.SkillAptitudeAll, notes, 100);
 
         foreach (var c in chunk.Columns.Where(c => PeopleColumns.All(k => k.Name != c.Name)))
         {
@@ -102,6 +125,22 @@ public static class SaveCodec
 
     public static SaveImage Deserialize(Stream source)
         => MessagePackSerializer.Deserialize<SaveImage>(source, Options);
+
+    /// <summary>Byte columns with several bytes per row (skills): the element size is the per-row byte count.</summary>
+    private static void CopyBytesOrDefault(TableChunk chunk, string name, Span<byte> target, List<string> notes, byte fallback)
+    {
+        var block = chunk.Columns.FirstOrDefault(c => c.Name == name);
+        var spec = PeopleColumns.First(c => c.Name == name);
+        if (block is null || block.LayoutVersion != spec.LayoutVersion || block.ElementSize != spec.ElementSize)
+        {
+            notes.Add(block is null ? $"Missing column people.{name}; using defaults." : $"Column people.{name} has layout v{block.LayoutVersion}/{block.ElementSize} B, expected v{spec.LayoutVersion}/{spec.ElementSize} B; using defaults.");
+            target.Fill(fallback);
+            return;
+        }
+
+        if (block.Data.Length != target.Length) { throw new InvalidDataException($"Column people.{name} has {block.Data.Length} bytes for {chunk.RowCount} rows."); }
+        block.Data.CopyTo(target);
+    }
 
     private static ColumnBlock Column<T>(string name, ReadOnlySpan<T> values) where T : struct
     {

@@ -62,7 +62,8 @@ the M1 spikes. Items are sized ≈ ½–2 days; split them (`M1-12a`…) when th
 
 | ID | Item | Status | Evidence |
 |----|------|--------|----------|
-| M1-01 | Person model components: attributes, skill subset, personality facets, values, the 16 canon traits (+ ~8), psych + simplified physical needs, emotions & mood — tables, content YAML, save columns | [ ] | |
+| M1-01a | Person model components, content and generation: attributes, the 28 skills + hidden aptitude, facets, values, traits (all 45 with structured effects; 16 canon), cultures, professions; save columns | [x] | Content: `traits/` (45, 16 canon, effects as data, incompatibility made symmetric), `cultures/` (4: value means + trait multipliers), `professions/` (34 from 12 §10); schemas generated; cross-reference validation (`content validate` → "11 files … hash 03248d8b4acebfd2"). Sim: `Attributes`, `Personality`, `Emotions`, `Mood`, skill/aptitude byte columns; `PersonGenerator` (stream `PersonGen`): facets N(50,15), culture value means, 21 §4.4 traits, 12 §8.5 skills, §5.4 aptitude; `SpawnPerson` gains culture/profession/age. Saves: 6 new columns, fingerprinted. `SimMath` facade (20 §8.4). `PersonGenerationTests` 6: facets mean 50 / SD 15 (±1); trait counts 35/45/20% (±3); no incompatible pairs; Pious → Faith ≥ 70; culture means (Varrow Tradition 60, Ashen 35, Brannoch Honor 65 ±1.5); Brannoch brave > Varrow ×1.3; high-Volatility hot-tempered > ×2; smith primary mean 22 + 0.9·12 (±1.5); aptitude 50–150 mean 100. 93 tests; smoke IDENTICAL 55d6760e4bc5dba8; Godot boot PASS |
+| M1-01b | Needs, emotion and mood dynamics: psych-need decay/tracking (21 §5.2), emotion half-life decay (lazy, 21 §6.2), mood composition with thoughts (21 §6.4); headless metrics | [ ] | |
 | M1-02 | Utility AI v1: action catalog (eat, drink, sleep, gather wood/food, tend fire, socialize, idle, flee), scoring + curves, noise & hijack, simple schedules (21 §7.1–7.6); 21 §19 M1 headless metrics | [ ] | |
 | M1-03 | **DP propensity layer** (21 §7.8): `m_o` terms, family tempering, `includes`, hijack fold-in, `MenuPropensities` + KeyFactors; DecisionTrace / inspector | [ ] | |
 | M1-04 | Initiative options (21 §14.5) and pending-DP state (21 §14.6); **persist open DPs, long-shot counters and pending AI requests in saves** (M0 discovered work) | [ ] | |
@@ -228,6 +229,7 @@ Newest first. One entry per session or work item: date, what changed, evidence, 
 
 | Date | Work | Evidence | Next |
 |------|------|----------|------|
+| 2026-10-04 | M1-01 split; **M1-01a** done: person model components, 45-trait/4-culture/34-profession content, deterministic generation, save columns | 93 tests; PersonGenerationTests 6 | M1-01b dynamics |
 | 2026-10-04 | M1-S3 fast-decider bake-off: **PASS** for qwen3.5-9b + latency routing; ADR-0011; Laya measured; gateway now blends with the policy prior and samples (22 §5.3) | docs/spikes/s3-fast-decider.md; $0.014 | M1-S6 sim scale or M1-01 person model |
 | 2026-10-04 | M1-S2 dialogue latency & cost: **PASS**; latency routing made the default; 22 §4.8 stop-sequence bug fixed | docs/spikes/s2-dialogue-latency.md; 240 turns, $0.054 | M1-S3 fast-decider bake-off |
 | 2026-10-04 | **M0 gate 2 passed — M0 complete.** All 7 exit criteria re-run after M0-16–18; S4 moved to M1; M1 breakdown generated (6 spikes + 25 items) | CI + godot green at 7f4756e; gate evidence in the exit-criteria table | M1: start with M1-S2 / M1-S3 (latency, fast decider) and M1-01…03 (person model, DP propensities) |
