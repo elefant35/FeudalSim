@@ -1,0 +1,107 @@
+{
+  "result": "pass",
+  "assets": [
+    {
+      "asset": "game/assets/flora/bushes/hazel_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "wind_vertices": 762
+    },
+    {
+      "asset": "game/assets/flora/bushes/hazel_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "wind_vertices": 762
+    },
+    {
+      "asset": "game/assets/flora/bushes/hazel_c.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "wind_vertices": 762
+    },
+    {
+      "asset": "game/assets/flora/bushes/bramble_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "wind_vertices": 712
+    },
+    {
+      "asset": "game/assets/flora/bushes/bramble_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "wind_vertices": 712
+    },
+    {
+      "asset": "game/assets/flora/bushes/gorse_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "wind_vertices": 792
+    },
+    {
+      "asset": "game/assets/flora/bushes/gorse_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "wind_vertices": 792
+    },
+    {
+      "asset": "game/assets/flora/plants/reeds_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "wind_vertices": 528
+    },
+    {
+      "asset": "game/assets/flora/plants/reeds_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "wind_vertices": 528
+    },
+    {
+      "asset": "game/assets/flora/plants/reeds_c.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "wind_vertices": 528
+    },
+    {
+      "asset": "game/assets/flora/plants/grass_tuft_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "wind_vertices": 112
+    },
+    {
+      "asset": "game/assets/flora/plants/grass_tuft_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "wind_vertices": 112
+    },
+    {
+      "asset": "game/assets/flora/plants/grass_tuft_c.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "wind_vertices": 112
+    },
+    {
+      "asset": "game/assets/flora/plants/grass_tuft_d.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "wind_vertices": 112
+    },
+    {
+      "asset": "game/assets/flora/plants/fern_a.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "wind_vertices": 576
+    },
+    {
+      "asset": "game/assets/flora/plants/fern_b.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "wind_vertices": 576
+    },
+    {
+      "asset": "game/assets/flora/plants/fern_c.glb",
+      "wind_min": 0.0,
+      "wind_max": 1.0,
+      "wind_vertices": 576
+    }
+  ]
+}

@@ -1,0 +1,239 @@
+# yaml-language-server: $schema=../schemas/asset.schema.json
+- id: asset.flora.hazel_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/understory/understory.py
+    params: {"species": "hazel", "variant": "a", "seed": 6001}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/bushes/hazel_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 294, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Multistem coppice shrub, 3.5-4.7m, broad lobed foliage; no collision. Palette material, vertex R anchored at ground and weighted foliage tips. Checked export and turntable/silhouette previews; owner look review pending."
+- id: asset.flora.hazel_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/understory/understory.py
+    params: {"species": "hazel", "variant": "b", "seed": 6002}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/bushes/hazel_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 294, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Multistem coppice shrub, 3.5-4.7m, broad lobed foliage; no collision. Palette material, vertex R anchored at ground and weighted foliage tips. Checked export and turntable/silhouette previews; owner look review pending."
+- id: asset.flora.hazel_c
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/understory/understory.py
+    params: {"species": "hazel", "variant": "c", "seed": 6003}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/bushes/hazel_c.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 294, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Multistem coppice shrub, 3.5-4.7m, broad lobed foliage; no collision. Palette material, vertex R anchored at ground and weighted foliage tips. Checked export and turntable/silhouette previews; owner look review pending."
+- id: asset.flora.bramble_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/understory/understory.py
+    params: {"species": "bramble", "variant": "a", "seed": 6101}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/bushes/bramble_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 296, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Low arched tangled canes with broad leaves and separate bush_bramble_<variant>_berries part for seasonal hiding; no collision. Palette material, vertex R anchored at ground and weighted foliage tips. Checked export and turntable/silhouette previews; owner look review pending."
+- id: asset.flora.bramble_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/understory/understory.py
+    params: {"species": "bramble", "variant": "b", "seed": 6102}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/bushes/bramble_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 296, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Low arched tangled canes with broad leaves and separate bush_bramble_<variant>_berries part for seasonal hiding; no collision. Palette material, vertex R anchored at ground and weighted foliage tips. Checked export and turntable/silhouette previews; owner look review pending."
+- id: asset.flora.gorse_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/understory/understory.py
+    params: {"species": "gorse", "variant": "a", "seed": 6201}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/bushes/gorse_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 300, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Dark needle sprays in a spiky dome with muted straw-yellow flowers; no collision. Palette material, vertex R anchored at ground and weighted foliage tips. Checked export and turntable/silhouette previews; owner look review pending."
+- id: asset.flora.gorse_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/understory/understory.py
+    params: {"species": "gorse", "variant": "b", "seed": 6202}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/bushes/gorse_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 300, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Dark needle sprays in a spiky dome with muted straw-yellow flowers; no collision. Palette material, vertex R anchored at ground and weighted foliage tips. Checked export and turntable/silhouette previews; owner look review pending."
+- id: asset.flora.reeds_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/understory/understory.py
+    params: {"species": "reeds", "variant": "a", "seed": 6301}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/reeds_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 216, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Dense wet-ground culms, long leaves and brown seed heads, 1.7-2.34m; no collision. Palette material, vertex R anchored at ground and weighted foliage tips. Checked export and turntable/silhouette previews; owner look review pending."
+- id: asset.flora.reeds_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/understory/understory.py
+    params: {"species": "reeds", "variant": "b", "seed": 6302}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/reeds_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 216, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Dense wet-ground culms, long leaves and brown seed heads, 1.7-2.34m; no collision. Palette material, vertex R anchored at ground and weighted foliage tips. Checked export and turntable/silhouette previews; owner look review pending."
+- id: asset.flora.reeds_c
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/understory/understory.py
+    params: {"species": "reeds", "variant": "c", "seed": 6303}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/reeds_c.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 216, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Dense wet-ground culms, long leaves and brown seed heads, 1.7-2.34m; no collision. Palette material, vertex R anchored at ground and weighted foliage tips. Checked export and turntable/silhouette previews; owner look review pending."
+- id: asset.flora.grass_tuft_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/understory/understory.py
+    params: {"species": "grass_tuft", "variant": "a", "seed": 6401}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/grass_tuft_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 48, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "48-triangle folded-blade grass clump, 0.22-0.58m; no collision. Palette material, vertex R anchored at ground and weighted foliage tips. Checked export and turntable/silhouette previews; owner look review pending."
+- id: asset.flora.grass_tuft_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/understory/understory.py
+    params: {"species": "grass_tuft", "variant": "b", "seed": 6402}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/grass_tuft_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 48, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "48-triangle folded-blade grass clump, 0.22-0.58m; no collision. Palette material, vertex R anchored at ground and weighted foliage tips. Checked export and turntable/silhouette previews; owner look review pending."
+- id: asset.flora.grass_tuft_c
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/understory/understory.py
+    params: {"species": "grass_tuft", "variant": "c", "seed": 6403}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/grass_tuft_c.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 48, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "48-triangle folded-blade grass clump, 0.22-0.58m; no collision. Palette material, vertex R anchored at ground and weighted foliage tips. Checked export and turntable/silhouette previews; owner look review pending."
+- id: asset.flora.grass_tuft_d
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/understory/understory.py
+    params: {"species": "grass_tuft", "variant": "d", "seed": 6404}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/grass_tuft_d.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 48, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "48-triangle folded-blade grass clump, 0.22-0.58m; no collision. Palette material, vertex R anchored at ground and weighted foliage tips. Checked export and turntable/silhouette previews; owner look review pending."
+- id: asset.flora.fern_a
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/understory/understory.py
+    params: {"species": "fern", "variant": "a", "seed": 6501}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/fern_a.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 228, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Six arching bracken fronds with paired tapering pinnae, 0.65-1.1m; no collision. Palette material, vertex R anchored at ground and weighted foliage tips. Checked export and turntable/silhouette previews; owner look review pending."
+- id: asset.flora.fern_b
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/understory/understory.py
+    params: {"species": "fern", "variant": "b", "seed": 6502}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/fern_b.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 228, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Six arching bracken fronds with paired tapering pinnae, 0.65-1.1m; no collision. Palette material, vertex R anchored at ground and weighted foliage tips. Checked export and turntable/silhouette previews; owner look review pending."
+- id: asset.flora.fern_c
+  kind: model
+  status: review
+  milestone: M2
+  source:
+    type: generator
+    generator: art/generators/understory/understory.py
+    params: {"species": "fern", "variant": "c", "seed": 6503}
+    tool: Blender 5.1.0 (headless)
+  outputs: [game/assets/flora/plants/fern_c.glb]
+  budget_class: shrub
+  measured: { tris_lod0: 228, materials: 1 }
+  license: { name: Proprietary-own-work, author: FeudalSim, attribution_required: false }
+  notes: "Six arching bracken fronds with paired tapering pinnae, 0.65-1.1m; no collision. Palette material, vertex R anchored at ground and weighted foliage tips. Checked export and turntable/silhouette previews; owner look review pending."

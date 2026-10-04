@@ -1,0 +1,326 @@
+{
+  "result": "pass",
+  "assets": [
+    {
+      "assembled_objects": [
+        "bush_hazel_a"
+      ],
+      "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/bushes/hazel_a.glb",
+      "budget_class": "shrub",
+      "collision_objects": [],
+      "height_m": 3.535,
+      "materials": [
+        "palette"
+      ],
+      "ok": true,
+      "problems": [],
+      "stored_tris": 294,
+      "tris": {
+        "0": 294
+      }
+    },
+    {
+      "assembled_objects": [
+        "bush_hazel_b"
+      ],
+      "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/bushes/hazel_b.glb",
+      "budget_class": "shrub",
+      "collision_objects": [],
+      "height_m": 4.042,
+      "materials": [
+        "palette"
+      ],
+      "ok": true,
+      "problems": [],
+      "stored_tris": 294,
+      "tris": {
+        "0": 294
+      }
+    },
+    {
+      "assembled_objects": [
+        "bush_hazel_c"
+      ],
+      "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/bushes/hazel_c.glb",
+      "budget_class": "shrub",
+      "collision_objects": [],
+      "height_m": 4.68,
+      "materials": [
+        "palette"
+      ],
+      "ok": true,
+      "problems": [],
+      "stored_tris": 294,
+      "tris": {
+        "0": 294
+      }
+    },
+    {
+      "assembled_objects": [
+        "bush_bramble_a",
+        "bush_bramble_a_berries"
+      ],
+      "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/bushes/bramble_a.glb",
+      "budget_class": "shrub",
+      "collision_objects": [],
+      "height_m": 0.837,
+      "materials": [
+        "palette"
+      ],
+      "ok": true,
+      "problems": [],
+      "stored_tris": 296,
+      "tris": {
+        "0": 296
+      }
+    },
+    {
+      "assembled_objects": [
+        "bush_bramble_b",
+        "bush_bramble_b_berries"
+      ],
+      "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/bushes/bramble_b.glb",
+      "budget_class": "shrub",
+      "collision_objects": [],
+      "height_m": 1.066,
+      "materials": [
+        "palette"
+      ],
+      "ok": true,
+      "problems": [],
+      "stored_tris": 296,
+      "tris": {
+        "0": 296
+      }
+    },
+    {
+      "assembled_objects": [
+        "bush_gorse_a"
+      ],
+      "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/bushes/gorse_a.glb",
+      "budget_class": "shrub",
+      "collision_objects": [],
+      "height_m": 1.025,
+      "materials": [
+        "palette"
+      ],
+      "ok": true,
+      "problems": [],
+      "stored_tris": 300,
+      "tris": {
+        "0": 300
+      }
+    },
+    {
+      "assembled_objects": [
+        "bush_gorse_b"
+      ],
+      "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/bushes/gorse_b.glb",
+      "budget_class": "shrub",
+      "collision_objects": [],
+      "height_m": 1.282,
+      "materials": [
+        "palette"
+      ],
+      "ok": true,
+      "problems": [],
+      "stored_tris": 300,
+      "tris": {
+        "0": 300
+      }
+    },
+    {
+      "assembled_objects": [
+        "plant_reeds_a"
+      ],
+      "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/reeds_a.glb",
+      "budget_class": "shrub",
+      "collision_objects": [],
+      "height_m": 1.708,
+      "materials": [
+        "palette"
+      ],
+      "ok": true,
+      "problems": [],
+      "stored_tris": 216,
+      "tris": {
+        "0": 216
+      }
+    },
+    {
+      "assembled_objects": [
+        "plant_reeds_b"
+      ],
+      "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/reeds_b.glb",
+      "budget_class": "shrub",
+      "collision_objects": [],
+      "height_m": 2.058,
+      "materials": [
+        "palette"
+      ],
+      "ok": true,
+      "problems": [],
+      "stored_tris": 216,
+      "tris": {
+        "0": 216
+      }
+    },
+    {
+      "assembled_objects": [
+        "plant_reeds_c"
+      ],
+      "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/reeds_c.glb",
+      "budget_class": "shrub",
+      "collision_objects": [],
+      "height_m": 2.339,
+      "materials": [
+        "palette"
+      ],
+      "ok": true,
+      "problems": [],
+      "stored_tris": 216,
+      "tris": {
+        "0": 216
+      }
+    },
+    {
+      "assembled_objects": [
+        "plant_grass_tuft_a"
+      ],
+      "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/grass_tuft_a.glb",
+      "budget_class": "shrub",
+      "collision_objects": [],
+      "height_m": 0.219,
+      "materials": [
+        "palette"
+      ],
+      "ok": true,
+      "problems": [],
+      "stored_tris": 48,
+      "tris": {
+        "0": 48
+      }
+    },
+    {
+      "assembled_objects": [
+        "plant_grass_tuft_b"
+      ],
+      "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/grass_tuft_b.glb",
+      "budget_class": "shrub",
+      "collision_objects": [],
+      "height_m": 0.334,
+      "materials": [
+        "palette"
+      ],
+      "ok": true,
+      "problems": [],
+      "stored_tris": 48,
+      "tris": {
+        "0": 48
+      }
+    },
+    {
+      "assembled_objects": [
+        "plant_grass_tuft_c"
+      ],
+      "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/grass_tuft_c.glb",
+      "budget_class": "shrub",
+      "collision_objects": [],
+      "height_m": 0.458,
+      "materials": [
+        "palette"
+      ],
+      "ok": true,
+      "problems": [],
+      "stored_tris": 48,
+      "tris": {
+        "0": 48
+      }
+    },
+    {
+      "assembled_objects": [
+        "plant_grass_tuft_d"
+      ],
+      "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/grass_tuft_d.glb",
+      "budget_class": "shrub",
+      "collision_objects": [],
+      "height_m": 0.577,
+      "materials": [
+        "palette"
+      ],
+      "ok": true,
+      "problems": [],
+      "stored_tris": 48,
+      "tris": {
+        "0": 48
+      }
+    },
+    {
+      "assembled_objects": [
+        "plant_fern_a"
+      ],
+      "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/fern_a.glb",
+      "budget_class": "shrub",
+      "collision_objects": [],
+      "height_m": 0.663,
+      "materials": [
+        "palette"
+      ],
+      "ok": true,
+      "problems": [],
+      "stored_tris": 228,
+      "tris": {
+        "0": 228
+      }
+    },
+    {
+      "assembled_objects": [
+        "plant_fern_b"
+      ],
+      "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/fern_b.glb",
+      "budget_class": "shrub",
+      "collision_objects": [],
+      "height_m": 0.867,
+      "materials": [
+        "palette"
+      ],
+      "ok": true,
+      "problems": [],
+      "stored_tris": 228,
+      "tris": {
+        "0": 228
+      }
+    },
+    {
+      "assembled_objects": [
+        "plant_fern_c"
+      ],
+      "asset": "/Users/tylercoleman/Development/FeudalSim/game/assets/flora/plants/fern_c.glb",
+      "budget_class": "shrub",
+      "collision_objects": [],
+      "height_m": 1.121,
+      "materials": [
+        "palette"
+      ],
+      "ok": true,
+      "problems": [],
+      "stored_tris": 228,
+      "tris": {
+        "0": 228
+      }
+    }
+  ],
+  "visual_review": {
+    "date": "2026-10-04",
+    "status": "agent-inspected-owner-review-pending",
+    "notes": [
+      "Inspected four-angle turntables for all 17 variants and their 40m silhouettes.",
+      "Staggered hazel crowns and lower foliage avoid uniform lollipop clusters.",
+      "Low bramble clumps include cross-canes, broad leaves and separate seasonal fruit.",
+      "Gorse has dense spiky dark-green mass and straw-yellow blossoms.",
+      "Reeds, grass blades and pinnate arching fern fronds remain distinguishable.",
+      "Small grass naturally disappears at 40m; the brief silhouette-distance readability requirement is for characters/animals."
+    ],
+    "preview_directory": "art/previews/understory"
+  }
+}
