@@ -91,6 +91,19 @@ public sealed class ReplyRouterTests
     }
 
     [Fact]
+    public async Task AuditLines_JudgesEveryModelLineAfterItIsShown()
+    {
+        var chat = new FakeChat(["CHOICE: invite\nRAPPORT: none\nSAY: Aye, fine weather. Come to the fire tonight, Tam."]);
+        var r = new DialogueReplyRouter(chat, new FakeVerifier(0.9f, 0f, 0f, 0f), new AiConfig(), Templates) { AuditLines = true };
+        var audits = new System.Collections.Concurrent.ConcurrentBag<LineAudit>();
+        r.Audited += audits.Add;
+        await r.RunAsync(Bundle(Initiative), TestContext.Current.CancellationToken);
+        for (var i = 0; i < 100 && audits.IsEmpty; i++) { await Task.Delay(10, TestContext.Current.CancellationToken); }
+        var audit = audits.Single();
+        (audit.Choice, audit.Source, audit.Failure).ShouldBe(("invite", "llm", "v_contradicts"));
+    }
+
+    [Fact]
     public async Task OffMenuChoice_GoesToThePolicy_AndThePolicysPickIsVoicedSpeakOnly()
     {
         var chat = new FakeChat(["CHOICE: give_axe_free\nRAPPORT: none\nSAY: Take it, it's yours."], new Queue<string>(["SAY: Nothing more to say, Tam."]));

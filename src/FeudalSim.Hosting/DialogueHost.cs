@@ -53,6 +53,7 @@ public sealed class DialogueHost
         _router.Line += l => { _submit(CommandSource.Ai, l); Rendered?.Invoke(l); };
         _router.Partial += p => Partial?.Invoke(p);
         _router.FirstToken += ms => FirstToken?.Invoke(ms);
+        _router.Audited += a => Audited?.Invoke(a);
         _router.Surfaced += s => Surfaced?.Invoke(s);
         _router.Spent += c => Spend(c);
         if (chat is OpenAiCompatibleChatProvider streamed) { streamed.StreamFinished += r => Spend(r.CostUsd); }
@@ -79,6 +80,11 @@ public sealed class DialogueHost
     public event Action<TurnOutcome>? Outcome;
 
     private readonly ConcurrentDictionary<ulong, DecisionPointOpened> _menus = new();
+
+    /// <summary>Post-hoc line audits when <see cref="AuditLines"/> is on (22 §15.3 contradiction / Tier A audit rates).</summary>
+    public event Action<LineAudit>? Audited;
+
+    public bool AuditLines { get => _router.AuditLines; set => _router.AuditLines = value; }
 
     /// <summary>The dialogue model's time to first token for a turn (ms from the reply route's start).</summary>
     public event Action<double>? FirstToken;

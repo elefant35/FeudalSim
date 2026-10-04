@@ -202,7 +202,7 @@ public sealed class DialogueReplyRouter(IChatProvider? chat, IDecider? verifier,
             }
 
             var text = shown.ToString().Trim();
-            if (text.Length > 0 && SpeechChecks.CarriesPrice(text, b.Slots.GetValueOrDefault(primaryChoice))) { Finish(b, text, "llm", flags); return; }
+            if (text.Length > 0 && SpeechChecks.CarriesPrice(text, b.Slots.GetValueOrDefault(primaryChoice))) { Finish(b, text, "llm", flags, primaryChoice); return; }
             if (text.Length > 0) { flags.Add("must_say:price"); await VoiceResolvedAsync(b, started, primaryChoice, "regenerated", ct, flags).ConfigureAwait(false); return; }
             await VoiceResolvedAsync(b, started, primaryChoice, "template", ct, flags).ConfigureAwait(false);
             return;
@@ -213,7 +213,7 @@ public sealed class DialogueReplyRouter(IChatProvider? chat, IDecider? verifier,
         if (checkedText is not null && !SpeechChecks.CarriesPrice(checkedText, b.Slots.GetValueOrDefault(primaryChoice))) { (checkedText, fail) = (null, "must_say:price"); }
         if (checkedText is not null && await VerifyAsync(b, primaryChoice, checkedText, ct).ConfigureAwait(false) is null)
         {
-            Finish(b, checkedText, "llm", flags);
+            Finish(b, checkedText, "llm", flags, primaryChoice);
             return;
         }
 
@@ -262,7 +262,7 @@ public sealed class DialogueReplyRouter(IChatProvider? chat, IDecider? verifier,
                 if (ok is not null && !SpeechChecks.CarriesPrice(ok, b.Slots.GetValueOrDefault(choice))) { (ok, fail) = (null, "must_say:price"); }
                 if (ok is not null && (!TierB(b.Primary, choice) || await VerifyAsync(b, choice, ok, cut.Token).ConfigureAwait(false) is null))
                 {
-                    Finish(b, ok, "regenerated", flags);
+                    Finish(b, ok, "regenerated", flags, choice);
                     return;
                 }
 
@@ -285,11 +285,24 @@ public sealed class DialogueReplyRouter(IChatProvider? chat, IDecider? verifier,
         return main + " " + templates.Render(initiative, b.Initiative!.Id, b.Slots.GetValueOrDefault(initiative));
     }
 
-    private void Finish(TurnBundle b, string text, string source, List<string> flags)
+    private void Finish(TurnBundle b, string text, string source, List<string> flags, string? choice = null)
     {
         Partial?.Invoke(new PartialLine(b.Conversation, b.Turn, b.Npc, text, true));
         Line?.Invoke(new DialogueLineRendered(b.Conversation, b.Turn, b.Npc, text, source, string.Join(',', flags)));
+        if (AuditLines && choice is not null && verifier is not null)
+        {
+            // 22 §15.3: post-hoc audit of a model-written line against its decision (contradiction, other option, more than
+            // decided, meta). Measurement only — the line has already been shown.
+            var tierB = TierB(b.Primary, choice);
+            _ = Task.Run(async () => Audited?.Invoke(new LineAudit(b.Conversation, b.Turn, choice, text, source, tierB,
+                await VerifyAsync(b, choice, text, CancellationToken.None).ConfigureAwait(false))));
+        }
     }
+
+    /// <summary>Audit every model-written line after it is shown (dev/eval: `feudalsim session --audit`); off in play.</summary>
+    public bool AuditLines { get; set; }
+
+    public event Action<LineAudit>? Audited;
 
     /// <summary>22 §4.2: Tier B when the chosen option is high or critical stakes, or the menu offered one that was not chosen.</summary>
     public static bool TierB(DecisionPointOpened dp, string? chosen)
@@ -337,3 +350,6 @@ public sealed class DialogueReplyRouter(IChatProvider? chat, IDecider? verifier,
 
     private static string Clip(string s) => s.Length > 24 ? s[..24] : s;
 }
+
+/// <summary>A post-hoc audit of one shown line (22 §15.3): <c>Failure</c> is the verification question that failed, or null.</summary>
+public sealed record LineAudit(ulong Conversation, int Turn, string Choice, string Text, string Source, bool TierB, string? Failure);

@@ -27,6 +27,10 @@ public sealed class SessionSettings : CommandSettings
     [CommandOption("--max-usd <USD>")]
     public double MaxUsd { get; init; } = 0.25;
 
+    [CommandOption("--audit")]
+    [Description("Audit every model-written line post-hoc with the fast decider (22 §15.3 contradiction and Tier A audit rates).")]
+    public bool Audit { get; init; }
+
     [CommandOption("--turn-timeout <S>")]
     public double TurnTimeout { get; init; } = 12;
 }
@@ -73,6 +77,9 @@ public sealed class SessionCommand : Command<SessionSettings>
         host.Partial += p => { firstWords ??= clock.Elapsed.TotalMilliseconds - turnAt; if (p.Final) { final = clock.Elapsed.TotalMilliseconds - turnAt; } };
         host.Rendered += l => line = l;
         var ttfts = new System.Collections.Concurrent.ConcurrentBag<double>();
+        var audits = new System.Collections.Concurrent.ConcurrentBag<LineAudit>();
+        host.AuditLines = settings.Audit;
+        host.Audited += a => audits.Add(a);
         host.FirstToken += ms => ttfts.Add(ms);
 
         Thread.Sleep(1_500);
@@ -138,6 +145,21 @@ public sealed class SessionCommand : Command<SessionSettings>
         Console.WriteLine($"  whole line                 {Pct(rows.Select(r => r.Final))}");
         var deadlineShare = decided.Count == 0 ? 0 : decided.Count(d => d.Guard == "Deadline") / (double)decided.Count;
         Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"  DP deadline expiries       {deadlineShare:P1}   [< 3%]"));
+        if (settings.Audit)
+        {
+            Thread.Sleep(3_000);   // the last audits
+            var all = audits.ToList();
+            var tierA = all.Where(a => !a.TierB).ToList();
+            static string Rate(int n, int d) => d == 0 ? "n/a" : $"{n}/{d} = {100.0 * n / d:F1}%";
+            Console.WriteLine("22 §15.3 text quality (post-hoc audit of model-written lines):");
+            Console.WriteLine($"  contradiction (v_contradicts / v_other_option)   {Rate(all.Count(a => a.Failure is "v_contradicts" or "v_other_option"), all.Count)}   [< 3%]");
+            Console.WriteLine($"  Tier A audit failures (any question)             {Rate(tierA.Count(a => a.Failure is not null), tierA.Count)}   [< 6%]");
+            Console.WriteLine($"  all failures by question: {string.Join(", ", all.Where(a => a.Failure is not null).GroupBy(a => a.Failure).Select(g => $"{g.Key} {g.Count()}"))}");
+            foreach (var a in all.Where(a => a.Failure is not null).Take(6)) { Console.WriteLine($"    {a.Failure}: [{a.Choice}] \"{Trim(a.Text)}\""); }
+            var healthy = rows.Count(r => r.Source != "none");
+            Console.WriteLine($"  template fallback (cloud healthy)                {Rate(rows.Count(r => r.Source == "template"), healthy)}   [< 4%] · regenerated {Rate(rows.Count(r => r.Source == "regenerated"), healthy)} [< 10%]");
+        }
+
         Console.WriteLine("22 §12.3 cost:");
         Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"  per turn ${perTurn:F5} (classification ${(n == 0 ? 0 : classifySpend / n):F5} · reply + verification ${(n == 0 ? 0 : (turnSpend - classifySpend) / n):F5}) [model ≈ $0.00066]"));
         Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"  background (overheard, barks …) ${background:F5} in {wall:F0} s → ${backgroundPerHour:F4} / wall-hour"));
