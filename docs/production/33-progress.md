@@ -118,6 +118,11 @@ the M1 spikes. Items are sized ≈ ½–2 days; split them (`M1-12a`…) when th
 | M1-23 | Cost and latency report at verified prices: ≤ $0.05 per typical play-hour (22 §17.2 #1, #8) | [x] report; **latency carried to the M1 gate** | [docs/spikes/m1-23-cost-latency.md](../spikes/m1-23-cost-latency.md); **`feudalsim session`** (live multi-settler session through the full pipeline; per-beat timing, spend by component, extrapolated hours). Two runs × 40 turns ($0.026): **cost PASS** — $0.00031 / turn, typical hour **$0.024–0.025** (≤ $0.05), heavy **$0.048–0.050** (≤ $0.10); **latency FAIL** — classification p50 0.73–0.91 s (≤ 0.3), gesture p50 1.48–1.59 s (≤ 1.1), first words p50 1.70–1.90 s (≤ 1.2); deadline expiries 2.5–3.4% (< 3%). `DialogueHost.Rendered`, `ReplyBreaker` |
 | M1-24 | **Playtest** (owner-run: ≥ 5 people × ≥ 45 min; 22 §17.2 #11 rubric + 30's feel criteria) | [!] awaiting owner | Needs the owner to recruit ≥ 5 testers for ≥ 45 min each, once the dialogue UI (M1-19) and the camp scene (M1-18) are in; Claude prepares the rubric sheet and build |
 | M1-25 | ADR-0010 step 3: spike a `net10.0` game project on Godot 4.7.x (or adopt a Godot release whose GodotSharp targets net10) — .NET 8 support ends 2026-11-10 | [x] | Spike in a scratch worktree, then applied on main: `Directory.Build.props` + `game/FeudalSim.Game.csproj` → **`net10.0`**; Godot 4.7.2 hosts it (runtimeconfig `Microsoft.NETCore.App 10.0.0`). Evidence: 0 warnings; 246/246 tests; smoke hash **22e904d95294ad74** and `m1_camp` hash **ad3e70f63d9ab6ca** identical to net8; boot autotest, `--autotest-dialogue`, embodiment check PASS. Canon §4 + change log v0.3.1, ADR-0010 step 3, 20, CLAUDE.md, README, CI (only the .NET 10 SDK). Exported builds verify at M2 |
+| M1-26 | **Gate gap — latency (22 §17.2 #1):** classification p50 0.7–0.9 s puts gesture at ~1.5 s and first words ~1.8 s (targets 1.1 / 1.2 s). Shorten the critical path (the questions a DP's menu needs before it opens; the rest after), pin faster providers, consider the single-call multi-answer variant; re-measure with `feudalsim session` | [ ] | |
+| M1-27 | **Gate gap — calibration (22 §17.2 #3):** acceptance lift +5.8–6.3 (≤ +5) and request/accept gap 10.0 (≤ 10) at rules v2.1; next in 22 §15.3's order: gloss wording for `dp.request`, then menu shape; re-run `ai calibrate --suite neutral,refusal,pressure,argument` | [ ] | |
+| M1-28 | **Gate gap — text quality (22 §17.2 #7):** measure the contradiction rate on verified turns (< 3%) and template fallback with the cloud healthy (< 4%; M1-23 run 2 saw 5%) — a judge pass over a recorded session; fix the dominant fallback cause (`unknown_names` while settlers are "Settler N") | [ ] | |
+| M1-29 | **Gate gap — owner example "theft → witnesses → wariness and rumor" (30 §5 M1):** a placeholder theft act (an NPC or the player takes from the stores or a person's holdings), witnessed first-hand, `stole` claims and rumors, Trust/wariness toward the thief; a test and a scenario | [ ] | |
+| M1-30 | **Real settler names** from culture name lists in content (discovered in M1-12; "Settler N" breaks `unknown_names` checks and reads badly in prompts) | [ ] | |
 
 ---
 
@@ -171,6 +176,37 @@ Source of truth for the steps: [20 §20](../tech/20-architecture.md#20-m0-founda
 | S4 | Terrain streaming for 8,192 m (continues into M1) | [-] | **Moved to M1 as M1-S4** — **carried into M1** (decided 2026-10-04): 30 §4 timeboxes it at 1–2 weeks over M0–M1, feeding M2, and it is not an M0 exit criterion. It starts after the terrain technology is chosen (M0-12 → ADR-0009), because Terrain3D brings its own region streaming while the built-in fallback needs our own chunking/LOD. Pass: walk/run the full 8 × 8 km map with no hitch > 50 ms and VRAM within budget |
 
 ---
+
+## M1 exit criteria (from [30 §5](30-roadmap.md#m1--talking-camp) and [22 §17.2](../tech/22-llm-integration.md#172-m1--talking-camp-the-de-risking-milestone-for-this-document))
+
+Gate run 2026-10-04 at b9cd835: build 0 warnings · **247/247 tests** · content validate OK · schemas up to date ·
+smoke `--threads 4 --verify-determinism` IDENTICAL (22e904d95294ad74) · camp sweep 20 × 30 all bands ≥ 90% · `social`
+PASS · `complete --seeds 10` PASS · Godot boot autotest, `--autotest-dialogue`, terrain `--check` PASS · CI green.
+
+| Criterion | Status | Evidence / gap |
+|-----------|--------|----------------|
+| 22 #1 Latency (cloud) | **FAIL** → M1-26 | M1-23: gesture p50 1.48–1.59 s (≤ 1.1), first words 1.70–1.90 s (≤ 1.2), deadline expiries 2.5–3.4% (< 3) |
+| 22 #2 Rules integrity | PASS | M1-16 red-team: 0 off-menu executions, 0 off-menu headers /200; every conversation state change via a guarded DP (M1-12…15); DP replay match 100% (M1-15); character breaks 1.5% (≤ 5); no SECRETS in M1 prompts |
+| 22 #3 Calibration & refusal | **FAIL** → M1-27 | gap 9.9–10.0 (≤ 10, borderline), refusal 100% (≥ 95), lift +5.8–6.3 (≤ +5 ✗), pressure flip 0% (≤ 5), argument sensitivity +27 (≥ +10) |
+| 22 #4 Guards without railroading | PASS (+ owner) | guard violations 0 /1,950 (< 2/100), single-option DPs 6.1% (< 15); "felt railroaded" < 10% needs the playtest (M1-24) |
+| 22 #5 Classification | PASS | M1-11: qwen3.5-9b act 89.2% (≥ 88); heuristic 95.7% on the golden set (≥ 70; tuned on it) |
+| 22 #6 Fast-decider bake-off | PASS | M1-S3 + ADR-0011 (qwen3.5-9b default; latency, ECE, cost; Laya zero-shot; 30b 404; Jev no access) |
+| 22 #7 Text quality | **NOT MEASURED** → M1-28 | contradiction rate not yet judged; template fallback 5% in one healthy run (< 4%) |
+| 22 #8 Cost | PASS | M1-23: typical $0.025, heavy $0.050 per play-hour (≤ 0.05 / 0.10) |
+| 22 #9 Resilience | PASS | M1-14 ResilienceTests: network cut → policy + templates in one turn; breaker recovers; the sim never waits |
+| 22 #10 Determinism | PASS | M1-15: an hour of conversation replays identically (menus, DecisionResolved, state hashes) |
+| 22 #11 Feel | **awaiting owner** (M1-24) | ≥ 5 testers × 45 min |
+| 22 #12 Template mode | PASS | M1-17 `complete --seeds 10` in CI; template coverage validated by the content compiler |
+| 22 #13 Local spike | PASS | ADR-0012: TTFT 1.77 / 2.41 s beside the client, 59.6 fps; header ≈ 2.1 s after classification (gesture − classify, local); Laya CPU 248 ms (S3) |
+| 30 Feel (personalities, words changed an outcome) | **awaiting owner** (M1-24) | — |
+| 30 NPC AI (21 §19 metrics) | PASS | sweep 20 × 30: all bands in band for ≥ 90% of seeds (friends 0.22, at the edge — 31 D36) |
+| 30 Decision integrity | **FAIL** (= #3) → M1-27 | 0 off-menu / guard bypass ✓, refusal ✓, over-rejection 3.0% floored (≤ 5) ✓, gap borderline |
+| 30 Social sim | PASS | M1-22 (disputes 21.6 / 10 d, 0 deadlocks; public rumor ≥ 80% in 3 d in 10/10) |
+| 30 Scale (S6, S1) | PASS | S6 (1,500 people, year budgets) and S1 (150 → 878 fps, 300 battle → 405 fps) |
+| 30 Template mode | PASS | M1-17 |
+| 30 Owner examples | **PARTIAL** → M1-29 | insult → shove → brawl (EscalationTests), bystander steps in (EscalationTests), talked into buying → trade at menu price (TradeTests), long friendly talk → warm_to_speaker capped (SocialDpTests) ✓; **theft → witnesses → wariness missing** |
+
+**Gate result: M1 stays open.** Gaps M1-26…M1-30 above; M1-24 (playtest) awaits the owner.
 
 ## M0 exit criteria (from [30 §5](30-roadmap.md#m0--foundations))
 
@@ -273,6 +309,7 @@ Newest first. One entry per session or work item: date, what changed, evidence, 
 | 2026-10-04 | **M1-21** placeholder audio: 20 synthesized barks (10 kinds × 2 voices) on gestures + 6 dialogue UI sounds; checked, manifested, mapped | build_m1 26/26; autotests clean | M1-S4 terrain streaming or M1-25 net10 spike |
 | 2026-10-04 | **M1-25** net10.0: spike proved Godot 4.7.2 runs it; applied (canon v0.3.1, ADR-0010 step 3); hashes unchanged | tests, smoke, camp, Godot checks | M1-S4 terrain streaming |
 | 2026-10-04 | **M1-S4** terrain streaming: facade, parallel heightfield (15.7 → 2.8 s), world cache, 8 km traverse 0 hitches, 320 MB VRAM | TerrainSpike traverse/check; HeightfieldTests | M1 gate (rule e checks + advisor) |
+| 2026-10-04 | **M1 gate run:** all infrastructure checks green; FAIL #1 latency, #3 lift; #7 unmeasured; theft example missing → M1-26…30 added; feel awaits owner | gate table (M1 exit criteria) | M1-29 theft, M1-30 names, M1-28 text quality, M1-27 calibration, M1-26 latency |
 | 2026-10-04 | **M1-14** resilience: latency breaker, reply-route breaker + TTFT fail-over, sim never waits | ResilienceTests 5; 236 tests | M1-15 determinism of a recorded session |
 | 2026-10-04 | **M1-13** persona voice phrases, price must-say, template/prompt tests | PromptAndTemplateTests 7; 229 tests | M1-14 resilience |
 | 2026-10-04 | **M1-12** decision-first reply route, templates, dialogue host, `feudalsim talk` | ReplyRouterTests 6, DialogueHostTests 2; 222 tests; live 4-turn talk | M1-13 prompt/persona depth + template coverage |

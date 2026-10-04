@@ -23,7 +23,9 @@ A. Cloud remains the default. Local is a supported profile through the same Open
 (`LLM_BASE_URL`, `LLM_API_KEY`, `LLM_TIMEOUT_TTFT_MS`), measured with `feudalsim session`. Measured on the reference
 Mac: TTFT p50/p95 **1.77 / 2.41 s** beside the client (target 1.5 / 3.0), warm-prefix TTFT 0.59 s, cold 5.0 s, the
 client **59.6 fps** (0.53% frames slower than 55 fps). Header latency with grammar-constrained `CHOICE` and Laya CPU
-latency were not measured (llama.cpp and Laya are not installed); they stay open for the M7 local plan.
+latency were not measured here (llama.cpp and Laya are not installed). Without a grammar, the header lands ≈ 2.1 s
+after classification locally (gesture 2.59 s − classification 0.5 s, p50); Laya zero-shot ran 248 ms per request on CPU
+in S3. Grammar-constrained headers stay open for the M7 local plan.
 
 ## Consequences
 
