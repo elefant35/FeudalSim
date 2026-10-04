@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../schemas/recipe.schema.json
+# 13 §9.6 woodcutting (M2-12): felling a standing tree (a world node) and splitting logs. A 40 cm tree takes ≈ 30 game-min
+# with an iron axe; stone ≈ ×2.5 (12's ToolSpeed 0.6 × TaskToolFactor 1.5 on the felling stages). Yields by size class
+# (sapling, pole, timber, veteran): a pole tree gives poles' worth of rough log; timber 3 logs; a veteran 6 (proposed).
+# Felling is 11 §12.4's high-risk class (crushed leg or fracture).
+- id: recipe.fell_tree
+  output: { item: item.rough_log }
+  skill: skill.woodcutting
+  difficulty: 20
+  tier: t0
+  site: { kind: tree, min_size: 1 }
+  size_yield: [0, 1, 3, 6]
+  byproducts: [ { item: item.firewood, qty: 1 } ]
+  byproduct_size_yield: [1, 1, 2, 4]
+  risk: { class: high, damage: blunt, region: leg }
+  tools:
+    - { tag: tool.axe }
+  stages:
+    - { id: assess,   kind: active, primitive: inspect, labor_min: 3,  weight: 0.15 }
+    - { id: notch,    kind: active, primitive: strike,  labor_min: 8,  weight: 0.25, tool_factor: { stone: 1.5, copper: 1.2 } }
+    - { id: back_cut, kind: active, primitive: strike,  labor_min: 12, weight: 0.45, signature: true, tool_factor: { stone: 1.5, copper: 1.2 }, wear: 2 }
+    - { id: limb,     kind: active, primitive: strike,  labor_min: 8,  weight: 0.15 }
+  intensity: heavy
+- id: recipe.split_firewood
+  output: { item: item.firewood, qty: 5 }
+  skill: skill.woodcutting
+  difficulty: 10
+  tier: t0
+  risk: { class: medium, damage: cut, region: leg }
+  tools:
+    - { tag: tool.axe }
+  inputs:
+    - { slot: log, item: item.rough_log, qty: 1, weight: 1.0 }
+  stages:
+    - { id: split, kind: active, primitive: strike, labor_min: 40, weight: 1.0, signature: true }
+  intensity: heavy

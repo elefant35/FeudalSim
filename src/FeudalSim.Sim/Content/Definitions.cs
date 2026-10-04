@@ -126,7 +126,35 @@ public sealed record RecipeDef
     public IReadOnlyList<RecipeOutput> SalvageOnRuin { get; init; } = [];
     public ActivityLevel Intensity { get; init; } = ActivityLevel.Moderate;
 
+    /// <summary>Work on a world node (felling a tree): its kind and minimum size class (10 §7.2; M2-12).</summary>
+    public RecipeSite? Site { get; init; }
+
+    /// <summary>Output multipliers by the site node's size class (sapling, pole, timber, veteran).</summary>
+    public IReadOnlyList<int>? SizeYield { get; init; }
+
+    /// <summary>Extra outputs (brash to firewood …), also scaled by <see cref="ByproductSizeYield"/> when a site is worked.</summary>
+    public IReadOnlyList<RecipeOutput> Byproducts { get; init; } = [];
+
+    public IReadOnlyList<int>? ByproductSizeYield { get; init; }
+
+    /// <summary>11 §12.4 work-accident class and what an accident does.</summary>
+    public RecipeRisk? Risk { get; init; }
+
     public int Cap => MaxQuality ?? Math.Min(100, 60 + Difficulty);
+}
+
+public sealed record RecipeSite
+{
+    public required NodeKind Kind { get; init; }
+    public int MinSize { get; init; }
+}
+
+/// <summary>11 §12.4: class low/medium/high; the injury an accident gives (18 damage type, region: arm/leg/head/torso).</summary>
+public sealed record RecipeRisk
+{
+    public required string Class { get; init; }
+    public required string Damage { get; init; }
+    public required string Region { get; init; }
 }
 
 public sealed record RecipeOutput
@@ -175,6 +203,9 @@ public sealed record RecipeStage
 
     /// <summary>Tool durability consumed per labor-hour (13 §4.5).</summary>
     public float Wear { get; init; } = 1f;
+
+    /// <summary>13 §3.1 TaskToolFactor by tool tier where material dominates the work (felling: stone 1.5, copper 1.2).</summary>
+    public IReadOnlyDictionary<string, float>? ToolFactor { get; init; }
 
     public bool Scored => Kind is StageKind.Active or StageKind.Assembly;
 }

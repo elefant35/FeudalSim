@@ -42,7 +42,9 @@ public static class Processes
     }
 
     /// <summary>Starts a recipe for <paramref name="worker"/> (row) with inputs from <paramref name="container"/>; returns why not, or null.</summary>
-    public static string? Start(SimWorld world, int worker, int recipe, EntityId container, bool masterwork, out Process? process)
+    public const byte NodeFelled = 2;
+
+    public static string? Start(SimWorld world, int worker, int recipe, EntityId container, bool masterwork, out Process? process, int siteChunk = -1, int siteIndex = -1)
     {
         process = null;
         var people = world.People;
@@ -57,6 +59,12 @@ public static class Processes
             var tool = BestTool(world, who, t.Tag);
             if (tool.Instance == 0 && t.Required) { return $"needs a tool ({t.Tag})"; }
             if (tool.Instance == 0 && t.CapWithout is { } c) { cap = Math.Min(cap, c); }
+        }
+
+        byte siteSize = 0;
+        if (def.Site is { } site)
+        {
+            if (SiteProblem(world, worker, site, siteChunk, siteIndex, out siteSize) is { } why) { return why; }
         }
 
         Span<int> chosen = stackalloc int[def.Inputs.Count];
@@ -79,9 +87,34 @@ public static class Processes
             Id = world.Processes.NextId(), Recipe = recipe, Worker = who, Container = container, Stage = 0, State = ProcessState.Active,
             StagePs = new float[def.Stages.Count], Material = def.Inputs.Count == 0 ? 50f : material, Masterwork = masterwork,
             StartedMin = world.Clock.GameMinute, BusyUntilMin = world.Clock.GameMinute, Cap = cap,
+            SiteChunk = def.Site is null ? -1 : siteChunk, SiteIndex = def.Site is null ? -1 : siteIndex, SiteSize = siteSize,
         };
         world.Processes.Add(process);
         world.Emit(Salience.Minor, who, new ProcessStarted(process.Id, who, recipe));
+        return null;
+    }
+
+    /// <summary>Why the worker can't work this node (M2-12): it must exist in the attached world, be of the recipe's kind and
+    /// size, still stand, be within 4 m, and not be someone else's open work.</summary>
+    private static string? SiteProblem(SimWorld world, int worker, Content.RecipeSite site, int chunk, int index, out byte size)
+    {
+        size = 0;
+        if (world.Map is not { } map) { return "no world here"; }
+        var per = WorldGen.NodeScatter.ChunksPerSide(map.Grid);
+        if (chunk < 0 || chunk >= per * per || index < 0) { return "no such node"; }
+        var nodes = new List<WorldGen.ResourceNode>();
+        WorldGen.NodeScatter.Chunk(map.Grid, map.AttemptSeed, world.NodeTable, chunk % per, chunk / per, nodes);
+        world.NodeDeltas.Apply(chunk, nodes);
+        if (index >= nodes.Count) { return "no such node"; }
+        var node = nodes[index];
+        if (world.Content.Nodes[node.Type].Kind != site.Kind) { return "not the right kind of thing"; }
+        if (node.State != 0) { return "already worked"; }
+        if (node.Size < site.MinSize) { return "too small"; }
+        var (x, z) = WorldGen.NodeScatter.Position(map.Grid, chunk % per, chunk / per, node);
+        ref readonly var t = ref world.People.Transforms[worker];
+        if (((t.X - x) * (t.X - x)) + ((t.Z - z) * (t.Z - z)) > 4f * 4f) { return "out of reach"; }
+        foreach (var other in world.Processes.Open) { if (other.SiteChunk == chunk && other.SiteIndex == index) { return "someone is already at it"; } }
+        size = node.Size;
         return null;
     }
 
@@ -128,7 +161,9 @@ public static class Processes
         var res = Skills.Skills.Resolve(world, new CheckRequest(worker, skill, difficulty, tier == ToolTier.None ? ToolTier.Iron : tier, Math.Max(0, toolQ),
             HasLight: true, MinigameM: minigameM), ref rng);
 
-        var labor = stage.LaborMin / res.WorkRate * (1.10f - (0.002f * res.PerformanceScore)) * (p.Masterwork ? 1.5f : 1f) * laborScale;
+        var toolFactor = stage.ToolFactor?.GetValueOrDefault(tier.ToString().ToLowerInvariant()) is { } tf and > 0f ? tf : 1f;   // 13 §3.1 TaskToolFactor
+        var labor = stage.LaborMin * toolFactor / res.WorkRate * (1.10f - (0.002f * res.PerformanceScore)) * (p.Masterwork ? 1.5f : 1f) * laborScale;
+        if (def.Risk is { } risk) { Accident(world, p, worker, risk, labor / 60f, skill); }
         var remaining = MathF.Max(0f, labor - (0.8f * realSeconds));
         Wear(world, p, def, stage, labor);
         Skills.Skills.AwardXp(world, worker, skill, 10f * labor / 60f, difficulty, res.Outcome, labor / 60f);   // 12 §5.2: 10 XP per labor-hour
@@ -146,6 +181,35 @@ public static class Processes
         p.BusyUntilMin = now + (long)MathF.Ceiling(remaining);
         p.Stage++;
         return null;
+    }
+
+    /// <summary>
+    /// 11 §12.4 work accidents: p per labor-hour = base (low 0.0005 · medium 0.0015 · high 0.004) × (1 + 1.5·(1 − skill/100))
+    /// × fatigue (Exhausted ×2, Collapsing ×3) × weather (Storm ×1.5); severity 70 % Minor, 25 % Moderate, 5 % Severe.
+    /// </summary>
+    /// <summary>11 §12.4 accident chance per labor-hour.</summary>
+    public static float AccidentPerHour(string riskClass, float skill, float energy, bool storm)
+        => (riskClass switch { "high" => 0.004f, "medium" => 0.0015f, _ => 0.0005f }) * (1f + (1.5f * (1f - (skill / 100f))))
+           * (energy < 12f ? 3f : energy < 25f ? 2f : 1f) * (storm ? 1.5f : 1f);
+
+    private static void Accident(SimWorld world, Process p, int worker, Content.RecipeRisk risk, float hours, int skill)
+    {
+        var people = world.People;
+        var level = skill >= 0 ? people.SkillLevels(worker)[skill] : 0;
+        var perHour = AccidentPerHour(risk.Class, level, people.Needs[worker].Energy, world.WeatherRef.Sky == Climate.Sky.Storm);
+        var chance = 1f - MathF.Pow(1f - MathF.Min(perHour, 0.99f), hours);
+        var rng = new Rng(SplitMix64.Mix(world.WorldSeed, (ulong)RngStream.Crafting, p.Id, (ulong)p.Stage, Salt.WorkAccident));
+        if (!rng.Chance(chance)) { return; }
+        var band = rng.NextFloat01();
+        var severity = band < 0.70f ? rng.Uniform(8f, 19f) : band < 0.95f ? rng.Uniform(20f, 34f) : rng.Uniform(35f, 54f);
+        var left = rng.Chance(0.5f);
+        var region = risk.Region switch
+        {
+            "arm" => left ? Health.BodyRegion.ArmL : Health.BodyRegion.ArmR, "leg" => left ? Health.BodyRegion.LegL : Health.BodyRegion.LegR,
+            "head" => Health.BodyRegion.Head, _ => Health.BodyRegion.Torso,
+        };
+        var damage = Enum.TryParse<Health.DamageType>(risk.Damage, true, out var d) ? d : Health.DamageType.Blunt;
+        Health.HealthRules.Trauma(world, worker, severity, damage, region, Health.TraumaSource.Tool);
     }
 
     private static void Wear(SimWorld world, Process p, RecipeDef def, RecipeStage stage, float laborMin)
@@ -225,11 +289,20 @@ public static class Processes
         var item = content.ItemHandle(def.Output.Item);
         var itemDef = content.Items[item];
         ulong instance = 0;
-        if (itemDef.IsStackable) { world.Inventory.Add(p.Container, item, def.Output.Qty, q); }
+        var yield = def.Site is not null && def.SizeYield is { Count: 4 } sy ? sy[p.SiteSize] : 1;
+        var qty = def.Output.Qty * yield;
+        foreach (var by in def.Byproducts)
+        {
+            var byYield = def.Site is not null && def.ByproductSizeYield is { Count: 4 } by4 ? by4[p.SiteSize] : 1;
+            if (by.Qty * byYield > 0) { world.Inventory.Add(p.Container, content.ItemHandle(by.Item), by.Qty * byYield, 50); }
+        }
+
+        if (p.SiteChunk >= 0) { world.NodeDeltas.Set(p.SiteChunk, p.SiteIndex, NodeFelled); }   // the tree is down (20 §6.6 delta)
+        if (itemDef.IsStackable) { if (qty > 0) { world.Inventory.Add(p.Container, item, qty, q); } }
         else
         {
             var durability = Quality.MaxDurability(itemDef.Durability ?? 100, q) * DurabilityAfterFlaws(p.Flaws, content.Flaws);
-            for (var k = 0; k < def.Output.Qty; k++)
+            for (var k = 0; k < qty; k++)
             {
                 instance = world.Inventory.Create(p.Container, item, q, durability, world.Ids.Next(EntityKind.ItemInstance).Value, p.Worker.Value,
                     world.Clock.GameMinute, (short)p.Recipe, p.Flaws);

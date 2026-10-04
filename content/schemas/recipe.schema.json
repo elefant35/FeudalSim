@@ -169,6 +169,9 @@
             },
             "wear": {
               "type": "number"
+            },
+            "tool_factor": {
+              "type": "object"
             }
           },
           "required": [
@@ -206,6 +209,81 @@
           "moderate",
           "heavy"
         ]
+      },
+      "site": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "tree",
+              "bush",
+              "rock",
+              "patch"
+            ]
+          },
+          "min_size": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false
+      },
+      "size_yield": {
+        "type": "array",
+        "items": {
+          "type": "integer"
+        }
+      },
+      "byproducts": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "type": "string",
+              "minLength": 1
+            },
+            "qty": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "item"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "byproduct_size_yield": {
+        "type": "array",
+        "items": {
+          "type": "integer"
+        }
+      },
+      "risk": {
+        "type": "object",
+        "properties": {
+          "class": {
+            "type": "string",
+            "minLength": 1
+          },
+          "damage": {
+            "type": "string",
+            "minLength": 1
+          },
+          "region": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "class",
+          "damage",
+          "region"
+        ],
+        "additionalProperties": false
       }
     },
     "required": [

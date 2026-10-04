@@ -126,7 +126,7 @@ public sealed record TreatWound([property: Key(0)] Core.EntityId Healer, [proper
 /// <summary>13 §4: start a recipe (inputs from <c>Container</c>, default the worker's own carry).</summary>
 [MessagePackObject]
 public sealed record StartProcess([property: Key(0)] Core.EntityId Worker, [property: Key(1)] string Recipe, [property: Key(2)] bool Masterwork = false,
-    [property: Key(3)] Core.EntityId Container = default) : StateCommand;
+    [property: Key(3)] Core.EntityId Container = default, [property: Key(4)] int SiteChunk = -1, [property: Key(5)] int SiteIndex = -1) : StateCommand;
 
 /// <summary>13 §7.2 minigame contract: work a process's next stage. <c>MinigameM</c> ∈ [−1, +1] is the player's result
 /// (NaN = auto-resolve as an NPC draw); <c>RealSeconds</c> is how long it was played (13 §3.1 paid labor).</summary>

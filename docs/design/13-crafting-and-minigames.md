@@ -1175,6 +1175,18 @@ Felling time for a 40 cm tree: ~30 game-min with an iron axe (stone ≈ ×2.5: 1
 `TaskToolFactor` 1.5). Real: felling 30–60 s; limbing 20 s; splitting sample 20 s. Tree
 volume and species come from [10](10-world-and-setting.md); 13 reports fellings for regrowth.
 
+*Implemented (M2-12):*
+- **`recipe.fell_tree`:** works a world tree node. `site: tree`, pole or larger, within 4 m, still standing and not
+  already claimed. Stages: assess, notch, back cut (signature), limb. Yields by size (pole 1 log, timber 3, veteran 6,
+  proposed) plus brash as firewood. On completion the node is marked felled (a node delta).
+- **`recipe.split_firewood`:** one log makes five bundles.
+- **Stone axes:** `tool_factor` gives 13 §3.1's TaskToolFactor (stone 1.5 on the notch and back cut), so stone fells
+  ≈ 2× slower in the test (iron vs stone 1.6–3.0).
+- **Accidents:** recipes declare 11 §12.4's `risk`. Each stage rolls the per-labor-hour chance and injures the worker
+  through 11's trauma rule (felling: blunt to a leg; 70/25/5 % severity bands).
+- **Not yet:** fall zones and "timber!" (NPCs in the fall zone), hang-ups, bucking and riving, coppice regrowth, and
+  the field-mode minigame and client — the graybox camp has no generated trees; the Landfall world (M2-23) brings them.
+
 ### 9.7 Mining & quarrying
 
 **Mining** (dressing: Masonry) · T1–T4 · **M3** clay, sand, surface stone, quarry blocks → **M4**

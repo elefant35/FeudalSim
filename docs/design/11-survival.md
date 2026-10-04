@@ -984,6 +984,9 @@ hand cut).
 *Example:* an expert feller (skill 70), rested: 0.0058/h, so about one mostly minor accident per 22
 working days. A novice, Exhausted, felling for 4 h: about 7% that afternoon.
 
+*Implemented (M2-12):* `Processes.AccidentPerHour` (intoxication waits for drink), rolled per stage of a recipe with a
+`risk` block; the injury goes through `HealthRules.Trauma` with the recipe's damage type and region.
+
 ---
 
 ## 13. Early shelter

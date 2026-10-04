@@ -35,6 +35,13 @@ public sealed class Process
     [Key(15)] public long IdealUntilMin { get; set; }
 
     [Key(16)] public float OverrunQ { get; set; }
+
+    /// <summary>The world node worked (M2-12): chunk, index in its generated list, and its size class; −1 when none.</summary>
+    [Key(17)] public int SiteChunk { get; set; } = -1;
+
+    [Key(18)] public int SiteIndex { get; set; } = -1;
+
+    [Key(19)] public byte SiteSize { get; set; }
 }
 
 /// <summary>Open processes by id plus completions per (person, recipe) for Quick Work and Batch (13 §12). Saved and hashed.</summary>
@@ -96,7 +103,7 @@ public sealed class ProcessStore
             foreach (var ps in p.StagePs) { Put(BitConverter.SingleToInt32Bits(ps), b); }
             Put((long)p.Flaws, b); Put(BitConverter.SingleToInt32Bits(p.Material), b); Put(p.Masterwork ? 1 : 0, b); Put(p.StartedMin, b); Put(p.BusyUntilMin, b);
             Put(BitConverter.SingleToInt32Bits(p.LaborMin), b); Put(BitConverter.SingleToInt32Bits(p.LaborOwedMin), b); Put(p.Cap, b); Put(p.IdealUntilMin, b);
-            Put(BitConverter.SingleToInt32Bits(p.OverrunQ), b);
+            Put(BitConverter.SingleToInt32Bits(p.OverrunQ), b); Put(p.SiteChunk, b); Put(p.SiteIndex, b); Put(p.SiteSize, b);
         }
 
         foreach (var ((person, recipe), n) in _completions) { Put((long)person, b); Put(recipe, b); Put(n, b); }

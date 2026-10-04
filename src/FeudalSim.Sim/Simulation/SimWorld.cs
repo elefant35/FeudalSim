@@ -74,6 +74,11 @@ public sealed class SimWorld
     /// <summary>Changes to the generated resource nodes (20 §6.6). Saved and hashed.</summary>
     public World.NodeDeltaStore NodeDeltas { get; } = new();
 
+    private WorldGen.NodeScatter.Table? _nodeTable;
+
+    /// <summary>The node scattering table for this content (built once).</summary>
+    public WorldGen.NodeScatter.Table NodeTable => _nodeTable ??= new WorldGen.NodeScatter.Table(Content);
+
     /// <summary>Attaches the generated region (once, before the first step or on load).</summary>
     public void AttachMap(World.WorldMap map)
     {
@@ -330,7 +335,7 @@ public sealed class SimWorld
                 var recipe = Content.RecipeHandle(c.Recipe);
                 if (row < 0 || (command.Source == CommandSource.Player && row != PlayerRow)) { Reject(command, "StartProcess: the player works as themselves."); break; }
                 var container = c.Container.IsNone ? c.Worker : c.Container;
-                if (Crafting.Processes.Start(this, row, recipe, container, c.Masterwork, out _) is { } why) { Reject(command, $"StartProcess: {why}."); }
+                if (Crafting.Processes.Start(this, row, recipe, container, c.Masterwork, out _, c.SiteChunk, c.SiteIndex) is { } why) { Reject(command, $"StartProcess: {why}."); }
                 break;
             }
 
