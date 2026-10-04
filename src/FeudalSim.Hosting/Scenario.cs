@@ -38,6 +38,9 @@ public sealed record ScenarioDef
     /// <summary>The graybox camp for <c>ai: utility</c> (places in metres; stocks; sleep bedding; schedule id).</summary>
     public CampDef? Camp { get; init; }
 
+    /// <summary>Optional player position <c>[x, z]</c> (metres), sent as a logged <c>PlayerMoved</c>: headless runs can overhear talk (22 §9.2).</summary>
+    public float[]? Player { get; init; }
+
     public static ScenarioDef Load(string path)
     {
         var yaml = new DeserializerBuilder().WithNamingConvention(UnderscoredNamingConvention.Instance).Build();
@@ -86,6 +89,7 @@ public sealed record ScenarioDef
             world.Enqueue(command);
         }
 
+        if (Player is [var px, var pz]) { world.Enqueue(new CommandEnvelope(Settlers + 1, 0, CommandSource.Scenario, new PlayerMoved(px, pz, 0f))); }
         return world;
     }
 }

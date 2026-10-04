@@ -202,12 +202,27 @@ public sealed class AiGateway : IDisposable
         cts.CancelAfter(_timeout);
         try
         {
-            var result = await _chat!.CompleteAsync(new ChatRequest(_config.DialogueModel,
-                [new("system", "You are a settler in a medieval village game. Reply in character, in one or two short sentences."),
-                 new("user", request.Context)]), cts.Token).ConfigureAwait(false);
+            var chatRequest = request.Kind == AiTaskKind.Overheard
+                ? new ChatRequest(_config.UtilityModel, OverheardRender.Messages(request.Context), MaxTokens: 320)
+                : new ChatRequest(_config.DialogueModel,
+                    [new("system", "You are a settler in a medieval village game. Reply in character, in one or two short sentences."),
+                     new("user", request.Context)]);
+            var result = await _chat!.CompleteAsync(chatRequest, cts.Token).ConfigureAwait(false);
             ChatBreaker.RecordSuccess();
             lock (_lock) { _spentUsd += result.CostUsd; }
-            return new AiResultCommand(request.RequestId, AiOutcome.Ok, result.Text, result.ProviderTag, result.LatencyMs, result.TokensIn, result.TokensOut);
+            var text = result.Text;
+            if (request.Kind == AiTaskKind.Overheard)
+            {
+                // 22 §9.2 post-generation check: a reply that breaks the facts is refused; the sim plays the template.
+                if (OverheardRender.Validate(request.Context, text, out var reason) is not { } valid)
+                {
+                    return new AiResultCommand(request.RequestId, AiOutcome.Refused, "", $"{result.ProviderTag}:invalid:{reason}", result.LatencyMs, result.TokensIn, result.TokensOut);
+                }
+
+                text = valid;
+            }
+
+            return new AiResultCommand(request.RequestId, AiOutcome.Ok, text, result.ProviderTag, result.LatencyMs, result.TokensIn, result.TokensOut);
         }
         catch (OperationCanceledException)
         {

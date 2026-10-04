@@ -49,6 +49,7 @@ public static class ContentCompiler
         var actionMarks = new List<(ActionDef Def, string Rel, Mark Mark)>();
         var opinionMods = new List<OpinionModifierDef>();
         var claims = new List<(ClaimPredicateDef Def, string Rel, Mark Mark)>();
+        var overheard = new List<(OverheardLineDef Def, string Rel, Mark Mark)>();
         var schedules = new List<ScheduleDef>();
         var repoRoot = Path.GetDirectoryName(Path.GetFullPath(contentRoot).TrimEnd(Path.DirectorySeparatorChar)) ?? contentRoot;
         var seen = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -99,6 +100,7 @@ public static class ContentCompiler
                         case ScheduleDef d: ValidateSchedule(d, rel, mark, errors); schedules.Add(d); break;
                         case OpinionModifierDef o: ValidateOpinionModifier(o, rel, mark, errors); opinionMods.Add(o); break;
                         case ClaimPredicateDef c: claims.Add((c, rel, mark)); break;   // the ladder is checked once all are loaded
+                        case OverheardLineDef o: ValidateOverheard(o, rel, mark, errors); overheard.Add((o, rel, mark)); break;
                     }
                 }
             }
@@ -109,6 +111,7 @@ public static class ContentCompiler
         var symmetricTraits = ValidatePeople(traits, cultures, professions, skills, errors);
         foreach (var (a, rel, mark) in actionMarks) { ValidateAction(a, rel, mark, skills, errors); }
         foreach (var (c, rel, mark) in claims) { ValidateClaim(c, rel, mark, claims.Select(x => x.Def.Id).ToHashSet(StringComparer.Ordinal), errors); }
+        if (overheard.Count > 0) { CheckOverheardCoverage(overheard, errors); }
         if (errors.Count > 0) { return new Result(null, errors, files); }
 
         skills.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
@@ -123,8 +126,9 @@ public static class ContentCompiler
         opinionMods.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         schedules.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         var claimDefs = claims.Select(c => c.Def).OrderBy(c => c.Id, StringComparer.Ordinal).ToList();
-        var hash = Hash(skills, items, needs, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs);
-        return new Result(new ContentDatabase(skills, items, needs, hash, assets, audio, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs), errors, files);
+        var overheardDefs = overheard.Select(o => o.Def).OrderBy(o => o.Id, StringComparer.Ordinal).ToList();
+        var hash = Hash(skills, items, needs, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs);
+        return new Result(new ContentDatabase(skills, items, needs, hash, assets, audio, traitDefs, cultureDefs, professionDefs, actions, schedules, opinionMods, claimDefs, overheardDefs), errors, files);
     }
 
     private static IEnumerable<(JsonNode Node, Mark Mark)> ParseFile(string path, string rel, string kind, JsonSchema schema, List<ContentError> errors)
@@ -230,7 +234,7 @@ public static class ContentCompiler
 
     private static ulong Hash(IEnumerable<SkillDef> skills, IEnumerable<ItemDef> items, IEnumerable<NeedDef> needs,
         IEnumerable<TraitDef> traits, IEnumerable<CultureDef> cultures, IEnumerable<ProfessionDef> professions,
-        IEnumerable<ActionDef> actions, IEnumerable<ScheduleDef> schedules, IEnumerable<OpinionModifierDef> opinionMods, IEnumerable<ClaimPredicateDef> claims)
+        IEnumerable<ActionDef> actions, IEnumerable<ScheduleDef> schedules, IEnumerable<OpinionModifierDef> opinionMods, IEnumerable<ClaimPredicateDef> claims, IEnumerable<OverheardLineDef> overheard)
     {
         var h = new XxHash64();
         foreach (var d in skills) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
@@ -245,6 +249,7 @@ public static class ContentCompiler
         foreach (var d in schedules) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
         foreach (var d in opinionMods) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
         foreach (var d in claims) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
+        foreach (var d in overheard) { h.Append(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d, Json))); }
         return h.GetCurrentHashAsUInt64();
     }
 
@@ -290,6 +295,37 @@ public static class ContentCompiler
         if (c.Juiciness is < 0 or > 1 || c.JuicinessIfMarried is < 0 or > 1) { errors.Add(new(rel, m.Line, m.Column, $"{c.Id}: juiciness must be 0–1.")); }
         foreach (var k in c.Axes?.Keys ?? []) { if (!CanonLists.ReputationAxes.Contains(k)) { errors.Add(new(rel, m.Line, m.Column, $"{c.Id}: unknown axis '{k}' ({string.Join(", ", CanonLists.ReputationAxes)}).")); } }
         if (c.EscalatesTo is { } next && (!ids.Contains(next) || next == c.Id)) { errors.Add(new(rel, m.Line, m.Column, $"{c.Id}: escalates_to '{next}' is not another claim.")); }
+        foreach (var slot in Slots(c.Phrase)) { if (slot is not ("subject" or "object")) { errors.Add(new(rel, m.Line, m.Column, $"{c.Id}: phrase slot '{{{slot}}}' must be {{subject}} or {{object}}.")); } }
+        if (!c.Phrase.Contains("{subject}", StringComparison.Ordinal)) { errors.Add(new(rel, m.Line, m.Column, $"{c.Id}: phrase must name {{subject}}.")); }
+    }
+
+    /// <summary>Interaction kinds that overheard talk can voice (16 §5.2 as implemented: <c>InteractionSystem.Kind</c>).</summary>
+    public static IReadOnlyList<string> InteractionKinds { get; } = [.. Enum.GetNames<Sim.Systems.InteractionSystem.Kind>().Select(n => n.ToLowerInvariant())];
+
+    private static IEnumerable<string> Slots(string text)
+        => System.Text.RegularExpressions.Regex.Matches(text, @"\{([a-z_]+)\}").Select(m => m.Groups[1].Value);
+
+    private static void ValidateOverheard(OverheardLineDef o, string rel, Mark m, List<ContentError> errors)
+    {
+        if (!InteractionKinds.Contains(o.Interaction)) { errors.Add(new(rel, m.Line, m.Column, $"{o.Id}: unknown interaction '{o.Interaction}' ({string.Join(", ", InteractionKinds)}).")); }
+        var allowed = o.Interaction is "gossip" or "warn" ? new[] { "a", "b", "claim" } : ["a", "b"];
+        foreach (var slot in Slots(o.Text)) { if (!allowed.Contains(slot)) { errors.Add(new(rel, m.Line, m.Column, $"{o.Id}: slot '{{{slot}}}' is not allowed here ({string.Join(", ", allowed)}).")); } }
+    }
+
+    /// <summary>Every interaction kind has a subtitle for success and for failure (a line with no success covers both): template mode must stay complete.</summary>
+    private static void CheckOverheardCoverage(List<(OverheardLineDef Def, string Rel, Mark Mark)> lines, List<ContentError> errors)
+    {
+        foreach (var kind in InteractionKinds)
+        {
+            foreach (var outcome in new[] { true, false })
+            {
+                if (!lines.Any(l => l.Def.Interaction == kind && (l.Def.Success is null || l.Def.Success == outcome)))
+                {
+                    var (_, rel, mark) = lines[0];
+                    errors.Add(new(rel, mark.Line, mark.Column, $"overheard lines: no subtitle for '{kind}' ({(outcome ? "success" : "failure")})."));
+                }
+            }
+        }
     }
 
     private static void ValidateSchedule(ScheduleDef d, string rel, Mark m, List<ContentError> errors)

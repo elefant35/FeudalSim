@@ -116,10 +116,10 @@ public sealed class RunCommand : Command<RunSettings>
         var world = scenario.CreateWorld(content, jobs);
         FeudalSim.AI.AiStack? stack = null;
         FeudalSim.AI.AiGateway? gateway = null;
-        if (scenario.AiPingStep is not null || scenario.DecisionPingStep is not null)
+        if (scenario.AiPingStep is not null || scenario.DecisionPingStep is not null || scenario.Player is not null)   // a player can overhear talk (22 §9.2)
         {
             var config = FeudalSim.AI.AiConfig.Load(FeudalSim.AI.AiConfig.FindEnvFile(Directory.GetCurrentDirectory()));
-            Console.WriteLine($"ai: key {(config.ChatKey.IsSet ? "set" : "missing")}, mode {(config.TemplateMode ? "template" : "live")}, gateway {config.GatewayMode}, model {config.DialogueModel}, decider {config.DeciderModel}");
+            Console.WriteLine($"ai: key {(config.ChatKey.IsSet ? "set" : "missing")}, mode {(config.TemplateMode ? "template" : "live")}, gateway {config.GatewayMode}, model {config.DialogueModel}, utility {config.UtilityModel}, decider {config.DeciderModel}");
             stack = FeudalSim.AI.AiStack.Create(config);
             gateway = stack.CreateGateway();
         }

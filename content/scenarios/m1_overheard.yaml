@@ -1,0 +1,16 @@
+# M1-07c: the camp at the evening fire with the player standing by (22 §9.2). NPC↔NPC talk within 15 m of the player
+# is rendered by the utility model (speak-only, validated) or, past the 3 s deadline or in template mode, by the
+# template subtitle. Live: `run --scenario content/scenarios/m1_overheard.yaml --realtime --seconds 60`.
+id: scenario.m1_overheard
+seed: 42
+start: Y0 Spring 1 18:30
+days: 1
+settlers: 24
+ai: utility
+player: [12, -6]
+camp:
+  food: 32000
+  firewood: 10
+  fire_fuel_min: 240
+  bedding: 0.85
+  schedule: schedule.landfall_communal

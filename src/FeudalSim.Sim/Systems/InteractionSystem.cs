@@ -37,6 +37,17 @@ public sealed class InteractionSystem : ISimSystem
     // The topic chosen with the type (not state: set and used within one initiation).
     private Belief? _warning;
 
+    // The claim voiced in this interaction and the listener's choice (for overheard rendering); −1 if none.
+    private int _voiced = -1;
+    private ToldOption _voicedOption;
+    private long _overheardRequest = -1;
+
+    /// <summary>Overheard talk is rendered within this distance of the player (22 §9.2: LOD0 within 15 m).</summary>
+    public const float EarshotM = 15f;
+
+    /// <summary>3 s at 10 steps/s (22 §9 table), then the template subtitle.</summary>
+    public const int OverheardDeadlineSteps = 30;
+
     private static readonly Func<SimWorld, int, int, bool> Range = static (w, x, y) => InRange(w, x, y);
 
     public string Name => "Interactions";
@@ -153,6 +164,7 @@ public sealed class InteractionSystem : ISimSystem
         EntityId a = people.Ids[i], b = people.Ids[j];
         var opBa = rel.Opinion(b, a);
         CountToday(world, i, j);
+        _voiced = -1;
         // Gossip rides on friendly talk (16 §7.4–7.5): the initiator shares with P_share, the topic with Tell/(Tell + 0.6);
         // the responder may share back at half the base rate. A chat that carried news counts as gossip in the §5.6 mix.
         var gossiped = kind is Kind.Chat or Kind.Joke or Kind.Praise or Kind.Comfort or Kind.Request && Gossip(world, i, j, 1f, ref rng);
@@ -169,7 +181,7 @@ public sealed class InteractionSystem : ISimSystem
             case Kind.Warn:
                 // The listener learns what is said about them (16 §5.2): the claim at the warner's word, and a loyal act.
                 _warning!.ToldTo.Add(b.Value);
-                Rumors.Hear(world, j, i, _warning.Claim, _warning.C, _warning.Hop + 1, ref rng);
+                (_voiced, _voicedOption) = (_warning.Claim, Rumors.Hear(world, j, i, _warning.Claim, _warning.C, _warning.Hop + 1, ref rng));
                 rel.TrustEvidence(b, a, 2f);
                 mem.Remember(b, MemoryKind.Warned, a, b, now, 20, 1f, 0f, 30);
                 break;
@@ -282,6 +294,17 @@ public sealed class InteractionSystem : ISimSystem
         }
 
         world.Emit(Salience.Trace, a, new InteractionResolved(a, b, KindNames[(int)kind], success));
+        if (world.Player.Present && (_overheardRequest < 0 || !world.IsAiPending(_overheardRequest)) && (Near(world, i) || Near(world, j)))
+        {
+            _overheardRequest = Overheard.Request(world, i, j, KindNames[(int)kind], success, _voiced, _voicedOption);
+        }
+    }
+
+    private static bool Near(SimWorld world, int row)
+    {
+        ref readonly var t = ref world.People.Transforms[row];
+        float dx = t.X - world.Player.X, dz = t.Z - world.Player.Z;
+        return (dx * dx) + (dz * dz) <= EarshotM * EarshotM;
     }
 
     /// <summary>One side of §7.5's exchange: P_share × rate, then the best topic with Tell/(Tell + 0.6). True if a claim passed.</summary>
@@ -292,7 +315,8 @@ public sealed class InteractionSystem : ISimSystem
         ref readonly var claim = ref world.Claims[topic.Claim];
         var jNov = world.Content.ClaimPredicates[claim.Predicate].Juiciness * Rumors.Nov(world, topic, claim);
         if (!rng.Chance(rate * Rumors.PShare(world, teller, jNov)) || !rng.Chance(tell / (tell + 0.6f))) { return false; }
-        Rumors.Exchange(world, teller, listener, topic, ref rng);
+        var (option, heard) = Rumors.Exchange(world, teller, listener, topic, ref rng);
+        if (_voiced < 0) { (_voiced, _voicedOption) = (heard, option); }
         ref readonly var pl = ref world.People.Personality[listener];
         if (pl.HasTrait(_gossip) || pl.Sociability >= 65) { world.Relationships.ApplyModifier(world.People.Ids[listener], world.People.Ids[teller], "opinion.chatted"); }
         return true;

@@ -236,9 +236,10 @@ public static class Rumors
 
     /// <summary>
     /// One gossip exchange: optional mutation (§7.6), the being-told policy draw, telling state, the listener's Told
-    /// memory and a <see cref="GossipExchanged"/> event. Returns the option the listener took.
+    /// memory and a <see cref="GossipExchanged"/> event. Returns the option the listener took and the claim they heard
+    /// (a new variant if the teller distorted it).
     /// </summary>
-    public static ToldOption Exchange(SimWorld world, int teller, int listener, Belief told, ref Rng rng)
+    public static (ToldOption Option, int Claim) Exchange(SimWorld world, int teller, int listener, Belief told, ref Rng rng)
     {
         var people = world.People;
         var now = world.Clock.GameMinute;
@@ -262,7 +263,7 @@ public static class Rumors
         var j = world.Content.ClaimPredicates[claim.Predicate].Juiciness;
         world.Memories.Remember(l, MemoryKind.Told, a, new EntityId(claim.Subject), now, (int)(8 + (40 * j)), 1f, 0f, 0);
         world.Emit(Salience.Trace, a, new GossipExchanged(a, l, claimId, world.Claims.Root(claimId), mutated, option));
-        return option;
+        return (option, claimId);
     }
 
     /// <summary>The listener hears a claim and the policy draws the being-told option (16 §7.10).</summary>

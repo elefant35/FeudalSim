@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://feudalsim.dev/schemas/overheard.schema.json",
+  "title": "OverheardLineDef",
+  "description": "A list of overheard definitions (generated from FeudalSim.Sim.Content.OverheardLineDef; do not edit).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^overheard(\\.[a-z0-9_]\u002B)\u002B$"
+      },
+      "interaction": {
+        "type": "string",
+        "minLength": 1
+      },
+      "success": {
+        "type": "boolean"
+      },
+      "text": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [
+      "id",
+      "interaction",
+      "text"
+    ],
+    "additionalProperties": false
+  }
+}

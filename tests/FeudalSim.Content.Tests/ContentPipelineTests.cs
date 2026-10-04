@@ -114,6 +114,33 @@ public class ContentPipelineTests
     }
 
     [Fact]
+    public void Overheard_lines_cover_every_interaction_and_use_known_slots()
+    {
+        var db = ContentCompiler.Compile(ContentRoot).Database!;
+        db.OverheardLines.Select(l => l.Interaction).Distinct().Count().ShouldBe(ContentCompiler.InteractionKinds.Count);
+
+        var root = CopyContent(includeAssets: false);
+        var lines = Path.Combine(root, "social", "overheard_lines.yaml");
+        var text = File.ReadAllLines(lines).Where(l => !l.Contains("interaction: warn", StringComparison.Ordinal)).ToList();
+        text.Add("- { id: overheard.bad_slot, interaction: chat, text: \"{a} mentions {claim}.\" }");
+        File.WriteAllLines(lines, text);
+        var result = ContentCompiler.Compile(root);
+        result.Errors.ShouldContain(e => e.Message.Contains("no subtitle for 'warn' (success)"), string.Join("\n", result.Errors));
+        result.Errors.ShouldContain(e => e.Message.Contains("overheard.bad_slot: slot '{claim}' is not allowed"));
+    }
+
+    [Fact]
+    public void Claim_phrases_must_name_the_subject()
+    {
+        var root = CopyContent(includeAssets: false);
+        var claims = Path.Combine(root, "social", "claim_predicates.yaml");
+        File.WriteAllText(claims, File.ReadAllText(claims).Replace("\"{subject} is devout\"", "\"{someone} is devout\"", StringComparison.Ordinal));
+        var result = ContentCompiler.Compile(root);
+        result.Errors.ShouldContain(e => e.Message.Contains("claim.devout: phrase slot '{someone}'"));
+        result.Errors.ShouldContain(e => e.Message.Contains("claim.devout: phrase must name {subject}"));
+    }
+
+    [Fact]
     public void Committed_schemas_are_fresh()
     {
         foreach (var (_, kind, type) in SchemaGenerator.Kinds)

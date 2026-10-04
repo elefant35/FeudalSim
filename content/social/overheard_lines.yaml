@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=../schemas/overheard.schema.json
+# Template subtitles for overheard NPC↔NPC talk (22 §9.2): the fallback when no model renders the exchange in time,
+# and template mode's only wording. One or more per interaction kind; success: true/false narrows a line to that
+# outcome (omit = either). Placeholders: {a} initiator, {b} the other, {claim} the claim voiced (gossip, warn).
+- { id: overheard.chat_ok,        interaction: chat,      success: true,  text: "{a} and {b} trade a few easy words about the day." }
+- { id: overheard.chat_fail,      interaction: chat,      success: false, text: "{a} tries to chat; {b} answers shortly and turns away." }
+- { id: overheard.joke_ok,        interaction: joke,      success: true,  text: "{a} says something wry and {b} laughs." }
+- { id: overheard.joke_fail,      interaction: joke,      success: false, text: "{a}'s joke falls flat with {b}." }
+- { id: overheard.praise,         interaction: praise,                    text: "{a} praises {b}'s work." }
+- { id: overheard.comfort_ok,     interaction: comfort,   success: true,  text: "{a} sits with {b} and speaks gently; {b} seems eased." }
+- { id: overheard.comfort_fail,   interaction: comfort,   success: false, text: "{a} tries to comfort {b}, who stays withdrawn." }
+- { id: overheard.request_ok,     interaction: request,   success: true,  text: "{a} asks {b} for a hand, and {b} agrees." }
+- { id: overheard.request_fail,   interaction: request,   success: false, text: "{a} asks {b} for a hand; {b} refuses." }
+- { id: overheard.argue,          interaction: argue,                     text: "{a} and {b} argue, voices rising." }
+- { id: overheard.insult,         interaction: insult,                    text: "{a} says something cutting to {b}." }
+- { id: overheard.apologize_ok,   interaction: apologize, success: true,  text: "{a} apologizes to {b}, who accepts it." }
+- { id: overheard.apologize_fail, interaction: apologize, success: false, text: "{a} apologizes to {b}, who is not ready to forgive." }
+- { id: overheard.gossip,         interaction: gossip,                    text: "{a} leans in to {b}: \"They say {claim}.\"" }
+- { id: overheard.warn,           interaction: warn,                      text: "{a} quietly warns {b}: \"People are saying {claim}.\"" }

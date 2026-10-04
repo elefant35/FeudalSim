@@ -10,7 +10,7 @@ namespace FeudalSim.Sim.Ai;
 public enum AiPriority : byte { Interactive = 0, Proximate = 1, Background = 2, Batch = 3 }
 
 /// <summary>What a request is for. Catalog owned by 22-llm-integration; M0 only needs the ping.</summary>
-public enum AiTaskKind : byte { Ping, Dialogue, Bark, Chronicle }
+public enum AiTaskKind : byte { Ping, Dialogue, Bark, Chronicle, Overheard }
 
 public enum AiOutcome : byte { Ok, Timeout, ProviderError, Refused, Cancelled, Unavailable }
 

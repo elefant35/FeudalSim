@@ -25,6 +25,9 @@ public sealed class AiConfig
     public string ChatBaseUrl { get; init; } = "https://openrouter.ai/api/v1";
     public string DialogueModel { get; init; } = "qwen/qwen3-14b";
 
+    /// <summary><c>LLM_UTILITY_MODEL</c>: barks, rumors, overheard talk (22 §5).</summary>
+    public string UtilityModel { get; init; } = "qwen/qwen3-30b-a3b-instruct-2507";
+
     /// <summary><c>LLM_PROVIDER_SORT</c>: OpenRouter routing for chat (latency · throughput · price · default). S2 chose latency.</summary>
     public string ChatProviderSort { get; init; } = "latency";
     public int TtftTimeoutMs { get; init; } = 3_000;
@@ -73,6 +76,7 @@ public sealed class AiConfig
             ChatKey = new Secret(chatKey),
             ChatBaseUrl = baseUrl,
             DialogueModel = Get("LLM_DIALOGUE_MODEL", "qwen/qwen3-14b"),
+            UtilityModel = Get("LLM_UTILITY_MODEL", "qwen/qwen3-30b-a3b-instruct-2507"),
             ChatProviderSort = Get("LLM_PROVIDER_SORT", "latency"),
             TtftTimeoutMs = GetInt("LLM_TIMEOUT_TTFT_MS", 3_000),
             MaxConcurrency = GetInt("LLM_MAX_CONCURRENCY", 4),

@@ -258,6 +258,24 @@ public sealed record ClaimPredicateDef
 
     /// <summary>A moral claim: a priest's word weighs more (16 §7.2 speaker factor).</summary>
     public bool Moral { get; init; }
+
+    /// <summary>Template wording with <c>{subject}</c> / <c>{object}</c> for subtitles and rumor lines (22 §9).</summary>
+    public required string Phrase { get; init; }
+}
+
+/// <summary>A template subtitle for overheard NPC↔NPC talk (22 §9.2): the fallback and template-mode wording.</summary>
+public sealed record OverheardLineDef
+{
+    public required string Id { get; init; }
+
+    /// <summary>Interaction kind (16 §5.2), lower-case: chat, joke, praise, comfort, request, argue, insult, apologize, gossip, warn.</summary>
+    public required string Interaction { get; init; }
+
+    /// <summary>Narrows the line to a success or a failure; null = either.</summary>
+    public bool? Success { get; init; }
+
+    /// <summary>Text with <c>{a}</c>, <c>{b}</c> and (gossip, warn) <c>{claim}</c>.</summary>
+    public required string Text { get; init; }
 }
 
 public enum AssetKind { Model, Animation, Texture, Vfx, Ui, Sfx, Ambience, Music, Vocal }
@@ -367,8 +385,10 @@ public sealed class ContentDatabase
         IReadOnlyList<AssetDef>? assets = null, IReadOnlyList<AudioEventDef>? audio = null,
         IReadOnlyList<TraitDef>? traits = null, IReadOnlyList<CultureDef>? cultures = null, IReadOnlyList<ProfessionDef>? professions = null,
         IReadOnlyList<ActionDef>? actions = null, IReadOnlyList<ScheduleDef>? schedules = null,
-        IReadOnlyList<OpinionModifierDef>? opinionModifiers = null, IReadOnlyList<ClaimPredicateDef>? claimPredicates = null)
+        IReadOnlyList<OpinionModifierDef>? opinionModifiers = null, IReadOnlyList<ClaimPredicateDef>? claimPredicates = null,
+        IReadOnlyList<OverheardLineDef>? overheardLines = null)
     {
+        OverheardLines = overheardLines ?? [];
         ClaimPredicates = claimPredicates ?? [];
         OpinionModifiers = opinionModifiers ?? [];
         Actions = actions ?? [];
@@ -411,6 +431,9 @@ public sealed class ContentDatabase
     public IReadOnlyList<ClaimPredicateDef> ClaimPredicates { get; }
 
     public int ClaimHandle(string id) => HandleOf(ClaimPredicates, id, c => c.Id);
+
+    /// <summary>Overheard-talk template subtitles in id order.</summary>
+    public IReadOnlyList<OverheardLineDef> OverheardLines { get; }
 
     /// <summary>Handle of a definition id in a sorted list, or −1.</summary>
     public static int HandleOf<T>(IReadOnlyList<T> defs, string id, Func<T, string> idOf)

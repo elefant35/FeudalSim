@@ -262,6 +262,8 @@ public sealed class SimWorld
 
     public int PendingAiRequests => _aiPending.Count;
 
+    public bool IsAiPending(long requestId) => _aiPending.ContainsKey(requestId);
+
     private void SweepAiDeadlines(long step)
     {
         if (_aiPending.Count == 0) { return; }

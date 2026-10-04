@@ -279,7 +279,7 @@ it exactly, in its order:
 | `AI_GATEWAY_MODE` | `live` | Gateway recording for tests/dev: `live` \| `record` \| `replay` (orthogonal to `LLM_MODE`, §11) |
 | `LLM_BASE_URL` | `https://openrouter.ai/api/v1` | OpenAI-compatible chat-completions endpoint for generation |
 | `LLM_DIALOGUE_MODEL` | `qwen/qwen3-14b` | Live dialogue, including decision headers ($0.12 / $0.24 per M tokens) |
-| `LLM_UTILITY_MODEL` | `qwen/qwen3-8b` | Barks, rumors, gists, overheard talk, letters ($0.117 / $0.455) |
+| `LLM_UTILITY_MODEL` | `qwen/qwen3-30b-a3b-instruct-2507` | Barks, rumors, gists, overheard talk, letters ($0.048 / $0.193). Changed 2026-10-04 (M1-07c): `qwen/qwen3-8b` returned HTTP 404 (no endpoint accepted the non-thinking request) |
 | `LLM_CHRONICLE_MODEL` | — (empty = dialogue model) | Chronicle sections |
 | `LLM_TIMEOUT_TTFT_MS` | `3000` | Time-to-first-token fail-over threshold for live dialogue (§3.5) |
 | `LLM_MAX_CONCURRENCY` | `4` | Cloud requests in flight (2 reserved for P0/P1) |
@@ -306,7 +306,7 @@ Cloud ids and prices (per million tokens, input / output) as **listed on OpenRou
 | Role | Cloud default | Cloud candidates for the M1 bake-offs | Local: 12 GB GPU (recommended spec) | Local: ≥ 16 GB VRAM or Apple ≥ 32 GB | Local: minimum spec |
 |------|---------------|---------------------------------------|-------------------------------------|---------------------------------------|---------------------|
 | **Dialogue** (incl. decision headers) | `qwen/qwen3-14b`, non-thinking — $0.12 / $0.24 | `qwen/qwen3-30b-a3b-instruct-2507` (MoE, $0.048 / $0.193) · `qwen/qwen3.5-35b-a3b` and `qwen/qwen3.6-35b-a3b` ($0.15 / $1.00) · `qwen/qwen3.8-flash` ($0.15 / $0.47) · premium check `qwen/qwen3-32b` ($0.08 / $0.28) | **Qwen3-8B Q4_K_M** (~5 GB) | **Qwen3-14B Q4_K_M** (~9 GB) | Cloud; or Qwen3-4B Q4_K_M (~2.5 GB) degraded |
-| **Utility** | `qwen/qwen3-8b` — $0.117 / $0.455 | `qwen/qwen3.7-flash` ($0.03 / $0.13) · `qwen/qwen3-30b-a3b-instruct-2507` | Same resident model as dialogue | Same resident model | Template / cloud |
+| **Utility** | `qwen/qwen3-30b-a3b-instruct-2507` — $0.048 / $0.193 (M1-07c; `qwen/qwen3-8b` 404s) | `qwen/qwen3.7-flash` ($0.03 / $0.13) · `qwen/qwen3.5-9b` (works, similar latency) | Same resident model as dialogue | Same resident model | Template / cloud |
 | **Chronicle** | = dialogue model (`LLM_CHRONICLE_MODEL` empty) | `qwen/qwen3-32b` · `qwen/qwen3.5-35b-a3b` | Resident model, batched during the skip | Resident model | Template chronicle |
 | **Fast decider** | `openrouter-llm` with `qwen/qwen3.5-9b` — $0.10 / $0.15, logprobs verified | `qwen/qwen3-30b-a3b-instruct-2507` (429 on first try) · Laya zero-shot · Jev if access (TypeSafe API) — §17.2 bake-off. Not usable: `qwen/qwen3-8b` (no logprobs). `qwen/qwen3-14b` (fully peaked): classification argmax only, never quick-choice DPs | **Laya** in-process (ONNX, CPU or GPU) once fine-tuned (§14.6); else the resident model via the same technique | Laya or resident model | Laya on CPU, or heuristic |
 
@@ -1659,7 +1659,7 @@ public sealed record RenderCompleted(RenderId Id, string Text, RenderSource Sour
 |------|-----------------|------------------|--------------|------------|----------|-----------|
 | Opening lines | 21 approach intent (policy-decided) | Dialogue / P2, speak-only | ready on arrival (≥ 3 s) | Tier B rules | Template | M1 |
 | Barks | Situation tags (21) | Utility / P3, idle-time | none (pooled) | Rules, ≤ 14 words | Authored pool | M2 |
-| Overheard talk | 16 NPC↔NPC interaction at LOD0 within 15 m (**policy-decided**) | Utility / P2, speak-only | 3 s, else murmur | Rules + speaker check | Murmur + template subtitle | M4 |
+| Overheard talk | 16 NPC↔NPC interaction at LOD0 within 15 m (**policy-decided**) | Utility / P2, speak-only | 3 s, else murmur | Rules + speaker check | Murmur + template subtitle | M1 (slice, §9.2 note) |
 | Court petitions & testimony | 17 court session | Dialogue / P2 (prefetched when docket set), speak-only | prefetched | Tier B | Template | M5 |
 | NPC lord's verdict in an attended hearing | 17 `verdict.decide` DP | Dialogue / P0, **decision-first** | live (4 s DP deadline) | Guards + Tier B | Policy verdict + template | M5 |
 | Councillors' votes in an attended session | 17 `council.vote` DPs | Dialogue / P0–P2, **decision-first** | live | Guards; Tier B for laws, offices, war | Policy + template | M5 |
@@ -1694,6 +1694,27 @@ result — e.g. "Anna convinced Ben the well is cursed; Ben chose `half_believe`
 each. Output via JSON schema `[{speaker, line}]`, 2–6 lines. Overhearing is a **real
 information channel**: claims voiced are exactly the claims in the payload, and the player hearing
 them creates beliefs per 16.
+
+*Implemented (M1-07c, 2026-10-04):* `InteractionSystem` requests `AiTaskKind.Overheard` (P2 `Proximate`, 30-step / 3 s
+deadline) after an NPC↔NPC interaction within 15 m of the player, with at most one in flight. The request is built by
+`Sim/Social/Overheard.cs` from what the policy already resolved:
+
+- **Facts:** setting, place, time of day, kind, success, persona lite for both (name, trade, temperament words, a
+  strong feeling if any), the claim voiced with `claim_about` and the listener's choice, and the names a line may use.
+- **Fallback:** the template subtitle from `content/social/overheard_lines.yaml`. Coverage of every kind and outcome
+  is checked at content build, and claim wording comes from each predicate's `phrase`.
+
+The gateway prompts the utility model speak-only (`FeudalSim.AI/OverheardRender.cs`) and checks the reply: a JSON
+array of 2–6 `{speaker, line}`, speakers a and b only, ≤ 30 words a line, no camp name outside `names`, and the
+claim's subject named when a claim is voiced. A failing reply is refused, so the template plays. The result returns as
+a logged `AiResultCommand`. A test shows a rendered reply and the template leave identical state. Scenarios can place
+the player (`player: [x, z]`, `m1_overheard.yaml`).
+
+**Live check:** at 120 s at the fire, 6 requests had 0.9–6.4 s latency; 4 rendered and validated, and the 2 late ones
+fell back. Grounding (setting, place, time, plus "mention nothing not in the facts") stopped the model inventing
+millers, weavers and oxen. It still adds small props ("thread", "a saw"); that is acceptable for small talk. Not in M1:
+the player forming beliefs from overheard claims (needs the player as a listener, M1-18/19), murmur audio, and
+LOD-tier gating (distance is used).
 
 ### 9.3 Court petitions, testimony, verdicts
 
@@ -1939,7 +1960,7 @@ they do something absurd, they should be prepared for rumors to spread".
 | Item | Value | Source |
 |------|-------|--------|
 | Dialogue: `qwen/qwen3-14b` | $0.12 / M input, $0.24 / M output | OpenRouter listing, 2026-10-03 |
-| Utility: `qwen/qwen3-8b` | $0.117 / M input, $0.455 / M output | OpenRouter listing, 2026-10-03 |
+| Utility: `qwen/qwen3-30b-a3b-instruct-2507` | $0.048 / M input, $0.193 / M output | OpenRouter listing, 2026-10-04 |
 | Fast decider: `qwen/qwen3.5-9b` (`openrouter-llm`) | $0.10 / M input, $0.15 / M output; **one call per question**, 1 output token | OpenRouter listing; technique verified 2026-10-03 |
 | Quick-choice decision (one DP) | ≈ 117–150 input tokens → **≈ $0.00001 per decision** | Verified call: ≈ 117 tokens, ≈ $0.000012 |
 | Laya (local) | **$0** (local compute) | §14.6 |
